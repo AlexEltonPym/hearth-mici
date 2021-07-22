@@ -1,11 +1,14 @@
-function setup(){
-    createCanvas(300, 300)
+export default function sketch(p){
+    let canvas;
 
 
-}
 
+    p.setup = () => {
+        canvas = p.createCanvas(p.windowWidth, 300)
+    }
 
-function draw(){
+    p.draw = () => {
+        p.background(255, 100, 100);
+    }
 
-    background(255, 0, 0);
 }
