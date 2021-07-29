@@ -2,13 +2,17 @@ import React, { Component } from 'react';
 
 import { Typography, Grid } from '@material-ui/core'
 
-import Draggable, {DraggableCore} from 'react-draggable'; 
-
 
 import './App.css';
-import Card from './Card.js';
-import sketch from './sketch.js';
-import * as p5 from "p5";
+import bg_img from './images/bigger_paper.jpg';
+import spell_img from './images/blank_cards/spell.png'
+import creature_img from './images/blank_cards/creature.png'
+import weapon_img from './images/blank_cards/weapon.png'
+import full_blank_creature_img from './images/blank_cards/fullBlankCreature.png'
+import gan_img from './images/GAN_sample.jpg'
+import hs_font from './fonts/BelweBoldBT.ttf'
+
+import sketch from './sketch_stuff/sketch.js';
 import P5Wrapper from "react-p5-wrapper";
 
 
@@ -16,11 +20,11 @@ function importAll(r) {
   return r.keys().map(r);
 }
 
-const images = importAll(require.context('./cards', false, /\.(png|jpe?g|svg)$/));
-const blanks = importAll(require.context('./blankCards', false, /\.(png|jpe?g|svg)$/));
+
+const images = importAll(require.context('./images/cards', false, /\.(png|jpe?g|svg)$/));
+const blanks = importAll(require.context('./images/blank_cards', false, /\.(png|jpe?g|svg)$/));
 
 
-const card_types = ["creature", "spell", "weapon"];
 
 
 class App extends Component {
@@ -40,57 +44,38 @@ class App extends Component {
 
 
 
-    let cardA = new Card("cardA", 1, 1, 1, true, true, false, 0)
-    let cardB = new Card("cardB", 1, 1, 1, true, true, false, 1)
-    let cardC = new Card("cardC", 1, 1, 1, true, true, false, 2)
-
     this.state = {
-      keywords: ['Taunt', 'Lifelink', 'Charge'],
       card_sources: {
         'creature': creatureSrc,
         'spell': spellSrc,
         'weapon': weaponSrc,
       },
-      cards: {
-        'cardA': cardA,
-        'cardB': cardB,
-        'cardC': cardC
-      }
     };
 
 
-    this.handleClick = this.handleClick.bind(this);
   }
 
-  handleClick(e) {
-    console.log(this.state.cards[e.target.id]);
-    this.state.cards[e.target.id].card_type = (this.state.cards[e.target.id].card_type+1)%3;
-    this.setState(this.state) //dont do this
-  }
+
   render() {
 
 
     return (
       <div className="App">
-         <header className="App-header">
-          <p>
-            Please check out the available cards:
-        </p>
-        </header>
+         <span className="banner"><b>Step 1: </b>Please check out the available cards:</span>
 
         <div style={{ padding: '0 10%' }}>
           {['neutral', 'mage', 'warrior'].map((toDisplay) => {
             return (
               <div key={toDisplay}>
-                <Typography variant="h2" style={{ paddingTop: '100px' }} >{toDisplay}</Typography>
+                <Typography variant="h2" style={{ paddingTop: '100px' }} >{toDisplay[0].toUpperCase() + toDisplay.substring(1)}</Typography>
                 <Grid key={toDisplay} container>
                   {
 
                     images.reduce(function (result, i) {
                       if (i.includes(toDisplay)) {
                         result.push((
-                          <Grid key={i} item xs>
-                            <img src={i} height={300} />
+                          <Grid key={i} item xs={3}>
+                            <img src={i} height={300} alt={""} />
                           </Grid>
                         ));
                       }
@@ -105,20 +90,19 @@ class App extends Component {
           })}
         </div>
 
-        <div>
-          <p>
-            Now it is time to build your own
-        </p>
-        </div> 
-
-        <div>
-
-
-        </div>
-        <P5Wrapper sketch={sketch} />;
+        <span style={{marginBottom: "25vh"}} className="banner"><b>Step 2: </b>Now it's time to build your own cards...</span>
 
 
 
+        <P5Wrapper sketch={sketch}
+         bg_img={bg_img}
+         spell_img={spell_img} 
+         creature_img={creature_img}
+          weapon_img={weapon_img} 
+          full_blank_creature_img={full_blank_creature_img}
+          gan_img={gan_img}
+          hs_font={hs_font}
+          />
       </div>
 
 
