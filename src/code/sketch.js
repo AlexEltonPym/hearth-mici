@@ -49,6 +49,7 @@ let w_padding, h_padding;
 let grid_w_padding, grid_h_padding;
 
 let theMouse;
+let setupDone = false;
 let hoveredOption = -1;
 
 let editing = "none";
@@ -75,7 +76,6 @@ p.myCustomRedrawAccordingToNewPropsHandler = (_props) => {
 }
 
 p.preload = () => {
-
   bg = p.loadImage(props.bg_img)
   blank_spell_img = p.loadImage(props.spell_img);
   blank_weapon_img = p.loadImage(props.weapon_img)
@@ -89,6 +89,9 @@ p.preload = () => {
 p.setup = () => {
   p.createCanvas(p.windowWidth, p.windowHeight);
   user = p.getURLParams().user;
+
+  theMouse = new p.FancyMouse();
+
 
   h_padding = p.height * 0.1;
   w_padding = p.width * 0.2;
@@ -104,7 +107,6 @@ p.setup = () => {
 
 
 
-  theMouse = new p.FancyMouse();
 
 
   p.register_all();
@@ -129,6 +131,7 @@ p.setup = () => {
   masked_flavour_rect.mask(rect_mask)
 
 
+  setupDone = true;
 
 }
 
@@ -453,12 +456,13 @@ p.draw_edit_overlay = () => {
 }
 
 p.mousePressed = () => {
-
-  if(survey_topics[current_survey_topic] != "none"){
-    p.mousePressedWhileSurveying();
-  } else {
-    p.mousePressedWhileNotSurveying();
-  }
+  if(setupDone){
+    if(survey_topics[current_survey_topic] != "none"){
+      p.mousePressedWhileSurveying();
+    } else {
+      p.mousePressedWhileNotSurveying();
+    }
+}
 }
 
 p.finished_survey = () => {
@@ -561,7 +565,6 @@ p.submit = () => {
       p: c.power,
       t: c.toughness,
       m: c.mana,
-
     }
 
     
@@ -593,7 +596,7 @@ p.submit = () => {
 p.send_to_google_sheets = (submissions) => {
 
   for(let submission of submissions){
-
+    console.log(submission)
     
   }
 
