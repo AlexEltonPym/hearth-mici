@@ -3,16 +3,16 @@ import React, { Component } from 'react';
 import { Typography, Grid } from '@material-ui/core'
 
 
-import './App.css';
-import bg_img from './images/bigger_paper.jpg';
-import spell_img from './images/blank_cards/spell.png'
-import creature_img from './images/blank_cards/creature.png'
-import weapon_img from './images/blank_cards/weapon.png'
-import full_blank_creature_img from './images/blank_cards/fullBlankCreature.png'
-import gan_img from './images/GAN_sample.jpg'
-import hs_font from './fonts/BelweBoldBT.ttf'
+import '../style/App.css';
+import bg_img from '../images/bigger_paper.jpg';
+import spell_img from '../images/blank_cards/spell.png'
+import creature_img from '../images/blank_cards/creature.png'
+import weapon_img from '../images/blank_cards/weapon.png'
+import full_blank_creature_img from '../images/blank_cards/fullBlankCreature.png'
+import gan_img from '../images/GAN_sample.jpg'
+import hs_font from '../fonts/BelweBoldBT.ttf'
 
-import sketch from './sketch_stuff/sketch.js';
+import sketch from './sketch.js';
 import P5Wrapper from "react-p5-wrapper";
 
 
@@ -21,8 +21,8 @@ function importAll(r) {
 }
 
 
-const images = importAll(require.context('./images/cards', false, /\.(png|jpe?g|svg)$/));
-const blanks = importAll(require.context('./images/blank_cards', false, /\.(png|jpe?g|svg)$/));
+const images = importAll(require.context('../images/cards', false, /\.(png|jpe?g|svg)$/));
+const blanks = importAll(require.context('../images/blank_cards', false, /\.(png|jpe?g|svg)$/));
 
 
 

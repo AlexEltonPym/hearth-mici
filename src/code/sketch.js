@@ -2,6 +2,7 @@
 
 
 
+ /* eslint eqeqeq: "off", no-unused-vars: "off" */
 
 export default function sketch(p){
 
@@ -417,7 +418,7 @@ p.mouse_click_while_editing = () => {
       editing = "none"
     }
     editing_card.toughness = p.constrain(editing_card.toughness, 1, 10)
-  } else if(editing = "effect"){
+  } else if(editing == "effect"){
     editing = "none";
   }
 } 
