@@ -16,6 +16,16 @@ import sketch from './sketch.js';
 import P5Wrapper from "react-p5-wrapper";
 
 
+import firebase from "firebase/app";
+import "firebase/functions";
+
+firebase.initializeApp({
+  projectId: 'hearth-mici',
+  apiKey: 'AIzaSyAdJ-9ONMVy2RcpD-i3qpzcB_Rui0pJzLA',
+});
+
+
+
 function importAll(r) {
   return r.keys().map(r);
 }
@@ -44,23 +54,50 @@ class App extends Component {
 
 
 
+
+
+
     this.state = {
+
       card_sources: {
         'creature': creatureSrc,
         'spell': spellSrc,
         'weapon': weaponSrc,
       },
+
+      sheetLoaded: false,
+
     };
 
-
+    this.send_to_google_sheets.bind(this);
   }
 
+
+  send_to_google_sheets(submission){
+    console.log(JSON.stringify(submission))
+
+    const sendToSheets = firebase.functions().httpsCallable('sendToSheets');
+    sendToSheets({submission: submission});
+  }
 
   render() {
 
 
     return (
       <div className="App">
+
+
+        <P5Wrapper sketch={sketch}
+         bg_img={bg_img}
+         spell_img={spell_img} 
+         creature_img={creature_img}
+          weapon_img={weapon_img} 
+          full_blank_creature_img={full_blank_creature_img}
+          gan_img={gan_img}
+          hs_font={hs_font}
+          send_to_google_sheets={this.send_to_google_sheets}
+          />
+
          <span className="banner"><b>Step 1: </b>Please check out the available cards:</span>
 
         <div style={{ padding: '0 10%' }}>
@@ -94,15 +131,7 @@ class App extends Component {
 
 
 
-        <P5Wrapper sketch={sketch}
-         bg_img={bg_img}
-         spell_img={spell_img} 
-         creature_img={creature_img}
-          weapon_img={weapon_img} 
-          full_blank_creature_img={full_blank_creature_img}
-          gan_img={gan_img}
-          hs_font={hs_font}
-          />
+
       </div>
 
 
