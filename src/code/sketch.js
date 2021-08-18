@@ -1,5 +1,8 @@
 /* eslint eqeqeq: "off", no-unused-vars: "off" */
 
+
+//to fix totalHeight bug, change p5 by changing o-totalHeight to just o
+//todo: fix this on a generic p5 import somehow
 export default function sketch(p) {
 
   let blank_spell_img, blank_creature_img, blank_weapon_img, full_blank_creature_img;
@@ -131,10 +134,11 @@ export default function sketch(p) {
 
 
     let ellipse_mask = p.createGraphics(p.width, p.height);
-    ellipse_mask.ellipse(p.width / 2, p.height / 2 + 50, 700, 840)
+    ellipse_mask.ellipse(p.width / 2, p.height / 2, blank_spell_img.width * 2.1,  blank_spell_img.height * 1.4)
 
     let rect_mask = p.createGraphics(p.width, p.height);
-    rect_mask.rect(p.width / 2 - 450, p.height / 2 - 300, 900, 800)
+    rect_mask.rectMode(p.CENTER);
+    rect_mask.rect(p.width / 2, p.height / 2,  blank_spell_img.width * 2.5,  blank_spell_img.height * 1.2)
 
     masked_flavour_ellipse = flavour_img.get();
     masked_flavour_ellipse.mask(ellipse_mask)
@@ -824,7 +828,7 @@ export default function sketch(p) {
 
 
       this.class = "mage";
-      this.type_id = 1;
+      this.type_id = card_id;
       this.card_id = card_id;
       this.card_index = card_task_index;
 
