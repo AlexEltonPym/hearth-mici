@@ -88,9 +88,9 @@ export default function sketch(p) {
   let gan_imgs = [];
 
 
-  let theMouse;
-  let setupDone = false;
-  let hoveredOption = -1;
+  let the_mouse;
+  let setup_done = false;
+  let hovered_option = -1;
 
   let editing = "none";
   let editing_card = null;
@@ -132,7 +132,7 @@ export default function sketch(p) {
     p.createCanvas(p.windowWidth, p.windowHeight);
     user = p.getURLParams().user;
 
-    theMouse = new p.FancyMouse();
+    the_mouse = new p.FancyMouse();
 
 
     h_padding = p.height * 0.1;
@@ -161,7 +161,7 @@ export default function sketch(p) {
 
 
 
-    setupDone = true;
+    setup_done = true;
 
   }
 
@@ -182,11 +182,11 @@ export default function sketch(p) {
       b.run();
     }
 
-    if (theMouse.busy && current_survey_topic == 0) {
+    if (the_mouse.busy && current_survey_topic == 0) {
       p.push();
-      p.translate(p.mouseX - theMouse.xOffset, p.mouseY - theMouse.yOffset)
+      p.translate(p.mouseX - the_mouse.xOffset, p.mouseY - the_mouse.yOffset)
       p.textSize(28)
-      p.text(theMouse.effect.label_name, 0, 0)
+      p.text(the_mouse.effect.label_name, 0, 0)
       p.pop();
     }
 
@@ -256,7 +256,7 @@ export default function sketch(p) {
     p.rectMode(p.CENTER)
     p.background(0, 100)
 
-    let setting = theMouse.effect.settings[survey_topics[current_survey_topic]]
+    let setting = the_mouse.effect.settings[survey_topics[current_survey_topic]]
     let options = setting[0]
 
 
@@ -274,16 +274,16 @@ export default function sketch(p) {
         for (let defense = 1; defense < 11; defense++) {
           let xPos = p.map(attack, 1, 10, grid_w_padding, p.width - grid_w_padding);
           let yPos = p.map(defense, 1, 10, grid_h_padding, p.height - grid_h_padding);
-          let boxWidth = (p.width - grid_w_padding * 2) / 10;
-          let boxHeight = (p.height - grid_h_padding * 2) / 10;
+          let box_width = (p.width - grid_w_padding * 2) / 10;
+          let box_height = (p.height - grid_h_padding * 2) / 10;
 
-          if (p.mouseX > xPos - boxWidth / 2 && p.mouseX < xPos + boxWidth / 2 &&
-            p.mouseY > yPos - boxHeight / 2 && p.mouseY < yPos + boxHeight / 2) {
+          if (p.mouseX > xPos - box_width / 2 && p.mouseX < xPos + box_width / 2 &&
+            p.mouseY > yPos - box_height / 2 && p.mouseY < yPos + box_height / 2) {
             p.fill(255, 100);
           } else {
             p.fill(255, 0);
           }
-          p.rect(xPos, yPos, boxWidth, boxHeight);
+          p.rect(xPos, yPos, box_width, box_height);
           p.fill(255);
           p.text(attack + "/" + defense, xPos, yPos - 10)
         }
@@ -293,31 +293,31 @@ export default function sketch(p) {
 
       p.textSize(40);
       p.fill(255)
-      p.text(theMouse.effect.label_name + "...", p.width / 2, p.height * 0.1);
+      p.text(the_mouse.effect.label_name + "...", p.width / 2, p.height * 0.1);
 
       p.textSize(font_pixels)
       p.rectMode(p.CENTER)
 
-      let optionButtonWidth = (p.width / options.length) * 0.5;
-      let optionButtonHeight = p.height * 0.10;
-      let optionButtonsPadding = p.width * 0.25;
+      let option_button_width = (p.width / options.length) * 0.5;
+      let option_button_height = p.height * 0.10;
+      let option_buttons_padding = p.width * 0.25;
 
       for (let [index, option] of options.entries()) {
-        let xPos = p.map(index, 0, options.length - 1, optionButtonsPadding, p.width - optionButtonsPadding);
-        if (p.mouseX > xPos - optionButtonWidth / 2 && p.mouseX < xPos + optionButtonWidth / 2) {
+        let xPos = p.map(index, 0, options.length - 1, option_buttons_padding, p.width - option_buttons_padding);
+        if (p.mouseX > xPos - option_button_width / 2 && p.mouseX < xPos + option_button_width / 2) {
           p.fill(255, 100)
-          hoveredOption = index;
+          hovered_option = index;
         } else {
           p.fill(255, 50)
         }
-        p.rect(xPos, p.height * 0.5, optionButtonWidth, optionButtonHeight, 16);
+        p.rect(xPos, p.height * 0.5, option_button_width, option_button_height, 16);
         p.fill(255);
 
-        let optionString = option.toString();
-        optionString = optionString[0].toUpperCase() + optionString.substring(1)
-        optionString = optionString.split(" ").join("\n");
+        let option_string = option.toString();
+        option_string = option_string[0].toUpperCase() + option_string.substring(1)
+        option_string = option_string.split(" ").join("\n");
 
-        p.text(optionString, xPos, p.height / 2)
+        p.text(option_string, xPos, p.height / 2)
       }
     }
 
@@ -325,13 +325,13 @@ export default function sketch(p) {
   }
 
 
-  p.mousePressedWhileSurveying = () => {
-    if (p.progressSurveyThroughIssues()) {
+  p.mouse_pressed_while_surveying = () => {
+    if (p.progress_survey_through_issues()) {
       return
     }
 
 
-    let setting = theMouse.effect.settings[survey_topics[current_survey_topic]];
+    let setting = the_mouse.effect.settings[survey_topics[current_survey_topic]];
     let options = setting[0]
     if (options[0] == "x") {
       options = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
@@ -344,43 +344,43 @@ export default function sketch(p) {
     if (options[0] == "x/x") {
       setting[1] = `${p.floor(p.map(p.mouseX, 0, p.width, 1, 11))}/${p.floor(p.map(p.mouseY, 0, p.height, 1, 11))}`
     } else {
-      setting[1] = options[hoveredOption]
+      setting[1] = options[hovered_option]
     }
 
 
   
     current_survey_topic++;
 
-    if (p.progressSurveyThroughIssues()) {
+    if (p.progress_survey_through_issues()) {
       return
     }
 
   }
 
 
-  p.mousePressedWhileNotSurveying = () => {
-    let clickedCard = null;
+  p.mouse_pressed_while_not_surveying = () => {
+    let clicked_card = null;
 
     if(current_task_index < tasks.length){
     for (let c of cards[current_task_index]) {
       if (c.mouseInImg()) {
-        clickedCard = c;
+        clicked_card = c;
       }
     }
   }
 
 
-    if (clickedCard) {
-      if (theMouse.busy) { //dropping effect onto a card
-        p.dropEffectOnCard(clickedCard)
+    if (clicked_card) {
+      if (the_mouse.busy) { //dropping effect onto a card
+        p.drop_effect_on_card(clicked_card)
       } else { //clicking on a card generally
-        p.clickToEditCard(clickedCard)
+        p.click_to_edit_card(clicked_card)
       }
     } else {
-      if (theMouse.busy) { //clicked away to drop label
-        theMouse.busy = false;
-        theMouse.setOffset(0, 0);
-        theMouse.effect = null;
+      if (the_mouse.busy) { //clicked away to drop label
+        the_mouse.busy = false;
+        the_mouse.setOffset(0, 0);
+        the_mouse.effect = null;
       } else { //other clicks
 
 
@@ -399,9 +399,9 @@ export default function sketch(p) {
 
         for (let b of buttons) { //clicking on a button with an empty hand
           if (b.mouseInRegion()) {
-            theMouse.busy = true;
-            theMouse.setOffset(b.text_x, b.text_y);
-            theMouse.effect = JSON.parse(JSON.stringify(effects[b.button_name]));
+            the_mouse.busy = true;
+            the_mouse.setOffset(b.text_x, b.text_y);
+            the_mouse.effect = JSON.parse(JSON.stringify(effects[b.button_name]));
 
             break;
           }
@@ -414,16 +414,16 @@ export default function sketch(p) {
 
 
   //returns true if you need to return out of mouse
-  p.progressSurveyThroughIssues = () => {
+  p.progress_survey_through_issues = () => {
     if (current_survey_topic == survey_topics.length) {
       p.finished_survey();
       return true;
     }
 
     for (let i = 0; i < survey_topics.length; i++) {
-      if (theMouse.effect.settings[survey_topics[current_survey_topic]][0] == null ||
-        (!param_format_names.includes(theMouse.effect.settings[survey_topics[current_survey_topic]][0][0]) &&
-          theMouse.effect.settings[survey_topics[current_survey_topic]][0].length == 1)) {
+      if (the_mouse.effect.settings[survey_topics[current_survey_topic]][0] == null ||
+        (!param_format_names.includes(the_mouse.effect.settings[survey_topics[current_survey_topic]][0][0]) &&
+          the_mouse.effect.settings[survey_topics[current_survey_topic]][0].length == 1)) {
         current_survey_topic++;
         if (current_survey_topic == survey_topics.length) {
           p.finished_survey();
@@ -442,18 +442,18 @@ export default function sketch(p) {
     return false;
   }
 
-  p.dropEffectOnCard = (c) => {
+  p.drop_effect_on_card = (c) => {
     current_survey_topic = 1;
     survey_drop_target = c;
 
-    if (p.progressSurveyThroughIssues()) {
+    if (p.progress_survey_through_issues()) {
 
       return
     }
   }
 
 
-  p.clickToEditCard = (c) => {
+  p.click_to_edit_card = (c) => {
 
     if (c.mouse_over_mana) {
       editing = "mana";
@@ -544,21 +544,21 @@ export default function sketch(p) {
   }
 
   p.mousePressed = () => {
-    if (setupDone) {
+    if (setup_done) {
       if (survey_topics[current_survey_topic] != "none") {
-        p.mousePressedWhileSurveying();
+        p.mouse_pressed_while_surveying();
       } else {
-        p.mousePressedWhileNotSurveying();
+        p.mouse_pressed_while_not_surveying();
       }
     }
   }
 
   p.finished_survey = () => {
 
-    survey_drop_target.effects.push(JSON.parse(JSON.stringify(theMouse.effect)))
+    survey_drop_target.effects.push(JSON.parse(JSON.stringify(the_mouse.effect)))
     current_survey_topic = 0;
-    theMouse.effect = null;
-    theMouse.busy = false;
+    the_mouse.effect = null;
+    the_mouse.busy = false;
   }
 
   p.keyPressed = () => {
@@ -571,7 +571,7 @@ export default function sketch(p) {
     p.resize_all();
   }
 
-  p.easeOutCubic = (x) => {
+  p.ease_out_cubic = (x) => {
     return 1 - p.pow(1 - x, 3);
   }
 
@@ -586,7 +586,7 @@ export default function sketch(p) {
 
     if (sending) {
       let q = p.map(p.millis(), send_start_time, send_start_time + estimated_send_duration, 0, 1, true)
-      q = p.easeOutCubic(q);
+      q = p.ease_out_cubic(q);
 
       p.fill(255, p.map(q, 0, 1, 50, 100));
       p.rect(p.map(q,0,1,-100, 0), 0, p.map(q, 0, 1, 0, 200), 60, 4);
@@ -930,9 +930,9 @@ export default function sketch(p) {
 
 
 
-        let estimatedCharactersPerLine = 20;
-        let estimatedLines = e.effect_string.length / estimatedCharactersPerLine;
-        e.effect_string_height = font_pixels_small * estimatedLines + 30;
+        let estimated_characters_per_line = 20;
+        let estimated_lines = e.effect_string.length / estimated_characters_per_line;
+        e.effect_string_height = font_pixels_small * estimated_lines + 30;
 
       }
 
