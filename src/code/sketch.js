@@ -101,6 +101,7 @@ export default function sketch(p) {
   let sending = false;
   let send_start_time = -10000;
   const estimated_send_duration = 3000; //over-estimate
+  let sent = false;
 
   let mouse_over_queuer;
   let mouse_over_next;
@@ -341,14 +342,13 @@ export default function sketch(p) {
     }
 
     if (options[0] == "x/x") {
-      setting[1] = {
-        x: p.floor(p.map(p.mouseX, 0, p.width, 1, 11)),
-        y: p.floor(p.map(p.mouseY, 0, p.height, 1, 11))
-      }
+      setting[1] = `${p.floor(p.map(p.mouseX, 0, p.width, 1, 11))}/${p.floor(p.map(p.mouseY, 0, p.height, 1, 11))}`
     } else {
-      setting[1] = options[hoveredOption];
+      setting[1] = options[hoveredOption]
     }
 
+
+  
     current_survey_topic++;
 
     if (p.progressSurveyThroughIssues()) {
@@ -571,6 +571,9 @@ export default function sketch(p) {
     p.resize_all();
   }
 
+  p.easeOutCubic = (x) => {
+    return 1 - p.pow(1 - x, 3);
+  }
 
 
   p.send_overlay = () => {
@@ -582,8 +585,9 @@ export default function sketch(p) {
     p.translate(queur_x, queur_y);
 
     if (sending) {
-      const q = p.map(p.millis(), send_start_time, send_start_time + estimated_send_duration, 0, 1, true)
-      
+      let q = p.map(p.millis(), send_start_time, send_start_time + estimated_send_duration, 0, 1, true)
+      q = p.easeOutCubic(q);
+
       p.fill(255, p.map(q, 0, 1, 50, 100));
       p.rect(p.map(q,0,1,-100, 0), 0, p.map(q, 0, 1, 0, 200), 60, 4);
       p.rect(0, 0, 200, 60, 4);
@@ -596,7 +600,7 @@ export default function sketch(p) {
 
     p.fill(0, 255);
     p.textAlign(p.CENTER, p.CENTER)
-    p.text(sending ? "Sending..." : "Send to sheets", 0, -4)
+    p.text(sending ? sent?"Sending again...":"Sending..." : sent?mouse_over_queuer?"Send again":"Done.":"Send to sheets", 0, -4)
     p.pop();
 
   }
@@ -611,8 +615,9 @@ export default function sketch(p) {
 
       props.send_to_google_sheets(submissions).then((result) => {
         console.log(result);
-        console.log();
-        sending = false
+        sending = false;
+        sent = true;
+
       })
     }
   }
@@ -934,6 +939,7 @@ export default function sketch(p) {
     }
 
     display() {
+      
       p.push();
       p.fill(0);
       p.textAlign(p.CENTER, p.CENTER)
@@ -1040,6 +1046,7 @@ export default function sketch(p) {
         }
       }
 
+      p.pop();
       p.pop();
     }
 
