@@ -34,7 +34,7 @@ function importAll(r) {
 const images = importAll(require.context('../images/cards', false, /\.(png|jpe?g|svg)$/));
 const blanks = importAll(require.context('../images/blank_cards', false, /\.(png|jpe?g|svg)$/));
 
-
+const gan_imgs = importAll(require.context('../images/gan_samples', false, /\.(png|jpe?g|svg)$/));
 
 
 class App extends Component {
@@ -73,11 +73,8 @@ class App extends Component {
   }
 
 
-  send_to_google_sheets(submission){
-    console.log(JSON.stringify(submission))
-
-    const sendToSheets = firebase.functions().httpsCallable('sendToSheets');
-    sendToSheets({submission: submission});
+  send_to_google_sheets(submissions){
+    return firebase.functions().httpsCallable('sendToSheets')({submissions: Object.entries(submissions)})
   }
 
   render() {
@@ -94,6 +91,7 @@ class App extends Component {
           weapon_img={weapon_img} 
           full_blank_creature_img={full_blank_creature_img}
           gan_img={gan_img}
+          gan_imgs={gan_imgs}
           hs_font={hs_font}
           send_to_google_sheets={this.send_to_google_sheets}
           />

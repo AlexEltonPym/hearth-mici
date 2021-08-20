@@ -1,50 +1,38 @@
 const functions = require('firebase-functions');
-
-const {google} = require('googleapis');
+const { google } = require('googleapis');
 
 const config = require('./config.json')
 
 
-async function appendSheetRow (submission) {
+exports.sendToSheets = functions.https.onCall((data, context) => {
+  functions.logger.log("App context: ", context.app);
   const jwt = new google.auth.JWT(
     config.client_email,
     null,
     config.private_key,
     ['https://www.googleapis.com/auth/spreadsheets']
   )
-  
-  google.sheets('v4').spreadsheets.values.append(
-    {
-      spreadsheetId: config.spreadsheet_id,
-      auth: jwt,
-      valueInputOption: 'RAW',
-      range: 'A1',
-      resource: { values: [submission] }
-    },
-    (err, result) => {
-      if (err) {
-        throw err
-      } else {
-        console.log('Updated sheet: ' + result.data.updates.updatedRange)
-      }
-    }
-  )
-
-}
-
-//node -e "require('./index.js').runTest()"
-exports.runTest = () => {
-  let fakeSubmission = ["hello", "world", Date.now()]
-  appendSheetRow(fakeSubmission);
-}
 
 
-exports.sendToSheets = functions.https.onCall((data, context) => {
-  functions.logger.log("App context:", context.app);
+  let vals = data.submissions.map((sub) => {
+    let asArr = Object.entries(sub[1]);
+    return [].concat(...asArr); //flat not supported yet
+  })
 
-  appendSheetRow(data.submission)
+  const request = {
+    spreadsheetId: config.spreadsheet_id,
+    auth: jwt,
+    valueInputOption: 'RAW',
+    range: 'A1:A10000',
+    resource: { values: vals }
+  };
+
+  const response = google.sheets('v4').spreadsheets.values.append(request)
+
+  return response.then((res) => {
+    return {r: res}
+  }).catch((err) => {
+    return {e: err}
+  })
 });
-
-
-
 

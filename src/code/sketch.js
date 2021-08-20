@@ -3,12 +3,21 @@
 
 //to fix totalHeight bug, change p5 by changing o-totalHeight to just o
 //todo: fix this on a generic p5 import somehow
-export default function sketch(p) {
 
-  let blank_spell_img, blank_creature_img, blank_weapon_img, full_blank_creature_img;
-  let bg;
-  let GAN_imgs = [];
-  let flavour_img, masked_flavour_ellipse, masked_flavour_rect;
+
+//todo: language stuff
+//todo: buttons
+//todo: creature types
+//todo: card types
+//todo: task front end
+//todo: sheets
+//todo: effect limit
+
+//todo: convert submission to object -> string -> object -> array for transmission via call
+
+//ABC test reports, articulate logic for report design
+
+export default function sketch(p) {
 
 
   const buttons = [];
@@ -16,30 +25,36 @@ export default function sketch(p) {
 
   const effects = [];
 
+
+  let current_task_index = 0;
   const tasks = [{
+    id: 0,
     title: "Mage vs Warrior",
     instruction: "Create 2 mage cards that helps against warriors.",
     num_cards: 2,
+    class: "mage"
   },
   {
+    id: 1,
     title: "Murlocs",
     instruction: "Create 3 murlocs",
     num_cards: 3,
+    class: "shaman"
   },
   {
+    id: 2,
     title: "The ultimate defense",
     instruction: "Create the ultimate defensive card.",
     num_cards: 1,
+    class: "warrior"
   }
   ]
-  let current_task_index = 0;
 
 
 
   let user = ""
 
   const cards = [];
-  const card_num = 3;
   const card_types = ["spell", "minion", "weapon"]
 
   const method_names = ["randomly", "targeted", "all", "aura"];
@@ -67,6 +82,12 @@ export default function sketch(p) {
   let w_padding, h_padding;
   let grid_w_padding, grid_h_padding;
 
+  let rect_mask, ellipse_mask;
+  let blank_spell_img, blank_creature_img, blank_weapon_img, full_blank_creature_img;
+  let bg;
+  let gan_imgs = [];
+
+
   let theMouse;
   let setupDone = false;
   let hoveredOption = -1;
@@ -77,15 +98,14 @@ export default function sketch(p) {
   let editX = 0;
   let editY = 0;
 
-  let simCount = 3;
-  let simulating = false;
-  let simDuration = 2000;
-  let simTime = -simDuration;
+  let sending = false;
+  let send_start_time = -10000;
+  const estimated_send_duration = 3000; //over-estimate
 
   let mouse_over_queuer;
+  let mouse_over_next;
+  let mouse_over_prev;
 
-  let simResults = null;
-  let simTurns = null;
 
   let props;
 
@@ -100,8 +120,10 @@ export default function sketch(p) {
     blank_weapon_img = p.loadImage(props.weapon_img)
     blank_creature_img = p.loadImage(props.creature_img)
     full_blank_creature_img = p.loadImage(props.full_blank_creature_img);
-    flavour_img = p.loadImage(props.gan_img)
     hearthstone_font = p.loadFont(props.hs_font);
+    for(let im of props.gan_imgs){
+      gan_imgs.push(p.loadImage(im))
+    }
   }
 
 
@@ -126,24 +148,16 @@ export default function sketch(p) {
     p.register_all();
 
 
-    for (let card_id = 0; card_id < tasks[current_task_index].num_cards; card_id++) {
-      cards.push(new p.Card(card_id, current_task_index));
+    for(let task of tasks){
+      cards[task.id] = [];
+      for (let card_id = 0; card_id < task.num_cards; card_id++) {
+        cards[task.id].push(new p.Card(card_id, task.id, task.class));
+      }
     }
 
     p.resize_all();
 
 
-    let ellipse_mask = p.createGraphics(p.width, p.height);
-    ellipse_mask.ellipse(p.width / 2, p.height / 2, blank_spell_img.width * 2.1,  blank_spell_img.height * 1.4)
-
-    let rect_mask = p.createGraphics(p.width, p.height);
-    rect_mask.rectMode(p.CENTER);
-    rect_mask.rect(p.width / 2, p.height / 2,  blank_spell_img.width * 2.5,  blank_spell_img.height * 1.2)
-
-    masked_flavour_ellipse = flavour_img.get();
-    masked_flavour_ellipse.mask(ellipse_mask)
-    masked_flavour_rect = flavour_img.get();
-    masked_flavour_rect.mask(rect_mask)
 
 
     setupDone = true;
@@ -156,8 +170,11 @@ export default function sketch(p) {
     p.textAlign(p.LEFT, p.CENTER);
     p.image(bg, p.width / 2, p.height / 2, p.width, p.height);
 
-    for (let c of cards) {
-      c.run();
+
+    if(current_task_index < tasks.length){
+      for (let c of cards[current_task_index]) {
+        c.run();
+      }
     }
 
     for (let b of buttons) {
@@ -172,14 +189,45 @@ export default function sketch(p) {
       p.pop();
     }
 
-    p.draw_task_overlay();
     p.draw_edit_overlay();
-    p.sim_overlay();
+    p.draw_task_controls();
+
+
+    if(current_task_index == tasks.length){
+      p.send_overlay();
+    } else {
+      p.draw_task_overlay();
+
+    }
 
 
     if (survey_topics[current_survey_topic] != "none") {
       p.draw_survey();
     }
+
+  }
+
+  p.draw_task_controls = () => {
+
+
+    let next_x =  p.width - w_padding;
+    let next_y = p.height - h_padding;
+    mouse_over_next = p.dist(p.mouseX, p.mouseY, next_x, next_y) < 75;
+
+    p.push();
+    p.translate(next_x, next_y)
+    p.fill(255, current_task_index==tasks.length?0:mouse_over_next?255:100)
+    p.triangle(0, -25, 0, 25, 75, 0);
+    p.pop();
+
+    let prev_x = p.map(1, 0, 3, w_padding, p.width - w_padding)
+    mouse_over_prev = p.dist(p.mouseX, p.mouseY, prev_x, next_y) < 75;
+
+    p.push();
+    p.translate(prev_x, next_y)
+    p.fill(255, current_task_index==0?50:mouse_over_prev?255:100)
+    p.triangle(0, -25, 0, 25, -75, 0);
+    p.pop();
 
   }
 
@@ -191,6 +239,10 @@ export default function sketch(p) {
     p.textSize(font_pixels);
     p.text(tasks[current_task_index].instruction, p.width-w_padding/2, h_padding+font_pixels_large)
 
+
+    p.fill(0);
+    p.textAlign(p.CENTER, p.CENTER);
+    p.text(`Task ${current_task_index+1} \\ ${tasks.length}`, p.map(2, 0, 3, w_padding, p.width - w_padding), p.height-h_padding)
   }
 
 
@@ -309,11 +361,13 @@ export default function sketch(p) {
   p.mousePressedWhileNotSurveying = () => {
     let clickedCard = null;
 
-    for (let c of cards) {
+    if(current_task_index < tasks.length){
+    for (let c of cards[current_task_index]) {
       if (c.mouseInImg()) {
         clickedCard = c;
       }
     }
+  }
 
 
     if (clickedCard) {
@@ -329,8 +383,15 @@ export default function sketch(p) {
         theMouse.effect = null;
       } else { //other clicks
 
-        if (mouse_over_queuer) {
-          p.add_to_queue();
+
+        if(mouse_over_next && current_task_index < tasks.length){
+          current_task_index++;
+        } else if (mouse_over_prev && current_task_index > 0){
+          current_task_index--;
+        }
+
+        if (mouse_over_queuer && current_task_index == tasks.length && !sending) {
+          p.submit();
         }
 
         p.mouse_click_while_editing();
@@ -501,13 +562,7 @@ export default function sketch(p) {
   }
 
   p.keyPressed = () => {
-    if (p.key == ' ' && !simulating) {
-      simResults = null;
-      simTurns = null;
-      simulating = true;
-      simTime = simCount;
-      p.submit();
-    }
+
 
   }
 
@@ -516,79 +571,60 @@ export default function sketch(p) {
     p.resize_all();
   }
 
-  p.add_to_queue = () => {
-    if (!simulating) {
-      simulating = true;
-      simTime = p.millis();
-      p.submit();
-    }
-  }
 
-  p.sim_overlay = () => {
+
+  p.send_overlay = () => {
     p.push();
-    let queur_x = p.map(2, 0, 3, w_padding, p.width - w_padding);
-    let queur_y = p.height * 0.85
+    let queur_x = p.width - w_padding;
+    let queur_y = p.height - h_padding;
     mouse_over_queuer = (p.mouseX > queur_x - 100 && p.mouseX < queur_x + 100 && p.mouseY > queur_y - 30 && p.mouseY < queur_y + 30)
 
     p.translate(queur_x, queur_y);
 
-    if (mouse_over_queuer && !simulating) {
-      p.fill(255, 255);
+    if (sending) {
+      const q = p.map(p.millis(), send_start_time, send_start_time + estimated_send_duration, 0, 1, true)
+      
+      p.fill(255, p.map(q, 0, 1, 50, 100));
+      p.rect(p.map(q,0,1,-100, 0), 0, p.map(q, 0, 1, 0, 200), 60, 4);
+      p.rect(0, 0, 200, 60, 4);
     } else {
-      p.fill(p.map(p.millis(), simTime, simTime + simDuration, 100, 255, true), 100)
+      p.fill(255, mouse_over_queuer?255:100);
+      p.rect(0, 0, 200, 60, 4)
     }
-    p.rect(0, 0, 200, 60, 4)
+
 
 
     p.fill(0, 255);
     p.textAlign(p.CENTER, p.CENTER)
-    p.text(simulating ? "Adding..." : "Add to queue", 0, -4)
-
-    p.rectMode(p.CORNER)
-
-    // if(simulating)
-    // p.fill(0)
-    // p.rect(-100, -30, map(millis(), simTime, simTime+simDuration, 0, 200, true), 60, 4)
-
-
+    p.text(sending ? "Sending..." : "Send to sheets", 0, -4)
     p.pop();
 
-    if (simulating) {
-      if (p.millis() > simTime + simDuration) {
-        simulating = false;
-      }
-    }
-    // if (simulating) {
-    //   simTime = constrain(simTime - random(0.001, 0.002), 0, simCount);
-
-    //   let lw = map(simTime, 0, simCount, 0, 200);
-    //   noStroke();
-    //   p.fill(200);
-    //   p.rect(width * 0.5 - 100, height * 0.85 - 16, 200, 40)
-    //   p.fill(0)
-    //   p.rect(width * 0.5 - 100, height * 0.85 - 16, lw, 40)
-    //   p.fill(255);
-    //   text("Simulating...", width * 0.5, height * 0.85)
-    // } else {
-    //   text("Press Spacebar to simulate", width / 2, height * 0.9);
-    // }
-
-    // if (simResults != null) {
-
-    //   text("The win rate with your card is: " + simResults +
-    //     "%\n" + "The average game lasted " + simTurns +
-    //     " turns.", width * 0.5, height * 0.10);
-    // }
   }
 
   p.submit = () => {
-    let submissions = [];
-    for (let c of cards) {
+    if (!sending) {
+      sending = true;
+      send_start_time = p.millis();
 
+      const submissions = p.generate_submissions();    
+      console.log(submissions);
+
+      props.send_to_google_sheets(submissions).then((result) => {
+        console.log(result);
+        console.log();
+        sending = false
+      })
+    }
+  }
+
+  p.generate_submissions = () => {
+    const submissions = [];
+    for (let t of cards) {
+      for(let c of t){
       let card_submission = {
         id: c.card_id,
-        task: c.card_task,
-        user: user,
+        task: c.card_task_index,
+        user: user ?? "no user",
         p: c.power,
         t: c.toughness,
         m: c.mana,
@@ -611,65 +647,35 @@ export default function sketch(p) {
         if (e.settings.duration[0] != null) card_submission[e.effect_short + "-duration-" + repeat_checker[e.effect_short]] = e.settings.duration[1];
 
       }
-      submissions[c.card_task + "-" + c.card_id] = card_submission;
+      submissions[c.card_task_index + "-" + c.card_id] = card_submission;
     }
+   }
 
-
-    props.send_to_google_sheets(submissions)
-
+   return submissions;
   }
-
-
-  // gapi.load('client', ()=>{
-  //   gapi.client.init({ 'apiKey':  config.sheets_api_key}).then(()=>{
-  //     gapi.client.sheets.spreadsheets.values.get({
-  //       spreadsheetId: config.sheet_id,
-  //       range: "queue!A1:D5"
-  //     }).then((response) => {
-  //       var result = response.result;
-  //       var numRows = result.values ? result.values.length : 0;
-  //       console.log(`${numRows} rows retrieved.`);
-  //     });
-  //   }); 
-  // });
-
-
-
-
-
-
-
-  // httpPost('https://hearth-mici-backend.loca.lt/get_winrates', submission, (response) => {
-  //   simulating = false;
-  //   simResults = round(JSON.parse(response).win_rate, 2);
-  //   simTurns = round(JSON.parse(response).num_turns, 2);
-  //   console.log(simResults, simTurns)
-  // });
-
-
-  // httpPost('https://sheets.googleapis.com/v4/spreadsheets/1TlgFYV4zwkyfwGq1DNU39Sq1kOsOaL3jfppokpmgX0w/values/queue!A1:E1:append?key='+config.sheets_api_key, {
-  //   range: "queue!A1:E1",
-  //   key: config.sheets_api_key,
-  //   majorDimension: "ROWS",
-  //   values: [
-  //     ["Door", "$15", "2", "3/15/2016"],
-  //     ["Engine", "$100", "1", "3/20/2016"],
-  //   ],
-  // }, (response) => {
-  //   console.log(response)
-  // });
-
-
 
   p.resize_all = () => {
     for (let b of buttons) {
       b.resized();
     }
 
-    for (let c of cards) {
-      c.resized();
+    for (let t of cards) {
+      for(let c of t){
+        c.resized();
+      }
     }
 
+    p.generate_masks();
+   
+  }
+
+  p.generate_masks = () => {
+    ellipse_mask = p.createGraphics(250, 250);
+    ellipse_mask.ellipse(ellipse_mask.width / 2, ellipse_mask.height / 2, 200,  200)
+
+    rect_mask = p.createGraphics(250, 250);
+    rect_mask.rectMode(p.CENTER);
+    rect_mask.rect(rect_mask.width / 2, rect_mask.height / 2, 200, 160)
   }
 
   p.register_effect = (effect_text, effect_short, method, param, targets, filters, duration) => {
@@ -819,7 +825,7 @@ export default function sketch(p) {
 
 
   p.Card = class {
-    constructor(card_id, card_task_index) {
+    constructor(card_id, card_task_index, card_class) {
       this.y = 0;
       this.x = 0;
       this.w = blank_spell_img.width * 0.75;
@@ -827,16 +833,16 @@ export default function sketch(p) {
       this.oversized = false;
 
 
-      this.class = "mage";
-      this.type_id = card_id;
+      this.class = card_class;
+      this.type_id = 1; //creature
       this.card_id = card_id;
-      this.card_index = card_task_index;
+      this.card_task_index = card_task_index;
 
-      this.creature_type = "";
+
+      this.flav_img_index = p.floor(p.random(gan_imgs.length));
       this.mana = 5;
       this.power = 5;
       this.toughness = 5;
-      this.keywords = [];
       this.effects = [];
 
       this.hovered_effect = null;
@@ -849,7 +855,13 @@ export default function sketch(p) {
     }
 
     resized() {
-      this.x = p.map(this.card_id + 1, 0, cards.length, w_padding, p.width - w_padding)
+      if(cards[this.card_task_index].length == 1){
+        this.x = p.map(2, 0, 3, w_padding, p.width - w_padding)
+      } else if(cards[this.card_task_index].length == 2){
+        this.x = p.map(this.card_id==0?1.5:2.5, 0, 3, w_padding, p.width - w_padding)
+      } else {
+        this.x = p.map(this.card_id+1, 0, 3, w_padding, p.width - w_padding)
+    }
       this.y = p.height / 2;
     }
 
@@ -930,22 +942,24 @@ export default function sketch(p) {
       } else {
         this.oversized = false;
       }
-      let flav;
+
+
+      let flav = gan_imgs[this.flav_img_index].get();
       let forg;
 
       if (card_types[this.type_id] == "spell") {
-        flav = masked_flavour_rect;
+        flav.mask(rect_mask)
         forg = blank_spell_img;
       } else if (card_types[this.type_id] == "minion") {
-        flav = masked_flavour_ellipse;
+        flav.mask(ellipse_mask)
         forg = this.oversized ? full_blank_creature_img : blank_creature_img;
       } else {
-        flav = masked_flavour_rect;
+        flav.mask(rect_mask)
         forg = blank_weapon_img;
       }
 
       if (!this.oversized) {
-        p.image(flav, this.x + 5, this.y - 50, 300, 300)
+        p.image(flav, this.x, this.y-90, 250, 250)
       }
       p.image(forg, this.x, this.y, this.w, this.h);
 
@@ -980,6 +994,7 @@ export default function sketch(p) {
 
       this.mouse_over_card_effect = false;
       this.hovered_effect = null;
+
       for (let e of this.effects) {
 
         translation_offset_y += e.effect_string_height / 2;
