@@ -52,11 +52,6 @@ class App extends Component {
       return value.includes("weapon");
     })[0];
 
-
-
-
-
-
     this.state = {
 
       card_sources: {
@@ -70,11 +65,23 @@ class App extends Component {
     };
 
     this.send_to_google_sheets.bind(this);
+    this.save_to_google_sheets.bind(this);
+    this.load_from_google_sheets.bind(this);
   }
 
 
   send_to_google_sheets(submissions){
     return firebase.functions().httpsCallable('sendToSheets')({submissions: Object.entries(submissions)})
+  }
+
+  save_to_google_sheets(save){
+    return firebase.functions().httpsCallable('saveToSheets')({save: Object.entries(save)})
+  }
+
+  load_from_google_sheets(user){
+    let user_data = {user: user}
+    console.log(Object.entries(user_data))
+    return firebase.functions().httpsCallable('loadFromSheets')({user: Object.entries(user_data)})
   }
 
   render() {
@@ -94,6 +101,8 @@ class App extends Component {
           gan_imgs={gan_imgs}
           hs_font={hs_font}
           send_to_google_sheets={this.send_to_google_sheets}
+          save_to_google_sheets={this.save_to_google_sheets}
+          load_from_google_sheets={this.load_from_google_sheets}
           />
 
          <span className="banner"><b>Step 1: </b>Please check out the available cards:</span>

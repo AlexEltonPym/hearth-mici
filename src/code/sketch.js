@@ -9,13 +9,10 @@
 //todo: buttons
 //todo: creature types
 //todo: card types
-//todo: task front end
-//todo: sheets
 //todo: effect limit
-
-//todo: convert submission to object -> string -> object -> array for transmission via call
-
 //ABC test reports, articulate logic for report design
+
+//make rampiness, variety, controllynes and see when they would be useful
 
 export default function sketch(p) {
 
@@ -27,7 +24,7 @@ export default function sketch(p) {
 
 
   let current_task_index = 0;
-  const tasks = [{
+  const task_details = [{
     id: 0,
     title: "Mage vs Warrior",
     instruction: "Create 2 mage cards that helps against warriors.",
@@ -54,7 +51,7 @@ export default function sketch(p) {
 
   let user = ""
 
-  const cards = [];
+  let tasks = [];
   const card_types = ["spell", "minion", "weapon"]
 
   const method_names = ["randomly", "targeted", "all", "aura"];
@@ -73,7 +70,7 @@ export default function sketch(p) {
 
   let survey_drop_target = null;
 
-  const font_pixels_large = 32;;
+  const font_pixels_large = 32;
   const font_pixels = 24;
   const font_pixels_small = 20;
 
@@ -122,7 +119,7 @@ export default function sketch(p) {
     blank_creature_img = p.loadImage(props.creature_img)
     full_blank_creature_img = p.loadImage(props.full_blank_creature_img);
     hearthstone_font = p.loadFont(props.hs_font);
-    for(let im of props.gan_imgs){
+    for (let im of props.gan_imgs) {
       gan_imgs.push(p.loadImage(im))
     }
   }
@@ -130,8 +127,10 @@ export default function sketch(p) {
 
   p.setup = () => {
     p.createCanvas(p.windowWidth, p.windowHeight);
-    user = p.getURLParams().user;
+    user = p.getURLParams().user ?? 2;
 
+
+   
     the_mouse = new p.FancyMouse();
 
 
@@ -149,12 +148,14 @@ export default function sketch(p) {
     p.register_all();
 
 
-    for(let task of tasks){
-      cards[task.id] = [];
+    for (let task of task_details) {
+      tasks[task.id] = [];
       for (let card_id = 0; card_id < task.num_cards; card_id++) {
-        cards[task.id].push(new p.Card(card_id, task.id, task.class));
+        tasks[task.id].push(new p.Card(card_id, task.id, task.class));
       }
     }
+
+    p.load_save(); //loads save file from google sheets if it exists
 
     p.resize_all();
 
@@ -172,8 +173,8 @@ export default function sketch(p) {
     p.image(bg, p.width / 2, p.height / 2, p.width, p.height);
 
 
-    if(current_task_index < tasks.length){
-      for (let c of cards[current_task_index]) {
+    if (current_task_index < task_details.length) {
+      for (let c of tasks[current_task_index]) {
         c.run();
       }
     }
@@ -194,7 +195,7 @@ export default function sketch(p) {
     p.draw_task_controls();
 
 
-    if(current_task_index == tasks.length){
+    if (current_task_index == task_details.length) {
       p.send_overlay();
     } else {
       p.draw_task_overlay();
@@ -211,13 +212,13 @@ export default function sketch(p) {
   p.draw_task_controls = () => {
 
 
-    let next_x =  p.width - w_padding;
+    let next_x = p.width - w_padding;
     let next_y = p.height - h_padding;
     mouse_over_next = p.dist(p.mouseX, p.mouseY, next_x, next_y) < 75;
 
     p.push();
     p.translate(next_x, next_y)
-    p.fill(255, current_task_index==tasks.length?0:mouse_over_next?255:100)
+    p.fill(255, current_task_index == task_details.length ? 0 : mouse_over_next ? 255 : 100)
     p.triangle(0, -25, 0, 25, 75, 0);
     p.pop();
 
@@ -226,7 +227,7 @@ export default function sketch(p) {
 
     p.push();
     p.translate(prev_x, next_y)
-    p.fill(255, current_task_index==0?50:mouse_over_prev?255:100)
+    p.fill(255, current_task_index == 0 ? 50 : mouse_over_prev ? 255 : 100)
     p.triangle(0, -25, 0, 25, -75, 0);
     p.pop();
 
@@ -235,15 +236,15 @@ export default function sketch(p) {
   p.draw_task_overlay = () => {
     p.textAlign(p.RIGHT, p.CENTER)
     p.textSize(font_pixels_large);
-    p.text(tasks[current_task_index].title,  p.width-w_padding/2, h_padding)
+    p.text(task_details[current_task_index].title, p.width - w_padding / 2, h_padding)
 
     p.textSize(font_pixels);
-    p.text(tasks[current_task_index].instruction, p.width-w_padding/2, h_padding+font_pixels_large)
+    p.text(task_details[current_task_index].instruction, p.width - w_padding / 2, h_padding + font_pixels_large)
 
 
     p.fill(0);
     p.textAlign(p.CENTER, p.CENTER);
-    p.text(`Task ${current_task_index+1} \\ ${tasks.length}`, p.map(2, 0, 3, w_padding, p.width - w_padding), p.height-h_padding)
+    p.text(`Task ${current_task_index + 1} \\ ${task_details.length}`, p.map(2, 0, 3, w_padding, p.width - w_padding), p.height - h_padding)
   }
 
 
@@ -348,7 +349,7 @@ export default function sketch(p) {
     }
 
 
-  
+
     current_survey_topic++;
 
     if (p.progress_survey_through_issues()) {
@@ -361,13 +362,13 @@ export default function sketch(p) {
   p.mouse_pressed_while_not_surveying = () => {
     let clicked_card = null;
 
-    if(current_task_index < tasks.length){
-    for (let c of cards[current_task_index]) {
-      if (c.mouseInImg()) {
-        clicked_card = c;
+    if (current_task_index < task_details.length) {
+      for (let c of tasks[current_task_index]) {
+        if (c.mouseInImg()) {
+          clicked_card = c;
+        }
       }
     }
-  }
 
 
     if (clicked_card) {
@@ -384,13 +385,13 @@ export default function sketch(p) {
       } else { //other clicks
 
 
-        if(mouse_over_next && current_task_index < tasks.length){
+        if (mouse_over_next && current_task_index < task_details.length) {
           current_task_index++;
-        } else if (mouse_over_prev && current_task_index > 0){
+        } else if (mouse_over_prev && current_task_index > 0) {
           current_task_index--;
         }
 
-        if (mouse_over_queuer && current_task_index == tasks.length && !sending) {
+        if (mouse_over_queuer && current_task_index == task_details.length && !sending) {
           p.submit();
         }
 
@@ -589,10 +590,10 @@ export default function sketch(p) {
       q = p.ease_out_cubic(q);
 
       p.fill(255, p.map(q, 0, 1, 50, 100));
-      p.rect(p.map(q,0,1,-100, 0), 0, p.map(q, 0, 1, 0, 200), 60, 4);
+      p.rect(p.map(q, 0, 1, -100, 0), 0, p.map(q, 0, 1, 0, 200), 60, 4);
       p.rect(0, 0, 200, 60, 4);
     } else {
-      p.fill(255, mouse_over_queuer?255:100);
+      p.fill(255, mouse_over_queuer ? 255 : 100);
       p.rect(0, 0, 200, 60, 4)
     }
 
@@ -600,7 +601,7 @@ export default function sketch(p) {
 
     p.fill(0, 255);
     p.textAlign(p.CENTER, p.CENTER)
-    p.text(sending ? sent?"Sending again...":"Sending..." : sent?mouse_over_queuer?"Send again":"Done.":"Send to sheets", 0, -4)
+    p.text(sending ? sent ? "Sending again..." : "Sending..." : sent ? mouse_over_queuer ? "Send again" : "Done." : "Send to sheets", 0, -4)
     p.pop();
 
   }
@@ -610,8 +611,7 @@ export default function sketch(p) {
       sending = true;
       send_start_time = p.millis();
 
-      const submissions = p.generate_submissions();    
-      console.log(submissions);
+      const submissions = p.generate_submissions();
 
       props.send_to_google_sheets(submissions).then((result) => {
         console.log(result);
@@ -622,41 +622,68 @@ export default function sketch(p) {
     }
   }
 
+  p.load_save = () => {
+    props.load_from_google_sheets(user).then((result) => {
+      if(result.data.r){
+        let loaded_save = result.data.r.data.values[0];
+        tasks = JSON.parse(loaded_save[2]);
+        for(let t of tasks){
+          for(let c of t){
+            c.__proto__ = p.Card.prototype;
+          }
+        }
+    
+      } else {
+        console.log(result.data.e)
+      }
+    });
+  }
+
+  p.make_save = () => {
+    let asString = JSON.stringify(tasks)
+
+    props.save_to_google_sheets([user, asString]).then((result) => {
+      console.log(result);
+    })
+  }
+
   p.generate_submissions = () => {
     const submissions = [];
-    for (let t of cards) {
-      for(let c of t){
-      let card_submission = {
-        id: c.card_id,
-        task: c.card_task_index,
-        user: user ?? "no user",
-        p: c.power,
-        t: c.toughness,
-        m: c.mana,
-      }
+    p.make_save();
 
-
-      let repeat_checker = {};
-
-      for (let e of c.effects) {
-        if (repeat_checker[e.effect_short] == undefined) {
-          repeat_checker[e.effect_short] = 0;
-        } else {
-          repeat_checker[e.effect_short]++;
+    for (let t of tasks) {
+      for (let c of t) {
+        let card_submission = {
+          id: c.card_id,
+          task: c.card_task_index,
+          user: user,
+          p: c.power,
+          t: c.toughness,
+          m: c.mana,
         }
 
-        if (e.settings.methods[0] != null) card_submission[e.effect_short + "-method-" + repeat_checker[e.effect_short]] = e.settings.methods[1];
-        if (e.settings.params[0] != null) card_submission[e.effect_short + "-param-" + repeat_checker[e.effect_short]] = e.settings.params[1];
-        if (e.settings.targets[0] != null) card_submission[e.effect_short + "-target-" + repeat_checker[e.effect_short]] = e.settings.targets[1];
-        if (e.settings.filters[0] != null) card_submission[e.effect_short + "-filter-" + repeat_checker[e.effect_short]] = e.settings.filters[1];
-        if (e.settings.duration[0] != null) card_submission[e.effect_short + "-duration-" + repeat_checker[e.effect_short]] = e.settings.duration[1];
 
+        let repeat_checker = {};
+
+        for (let e of c.effects) {
+          if (repeat_checker[e.effect_short] == undefined) {
+            repeat_checker[e.effect_short] = 0;
+          } else {
+            repeat_checker[e.effect_short]++;
+          }
+
+          if (e.settings.methods[0] != null) card_submission[e.effect_short + "-method-" + repeat_checker[e.effect_short]] = e.settings.methods[1];
+          if (e.settings.params[0] != null) card_submission[e.effect_short + "-param-" + repeat_checker[e.effect_short]] = e.settings.params[1];
+          if (e.settings.targets[0] != null) card_submission[e.effect_short + "-target-" + repeat_checker[e.effect_short]] = e.settings.targets[1];
+          if (e.settings.filters[0] != null) card_submission[e.effect_short + "-filter-" + repeat_checker[e.effect_short]] = e.settings.filters[1];
+          if (e.settings.duration[0] != null) card_submission[e.effect_short + "-duration-" + repeat_checker[e.effect_short]] = e.settings.duration[1];
+
+        }
+        submissions[c.card_task_index + "-" + c.card_id] = card_submission;
       }
-      submissions[c.card_task_index + "-" + c.card_id] = card_submission;
     }
-   }
 
-   return submissions;
+    return submissions;
   }
 
   p.resize_all = () => {
@@ -664,19 +691,19 @@ export default function sketch(p) {
       b.resized();
     }
 
-    for (let t of cards) {
-      for(let c of t){
+    for (let t of tasks) {
+      for (let c of t) {
         c.resized();
       }
     }
 
     p.generate_masks();
-   
+
   }
 
   p.generate_masks = () => {
     ellipse_mask = p.createGraphics(250, 250);
-    ellipse_mask.ellipse(ellipse_mask.width / 2, ellipse_mask.height / 2, 200,  200)
+    ellipse_mask.ellipse(ellipse_mask.width / 2, ellipse_mask.height / 2, 200, 200)
 
     rect_mask = p.createGraphics(250, 250);
     rect_mask.rectMode(p.CENTER);
@@ -860,13 +887,13 @@ export default function sketch(p) {
     }
 
     resized() {
-      if(cards[this.card_task_index].length == 1){
+      if (tasks[this.card_task_index].length == 1) {
         this.x = p.map(2, 0, 3, w_padding, p.width - w_padding)
-      } else if(cards[this.card_task_index].length == 2){
-        this.x = p.map(this.card_id==0?1.5:2.5, 0, 3, w_padding, p.width - w_padding)
+      } else if (tasks[this.card_task_index].length == 2) {
+        this.x = p.map(this.card_id == 0 ? 1.5 : 2.5, 0, 3, w_padding, p.width - w_padding)
       } else {
-        this.x = p.map(this.card_id+1, 0, 3, w_padding, p.width - w_padding)
-    }
+        this.x = p.map(this.card_id + 1, 0, 3, w_padding, p.width - w_padding)
+      }
       this.y = p.height / 2;
     }
 
@@ -939,7 +966,7 @@ export default function sketch(p) {
     }
 
     display() {
-      
+
       p.push();
       p.fill(0);
       p.textAlign(p.CENTER, p.CENTER)
@@ -965,7 +992,7 @@ export default function sketch(p) {
       }
 
       if (!this.oversized) {
-        p.image(flav, this.x, this.y-90, 250, 250)
+        p.image(flav, this.x, this.y - 90, 250, 250)
       }
       p.image(forg, this.x, this.y, this.w, this.h);
 
