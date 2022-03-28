@@ -20,9 +20,6 @@ exports.sendToSheets = functions.https.onCall((data, context) => {
     return [].concat(...asArr); //flat not supported yet
   })
 
-  functions.logger.log(vals)
-  functions.logger.log(typeof vals)
-
   const request = {
     spreadsheetId: config.spreadsheet_id,
     auth: jwt,
@@ -55,9 +52,6 @@ exports.saveToSheets = functions.https.onCall((data, context) => {
   let vals = [[save_data[1][1][1]]]
   let user = save_data[0][1][1];
 
-  functions.logger.log(vals)
-  functions.logger.log(typeof vals)
-
   const request = {
     spreadsheetId: config.spreadsheet_id,
     auth: jwt,
@@ -85,7 +79,6 @@ exports.loadFromSheets = functions.https.onCall((data, context) => {
   )
 
   let user_data = Object.entries(data.user);
-  functions.logger.log(user_data[0][1][1])
   const request = {
     spreadsheetId: config.spreadsheet_id,
     auth: jwt,

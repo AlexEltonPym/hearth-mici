@@ -26,24 +26,31 @@ export default function sketch(p) {
   let current_task_index = 0;
   const task_details = [{
     id: 0,
-    title: "Mage vs Warrior",
-    instruction: "Create 2 mage cards that helps against warriors.",
-    num_cards: 2,
-    class: "mage"
+    title: "3 Hunter Cards",
+    instruction: "Design three cards for hunter",
+    num_cards: 3,
+    class: "hunter"
   },
   {
     id: 1,
-    title: "Murlocs",
-    instruction: "Create 3 murlocs",
+    title: "3 Warrior Cards",
+    instruction: "Design three cards for warrior",
     num_cards: 3,
-    class: "shaman"
+    class: "warrior"
   },
   {
     id: 2,
-    title: "The ultimate defense",
-    instruction: "Create the ultimate defensive card.",
-    num_cards: 1,
-    class: "warrior"
+    title: "3 Mage Cards",
+    instruction: "Design three cards for mage",
+    num_cards: 3,
+    class: "mage"
+  },
+  {
+    id: 3,
+    title: "3 Neutral Cards",
+    instruction: "Design three neutral cards",
+    num_cards: 3,
+    class: "all"
   }
   ]
 
@@ -70,9 +77,9 @@ export default function sketch(p) {
 
   let survey_drop_target = null;
 
-  const font_pixels_large = 32;
-  const font_pixels = 24;
-  const font_pixels_small = 20;
+  let font_pixels_large = 32;
+  let font_pixels = 24;
+  let font_pixels_small = 20;
 
   let hearthstone_font;
   const mouse_padding = 1;
@@ -161,13 +168,13 @@ export default function sketch(p) {
 
 
 
-
     setup_done = true;
 
   }
 
 
   p.draw = () => {
+    p.resize_all();
     p.background(255)
     p.textAlign(p.LEFT, p.CENTER);
     p.image(bg, p.width / 2, p.height / 2, p.width, p.height);
@@ -467,7 +474,7 @@ export default function sketch(p) {
       editing_card = c;
     } else if (c.mouse_over_card_effect && !(editing == "effect" && p.dist(p.mouseX, p.mouseY, editX, editY) < 10)) {
       editing = "effect";
-      editX = c.hovered_effect.x + blank_spell_img.width / 2;
+      editX = c.hovered_effect.x + blank_spell_img.width * p.min(p.width*0.0005, 0.75)*0.75;
       editY = c.hovered_effect.y + c.hovered_effect.effect_string_height / 2;
       editing_card = c;
       effect_to_remove = c.hovered_effect;
@@ -578,6 +585,8 @@ export default function sketch(p) {
 
 
   p.send_overlay = () => {
+
+    p.text("Thank you for completing the tasks,\nplease submit your responses to the system.", p.width/2, p.height/2)
     p.push();
     let queur_x = p.width - w_padding;
     let queur_y = p.height - h_padding;
@@ -601,7 +610,7 @@ export default function sketch(p) {
 
     p.fill(0, 255);
     p.textAlign(p.CENTER, p.CENTER)
-    p.text(sending ? sent ? "Sending again..." : "Sending..." : sent ? mouse_over_queuer ? "Send again" : "Done." : "Send to sheets", 0, -4)
+    p.text(sending ? sent ? "Sending again..." : "Sending..." : sent ? mouse_over_queuer ? "Send again" : "Done." : "Send to system", 0, -4)
     p.pop();
 
   }
@@ -626,13 +635,15 @@ export default function sketch(p) {
     props.load_from_google_sheets(user).then((result) => {
       if(result.data.r){
         let loaded_save = result.data.r.data.values[0];
-        tasks = JSON.parse(loaded_save[2]);
-        for(let t of tasks){
-          for(let c of t){
-            c.__proto__ = p.Card.prototype;
+        if(loaded_save[2]){
+          tasks = JSON.parse(loaded_save[2]);
+          for(let t of tasks){
+            for(let c of t){
+              c.__proto__ = p.Card.prototype;
+            }
           }
+          p.resize_all();
         }
-    
       } else {
         console.log(result.data.e)
       }
@@ -687,6 +698,16 @@ export default function sketch(p) {
   }
 
   p.resize_all = () => {
+    
+    h_padding = p.height * 0.1;
+    w_padding = p.width * 0.2;
+    grid_h_padding = p.height * 0.2;
+    grid_w_padding = p.width * 0.1;
+
+    font_pixels_large = p.min(p.width*32*0.0008, 32);
+    font_pixels = p.min(p.width*24*0.0008, 24);
+    font_pixels_small = p.min(p.width*20*0.0008, 20);
+
     for (let b of buttons) {
       b.resized();
     }
@@ -694,7 +715,12 @@ export default function sketch(p) {
     for (let t of tasks) {
       for (let c of t) {
         c.resized();
+        
       }
+    }
+
+    for(let e of effects){
+      e.resized();
     }
 
     p.generate_masks();
@@ -841,7 +867,7 @@ export default function sketch(p) {
 
       this.effect_string = "";
       this.effect_string_height = 0;
-      this.effect_string_width = blank_spell_img.width * 0.5;
+      this.effect_string_width = blank_spell_img.width * p.min(p.width*0.0005, 0.75)/2;
       this.label_name = label_name;
       this.effect_short = effect_short;
 
@@ -853,6 +879,7 @@ export default function sketch(p) {
         duration: [duration, ""]
       };
     }
+    
   }
 
 
@@ -894,7 +921,14 @@ export default function sketch(p) {
       } else {
         this.x = p.map(this.card_id + 1, 0, 3, w_padding, p.width - w_padding)
       }
+      
       this.y = p.height / 2;
+      this.w = blank_spell_img.width * p.min(p.width*0.0005, 0.75);
+      this.h = blank_spell_img.height * p.min(p.width*0.0005, 0.75);
+
+      for(let e of this.effects){
+        e.effect_string_width = blank_spell_img.width * p.min(p.width*0.0005, 0.75)*0.75;
+      }
     }
 
     run() {
@@ -956,8 +990,8 @@ export default function sketch(p) {
         }
 
 
-
-        let estimated_characters_per_line = 20;
+        p.textSize(font_pixels_small)
+        let estimated_characters_per_line = e.effect_string_width/p.textWidth("w");
         let estimated_lines = e.effect_string.length / estimated_characters_per_line;
         e.effect_string_height = font_pixels_small * estimated_lines + 30;
 
@@ -970,7 +1004,7 @@ export default function sketch(p) {
       p.push();
       p.fill(0);
       p.textAlign(p.CENTER, p.CENTER)
-      if (this.effects.length > 2) {
+      if (this.effects.length > 1) {
         this.oversized = true;
       } else {
         this.oversized = false;
@@ -992,12 +1026,13 @@ export default function sketch(p) {
       }
 
       if (!this.oversized) {
-        p.image(flav, this.x, this.y - 90, 250, 250)
+        p.image(flav, this.x, this.y - this.h*0.20, this.w*0.7, this.h*0.7)
       }
+      
       p.image(forg, this.x, this.y, this.w, this.h);
 
       p.push();
-      p.textSize(60);
+      p.textSize(font_pixels_large*2);
       p.fill(255);
       p.strokeWeight(3);
       p.stroke(0);
@@ -1015,7 +1050,6 @@ export default function sketch(p) {
 
       p.push();
       p.fill(0);
-      p.textSize(font_pixels_small);
       let translation_offset_y;
       if (this.oversized) {
         translation_offset_y = this.y - this.h / 2 + 80;
@@ -1047,10 +1081,12 @@ export default function sketch(p) {
         } else {
           p.fill(0, 50)
         }
-
         p.rect(0, 0, e.effect_string_width, e.effect_string_height, 4, 4)
         p.fill(255, 255)
-        p.text(e.effect_string, 0, 0, blank_spell_img.width / 2, blank_spell_img.height / 2)
+        p.textSize(font_pixels_small)
+
+        p.textAlign(p.LEFT, p.TOP)
+        p.text(e.effect_string, 0, 0, e.effect_string_width, e.effect_string_height)
         translation_offset_y += e.effect_string_height / 2 + 5;
         p.translate(0, e.effect_string_height / 2 + 5)
 
@@ -1121,10 +1157,13 @@ export default function sketch(p) {
     }
 
     resized() {
-      this.x = w_padding - 150 + this.w / 2 - 7;
+      this.w = p.textWidth(this.button_name) + 14;
+
+      this.x = w_padding/2 + this.w / 2 - 7;
       this.y = p.map(this.button_id, 0, buttons.length, h_padding, p.height - h_padding);
       this.text_x = this.x - this.w / 2 + 7;
       this.text_y = this.y - 6;
+
     }
 
     run() {

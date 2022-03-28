@@ -80,7 +80,6 @@ class App extends Component {
 
   load_from_google_sheets(user){
     let user_data = {user: user}
-    console.log(Object.entries(user_data))
     return firebase.functions().httpsCallable('loadFromSheets')({user: Object.entries(user_data)})
   }
 
