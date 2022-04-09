@@ -783,7 +783,22 @@ export default function sketch(p) {
       null,
       null,
       null);
-     
+      p.register_effect("Set stats", "set",
+      ["randomly", "targeted", "all"],
+      ["x/x"],
+      ["minions", "pirates", "beasts", "elementals", "totems"],
+      ["enemy", "friendly", "all"],
+      ["turn", "permanently"]);
+
+    p.register_effect("Give stats", "cha",
+      ["randomly", "targeted", "all"],
+      ["x/x"],
+      ["minions", "pirates", "beasts", "elementals", "totems"],
+      ["enemy", "friendly", "all"],
+      ["turn", "permanently"]);
+
+
+    
 
     p.register_effect("Draw cards", "dra",
     null,
@@ -799,12 +814,21 @@ export default function sketch(p) {
       ["minions", "heroes", "minions or heroes", "pirates", "beasts", "elementals", "totems"],
       ["enemy", "friendly", "all"],
       null);
+      
       p.register_effect("Gain armour", "arm",
       null,
       ["x"],
       null,
       ["enemy", "friendly", "all"],
       null);
+
+      p.register_effect("Give keyword", "giv",
+      ["randomly", "targeted", "all"],
+      ["k"],
+      ["minions", "pirates", "beasts", "elementals", "totems"],
+      ["enemy", "friendly", "all"],
+      ["turn", "permanently"]);
+
       p.register_effect("Restore health", "hea",
       ["randomly", "targeted", "all"],
       ["x"],
@@ -847,27 +871,7 @@ export default function sketch(p) {
     null);
 
 
-    p.register_effect("Set stats", "set",
-      ["randomly", "targeted", "all"],
-      ["x/x"],
-      ["minions", "pirates", "beasts", "elementals", "totems"],
-      ["enemy", "friendly", "all"],
-      ["turn", "permanently"]);
-
-    p.register_effect("Give stats", "cha",
-      ["randomly", "targeted", "all"],
-      ["x/x"],
-      ["minions", "pirates", "beasts", "elementals", "totems"],
-      ["enemy", "friendly", "all"],
-      ["turn", "permanently"]);
-
-
-    p.register_effect("Give keyword", "giv",
-      ["randomly", "targeted", "all"],
-      ["k"],
-      ["minions", "pirates", "beasts", "elementals", "totems"],
-      ["enemy", "friendly", "all"],
-      ["turn", "permanently"]);
+   
 
 
 

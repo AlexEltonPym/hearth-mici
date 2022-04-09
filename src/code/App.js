@@ -122,6 +122,7 @@ class App extends Component {
         <span style={{marginBottom: "25vh"}} className="banner"><b>Step 2: </b>Now it's time to build your own cards...</span>
 
 
+
         <P5Wrapper sketch={sketch}
          bg_img={bg_img}
          spell_img={spell_img} 
@@ -135,7 +136,6 @@ class App extends Component {
           save_to_google_sheets={this.save_to_google_sheets}
           load_from_google_sheets={this.load_from_google_sheets}
           />
-
 
 
       </div>

@@ -1,23 +1,23 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "8d88dbaf9209a55938d23a1f2ffb2a1f",
+    "revision": "0a36fd39b393d1362ef6df1684cf6d91",
     "url": "/index.html"
   },
   {
-    "revision": "94ddc334028f3e76d1a2",
+    "revision": "07e978c47c9b1ddee1af",
     "url": "/static/css/main.5e16f010.chunk.css"
   },
   {
-    "revision": "553002671af6f20e74a1",
-    "url": "/static/js/2.8aca2200.chunk.js"
+    "revision": "d7267ee7d6e37a89bb06",
+    "url": "/static/js/2.75ac9753.chunk.js"
   },
   {
     "revision": "94d675bc376e800c5fc7a3f5afda9c6e",
-    "url": "/static/js/2.8aca2200.chunk.js.LICENSE.txt"
+    "url": "/static/js/2.75ac9753.chunk.js.LICENSE.txt"
   },
   {
-    "revision": "94ddc334028f3e76d1a2",
-    "url": "/static/js/main.e28da43b.chunk.js"
+    "revision": "07e978c47c9b1ddee1af",
+    "url": "/static/js/main.1176c8f0.chunk.js"
   },
   {
     "revision": "11e11f5146926959ba20",
@@ -38,6 +38,46 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
     "revision": "96b64da030c728f3447f52099b409a88",
     "url": "/static/media/fullBlankCreature.96b64da0.png"
+  },
+  {
+    "revision": "999649541a298ccc9370aec7a781086e",
+    "url": "/static/media/hunter01.99964954.png"
+  },
+  {
+    "revision": "b07b516f88d2301a08542b8a31768fd1",
+    "url": "/static/media/hunter02.b07b516f.png"
+  },
+  {
+    "revision": "182143499b659dcc837c53bc3a082122",
+    "url": "/static/media/hunter03.18214349.png"
+  },
+  {
+    "revision": "83c717f1c3a1a0b2c468b1e7f12cf11c",
+    "url": "/static/media/hunter04.83c717f1.png"
+  },
+  {
+    "revision": "796c425cb5e240bfa33ebebcdf6791a4",
+    "url": "/static/media/hunter05.796c425c.png"
+  },
+  {
+    "revision": "6d3b41b1923c1dfd055280b5fee2bf98",
+    "url": "/static/media/hunter06.6d3b41b1.png"
+  },
+  {
+    "revision": "e5ade447b34656b426196b01f35f2bac",
+    "url": "/static/media/hunter07.e5ade447.png"
+  },
+  {
+    "revision": "d48926b9d20d0badd19a4ed1ecec0840",
+    "url": "/static/media/hunter08.d48926b9.png"
+  },
+  {
+    "revision": "b3faff9637584e6923ffb806c3fec684",
+    "url": "/static/media/hunter09.b3faff96.png"
+  },
+  {
+    "revision": "884a051a38d8b07e5d24432865c628d3",
+    "url": "/static/media/hunter10.884a051a.png"
   },
   {
     "revision": "16985b028207a31c57b17e1149429ad3",
