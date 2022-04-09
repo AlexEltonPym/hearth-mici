@@ -90,24 +90,10 @@ class App extends Component {
       <div className="App">
 
 
-        <P5Wrapper sketch={sketch}
-         bg_img={bg_img}
-         spell_img={spell_img} 
-         creature_img={creature_img}
-          weapon_img={weapon_img} 
-          full_blank_creature_img={full_blank_creature_img}
-          gan_img={gan_img}
-          gan_imgs={gan_imgs}
-          hs_font={hs_font}
-          send_to_google_sheets={this.send_to_google_sheets}
-          save_to_google_sheets={this.save_to_google_sheets}
-          load_from_google_sheets={this.load_from_google_sheets}
-          />
-
          <span className="banner"><b>Step 1: </b>Please check out the available cards:</span>
 
         <div style={{ padding: '0 10%' }}>
-          {['neutral', 'mage', 'warrior'].map((toDisplay) => {
+          {['hunter', 'mage', 'warrior', 'neutral'].map((toDisplay) => {
             return (
               <div key={toDisplay}>
                 <Typography variant="h2" style={{ paddingTop: '100px' }} >{toDisplay[0].toUpperCase() + toDisplay.substring(1)}</Typography>
@@ -135,6 +121,20 @@ class App extends Component {
 
         <span style={{marginBottom: "25vh"}} className="banner"><b>Step 2: </b>Now it's time to build your own cards...</span>
 
+
+        <P5Wrapper sketch={sketch}
+         bg_img={bg_img}
+         spell_img={spell_img} 
+         creature_img={creature_img}
+          weapon_img={weapon_img} 
+          full_blank_creature_img={full_blank_creature_img}
+          gan_img={gan_img}
+          gan_imgs={gan_imgs}
+          hs_font={hs_font}
+          send_to_google_sheets={this.send_to_google_sheets}
+          save_to_google_sheets={this.save_to_google_sheets}
+          load_from_google_sheets={this.load_from_google_sheets}
+          />
 
 
 

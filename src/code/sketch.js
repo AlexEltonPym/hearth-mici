@@ -18,7 +18,7 @@ export default function sketch(p) {
 
 
   const buttons = [];
-  let button_id = 0;
+  let button_id = 1;
 
   const effects = [];
 
@@ -61,16 +61,16 @@ export default function sketch(p) {
   let tasks = [];
   const card_types = ["spell", "minion", "weapon"]
 
-  const method_names = ["randomly", "targeted", "all", "aura"];
-  const target_names = ["minions", "heroes", "minions or heroes", "murlocs", "beasts", "demons", "totems", "weapons"];
-  const target_names_singular = ["minion", "hero", "minion or hero", "murloc", "beast", "demon", "totem", "weapon"]
+  const method_names = ["randomly", "targeted", "all"];
+  const target_names = ["minions", "heroes", "minions or heroes", "pirates", "beasts", "elementals", "totems", "weapons"];
+  const target_names_singular = ["minion", "hero", "minion or hero", "pirate", "beast", "elemental", "totem", "weapon"]
   const filter_names = ["enemy", "friendly", "all"];
   const duration_names = ["turn", "permanently"];
   const param_format_names = ["x", "x/x", "k", "c"];
-  const effect_names = ["Deal damage", "Destroy", "Heal", "Gain armour", "Change stats", "Set stats", "Give keyword", "Return to hand", "Draw", "Gain mana", "Summon: ", "Battlecry: ", "Deathrattle: "]
+  const effect_names = ["Deal damage", "Destroy", "Restore health", "Gain armour", "Change stats", "Set stats", "Give keyword", "Return to hand", "Draw", "Gain mana", "Summon: ", "Battlecry: ", "Deathrattle: "]
   const keywords = ["Taunt", "Charge", "Lifesteal", "Spell damage +1", "Divine shield", "Poisonous", "Windfury", "Frozen"]
-  const all_creature_types = ["murloc", "beast", "demon", "totem", "dragon", "pirate", "mech", "elemental"]
-  const creature_types = ["Murloc", "Beast", "Demon", "Totem"]
+  const all_creature_types = ["pirate", "beast", "elemental", "totem", "dragon", "pirate", "mech", "elemental"]
+  const creature_types = ["Pirate", "Beast", "Elemental", "Totem"]
 
   const survey_topics = ["none", "methods", "filters", "targets", "duration", "params"];
   let current_survey_topic = 0;
@@ -184,11 +184,17 @@ export default function sketch(p) {
       for (let c of tasks[current_task_index]) {
         c.run();
       }
-    }
+    
 
     for (let b of buttons) {
       b.run();
     }
+  
+    p.textSize(font_pixels+4)
+    p.text("Base attributes:", w_padding/2, h_padding)
+    p.text("Battlecrys:", w_padding/2, p.map(3, 0, 16, h_padding, p.height - h_padding))
+  }
+
 
     if (the_mouse.busy && current_survey_topic == 0) {
       p.push();
@@ -275,10 +281,10 @@ export default function sketch(p) {
 
 
     if (options[0] == "x/x") {
-      for (let attack = 1; attack < 11; attack++) {
-        for (let defense = 1; defense < 11; defense++) {
-          let xPos = p.map(attack, 1, 10, grid_w_padding, p.width - grid_w_padding);
-          let yPos = p.map(defense, 1, 10, grid_h_padding, p.height - grid_h_padding);
+      for (let attack = 0; attack <= 10; attack++) {
+        for (let defense = 0; defense <= 10; defense++) {
+          let xPos = p.map(attack, 0, 10, grid_w_padding, p.width - grid_w_padding);
+          let yPos = p.map(defense, 0, 10, grid_h_padding, p.height - grid_h_padding);
           let box_width = (p.width - grid_w_padding * 2) / 10;
           let box_height = (p.height - grid_h_padding * 2) / 10;
 
@@ -347,7 +353,25 @@ export default function sketch(p) {
     }
 
     if (options[0] == "x/x") {
-      setting[1] = `${p.floor(p.map(p.mouseX, 0, p.width, 1, 11))}/${p.floor(p.map(p.mouseY, 0, p.height, 1, 11))}`
+      let selectedAttack = 0;
+      let selectedDefense = 0;
+      for (let attack = 0; attack <= 10; attack++) {
+        for (let defense = 0; defense <= 10; defense++) {
+          let xPos = p.map(attack, 0, 10, grid_w_padding, p.width - grid_w_padding);
+          let yPos = p.map(defense, 0, 10, grid_h_padding, p.height - grid_h_padding);
+          let box_width = (p.width - grid_w_padding * 2) / 10;
+          let box_height = (p.height - grid_h_padding * 2) / 10;
+
+          if (p.mouseX > xPos - box_width / 2 && p.mouseX < xPos + box_width / 2 &&
+            p.mouseY > yPos - box_height / 2 && p.mouseY < yPos + box_height / 2) {
+              selectedAttack = attack;
+              selectedDefense = defense;
+              break;
+            }
+          }
+        }
+
+      setting[1] = `${selectedAttack}/${selectedDefense}`;
     } else {
       setting[1] = options[hovered_option]
     }
@@ -583,7 +607,7 @@ export default function sketch(p) {
 
   p.send_overlay = () => {
 
-    p.text("Thank you for completing the tasks,\nplease submit your responses to the system.", p.width/2, p.height/2)
+    p.text("Thank you for completing the tasks,\nPlease hit the button to save your responses.", p.width/2, p.height/2)
     p.push();
     let queur_x = p.width - w_padding;
     let queur_y = p.height - h_padding;
@@ -607,7 +631,7 @@ export default function sketch(p) {
 
     p.fill(0, 255);
     p.textAlign(p.CENTER, p.CENTER)
-    p.text(sending ? sent ? "Sending again..." : "Sending..." : sent ? mouse_over_queuer ? "Send again" : "Done." : "Send to system", 0, -4)
+    p.text(sending ? sent ? "Saving again..." : "Saving..." : sent ? mouse_over_queuer ? "Save again" : "Done." : "Save to system", 0, -4)
     p.pop();
 
   }
@@ -737,103 +761,113 @@ export default function sketch(p) {
 
     effects[effect_text] = new p.Effect(effect_text, effect_short, method, param, targets, filters, duration);
     buttons.push(new p.Button(effect_text, button_id++));
+    if(button_id == 3){
+      button_id++;
+    }
   }
 
   p.register_all = () => {
 
-    p.register_effect("Deal damage", "dam",
-      ["randomly", "targeted", "all"],
-      ["x"],
-      ["minions", "heroes", "minions or heroes", "murlocs", "beasts", "demons", "totems"],
-      ["enemy", "friendly", "all"],
-      null);
+   
 
-    p.register_effect("Destroy", "des",
-      ["randomly", "targeted", "all"],
-      null,
-      ["minions", "murlocs", "beasts", "demons", "totems", "weapons"],
-      ["enemy", "friendly", "all"],
-      null);
-
-    p.register_effect("Heal", "hea",
-      ["randomly", "targeted", "all"],
-      ["x"],
-      ["minions", "heroes", "minions or heroes", "murlocs", "beasts", "demons", "totems"],
-      ["enemy", "friendly", "all"],
-      null);
-
-    p.register_effect("Gain armour", "arm",
-      null,
-      ["x"],
-      null,
-      null,
-      null);
-
-    p.register_effect("Change stats", "cha",
-      ["randomly", "targeted", "all", "aura"],
-      ["x/x"],
-      ["minions", "heroes", "minions or heroes", "murlocs", "beasts", "demons", "totems", "weapons"],
-      ["enemy", "friendly", "all"],
-      ["turn", "permanently"]);
-
-    p.register_effect("Set stats", "set",
-      ["randomly", "targeted", "all", "aura"],
-      ["x/x"],
-      ["minions", "heroes", "minions or heroes", "murlocs", "beasts", "demons", "totems", "weapons"],
-      ["enemy", "friendly", "all"],
-      ["turn", "permanently"]);
-
-
-    p.register_effect("Give keyword", "giv",
-      ["randomly", "targeted", "all", "aura"],
-      ["k"],
-      ["minions", "heroes", "minions or heroes", "murlocs", "beasts", "demons", "totems", "weapons"],
-      ["enemy", "friendly", "all"],
-      ["turn", "permanently"]);
-
-    p.register_effect("Return to hand", "ret",
-      ["randomly", "targeted", "all"],
-      null,
-      ["minions", "murlocs", "beasts", "demons", "totems"],
-      ["enemy", "friendly", "all"],
-      null);
-
-
-    p.register_effect("Draw", "dra",
-      null,
-      ["x"],
-      null,
-      ["enemy", "friendly", "all"],
-      null);
-
-
-    p.register_effect("Gain mana", "gai",
-      null,
-      ["x"],
-      null,
-      ["enemy", "friendly", "all"],
-      null);
-
-    p.register_effect("Summon", "sum",
-      null,
-      ["x/x"],
-      null,
-      null,
-      null);
-
-    p.register_effect("Keyword", "key",
+    p.register_effect("Keywords", "key",
       null,
       ["k"],
       null,
       null,
       null);
 
-    p.register_effect("Creature type", "cre",
+    p.register_effect("Creature types", "cre",
       null,
       ["c"],
       null,
       null,
       null);
+     
+
+    p.register_effect("Draw cards", "dra",
+    null,
+    ["x"],
+    null,
+    ["enemy", "friendly", "all"],
+    null);
+
+   
+    p.register_effect("Deal damage", "dam",
+      ["randomly", "targeted", "all"],
+      ["x"],
+      ["minions", "heroes", "minions or heroes", "pirates", "beasts", "elementals", "totems"],
+      ["enemy", "friendly", "all"],
+      null);
+      p.register_effect("Gain armour", "arm",
+      null,
+      ["x"],
+      null,
+      ["enemy", "friendly", "all"],
+      null);
+      p.register_effect("Restore health", "hea",
+      ["randomly", "targeted", "all"],
+      ["x"],
+      ["minions", "heroes", "minions or heroes", "pirates", "beasts", "elementals", "totems"],
+      ["enemy", "friendly", "all"],
+      null);
+    p.register_effect("Return to hand", "ret",
+    ["randomly", "targeted", "all"],
+    null,
+    ["minions", "pirates", "beasts", "elementals", "totems"],
+    ["enemy", "friendly", "all"],
+    null);
+
+
+
+  p.register_effect("Summon token", "sum",
+  null,
+  ["x/x"],
+  null,
+  null,
+  null);
+    p.register_effect("Destroy minions", "des",
+      ["randomly", "targeted", "all"],
+      null,
+      ["minions", "pirates", "beasts", "elementals", "totems", "weapons"],
+      ["enemy", "friendly", "all"],
+      null);
+
+    
+
+
+
+
+
+  p.register_effect("Gain mana crystals", "gai",
+    null,
+    ["x"],
+    null,
+    ["enemy", "friendly", "all"],
+    null);
+
+
+    p.register_effect("Set stats", "set",
+      ["randomly", "targeted", "all"],
+      ["x/x"],
+      ["minions", "pirates", "beasts", "elementals", "totems"],
+      ["enemy", "friendly", "all"],
+      ["turn", "permanently"]);
+
+    p.register_effect("Give stats", "cha",
+      ["randomly", "targeted", "all"],
+      ["x/x"],
+      ["minions", "pirates", "beasts", "elementals", "totems"],
+      ["enemy", "friendly", "all"],
+      ["turn", "permanently"]);
+
+
+    p.register_effect("Give keyword", "giv",
+      ["randomly", "targeted", "all"],
+      ["k"],
+      ["minions", "pirates", "beasts", "elementals", "totems"],
+      ["enemy", "friendly", "all"],
+      ["turn", "permanently"]);
 
 
 
@@ -928,7 +962,6 @@ export default function sketch(p) {
         p.textSize(font_pixels_small)
         let num_lines = p.textWidth(e.effect_string)/e.effect_string_width;
         e.effect_string_height = font_pixels_small * p.ceil(num_lines) + font_pixels_small;
-        console.log(e.effect_string_height)
       }
     }
 
@@ -941,15 +974,15 @@ export default function sketch(p) {
     generate_effect_text() {
       for (let e of this.effects) {
         e.effect_string = "";
-        if (e.label_name == "Keyword" || e.label_name == "Creature type") {
+        if (e.label_name == "Keywords" || e.label_name == "Creature types") {
           e.effect_string = e.settings.params[1];
         } else if (e.label_name == "Deal damage") {
           if (e.settings.methods[1] == "randomly") {
-            e.effect_string = "Randomly deal " + e.settings.params[1] + " damage to a ";
+            e.effect_string = "Battlecry: Deal " + e.settings.params[1] + " damage to a random ";
           } else if (e.settings.methods[1] == "targeted") {
-            e.effect_string = "Deal " + e.settings.params[1] + " damage to target ";
+            e.effect_string = "Battlecry: Deal " + e.settings.params[1] + " damage to target ";
           } else {
-            e.effect_string = "Deal " + e.settings.params[1] + " damage to all "
+            e.effect_string = "Battlecry: Deal " + e.settings.params[1] + " damage to all "
           }
 
           e.effect_string += e.settings.filters[1] == "all" ? "" : e.settings.filters[1] + " " //remove "all all"
@@ -958,13 +991,13 @@ export default function sketch(p) {
           } else {
             e.effect_string += target_names_singular[target_names.indexOf(e.settings.targets[1])]
           }
-        } else if (e.label_name == "Destroy") {
+        } else if (e.label_name == "Destroy minions") {
           if (e.settings.methods[1] == "randomly") {
-            e.effect_string = "Randomly destroy a ";
+            e.effect_string = "Battlecry: Destroy a random ";
           } else if (e.settings.methods[1] == "targeted") {
-            e.effect_string = "Destroy a target ";
+            e.effect_string = "Battlecry: Destroy a target ";
           } else {
-            e.effect_string = "Destroy all "
+            e.effect_string = "Battlecry: Destroy all "
           }
           e.effect_string += e.settings.filters[1] == "all" ? "" : e.settings.filters[1] + " " //remove "all all"
           if (e.settings.methods[1] == "all") {
@@ -972,19 +1005,123 @@ export default function sketch(p) {
           } else {
             e.effect_string += target_names_singular[target_names.indexOf(e.settings.targets[1])]
           }
-        } else if (e.label_name == "Heal") {
+        } else if (e.label_name == "Restore health") {
           if (e.settings.methods[1] == "randomly") {
-            e.effect_string = "Restore " + e.settings.params[1] + " health to a random ";
+            e.effect_string = "Battlecry: Restore " + e.settings.params[1] + " health to a random ";
           } else if (e.settings.methods[1] == "targeted") {
-            e.effect_string = "Restore " + e.settings.params[1] + " health to a target ";
+            e.effect_string = "Battlecry: Restore " + e.settings.params[1] + " health to a target ";
           } else {
-            e.effect_string = "Restore " + e.settings.params[1] + " health to all ";
+            e.effect_string = "Battlecry: Restore " + e.settings.params[1] + " health to all ";
           }
           e.effect_string += e.settings.filters[1] == "all" ? "" : e.settings.filters[1] + " " //remove "all all"
           if (e.settings.methods[1] == "all") {
             e.effect_string += e.settings.targets[1]
           } else {
             e.effect_string += target_names_singular[target_names.indexOf(e.settings.targets[1])]
+          }
+        } else if (e.label_name == "Draw cards") {
+          if (e.settings.filters[1] == "enemy") {
+            e.effect_string = "Battlecry: Enemy draws " + e.settings.params[1] + " cards";
+          } else if (e.settings.filters[1] == "friendly") {
+            e.effect_string = "Battlecry: Draw " + e.settings.params[1] + " cards";
+          } else {
+            e.effect_string = "Battlecry: Both players draw " + e.settings.params[1] + " cards";
+          }       
+        } else if (e.label_name == "Gain armour") {
+          if (e.settings.filters[1] == "enemy") {
+            e.effect_string = "Battlecry: Enemy gains " + e.settings.params[1] + " armour";
+          } else if (e.settings.filters[1] == "friendly") {
+            e.effect_string = "Battlecry: Gain " + e.settings.params[1] + " armour";
+          } else {
+            e.effect_string = "Battlecry: Both players gain " + e.settings.params[1] + " armour";
+          }       
+         } else if (e.label_name == "Return to hand") {
+          if (e.settings.methods[1] == "randomly") {
+            e.effect_string = "Battlecry: Return a random ";
+          } else if (e.settings.methods[1] == "targeted") {
+            e.effect_string = "Battlecry: Return a target ";
+          } else {
+            e.effect_string = "Battlecry: Return all "
+          }
+          e.effect_string += e.settings.filters[1] == "all" ? "" : e.settings.filters[1] + " " //remove "all all"
+          if (e.settings.methods[1] == "all") {
+            e.effect_string += e.settings.targets[1]
+          } else {
+            e.effect_string += target_names_singular[target_names.indexOf(e.settings.targets[1])]
+          }
+          e.effect_string += " to their owners hand."
+        } else if (e.label_name == "Summon token") {
+          e.effect_string = "Battlecry: Summon a " + e.settings.params[1] + " minion";
+        } else if (e.label_name == "Gain mana crystals") {
+          if (e.settings.filters[1] == "enemy") {
+            e.effect_string = "Battlecry: Enemy gains " + e.settings.params[1] + " mana crystals";
+          } else if (e.settings.filters[1] == "friendly") {
+            e.effect_string = "Battlecry: Gain " + e.settings.params[1] + " mana crystals";
+          } else {
+            e.effect_string = "Battlecry: Both players gain " + e.settings.params[1] + " empty mana crystals";
+          }       
+        } else if (e.label_name == "Set stats") {
+          if (e.settings.methods[1] == "randomly") {
+            e.effect_string = "Battlecry: Set a random ";
+          } else if (e.settings.methods[1] == "targeted") {
+            e.effect_string = "Battlecry: Set a target ";
+          } else {
+            e.effect_string = "Battlecry: Set all "
+          }
+          e.effect_string += e.settings.filters[1] == "all" ? "" : e.settings.filters[1] + " " //remove "all all"
+          if (e.settings.methods[1] == "all") {
+            e.effect_string += e.settings.targets[1]
+          } else {
+            e.effect_string += target_names_singular[target_names.indexOf(e.settings.targets[1])]
+          }
+          e.effect_string += " to " + e.settings.params[1]
+          if(e.settings.duration == "turn"){
+            e.effect_string += " for this turn"
+          } else {
+            e.effect_string += " permanently"
+
+          }
+        } else if (e.label_name == "Give stats") {
+          if (e.settings.methods[1] == "randomly") {
+            e.effect_string = "Battlecry: Give a random ";
+          } else if (e.settings.methods[1] == "targeted") {
+            e.effect_string = "Battlecry: Give a target ";
+          } else {
+            e.effect_string = "Battlecry: Give all "
+          }
+          e.effect_string += e.settings.filters[1] == "all" ? "" : e.settings.filters[1] + " " //remove "all all"
+          if (e.settings.methods[1] == "all") {
+            e.effect_string += e.settings.targets[1]
+          } else {
+            e.effect_string += target_names_singular[target_names.indexOf(e.settings.targets[1])]
+          }
+          e.effect_string += " +"+e.settings.params[1].split("/")[0]+"/+"+e.settings.params[1].split("/")[1]
+          if(e.settings.duration == "turn"){
+            e.effect_string += " for this turn"
+          } else {
+            e.effect_string += " permanently"
+
+          }
+        } else if (e.label_name == "Give keyword") {
+          if (e.settings.methods[1] == "randomly") {
+            e.effect_string = "Battlecry: Give a random ";
+          } else if (e.settings.methods[1] == "targeted") {
+            e.effect_string = "Battlecry: Give a target ";
+          } else {
+            e.effect_string = "Battlecry: Give all "
+          }
+          e.effect_string += e.settings.filters[1] == "all" ? "" : e.settings.filters[1] + " " //remove "all all"
+          if (e.settings.methods[1] == "all") {
+            e.effect_string += e.settings.targets[1]
+          } else {
+            e.effect_string += target_names_singular[target_names.indexOf(e.settings.targets[1])]
+          }
+          e.effect_string += " "+e.settings.params[1].toLowerCase()
+          if(e.settings.duration == "turn"){
+            e.effect_string += " for this turn"
+          } else {
+            e.effect_string += " permanently"
+
           }
         } else {
           e.effect_string = e.label_name
@@ -992,7 +1129,7 @@ export default function sketch(p) {
 
 
         p.textSize(font_pixels_small)
-        let num_lines = p.textWidth(e.effect_string)/e.effect_string_width;
+        let num_lines = (p.textWidth(e.effect_string)+150)/e.effect_string_width;
         e.effect_string_height = font_pixels_small * p.ceil(num_lines) + font_pixels_small;
 
       }
@@ -1159,12 +1296,13 @@ export default function sketch(p) {
     resized() {
       this.w = p.textWidth(this.button_name) + 14;
       this.h = font_pixels + 10;
-      
+
       this.x = w_padding/2 + this.w / 2 - 7;
-      this.y = p.map(this.button_id, 0, buttons.length, h_padding, p.height - h_padding);
+      this.y = p.map(this.button_id, 0, 15, h_padding, p.height - h_padding);
       this.text_x = this.x - this.w / 2 + 7;
       this.text_y = this.y - 6;
 
+   
     }
 
     run() {
