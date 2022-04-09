@@ -242,11 +242,8 @@ export default function sketch(p) {
 
   p.draw_task_overlay = () => {
     p.textAlign(p.RIGHT, p.CENTER)
-    p.textSize(font_pixels_large);
-    p.text(task_details[current_task_index].title, p.width - w_padding / 2, h_padding)
-
     p.textSize(font_pixels);
-    p.text(task_details[current_task_index].instruction, p.width - w_padding / 2, h_padding + font_pixels_large)
+    p.text(task_details[current_task_index].instruction, p.width - w_padding / 2, h_padding)
 
 
     p.fill(0);
@@ -928,6 +925,10 @@ export default function sketch(p) {
 
       for(let e of this.effects){
         e.effect_string_width = blank_spell_img.width * p.min(p.width*0.0005, 0.75)*0.75;
+        p.textSize(font_pixels_small)
+        let num_lines = p.textWidth(e.effect_string)/e.effect_string_width;
+        e.effect_string_height = font_pixels_small * p.ceil(num_lines) + font_pixels_small;
+        console.log(e.effect_string_height)
       }
     }
 
@@ -991,9 +992,8 @@ export default function sketch(p) {
 
 
         p.textSize(font_pixels_small)
-        let estimated_characters_per_line = e.effect_string_width/p.textWidth("w");
-        let estimated_lines = e.effect_string.length / estimated_characters_per_line;
-        e.effect_string_height = font_pixels_small * estimated_lines + 30;
+        let num_lines = p.textWidth(e.effect_string)/e.effect_string_width;
+        e.effect_string_height = font_pixels_small * p.ceil(num_lines) + font_pixels_small;
 
       }
 
@@ -1052,11 +1052,11 @@ export default function sketch(p) {
       p.fill(0);
       let translation_offset_y;
       if (this.oversized) {
-        translation_offset_y = this.y - this.h / 2 + 80;
-        p.translate(this.x, this.y - this.h / 2 + 80);
+        translation_offset_y = this.y - this.h *0.3;
+        p.translate(this.x, this.y - this.h * 0.3);
       } else {
-        translation_offset_y = this.y + 50;
-        p.translate(this.x, this.y + 50);
+        translation_offset_y = this.y + this.h*0.1;
+        p.translate(this.x, this.y + this.h*0.1);
       }
 
       this.mouse_over_card_effect = false;
@@ -1158,7 +1158,8 @@ export default function sketch(p) {
 
     resized() {
       this.w = p.textWidth(this.button_name) + 14;
-
+      this.h = font_pixels + 10;
+      
       this.x = w_padding/2 + this.w / 2 - 7;
       this.y = p.map(this.button_id, 0, buttons.length, h_padding, p.height - h_padding);
       this.text_x = this.x - this.w / 2 + 7;
