@@ -1,0 +1,83 @@
+{
+    "HUNTER_DECK_v_HUNTER_DECK_MIRROR": {
+        "player": "HUNTER_DECK",
+        "enemy": "HUNTER_DECK_MIRROR",
+        "stats": [
+            1,
+            2,
+            3
+        ]
+    },
+    "WARRIOR_DECK_v_WARRIOR_DECK_MIRROR": {
+        "player": "WARRIOR_DECK",
+        "enemy": "WARRIOR_DECK_MIRROR",
+        "stats": [
+            1,
+            2,
+            3
+        ]
+    },
+    "MAGE_DECK_v_MAGE_DECK_MIRROR": {
+        "player": "MAGE_DECK",
+        "enemy": "MAGE_DECK_MIRROR",
+        "stats": [
+            1,
+            2,
+            3
+        ]
+    },
+    "HUNTER_DECK_v_WARRIOR_DECK": {
+        "player": "HUNTER_DECK",
+        "enemy": "WARRIOR_DECK",
+        "stats": [
+            1,
+            2,
+            3
+        ]
+    },
+    "HUNTER_DECK_v_MAGE_DECK": {
+        "player": "HUNTER_DECK",
+        "enemy": "MAGE_DECK",
+        "stats": [
+            1,
+            2,
+            3
+        ]
+    },
+    "WARRIOR_DECK_v_MAGE_DECK": {
+        "player": "WARRIOR_DECK",
+        "enemy": "MAGE_DECK",
+        "stats": [
+            1,
+            2,
+            3
+        ]
+    },
+    "MAGE_DECK_v_HUNTER_DECK": {
+        "player": "MAGE_DECK",
+        "enemy": "HUNTER_DECK",
+        "stats": [
+            1,
+            2,
+            3
+        ]
+    },
+    "MAGE_DECK_v_WARRIOR_DECK": {
+        "player": "MAGE_DECK",
+        "enemy": "WARRIOR_DECK",
+        "stats": [
+            1,
+            2,
+            3
+        ]
+    },
+    "WARRIOR_DECK_v_HUNTER_DECK": {
+        "player": "WARRIOR_DECK",
+        "enemy": "HUNTER_DECK",
+        "stats": [
+            1,
+            2,
+            3
+        ]
+    }
+}
