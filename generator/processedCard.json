@@ -1,0 +1,16 @@
+{
+    "baseManaCost": 4,
+    "baseHp": 9,
+    "baseAttack": 9,
+    "attributes": {
+        "TAUNT": false,
+        "LIFESTEAL": false
+    },
+    "name": "Custom Card",
+    "type": "MINION",
+    "rarity": "COMMON",
+    "description": "Custom card",
+    "collectible": true,
+    "set": "CUSTOM",
+    "fileFormatVersion": 1
+}
