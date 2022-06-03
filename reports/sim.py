@@ -17,6 +17,7 @@ import pyfiglet
 from fpdf import FPDF
 import math
 from filelock import FileLock
+from tqdm import tqdm
 
 
 
@@ -47,7 +48,7 @@ def run_with_context(num_games, custom_cards, decks):
   with Context() as context:
     for c in custom_cards:
       context.CardCatalogue.addOrReplaceCard(c)
-    test_results = list(simulate(context=context, decks=decks, number=num_games, behaviours=['GameStateValueBehaviour', 'GameStateValueBehaviour'], reduce=False))
+    test_results = list(tqdm(simulate(context=context, decks=decks, number=num_games, behaviours=['GameStateValueBehaviour', 'GameStateValueBehaviour'], reduce=False)))
     return test_results
 
 def get_stats(game_results, perspective):
@@ -141,13 +142,15 @@ def progressive_tryout(games_to_sim_list, decks, custom_cards = []):
 
   return stats
 
-def send_to_database(player, enemy, stats):
+def send_to_database(user, card_id, player, enemy, stats):
   with FileLock("../../hearth-mici/reports/database.json.lock"):
     with open('../../hearth-mici/reports/database.json', 'r') as database_file:
-      entry_name = f"{player}_v_{enemy}"
+      entry_name = f"{user}_{card_id}_{player}_v_{enemy}"
       database = json.load(database_file)
 
       database[entry_name] = {}
+      database[entry_name]["user"] = user
+      database[entry_name]["card_id"] = user
       database[entry_name]["player"] = player
       database[entry_name]["enemy"] = enemy
       database[entry_name]["stats"] = stats
@@ -237,10 +240,9 @@ def experiment_simple_game():
   return stats
 
 def experiment_custom_card():
-  with open('experimentCards/liam01.json', 'r') as c:
+  with open('experiment_cards/liamx.json', 'r') as c:
     custom_card = json.dumps(json.load(c))
-    stats = progressive_tryout([1000], [HUNTER_DECK, HUNTER_DECK_MIRROR], [custom_card])
-    send_to_database(stats)
+    stats = progressive_tryout([3], [HUNTER_DECK_6_CUSTOM, HUNTER_DECK_MIRROR], [custom_card])
 
     return stats
 
@@ -262,20 +264,18 @@ def experiment_reference():
 
     stats = progressive_tryout([1000], [player_deck, enemy_deck])
     
-    send_to_database(player_deck_name, enemy_deck_name, stats)
+    send_to_database("baseline", "x", player_deck_name, enemy_deck_name, stats)
 
 def experiment_custom_card_gauntlet():
   pp = pprint.PrettyPrinter(indent=1, compact=False)
-
-  with open('experimentCards/liam02.json', 'r') as c:
+  username = "liam"
+  card_id = "x"
+  test_class = "HUNTER" #HUNTER, MAGE, WARRIOR, NEUTRAL
+  card_swaps = 2
+  games_to_play = 3
+  
+  with open(f'experiment_cards/{username}{card_id}.json', 'r') as c:
     custom_card = json.dumps(json.load(c))
-
-
-    test_class = "HUNTER" #HUNTER, MAGE, WARRIOR, NEUTRAL
-    card_swaps = 2
-    games_to_play = 1000
-
-
 
     if test_class == "NEUTRAL":
       options = ["HUNTER", "WARRIOR", "MAGE"]
@@ -284,13 +284,17 @@ def experiment_custom_card_gauntlet():
 
     for test_deck_class in options:
 
-      TEST_DECK = globals()[f"{test_deck_class}_DECK_{card_swaps}_CUSTOM"]
+      PLAYER_DECK = globals()[f"{test_deck_class}_DECK_{card_swaps}_CUSTOM"]
 
       for ENEMY_DECK in [MAGE_DECK, WARRIOR_DECK, HUNTER_DECK]:
-        stats = progressive_tryout([games_to_play], [TEST_DECK, ENEMY_DECK], [custom_card])
-        test_deck_title = TEST_DECK.partition('\n')[0]
-        enemy_deck_title =  ENEMY_DECK.partition('\n')[0]
-        pp.pprint(f"{test_deck_title} vs {enemy_deck_title}")
+        stats = progressive_tryout([games_to_play], [PLAYER_DECK, ENEMY_DECK], [custom_card])
+        player_deck_name = PLAYER_DECK.split("\n")[0].split(" ")[1]
+        enemy_deck_name =  ENEMY_DECK.split("\n")[0].split(" ")[1]
+        
+        send_to_database(username, card_id, player_deck_name, enemy_deck_name, stats)
+
+        pp.pprint(f"{username}_{card_id}")
+        pp.pprint(f"{player_deck_name} vs {enemy_deck_name}")
         pp.pprint(f"Card swaps: {card_swaps}")
         pp.pprint(f"Games played: {games_to_play}")
         pp.pprint(stats)
@@ -308,9 +312,9 @@ def initalise_system():
   
 def run_experiments(experiments): 
   pp = pprint.PrettyPrinter(indent=1, compact=False)
-  pdf = FPDF()
-  pdf.add_page()
-  pdf.set_font("Arial", size = 12)
+  # pdf = FPDF()
+  # pdf.add_page()
+  # pdf.set_font("Arial", size = 12)
 
   print("Experiment startup...")
   start_time = time.time()
@@ -323,8 +327,8 @@ def run_experiments(experiments):
     official_result = expfunc()
     print(f"Official result:\n")
     pp.pprint(official_result)
-    pdf.write(10, pp.pformat(official_result))
-    pdf.output("report.pdf")   
+    # pdf.write(10, pp.pformat(official_result))
+    # pdf.output("report.pdf")   
 
     print(f"\nExperiment took {time.time() - last_exp_time} \n")
     
@@ -336,14 +340,14 @@ def run_experiments(experiments):
 if __name__ == '__main__':
  
 
-  experiments = [(experiment_simple_game, True),\
+  experiments = [(experiment_simple_game, False),\
                  (experiment_timing_alpha, False),\
                  (experiment_timing_beta, False),\
                  (experiment_impact, False),\
                  (experiment_baselines, False),\
                  (experiment_histogram, False),\
                  (experiment_minimeta, False),\
-                 (experiment_custom_card, False),\
+                 (experiment_custom_card, True),\
                  (experiment_custom_card_gauntlet, False),\
                  (experiment_reference, False)]
 

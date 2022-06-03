@@ -1,0 +1,14 @@
+{
+    "baseManaCost": 0,
+    "baseHp": 8,
+    "baseAttack": 9,
+    "spell1": {
+        "trigger": "WhenDrawn",
+        "value": 8,
+        "active": true
+    },
+    "attributes": {
+        "TAUNT": true,
+        "LIFESTEAL": true
+    }
+}

@@ -41,12 +41,11 @@ class Attributes:
     return {'TAUNT':self.taunt, 'LIFESTEAL':self.lifesteal}
 
 class Card:
-  def __init__(self, baseManaCost, baseHp, baseAttack, isSpell, spell, attributes):
+  def __init__(self, baseManaCost, baseHp, baseAttack, spell1, attributes):
     self.baseManaCost = baseManaCost
     self.baseHp = baseHp
     self.baseAttack = baseAttack
-    self.isSpell = isSpell
-    self.spell = spell
+    self.spell1 = spell1
     self.attributes = attributes
 
   def __repr__(self):
@@ -54,21 +53,21 @@ class Card:
       'baseManaCost':self.baseManaCost, 
       'baseHp':self.baseHp,
       'baseAttack':self.baseAttack, 
-      'isSpell':self.isSpell, 
-      'spell': self.spell,
+      'spell1': self.spell1,
       'attributes': self.attributes,
     }
 
 class Spell:
-  def __init__(self, trigger, value):
+  def __init__(self, trigger, value, active):
     self.trigger = trigger
     self.value = value
+    self.active = active
 
   def __repr__(self):
-    return {'trigger':self.trigger, 'value':self.value}
+    return {'trigger':self.trigger, 'value':self.value, 'active':self.active}
 
 
-simple_type_names = ['Taunt', 'Lifesteal', 'Trigger', 'IsSpell', 'Integer', 'Boolean']
+simple_type_names = ['Taunt', 'Lifesteal', 'Trigger', 'Integer', 'Boolean']
 simple_types = []
 
 def simple_type_init(self, val):
@@ -82,12 +81,11 @@ for type_name in simple_type_names:
 
 
 pset = gp.PrimitiveSetTyped("main", [], Card)
-pset.addPrimitive(Card, [BaseManaCost, BaseHp, BaseAttack, IsSpell, Spell, Attributes], Card)
+pset.addPrimitive(Card, [BaseManaCost, BaseHp, BaseAttack, Spell, Attributes], Card)
 pset.addPrimitive(BaseManaCost, [Integer,], BaseManaCost)
 pset.addPrimitive(BaseHp, [Integer,], BaseHp)
 pset.addPrimitive(BaseAttack, [Integer,], BaseAttack)
-pset.addPrimitive(Spell, [Trigger,Integer], Spell)
-pset.addPrimitive(IsSpell, [Boolean], IsSpell)
+pset.addPrimitive(Spell, [Trigger,Integer,Boolean], Spell)
 pset.addPrimitive(Attributes, [Taunt, Lifesteal], Attributes)
 pset.addPrimitive(Taunt, [Boolean], Taunt)
 pset.addPrimitive(Lifesteal, [Boolean], Lifesteal)
@@ -124,11 +122,11 @@ def evalCard(individual):
 
     
 
-    return sum((10-di["baseManaCost"], di["baseAttack"], di["baseHp"], di["spell"]["value"])),
+    return sum((di["baseManaCost"], 10-di["baseAttack"], 10-di["baseHp"])),
 
 
 
-creator.create("FitnessMax", base.Fitness, weights=(1.0,))
+creator.create("FitnessMax", base.Fitness, weights=(-1.0,))
 creator.create("Individual", gp.PrimitiveTree, fitness=creator.FitnessMax)
 
 toolbox = base.Toolbox()
@@ -143,9 +141,9 @@ toolbox.register("expr_mut", gp.genGrow, min_=10, max_=13)
 toolbox.register("mutate", gp.mutUniform, expr=toolbox.expr_mut, pset=pset)
 
 stats = tools.Statistics(lambda ind: ind.fitness.values)
-pop = toolbox.population(n=10000)
+pop = toolbox.population(n=10)
 hof = tools.HallOfFame(1)
-algorithms.eaSimple(pop, toolbox, 0.5, 0.2, 2, stats, halloffame=hof)
+algorithms.eaSimple(pop, toolbox, 0.5, 0.2, 10, stats, halloffame=hof)
 
 for i, hero in enumerate(hof):
   compiled = gp.compile(hero, pset)
