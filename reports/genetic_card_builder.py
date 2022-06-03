@@ -8,9 +8,11 @@ import matplotlib.pyplot as plt
 import networkx as nx
 
 from networkx.readwrite import json_graph
+
 import random
 import os
 import numpy
+from tqdm import tqdm
 
 class Boolean:
   def __init__(self, val):
@@ -128,8 +130,7 @@ def evalCard(indi_uncompiled):
     
     # os.system('python3 rawCardProcessor.py')
     # os.system('./simulatorEvaluator.sh')
-    EFFECT_TARGET_WEIGHT = 3.0
-    EFFECT_TARGET = 2
+
 
     costs = sum((indi["baseManaCost"], 10-indi["baseAttack"], 10-indi["baseHp"]))
     costs = costs + abs(EFFECT_TARGET-sum([0 if indi[f"effect{i}"]=={} else 1 for i in range(1, 7)])) * EFFECT_TARGET_WEIGHT
@@ -232,15 +233,20 @@ toolbox.register("mutate", gp.mutUniform, expr=toolbox.expr_mut, pset=pset)
 CXPB = 0.5
 MUTPB = 0.2
 POP_SIZE = 100
-NGEN = 100
+NGEN = 1000
 CP_FREQ = 5
-checkpoint = None
-# checkpoint = "checkpoint_alpha"
+EFFECT_TARGET_WEIGHT = 3.0
+EFFECT_TARGET = 2
 
+checkpoint = "checkpoint_alpha.pkl"
+use_checkpoint = True
 
-if checkpoint:
+draw_plot = False
+print_stats = False
+
+if use_checkpoint:
   # A file name has been given, then load the data from the file
-  with open(checkpoint, "r") as cp_file:
+  with open(checkpoint, "rb") as cp_file:
     cp = pickle.load(cp_file)
   population = cp["population"]
   start_gen = cp["generation"]
@@ -260,7 +266,7 @@ stats.register("avg", numpy.mean)
 stats.register("min", numpy.min)
 stats.register("max", numpy.max)
 
-for gen in range(start_gen, NGEN):
+for gen in tqdm(range(start_gen, NGEN)):
   population = algorithms.varAnd(population, toolbox, cxpb=CXPB, mutpb=MUTPB)
 
   # Evaluate the individuals with an invalid fitness
@@ -274,29 +280,56 @@ for gen in range(start_gen, NGEN):
   logbook.record(gen=gen, evals=len(invalid_ind), **record)
   logbook.header = "gen", "evals", "avg", "min", "max"
 
-  print(logbook.stream)
 
   population = toolbox.select(population, k=len(population))
 
   if gen % CP_FREQ == 0:
     # Fill the dictionary using the dict(key=value[, ...]) constructor
     cp = dict(population=population, generation=gen, halloffame=halloffame, logbook=logbook, rndstate=random.getstate())
-
     with open("checkpoint_alpha.pkl", "wb") as cp_file:
       pickle.dump(cp, cp_file)
 
 # eaSimpleCheckpointed(population, toolbox, 0.5, 0.2, 10, stats, halloffame=halloffame)
 
+
+print(f"Generation: {gen+1}")
+
 for i, hero in enumerate(halloffame):
   compiled = gp.compile(hero, pset)
   asJson = json.dumps(compiled, default=lambda x: x.__repr__(), indent=4)
-  print("Hall of famer %i: %s" % (i, asJson))
-
-with open("checkpoint_alpha.pkl", "wb") as cp_file:
-  to_send = dict(population = population)
-  pickle.dump(to_send, cp_file)
+  print(f"Hall of famer {i}/{POP_SIZE}: {asJson}")
 
 with open('newRawCard.json', 'w') as outfile:
   json.dump(compiled, default=lambda x: x.__repr__(), indent=4, fp=outfile)
+
+if print_stats:
+  print(logbook.stream)
+
+if draw_plot:
+  gen = logbook.select("gen")
+  fit_min = logbook.select("min")
+  fit_avg = logbook.select("avg")
+  fit_max = logbook.select("evals")
+
+  fig, ax1 = plt.subplots()
+  line1 = ax1.plot(gen, fit_min, "b-", label="Minimum Fitness")
+  ax1.set_xlabel("Generation")
+  ax1.set_ylabel("Fitness min", color="b")
+  for tl in ax1.get_yticklabels():
+      tl.set_color("b")
+
+  ax2 = ax1.twinx()
+  line2 = ax2.plot(gen, fit_avg, "r-", label="Average Fitness")
+  ax2.set_ylabel("Fitness average", color="r")
+  for tl in ax2.get_yticklabels():
+      tl.set_color("r")
+
+
+  lns = line1 + line2
+  labs = [l.get_label() for l in lns]
+  ax1.legend(lns, labs, loc="center right")
+
+  plt.show()
+
 
 
