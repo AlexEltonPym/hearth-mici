@@ -22,9 +22,9 @@
 /hearth-mici/yarn-debug.log*
 /hearth-mici/yarn-error.log*
 
+/hearth-mici/node_modules
 
 /hearth-mici/config.json
 /hearth-mici/functions/config.json
 
 /study/videos
-/hearth-mici/src/images
