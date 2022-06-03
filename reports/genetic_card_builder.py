@@ -11,6 +11,44 @@ from networkx.readwrite import json_graph
 import random
 import os
 
+class Boolean:
+  def __init__(self, val):
+    self.val = val
+
+  def __repr__(self):
+    return str(self.val)
+
+  def get_val(self):
+    return self.val
+
+class Integer:
+  def __init__(self, val):
+    self.val = val
+
+  def __repr__(self):
+    return self.val
+
+class Trigger:
+  def __init__(self, val):
+    self.val = val
+
+  def __repr__(self):
+    return self.val
+
+class Taunt:
+  def __init__(self, val):
+    self.val = val
+
+  def __repr__(self):
+    return self.val
+
+class Lifesteal:
+  def __init__(self, val):
+    self.val = val
+
+  def __repr__(self):
+    return self.val
+
 class BaseManaCost:
   def __init__(self, baseManaCost):
     self.baseManaCost = baseManaCost
@@ -74,20 +112,25 @@ class Effect:
     self.active = active
 
   def __repr__(self):
-    return {'trigger':self.trigger, 'value':self.value, 'active':self.active}
+    if(self.active.__repr__() == "True"):
+      return {'trigger':self.trigger, 'value':self.value, 'active':self.active}
+    else:
+      return {}
+
+    
 
 
-simple_type_names = ['Taunt', 'Lifesteal', 'Trigger', 'Integer', 'Boolean']
-simple_types = []
+# simple_type_names = ['Taunt', 'Lifesteal', 'Trigger', 'Integer', 'Boolean']
+# simple_types = []
 
-def simple_type_init(self, val):
-  self.val = val
+# def simple_type_init(self, val):
+#   self.val = val
 
-def simple_type_repr(self):
-  return self.val
+# def simple_type_repr(self):
+#   return self.val
 
-for type_name in simple_type_names:
-  exec("%s=type(type_name, (), { '__init__': simple_type_init, '__repr__': simple_type_repr })" % (type_name))
+# for type_name in simple_type_names:
+#   exec("%s=type(type_name, (), { '__init__': simple_type_init, '__repr__': simple_type_repr })" % (type_name))
 
 
 pset = gp.PrimitiveSetTyped("main", [], Card)
@@ -109,7 +152,7 @@ pset.addTerminal(Trigger("WhenPlayed"), Trigger, name="WhenPlayed")
 pset.addTerminal(Trigger("WhenDrawn"), Trigger, name="WhenDrawn")
 
 pset.addTerminal(Boolean(True), Boolean, name="True")
-pset.addTerminal(Boolean(True), Boolean, name="False")
+pset.addTerminal(Boolean(False), Boolean, name="False")
 
 for i in range(10):
   pset.addTerminal(Integer(i), Integer, name=str(i))
