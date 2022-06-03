@@ -158,7 +158,7 @@ for i in range(10):
   pset.addTerminal(Integer(i), Integer, name=str(i))
 
 
-
+#NOTE: must return a tuple
 def evalCard(individual):
     compiled = toolbox.compile(expr=individual)
     s = json.dumps(compiled, default=lambda x: x.__repr__())
@@ -172,10 +172,13 @@ def evalCard(individual):
     
     # os.system('python3 rawCardProcessor.py')
     # os.system('./simulatorEvaluator.sh')
+    EFFECT_TARGET_WEIGHT = 3.0
+    EFFECT_TARGET = 2
 
-    
+    costs = sum((di["baseManaCost"], 10-di["baseAttack"], 10-di["baseHp"]))
+    costs = costs + abs(EFFECT_TARGET-sum([0 if di[f"effect{i}"]=={} else 1 for i in range(1, 7)])) * EFFECT_TARGET_WEIGHT
 
-    return sum((di["baseManaCost"], 10-di["baseAttack"], 10-di["baseHp"])),
+    return costs,
 
 
 
