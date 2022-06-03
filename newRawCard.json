@@ -1,23 +1,23 @@
 {
-    "baseManaCost": 2,
+    "baseManaCost": 0,
     "baseHp": 9,
     "baseAttack": 9,
     "effect1": {
-        "trigger": "WhenPlayed",
-        "value": 9,
-        "active": "True"
-    },
-    "effect2": {
         "trigger": "WhenDrawn",
-        "value": 7,
+        "value": 2,
         "active": "True"
     },
+    "effect2": {},
     "effect3": {},
     "effect4": {},
-    "effect5": {},
+    "effect5": {
+        "trigger": "WhenDrawn",
+        "value": 1,
+        "active": "True"
+    },
     "effect6": {},
     "attributes": {
-        "TAUNT": false,
-        "LIFESTEAL": false
+        "TAUNT": true,
+        "LIFESTEAL": "False"
     }
 }

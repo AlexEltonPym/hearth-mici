@@ -1,5 +1,5 @@
 import json
-
+import pickle
 from deap import base, creator, gp, tools, algorithms
 
 from enum import Enum
@@ -10,6 +10,7 @@ import networkx as nx
 from networkx.readwrite import json_graph
 import random
 import os
+import numpy
 
 class Boolean:
   def __init__(self, val):
@@ -117,20 +118,74 @@ class Effect:
     else:
       return {}
 
+#NOTE: must return a tuple
+def evalCard(indi_uncompiled):
+    compiled = toolbox.compile(expr=indi_uncompiled)
+    indi = json.loads(json.dumps(compiled, default=lambda x: x.__repr__()))
+
+    # with open('newRawCard.json', 'w') as outfile:
+    #   json.dump(di, indent=4, fp=outfile)
     
+    # os.system('python3 rawCardProcessor.py')
+    # os.system('./simulatorEvaluator.sh')
+    EFFECT_TARGET_WEIGHT = 3.0
+    EFFECT_TARGET = 2
 
+    costs = sum((indi["baseManaCost"], 10-indi["baseAttack"], 10-indi["baseHp"]))
+    costs = costs + abs(EFFECT_TARGET-sum([0 if indi[f"effect{i}"]=={} else 1 for i in range(1, 7)])) * EFFECT_TARGET_WEIGHT
 
-# simple_type_names = ['Taunt', 'Lifesteal', 'Trigger', 'Integer', 'Boolean']
-# simple_types = []
+    return costs,
 
-# def simple_type_init(self, val):
-#   self.val = val
+def eaSimpleCheckpointed(population, toolbox, cxpb, mutpb, ngen, stats=None, halloffame=None, verbose=True):
 
-# def simple_type_repr(self):
-#   return self.val
+    logbook = tools.Logbook()
+    logbook.header = ['gen', 'nevals'] + (stats.fields if stats else [])
 
-# for type_name in simple_type_names:
-#   exec("%s=type(type_name, (), { '__init__': simple_type_init, '__repr__': simple_type_repr })" % (type_name))
+    # Evaluate the individuals with an invalid fitness
+    invalid_ind = [ind for ind in population if not ind.fitness.valid]
+    fitnesses = toolbox.map(toolbox.evaluate, invalid_ind)
+    for ind, fit in zip(invalid_ind, fitnesses):
+        ind.fitness.values = fit
+
+    if halloffame is not None:
+        halloffame.update(population)
+
+    record = stats.compile(population) if stats else {}
+    logbook.record(gen=0, nevals=len(invalid_ind), **record)
+    if verbose:
+        print(logbook.stream)
+
+    # Begin the generational process
+    for gen in range(1, ngen + 1):
+        # Select the next generation individuals
+        offspring = toolbox.select(population, len(population))
+
+        # Vary the pool of individuals
+        offspring = algorithms.varAnd(offspring, toolbox, cxpb, mutpb)
+
+        # Evaluate the individuals with an invalid fitness
+        invalid_ind = [ind for ind in offspring if not ind.fitness.valid]
+        fitnesses = toolbox.map(toolbox.evaluate, invalid_ind)
+        for ind, fit in zip(invalid_ind, fitnesses):
+            ind.fitness.values = fit
+
+        # Update the hall of fame with the generated individuals
+        if halloffame is not None:
+            halloffame.update(offspring)
+
+        # Replace the current population by the offspring
+        population[:] = offspring
+
+        # Append the current generation statistics to the logbook
+        record = stats.compile(population) if stats else {}
+        logbook.record(gen=gen, nevals=len(invalid_ind), **record)
+        if verbose:
+            print(logbook.stream)
+
+    return population, logbook
+
+def initial_individual(pset):
+  return gp.PrimitiveTree.from_string("Card(BaseManaCost(Integer(0)), BaseHp(Integer(1)), BaseAttack(Integer(Integer(Integer(Integer(1))))), Effect(Trigger(WhenDrawn), Integer(2), Boolean(Boolean(Boolean(True)))), Effect(Trigger(Trigger(Trigger(Trigger(WhenDrawn)))), Integer(2), Boolean(False)), Effect(Trigger(WhenDrawn), Integer(7), Boolean(False)), Effect(Trigger(WhenDrawn), Integer(3), Boolean(False)), Effect(Trigger(WhenDrawn), Integer(1), Boolean(True)), Effect(Trigger(WhenDrawn), Integer(2), Boolean(False)), Attributes(Taunt(True), Lifesteal(True)))", pset)
 
 
 pset = gp.PrimitiveSetTyped("main", [], Card)
@@ -157,56 +212,91 @@ pset.addTerminal(Boolean(False), Boolean, name="False")
 for i in range(10):
   pset.addTerminal(Integer(i), Integer, name=str(i))
 
-
-#NOTE: must return a tuple
-def evalCard(individual):
-    compiled = toolbox.compile(expr=individual)
-    s = json.dumps(compiled, default=lambda x: x.__repr__())
-    #print(s)
-
-    di = json.loads(s)
-
-
-    # with open('newRawCard.json', 'w') as outfile:
-    #   json.dump(di, indent=4, fp=outfile)
-    
-    # os.system('python3 rawCardProcessor.py')
-    # os.system('./simulatorEvaluator.sh')
-    EFFECT_TARGET_WEIGHT = 3.0
-    EFFECT_TARGET = 2
-
-    costs = sum((di["baseManaCost"], 10-di["baseAttack"], 10-di["baseHp"]))
-    costs = costs + abs(EFFECT_TARGET-sum([0 if di[f"effect{i}"]=={} else 1 for i in range(1, 7)])) * EFFECT_TARGET_WEIGHT
-
-    return costs,
-
-
-
 creator.create("FitnessMax", base.Fitness, weights=(-1.0,))
 creator.create("Individual", gp.PrimitiveTree, fitness=creator.FitnessMax)
 
 toolbox = base.Toolbox()
+toolbox.register("pre_built", initial_individual, pset)
 toolbox.register("expr", gp.genGrow, pset=pset, min_=3, max_=3)
-toolbox.register("individual", tools.initIterate, creator.Individual, toolbox.expr)
+toolbox.register("individual", tools.initIterate, creator.Individual, toolbox.pre_built)
 toolbox.register("population", tools.initRepeat, list, toolbox.individual)
 toolbox.register("compile", gp.compile, pset=pset)
 toolbox.register("evaluate", evalCard)
 toolbox.register("select", tools.selTournament, tournsize=3)
 toolbox.register("mate", gp.cxOnePoint)
-toolbox.register("expr_mut", gp.genGrow, min_=10, max_=13)
+toolbox.register("expr_mut", gp.genGrow, min_=3, max_=3)
 toolbox.register("mutate", gp.mutUniform, expr=toolbox.expr_mut, pset=pset)
 
-stats = tools.Statistics(lambda ind: ind.fitness.values)
-pop = toolbox.population(n=10)
-hof = tools.HallOfFame(1)
-algorithms.eaSimple(pop, toolbox, 0.5, 0.2, 10, stats, halloffame=hof)
 
-for i, hero in enumerate(hof):
+
+CXPB = 0.5
+MUTPB = 0.2
+POP_SIZE = 100
+NGEN = 100
+CP_FREQ = 5
+checkpoint = None
+# checkpoint = "checkpoint_alpha"
+
+
+if checkpoint:
+  # A file name has been given, then load the data from the file
+  with open(checkpoint, "r") as cp_file:
+    cp = pickle.load(cp_file)
+  population = cp["population"]
+  start_gen = cp["generation"]
+  halloffame = cp["halloffame"]
+  logbook = cp["logbook"]
+  random.setstate(cp["rndstate"])
+else:
+  # Start a new evolution
+  population = toolbox.population(n=POP_SIZE)
+  start_gen = 0
+  halloffame = tools.HallOfFame(maxsize=1)
+  logbook = tools.Logbook()
+
+  
+stats = tools.Statistics(lambda ind: ind.fitness.values)
+stats.register("avg", numpy.mean)
+stats.register("min", numpy.min)
+stats.register("max", numpy.max)
+
+for gen in range(start_gen, NGEN):
+  population = algorithms.varAnd(population, toolbox, cxpb=CXPB, mutpb=MUTPB)
+
+  # Evaluate the individuals with an invalid fitness
+  invalid_ind = [ind for ind in population if not ind.fitness.valid]
+  fitnesses = toolbox.map(toolbox.evaluate, invalid_ind)
+  for ind, fit in zip(invalid_ind, fitnesses):
+    ind.fitness.values = fit
+
+  halloffame.update(population)
+  record = stats.compile(population)
+  logbook.record(gen=gen, evals=len(invalid_ind), **record)
+  logbook.header = "gen", "evals", "avg", "min", "max"
+
+  print(logbook.stream)
+
+  population = toolbox.select(population, k=len(population))
+
+  if gen % CP_FREQ == 0:
+    # Fill the dictionary using the dict(key=value[, ...]) constructor
+    cp = dict(population=population, generation=gen, halloffame=halloffame, logbook=logbook, rndstate=random.getstate())
+
+    with open("checkpoint_alpha.pkl", "wb") as cp_file:
+      pickle.dump(cp, cp_file)
+
+# eaSimpleCheckpointed(population, toolbox, 0.5, 0.2, 10, stats, halloffame=halloffame)
+
+for i, hero in enumerate(halloffame):
   compiled = gp.compile(hero, pset)
   asJson = json.dumps(compiled, default=lambda x: x.__repr__(), indent=4)
   print("Hall of famer %i: %s" % (i, asJson))
 
-
+with open("checkpoint_alpha.pkl", "wb") as cp_file:
+  to_send = dict(population = population)
+  pickle.dump(to_send, cp_file)
 
 with open('newRawCard.json', 'w') as outfile:
   json.dump(compiled, default=lambda x: x.__repr__(), indent=4, fp=outfile)
+
+
