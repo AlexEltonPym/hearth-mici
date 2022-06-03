@@ -1,14 +1,39 @@
 {
-    "baseManaCost": 0,
-    "baseHp": 8,
-    "baseAttack": 9,
-    "spell1": {
-        "trigger": "WhenDrawn",
-        "value": 8,
+    "baseManaCost": 2,
+    "baseHp": 9,
+    "baseAttack": 7,
+    "effect1": {
+        "trigger": "WhenPlayed",
+        "value": 6,
         "active": true
+    },
+    "effect2": {
+        "trigger": "WhenDrawn",
+        "value": 1,
+        "active": false
+    },
+    "effect3": {
+        "trigger": "WhenPlayed",
+        "value": 0,
+        "active": true
+    },
+    "effect4": {
+        "trigger": "WhenPlayed",
+        "value": 3,
+        "active": false
+    },
+    "effect5": {
+        "trigger": "WhenDrawn",
+        "value": 9,
+        "active": true
+    },
+    "effect6": {
+        "trigger": "WhenDrawn",
+        "value": 7,
+        "active": false
     },
     "attributes": {
         "TAUNT": true,
-        "LIFESTEAL": true
+        "LIFESTEAL": false
     }
 }

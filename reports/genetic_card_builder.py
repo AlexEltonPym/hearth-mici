@@ -41,11 +41,16 @@ class Attributes:
     return {'TAUNT':self.taunt, 'LIFESTEAL':self.lifesteal}
 
 class Card:
-  def __init__(self, baseManaCost, baseHp, baseAttack, spell1, attributes):
+  def __init__(self, baseManaCost, baseHp, baseAttack, effect1, effect2, effect3, effect4, effect5, effect6, attributes):
     self.baseManaCost = baseManaCost
     self.baseHp = baseHp
     self.baseAttack = baseAttack
-    self.spell1 = spell1
+    self.effect1 = effect1
+    self.effect2 = effect2
+    self.effect3 = effect3
+    self.effect4 = effect4
+    self.effect5 = effect5
+    self.effect6 = effect6
     self.attributes = attributes
 
   def __repr__(self):
@@ -53,11 +58,16 @@ class Card:
       'baseManaCost':self.baseManaCost, 
       'baseHp':self.baseHp,
       'baseAttack':self.baseAttack, 
-      'spell1': self.spell1,
+      'effect1': self.effect1,
+      'effect2': self.effect2,
+      'effect3': self.effect3,
+      'effect4': self.effect4,
+      'effect5': self.effect5,
+      'effect6': self.effect6,
       'attributes': self.attributes,
     }
 
-class Spell:
+class Effect:
   def __init__(self, trigger, value, active):
     self.trigger = trigger
     self.value = value
@@ -81,11 +91,11 @@ for type_name in simple_type_names:
 
 
 pset = gp.PrimitiveSetTyped("main", [], Card)
-pset.addPrimitive(Card, [BaseManaCost, BaseHp, BaseAttack, Spell, Attributes], Card)
+pset.addPrimitive(Card, [BaseManaCost, BaseHp, BaseAttack, Effect, Effect, Effect, Effect, Effect, Effect, Attributes], Card)
 pset.addPrimitive(BaseManaCost, [Integer,], BaseManaCost)
 pset.addPrimitive(BaseHp, [Integer,], BaseHp)
 pset.addPrimitive(BaseAttack, [Integer,], BaseAttack)
-pset.addPrimitive(Spell, [Trigger,Integer,Boolean], Spell)
+pset.addPrimitive(Effect, [Trigger,Integer,Boolean], Effect)
 pset.addPrimitive(Attributes, [Taunt, Lifesteal], Attributes)
 pset.addPrimitive(Taunt, [Boolean], Taunt)
 pset.addPrimitive(Lifesteal, [Boolean], Lifesteal)
