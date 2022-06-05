@@ -191,16 +191,16 @@ class Keyword:
     return self.val
 
 class SetStats:
-  def __init__(self, val):
-    self.val = val
+  def __init__(self, method, attack, defense, target, filter, duration):
+    self.val = {"method": method, "attack": attack, "defense": defense, "target": target, "filter": filter, "duration": duration}
 
   def __repr__(self):
 
     return self.val
 
 class GiveStats:
-  def __init__(self, val):
-    self.val = val
+  def __init__(self, method, attack, defense, target, filter, duration):
+    self.val = {"method": method, "attack": attack, "defense": defense, "target": target, "filter": filter, "duration": duration}
 
   def __repr__(self):
 
@@ -278,6 +278,15 @@ class GainMana:
     return self.val
 
 
+class EffectName:
+  def __init__(self, val):
+    self.val = val
+
+  def __repr__(self):
+
+    return self.val
+
+
 
 class BaseManaCost:
   def __init__(self, baseManaCost):
@@ -345,14 +354,12 @@ class Card:
     }
 
 class Effect:
-  def __init__(self, trigger, value, active):
-    self.trigger = trigger
-    self.value = value
-    self.active = active
+  def __init__(self, effect_name, active, set_stats, give_stats):
+    self.val = {"selected_effect": effect_name, "active": active, "set_stats": set_stats, "give_stats": give_stats}
 
   def __repr__(self):
-    if(self.active.__repr__() == "True"):
-      return {'trigger':self.trigger, 'value':self.value, 'active':self.active}
+    if(self.val["active"].__repr__() == "True"):
+      return self.val
     else:
       return {}
 
@@ -431,7 +438,7 @@ pset.addPrimitive(Card, [BaseManaCost, BaseHp, BaseAttack, Attributes, Creature_
 pset.addPrimitive(BaseManaCost, [Integer,], BaseManaCost)
 pset.addPrimitive(BaseHp, [Integer,], BaseHp)
 pset.addPrimitive(BaseAttack, [Integer,], BaseAttack)
-pset.addPrimitive(Effect, [Trigger,Integer,Boolean], Effect)
+pset.addPrimitive(Effect, [EffectName, Boolean, SetStats, GiveStats], Effect)
 
 pset.addPrimitive(SetStats, [Method, Integer, Integer, TargetMinions, Filter, Duration], SetStats)
 pset.addPrimitive(GiveStats, [Method, Integer, Integer, TargetMinions, Filter, Duration], GiveStats)
@@ -473,12 +480,22 @@ pset.addPrimitive(TargetHeroes, [TargetHeroes], TargetHeroes)
 pset.addPrimitive(Filter, [Filter], Filter)
 pset.addPrimitive(Duration, [Duration], Duration)
 pset.addPrimitive(Keyword, [Keyword], Keyword)
+pset.addPrimitive(EffectName, [EffectName], EffectName)
 
-pset.addTerminal(Trigger("WhenPlayed"), Trigger, name="WhenPlayed")
-pset.addTerminal(Trigger("WhenDrawn"), Trigger, name="WhenDrawn")
 
-pset.addTerminal(Boolean(True), Boolean, name="True")
-pset.addTerminal(Boolean(False), Boolean, name="False")
+
+pset.addTerminal(EffectName("SetStats"), EffectName, name="SetStatsT")
+pset.addTerminal(EffectName("GiveStats"), EffectName, name="GiveStatsT")
+pset.addTerminal(EffectName("DrawCard"), EffectName, name="DrawCardsT")
+pset.addTerminal(EffectName("DealDamage"), EffectName, name="DealDamageT")
+pset.addTerminal(EffectName("GainArmour"), EffectName, name="GainArmourT")
+pset.addTerminal(EffectName("GiveKeywords"), EffectName, name="GiveKeywordsT")
+pset.addTerminal(EffectName("RestoreHealth"), EffectName, name="RetoreHealthT")
+pset.addTerminal(EffectName("ReturnHand"), EffectName, name="ReturnHandT")
+pset.addTerminal(EffectName("SummonToken"), EffectName, name="SummonTokenT")
+pset.addTerminal(EffectName("Destory"), EffectName, name="DestroyT")
+pset.addTerminal(EffectName("GainMana"), EffectName, name="GainManaT")
+
 
 pset.addTerminal(Method("randomly"), Method, name="Randomly")
 pset.addTerminal(Method("targeted"), Method, name="Targeted")
@@ -514,6 +531,9 @@ pset.addTerminal(Keyword("poisonous"), Keyword, name="PoisonousK")
 pset.addTerminal(Keyword("windfury"), Keyword, name="WindfuryK")
 pset.addTerminal(Keyword("frozen"), Keyword, name="FrozenK")
 
+
+pset.addTerminal(Boolean(True), Boolean, name="True")
+pset.addTerminal(Boolean(False), Boolean, name="False")
 
 for i in range(10):
   pset.addTerminal(Integer(i), Integer, name=str(i))
