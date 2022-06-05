@@ -2,22 +2,34 @@
     "baseManaCost": 0,
     "baseHp": 9,
     "baseAttack": 9,
+    "attributes": {
+        "TAUNT": "True",
+        "CHARGE": true,
+        "LIFESTEAL": true,
+        "SPELL_DAMAGE": false,
+        "DIVINE_SHIELD": true,
+        "POISONOUS": false,
+        "WINDFURY": false,
+        "FROZEN": false
+    },
+    "creature_type": {
+        "PIRATE": false,
+        "BEAST": true,
+        "ELEMENTAL": false,
+        "TOTEM": true
+    },
     "effect1": {},
     "effect2": {},
-    "effect3": {},
+    "effect3": {
+        "trigger": "WhenPlayed",
+        "value": 6,
+        "active": "True"
+    },
     "effect4": {},
-    "effect5": {
-        "trigger": "WhenDrawn",
-        "value": 1,
-        "active": "True"
-    },
+    "effect5": {},
     "effect6": {
-        "trigger": "WhenDrawn",
-        "value": 2,
+        "trigger": "WhenPlayed",
+        "value": 7,
         "active": "True"
-    },
-    "attributes": {
-        "TAUNT": true,
-        "LIFESTEAL": true
     }
 }

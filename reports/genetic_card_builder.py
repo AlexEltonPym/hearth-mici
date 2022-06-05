@@ -45,12 +45,239 @@ class Taunt:
   def __repr__(self):
     return self.val
 
-class Lifesteal:
+class Charge:
   def __init__(self, val):
     self.val = val
 
   def __repr__(self):
     return self.val
+
+class Lifesteal:
+  def __init__(self, val):
+    self.val = val
+
+  def __repr__(self):
+
+    return self.val
+
+class SpellDamage:
+  def __init__(self, val):
+    self.val = val
+
+  def __repr__(self):
+    return self.val
+
+class DivineShield:
+  def __init__(self, val):
+    self.val = val
+
+  def __repr__(self):
+    return self.val
+
+class Poisonous:
+  def __init__(self, val):
+    self.val = val
+
+  def __repr__(self):
+
+    return self.val
+
+class Windfury:
+  def __init__(self, val):
+    self.val = val
+
+  def __repr__(self):
+
+    return self.val
+
+class Frozen:
+  def __init__(self, val):
+    self.val = val
+
+  def __repr__(self):
+
+    return self.val
+
+class Creature_Type:
+  def __init__(self, pirate, beast,elemental, totem):
+    self.pirate = pirate
+    self.beast = beast
+    self.elemental = elemental
+    self.totem = totem
+
+  def __repr__(self):
+
+    return {'PIRATE':self.pirate, 'BEAST': self.beast, 'ELEMENTAL':self.elemental, 'TOTEM': self.totem}
+
+class Pirate:
+  def __init__(self, val):
+    self.val = val
+
+  def __repr__(self):
+
+    return self.val
+
+class Beast:
+  def __init__(self, val):
+    self.val = val
+
+  def __repr__(self):
+
+    return self.val
+
+class Elemental:
+  def __init__(self, val):
+    self.val = val
+
+  def __repr__(self):
+
+    return self.val
+
+class Totem:
+  def __init__(self, val):
+    self.val = val
+
+  def __repr__(self):
+
+    return self.val
+
+class Method:
+  def __init__(self, val):
+    self.val = val
+
+  def __repr__(self):
+
+    return self.val
+
+class TargetMinions:
+  def __init__(self, val):
+    self.val = val
+
+  def __repr__(self):
+
+    return self.val
+
+class TargetHeroes:
+  def __init__(self, val):
+    self.val = val
+
+  def __repr__(self):
+
+    return self.val
+
+class Filter:
+  def __init__(self, val):
+    self.val = val
+
+  def __repr__(self):
+
+    return self.val
+
+
+class Duration:
+  def __init__(self, val):
+    self.val = val
+
+  def __repr__(self):
+
+    return self.val
+
+class Keyword:
+  def __init__(self, val):
+    self.val = val
+
+  def __repr__(self):
+
+    return self.val
+
+class SetStats:
+  def __init__(self, val):
+    self.val = val
+
+  def __repr__(self):
+
+    return self.val
+
+class GiveStats:
+  def __init__(self, val):
+    self.val = val
+
+  def __repr__(self):
+
+    return self.val
+class DrawCards:
+  def __init__(self, val):
+    self.val = val
+
+  def __repr__(self):
+
+    return self.val
+
+class DealDamage:
+  def __init__(self, val):
+    self.val = val
+
+  def __repr__(self):
+
+    return self.val
+
+class GainArmour:
+  def __init__(self, val):
+    self.val = val
+
+  def __repr__(self):
+
+    return self.val
+
+class GiveKeyword:
+  def __init__(self, val):
+    self.val = val
+
+  def __repr__(self):
+
+    return self.val
+
+class RestoreHealth:
+  def __init__(self, val):
+    self.val = val
+
+  def __repr__(self):
+
+    return self.val
+
+class ReturnHand:
+  def __init__(self, val):
+    self.val = val
+
+  def __repr__(self):
+
+    return self.val
+
+class SummonToken:
+  def __init__(self, val):
+    self.val = val
+
+  def __repr__(self):
+
+    return self.val
+
+class Destroy:
+  def __init__(self, val):
+    self.val = val
+
+  def __repr__(self):
+
+    return self.val
+
+class GainMana:
+  def __init__(self, val):
+    self.val = val
+
+  def __repr__(self):
+
+    return self.val
+
+
 
 class BaseManaCost:
   def __init__(self, baseManaCost):
@@ -74,38 +301,47 @@ class BaseAttack:
     return self.baseAttack
 
 class Attributes:
-  def __init__(self, taunt, lifesteal):
+  def __init__(self, taunt, charge, lifesteal, spell_damage, divine_shield, poisonous, windfury, frozen):
     self.taunt = taunt
+    self.charge = charge
     self.lifesteal = lifesteal
+    self.spell_damage = spell_damage
+    self.divine_shield = divine_shield
+    self.poisonous = poisonous
+    self.windfury = windfury
+    self.frozen = frozen
 
   def __repr__(self):
-    return {'TAUNT':self.taunt, 'LIFESTEAL':self.lifesteal}
+    return {'TAUNT':self.taunt, 'CHARGE': self.charge, 'LIFESTEAL':self.lifesteal, 'SPELL_DAMAGE': self.spell_damage,\
+            'DIVINE_SHIELD': self.divine_shield, 'POISONOUS': self.poisonous, 'WINDFURY': self.windfury, 'FROZEN': self.frozen}
 
 class Card:
-  def __init__(self, baseManaCost, baseHp, baseAttack, effect1, effect2, effect3, effect4, effect5, effect6, attributes):
+  def __init__(self, baseManaCost, baseHp, baseAttack, attributes, creature_type, effect1, effect2, effect3, effect4, effect5, effect6 ):
     self.baseManaCost = baseManaCost
     self.baseHp = baseHp
     self.baseAttack = baseAttack
+    self.attributes = attributes
+    self.creature_type = creature_type
     self.effect1 = effect1
     self.effect2 = effect2
     self.effect3 = effect3
     self.effect4 = effect4
     self.effect5 = effect5
     self.effect6 = effect6
-    self.attributes = attributes
 
   def __repr__(self):
     return {
       'baseManaCost':self.baseManaCost, 
       'baseHp':self.baseHp,
       'baseAttack':self.baseAttack, 
+      'attributes': self.attributes,
+      'creature_type': self.creature_type,
       'effect1': self.effect1,
       'effect2': self.effect2,
       'effect3': self.effect3,
       'effect4': self.effect4,
       'effect5': self.effect5,
       'effect6': self.effect6,
-      'attributes': self.attributes,
     }
 
 class Effect:
@@ -186,29 +422,98 @@ def eaSimpleCheckpointed(population, toolbox, cxpb, mutpb, ngen, stats=None, hal
     return population, logbook
 
 def initial_individual(pset):
-  return gp.PrimitiveTree.from_string("Card(BaseManaCost(Integer(0)), BaseHp(Integer(1)), BaseAttack(Integer(Integer(Integer(Integer(1))))), Effect(Trigger(WhenDrawn), Integer(2), Boolean(Boolean(Boolean(True)))), Effect(Trigger(Trigger(Trigger(Trigger(WhenDrawn)))), Integer(2), Boolean(False)), Effect(Trigger(WhenDrawn), Integer(7), Boolean(False)), Effect(Trigger(WhenDrawn), Integer(3), Boolean(False)), Effect(Trigger(WhenDrawn), Integer(1), Boolean(True)), Effect(Trigger(WhenDrawn), Integer(2), Boolean(False)), Attributes(Taunt(True), Lifesteal(True)))", pset)
+  return gp.PrimitiveTree.from_string("", pset)
 
+# effect_text, effect_short, method, param, targets, filters, duration
 
 pset = gp.PrimitiveSetTyped("main", [], Card)
-pset.addPrimitive(Card, [BaseManaCost, BaseHp, BaseAttack, Effect, Effect, Effect, Effect, Effect, Effect, Attributes], Card)
+pset.addPrimitive(Card, [BaseManaCost, BaseHp, BaseAttack, Attributes, Creature_Type, Effect, Effect, Effect, Effect, Effect, Effect], Card)
 pset.addPrimitive(BaseManaCost, [Integer,], BaseManaCost)
 pset.addPrimitive(BaseHp, [Integer,], BaseHp)
 pset.addPrimitive(BaseAttack, [Integer,], BaseAttack)
 pset.addPrimitive(Effect, [Trigger,Integer,Boolean], Effect)
-pset.addPrimitive(Attributes, [Taunt, Lifesteal], Attributes)
+
+pset.addPrimitive(SetStats, [Method, Integer, Integer, TargetMinions, Filter, Duration], SetStats)
+pset.addPrimitive(GiveStats, [Method, Integer, Integer, TargetMinions, Filter, Duration], GiveStats)
+pset.addPrimitive(DrawCards, [Integer, Filter], DrawCards)
+pset.addPrimitive(DealDamage, [Method, Integer, TargetHeroes, Filter], DealDamage)
+pset.addPrimitive(GainArmour, [Integer, Filter], GainArmour)
+pset.addPrimitive(GiveKeyword, [Method, Keyword, TargetMinions, Filter, Duration], GiveKeyword)
+pset.addPrimitive(RestoreHealth, [Method, Integer, TargetHeroes, Filter], RestoreHealth)
+pset.addPrimitive(ReturnHand, [Method, TargetMinions, Filter], ReturnHand)
+pset.addPrimitive(SummonToken, [Integer, Integer], SummonToken)
+pset.addPrimitive(Destroy, [Method, TargetHeroes, Filter], Destroy)
+pset.addPrimitive(GainMana, [Integer, Filter], GainMana)
+
+
 pset.addPrimitive(Taunt, [Boolean], Taunt)
+pset.addPrimitive(Charge, [Boolean], Charge)
 pset.addPrimitive(Lifesteal, [Boolean], Lifesteal)
+pset.addPrimitive(SpellDamage, [Boolean], SpellDamage)
+pset.addPrimitive(DivineShield, [Boolean], DivineShield)
+pset.addPrimitive(Poisonous, [Boolean], Poisonous)
+pset.addPrimitive(Windfury, [Boolean], Windfury)
+pset.addPrimitive(Frozen, [Boolean], Frozen)
+pset.addPrimitive(Attributes, [Taunt, Charge, Lifesteal, SpellDamage, DivineShield, Poisonous, Windfury, Frozen], Attributes)
+
+
+pset.addPrimitive(Creature_Type, [Pirate, Beast, Elemental, Totem], Creature_Type)
+pset.addPrimitive(Pirate, [Boolean], Pirate)
+pset.addPrimitive(Beast, [Boolean], Beast)
+pset.addPrimitive(Elemental, [Boolean], Elemental)
+pset.addPrimitive(Totem, [Boolean], Totem)
+
 
 pset.addPrimitive(Integer, [Integer], Integer)
 pset.addPrimitive(Boolean, [Boolean], Boolean)
 pset.addPrimitive(Trigger, [Trigger], Trigger)
-
+pset.addPrimitive(Method, [Method], Method)
+pset.addPrimitive(TargetMinions, [TargetMinions], TargetMinions)
+pset.addPrimitive(TargetHeroes, [TargetHeroes], TargetHeroes)
+pset.addPrimitive(Filter, [Filter], Filter)
+pset.addPrimitive(Duration, [Duration], Duration)
+pset.addPrimitive(Keyword, [Keyword], Keyword)
 
 pset.addTerminal(Trigger("WhenPlayed"), Trigger, name="WhenPlayed")
 pset.addTerminal(Trigger("WhenDrawn"), Trigger, name="WhenDrawn")
 
 pset.addTerminal(Boolean(True), Boolean, name="True")
 pset.addTerminal(Boolean(False), Boolean, name="False")
+
+pset.addTerminal(Method("randomly"), Method, name="Randomly")
+pset.addTerminal(Method("targeted"), Method, name="Targeted")
+pset.addTerminal(Method("all"), Method, name="All")
+
+pset.addTerminal(TargetMinions("minions"), TargetMinions, name="Minions")
+pset.addTerminal(TargetMinions("pirates"), TargetMinions, name="Pirates")
+pset.addTerminal(TargetMinions("beasts"), TargetMinions, name="Beasts")
+pset.addTerminal(TargetMinions("elementals"), TargetMinions, name="Elementals")
+pset.addTerminal(TargetMinions("totems"), TargetMinions, name="Totems")
+
+pset.addTerminal(TargetHeroes("minions"), TargetHeroes, name="MinionsH")
+pset.addTerminal(TargetHeroes("heroes"), TargetHeroes, name="Heroes")
+pset.addTerminal(TargetHeroes("minions_or_heroes"), TargetHeroes, name="Minions_Or_Heroes")
+pset.addTerminal(TargetHeroes("pirates"), TargetHeroes, name="PiratesH")
+pset.addTerminal(TargetHeroes("beasts"), TargetHeroes, name="BeastsH")
+pset.addTerminal(TargetHeroes("elementals"), TargetHeroes, name="ElementalsH")
+pset.addTerminal(TargetHeroes("totems"), TargetHeroes, name="TotemsH")
+
+pset.addTerminal(Filter("enemy"), Filter, name="Enemy")
+pset.addTerminal(Filter("firendly"), Filter, name="Friendly")
+pset.addTerminal(Filter("all"), Filter, name="AllF")
+
+pset.addTerminal(Duration("turn"), Duration, name="Turn")
+pset.addTerminal(Duration("permanently"), Duration, name="Permanently")
+
+pset.addTerminal(Keyword("taunt"), Keyword, name="TauntK")
+pset.addTerminal(Keyword("charge"), Keyword, name="ChargeK")
+pset.addTerminal(Keyword("lifesteal"), Keyword, name="LifestealK")
+pset.addTerminal(Keyword("spell_damage"), Keyword, name="Spell DamageK")
+pset.addTerminal(Keyword("divine_shield"), Keyword, name="Divine ShieldK")
+pset.addTerminal(Keyword("poisonous"), Keyword, name="PoisonousK")
+pset.addTerminal(Keyword("windfury"), Keyword, name="WindfuryK")
+pset.addTerminal(Keyword("frozen"), Keyword, name="FrozenK")
+
 
 for i in range(10):
   pset.addTerminal(Integer(i), Integer, name=str(i))
@@ -217,9 +522,9 @@ creator.create("FitnessMax", base.Fitness, weights=(-1.0,))
 creator.create("Individual", gp.PrimitiveTree, fitness=creator.FitnessMax)
 
 toolbox = base.Toolbox()
-toolbox.register("pre_built", initial_individual, pset)
+# toolbox.register("pre_built", initial_individual, pset)
 toolbox.register("expr", gp.genGrow, pset=pset, min_=3, max_=3)
-toolbox.register("individual", tools.initIterate, creator.Individual, toolbox.pre_built)
+toolbox.register("individual", tools.initIterate, creator.Individual, toolbox.expr)
 toolbox.register("population", tools.initRepeat, list, toolbox.individual)
 toolbox.register("compile", gp.compile, pset=pset)
 toolbox.register("evaluate", evalCard)
@@ -233,13 +538,13 @@ toolbox.register("mutate", gp.mutUniform, expr=toolbox.expr_mut, pset=pset)
 CXPB = 0.5
 MUTPB = 0.2
 POP_SIZE = 100
-NGEN = 1000
+NGEN = 10
 CP_FREQ = 5
 EFFECT_TARGET_WEIGHT = 3.0
 EFFECT_TARGET = 2
 
 checkpoint = "checkpoint_alpha.pkl"
-use_checkpoint = True
+use_checkpoint = False
 
 draw_plot = False
 print_stats = False
