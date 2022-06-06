@@ -340,14 +340,14 @@ def run_experiments(experiments):
 if __name__ == '__main__':
  
 
-  experiments = [(experiment_simple_game, False),\
+  experiments = [(experiment_simple_game, True),\
                  (experiment_timing_alpha, False),\
                  (experiment_timing_beta, False),\
                  (experiment_impact, False),\
                  (experiment_baselines, False),\
                  (experiment_histogram, False),\
                  (experiment_minimeta, False),\
-                 (experiment_custom_card, True),\
+                 (experiment_custom_card, False),\
                  (experiment_custom_card_gauntlet, False),\
                  (experiment_reference, False)]
 

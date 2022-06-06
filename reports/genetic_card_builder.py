@@ -7,12 +7,21 @@ from enum import Enum
 import matplotlib.pyplot as plt
 import networkx as nx
 
+import re
+from collections import defaultdict, deque
+
+import pygraphviz as pgv
+
 from networkx.readwrite import json_graph
 
 import random
 import os
+import string
 import numpy
 from tqdm import tqdm
+
+import sim
+
 
 class Boolean:
   def __init__(self, val):
@@ -206,72 +215,73 @@ class GiveStats:
 
     return self.val
 class DrawCards:
-  def __init__(self, val):
-    self.val = val
+  def __init__(self, amount, filter):
+    self.val = {"amount": amount, "filter": filter}
 
   def __repr__(self):
 
     return self.val
 
 class DealDamage:
-  def __init__(self, val):
-    self.val = val
+  def __init__(self, method, amount, target, filter):
+    self.val = {"method": method, "amount": amount, "target": target, "filter": filter}
 
   def __repr__(self):
 
     return self.val
 
 class GainArmour:
-  def __init__(self, val):
-    self.val = val
+  def __init__(self, amount, filter):
+    self.val = {"amount": amount, "filter": filter}
 
   def __repr__(self):
 
     return self.val
 
 class GiveKeyword:
-  def __init__(self, val):
-    self.val = val
+  def __init__(self, method, keyword, target, filter, duration):
+    self.val = {"method": method, "keyword": keyword, "target": target, "filter": filter, "duration": duration}
 
   def __repr__(self):
 
     return self.val
 
 class RestoreHealth:
-  def __init__(self, val):
-    self.val = val
+  def __init__(self, method, amount, target, filter):
+
+    self.val = {"methode": method, "amount": amount, "target": target, "filter": filter}
 
   def __repr__(self):
 
     return self.val
 
 class ReturnHand:
-  def __init__(self, val):
-    self.val = val
+  def __init__(self, method, target, filter):
+    self.val = {"method": method, "target": target, "filter": filter}
 
   def __repr__(self):
 
     return self.val
 
 class SummonToken:
-  def __init__(self, val):
-    self.val = val
+  def __init__(self, attack, defense):
+    self.val = {"attack": attack, "defense": defense}
 
   def __repr__(self):
 
     return self.val
 
 class Destroy:
-  def __init__(self, val):
-    self.val = val
+  def __init__(self, method, target, filter):
+    self.val = {"method": method, "target": target, "filter": filter}
 
   def __repr__(self):
 
     return self.val
 
 class GainMana:
-  def __init__(self, val):
-    self.val = val
+  def __init__(self, amount, filter):
+    self.val = {"amount": amount, "filter": filter}
 
   def __repr__(self):
 
@@ -284,7 +294,7 @@ class EffectName:
 
   def __repr__(self):
 
-    return self.val
+    return str(self.val)
 
 
 
@@ -325,7 +335,7 @@ class Attributes:
             'DIVINE_SHIELD': self.divine_shield, 'POISONOUS': self.poisonous, 'WINDFURY': self.windfury, 'FROZEN': self.frozen}
 
 class Card:
-  def __init__(self, baseManaCost, baseHp, baseAttack, attributes, creature_type, effect1, effect2, effect3, effect4, effect5, effect6 ):
+  def __init__(self, baseManaCost, baseHp, baseAttack, attributes, creature_type, effect1, effect2, effect3, effect4 ):
     self.baseManaCost = baseManaCost
     self.baseHp = baseHp
     self.baseAttack = baseAttack
@@ -335,8 +345,7 @@ class Card:
     self.effect2 = effect2
     self.effect3 = effect3
     self.effect4 = effect4
-    self.effect5 = effect5
-    self.effect6 = effect6
+
 
   def __repr__(self):
     return {
@@ -349,17 +358,23 @@ class Card:
       'effect2': self.effect2,
       'effect3': self.effect3,
       'effect4': self.effect4,
-      'effect5': self.effect5,
-      'effect6': self.effect6,
+
     }
 
 class Effect:
-  def __init__(self, effect_name, active, set_stats, give_stats):
-    self.val = {"selected_effect": effect_name, "active": active, "set_stats": set_stats, "give_stats": give_stats}
+  def __init__(self, effect_name, active, set_stats, give_stats, draw_cards, deal_damage,\
+                gain_armour, give_keyword, restore_health, return_hand, summon_token,\
+                destroy, gain_mana ):
+    self.val = {"selected_effect": effect_name, "active": active, "set_stats": set_stats,\
+                "give_stats": give_stats, "draw_cards": draw_cards, "deal_damage": deal_damage,\
+                "gain_armour": gain_armour, "give_keyword": give_keyword, "restore_health": restore_health,\
+                "return_hand": return_hand, "summon_token": summon_token, "destroy": destroy,\
+                "gain_mana": gain_mana}
 
   def __repr__(self):
     if(self.val["active"].__repr__() == "True"):
-      return self.val
+      sel_eff = self.val["selected_effect"].__repr__()
+      return {sel_eff: self.val[sel_eff]}
     else:
       return {}
 
@@ -368,77 +383,41 @@ def evalCard(indi_uncompiled):
     compiled = toolbox.compile(expr=indi_uncompiled)
     indi = json.loads(json.dumps(compiled, default=lambda x: x.__repr__()))
 
-    # with open('newRawCard.json', 'w') as outfile:
-    #   json.dump(di, indent=4, fp=outfile)
-    
-    # os.system('python3 rawCardProcessor.py')
-    # os.system('./simulatorEvaluator.sh')
 
 
-    costs = sum((indi["baseManaCost"], 10-indi["baseAttack"], 10-indi["baseHp"]))
-    costs = costs + abs(EFFECT_TARGET-sum([0 if indi[f"effect{i}"]=={} else 1 for i in range(1, 7)])) * EFFECT_TARGET_WEIGHT
+    # sim.experiment_simple_game()
+
+    costs = 0
+    # costs = sum((indi["baseManaCost"], 10-indi["baseAttack"], 10-indi["baseHp"]))
+    costs = costs + abs(EFFECT_TARGET-sum([0 if indi[f"effect{i}"]=={} else 1 for i in range(1, 5)])) * EFFECT_TARGET_WEIGHT
 
     return costs,
 
-def eaSimpleCheckpointed(population, toolbox, cxpb, mutpb, ngen, stats=None, halloffame=None, verbose=True):
-
-    logbook = tools.Logbook()
-    logbook.header = ['gen', 'nevals'] + (stats.fields if stats else [])
-
-    # Evaluate the individuals with an invalid fitness
-    invalid_ind = [ind for ind in population if not ind.fitness.valid]
-    fitnesses = toolbox.map(toolbox.evaluate, invalid_ind)
-    for ind, fit in zip(invalid_ind, fitnesses):
-        ind.fitness.values = fit
-
-    if halloffame is not None:
-        halloffame.update(population)
-
-    record = stats.compile(population) if stats else {}
-    logbook.record(gen=0, nevals=len(invalid_ind), **record)
-    if verbose:
-        print(logbook.stream)
-
-    # Begin the generational process
-    for gen in range(1, ngen + 1):
-        # Select the next generation individuals
-        offspring = toolbox.select(population, len(population))
-
-        # Vary the pool of individuals
-        offspring = algorithms.varAnd(offspring, toolbox, cxpb, mutpb)
-
-        # Evaluate the individuals with an invalid fitness
-        invalid_ind = [ind for ind in offspring if not ind.fitness.valid]
-        fitnesses = toolbox.map(toolbox.evaluate, invalid_ind)
-        for ind, fit in zip(invalid_ind, fitnesses):
-            ind.fitness.values = fit
-
-        # Update the hall of fame with the generated individuals
-        if halloffame is not None:
-            halloffame.update(offspring)
-
-        # Replace the current population by the offspring
-        population[:] = offspring
-
-        # Append the current generation statistics to the logbook
-        record = stats.compile(population) if stats else {}
-        logbook.record(gen=gen, nevals=len(invalid_ind), **record)
-        if verbose:
-            print(logbook.stream)
-
-    return population, logbook
 
 def initial_individual(pset):
-  return gp.PrimitiveTree.from_string("", pset)
+  # test_string = "Card(BaseManaCost(Integer(a7)), BaseHp(Integer(p8)), BaseAttack(Integer(l7)), Attributes(Taunt(True), Charge(False), Lifesteal(False), SpellDamage(True), DivineShield(True), Poisonous(True), Windfury(True), Frozen(True)), Creature_Type(Pirate(False), Beast(True), Elemental(False), Totem(True)), Effect(EffectName(GainArmourT), Boolean(True), SetStats(Targeted, u7, b2, Pirates, AllF, Permanently), GiveStats(Randomly, a3, a1, Beasts, Friendly, Permanently)), Effect(EffectName(RetoreHealthT), Boolean(False), SetStats(All, l0, z9, Beasts, AllF, Turn), GiveStats(Targeted, c3, x0, Beasts, AllF, Turn)), Effect(EffectName(GiveKeywordsT), Boolean(True), SetStats(Randomly, e8, e2, Pirates, AllF, Permanently), GiveStats(Targeted, k9, y1, Minions, Friendly, Turn)), Effect(EffectName(GiveStatsT), Boolean(False), SetStats(Randomly, a9, i3, Totems, AllF, Turn), GiveStats(Randomly, r6, g7, Elementals, Enemy, Turn)), Effect(EffectName(SetStatsT), Boolean(False), SetStats(Randomly, z6, u1, Elementals, AllF, Turn), GiveStats(Targeted, n2, w1, Elementals, Friendly, Permanently)), Effect(EffectName(ReturnHandT), Boolean(False), SetStats(Targeted, p7, l1, Minions, AllF, Permanently), GiveStats(Targeted, Integer(Integer(Integer(j3))), r5, Totems, Enemy, Turn)))"
+
+  # tokens = re.split("[ \t\n\r\f\v(),]", test_string)
+
+  # pt = gp.PrimitiveTree.from_string(test_string, pset)
+  # # pt[3].value = 100
+
+
+  # comp = gp.compile(pt, pset)
+  # asJson = json.dumps(comp, default=lambda x: x.__repr__(), indent=4)
+  # print(f"mici -> genetic: {asJson}")
+  return None
 
 # effect_text, effect_short, method, param, targets, filters, duration
 
 pset = gp.PrimitiveSetTyped("main", [], Card)
-pset.addPrimitive(Card, [BaseManaCost, BaseHp, BaseAttack, Attributes, Creature_Type, Effect, Effect, Effect, Effect, Effect, Effect], Card)
+pset.addPrimitive(Card, [BaseManaCost, BaseHp, BaseAttack, Attributes, Creature_Type, Effect, Effect, Effect, Effect], Card)
 pset.addPrimitive(BaseManaCost, [Integer,], BaseManaCost)
 pset.addPrimitive(BaseHp, [Integer,], BaseHp)
 pset.addPrimitive(BaseAttack, [Integer,], BaseAttack)
-pset.addPrimitive(Effect, [EffectName, Boolean, SetStats, GiveStats], Effect)
+pset.addPrimitive(Effect, [EffectName, Boolean, SetStats, GiveStats,\
+                           DrawCards, DealDamage, GainArmour, GiveKeyword,\
+                           RestoreHealth, ReturnHand, SummonToken, Destroy, GainMana], Effect)
 
 pset.addPrimitive(SetStats, [Method, Integer, Integer, TargetMinions, Filter, Duration], SetStats)
 pset.addPrimitive(GiveStats, [Method, Integer, Integer, TargetMinions, Filter, Duration], GiveStats)
@@ -484,17 +463,17 @@ pset.addPrimitive(EffectName, [EffectName], EffectName)
 
 
 
-pset.addTerminal(EffectName("SetStats"), EffectName, name="SetStatsT")
-pset.addTerminal(EffectName("GiveStats"), EffectName, name="GiveStatsT")
-pset.addTerminal(EffectName("DrawCard"), EffectName, name="DrawCardsT")
-pset.addTerminal(EffectName("DealDamage"), EffectName, name="DealDamageT")
-pset.addTerminal(EffectName("GainArmour"), EffectName, name="GainArmourT")
-pset.addTerminal(EffectName("GiveKeywords"), EffectName, name="GiveKeywordsT")
-pset.addTerminal(EffectName("RestoreHealth"), EffectName, name="RetoreHealthT")
-pset.addTerminal(EffectName("ReturnHand"), EffectName, name="ReturnHandT")
-pset.addTerminal(EffectName("SummonToken"), EffectName, name="SummonTokenT")
-pset.addTerminal(EffectName("Destory"), EffectName, name="DestroyT")
-pset.addTerminal(EffectName("GainMana"), EffectName, name="GainManaT")
+pset.addTerminal(EffectName("set_stats"), EffectName, name="SetStatsT")
+pset.addTerminal(EffectName("give_stats"), EffectName, name="GiveStatsT")
+pset.addTerminal(EffectName("draw_cards"), EffectName, name="DrawCardsT")
+pset.addTerminal(EffectName("deal_damage"), EffectName, name="DealDamageT")
+pset.addTerminal(EffectName("gain_armour"), EffectName, name="GainArmourT")
+pset.addTerminal(EffectName("give_keyword"), EffectName, name="GiveKeywordsT")
+pset.addTerminal(EffectName("restore_health"), EffectName, name="RetoreHealthT")
+pset.addTerminal(EffectName("return_hand"), EffectName, name="ReturnHandT")
+pset.addTerminal(EffectName("summon_token"), EffectName, name="SummonTokenT")
+pset.addTerminal(EffectName("destroy"), EffectName, name="DestroyT")
+pset.addTerminal(EffectName("gain_armour"), EffectName, name="GainManaT")
 
 
 pset.addTerminal(Method("randomly"), Method, name="Randomly")
@@ -509,7 +488,7 @@ pset.addTerminal(TargetMinions("totems"), TargetMinions, name="Totems")
 
 pset.addTerminal(TargetHeroes("minions"), TargetHeroes, name="MinionsH")
 pset.addTerminal(TargetHeroes("heroes"), TargetHeroes, name="Heroes")
-pset.addTerminal(TargetHeroes("minions_or_heroes"), TargetHeroes, name="Minions_Or_Heroes")
+pset.addTerminal(TargetHeroes("minions_or_heroes"), TargetHeroes, name="MinionsOrHeroes")
 pset.addTerminal(TargetHeroes("pirates"), TargetHeroes, name="PiratesH")
 pset.addTerminal(TargetHeroes("beasts"), TargetHeroes, name="BeastsH")
 pset.addTerminal(TargetHeroes("elementals"), TargetHeroes, name="ElementalsH")
@@ -525,8 +504,8 @@ pset.addTerminal(Duration("permanently"), Duration, name="Permanently")
 pset.addTerminal(Keyword("taunt"), Keyword, name="TauntK")
 pset.addTerminal(Keyword("charge"), Keyword, name="ChargeK")
 pset.addTerminal(Keyword("lifesteal"), Keyword, name="LifestealK")
-pset.addTerminal(Keyword("spell_damage"), Keyword, name="Spell DamageK")
-pset.addTerminal(Keyword("divine_shield"), Keyword, name="Divine ShieldK")
+pset.addTerminal(Keyword("spell_damage"), Keyword, name="SpellDamageK")
+pset.addTerminal(Keyword("divine_shield"), Keyword, name="DivineShieldK")
 pset.addTerminal(Keyword("poisonous"), Keyword, name="PoisonousK")
 pset.addTerminal(Keyword("windfury"), Keyword, name="WindfuryK")
 pset.addTerminal(Keyword("frozen"), Keyword, name="FrozenK")
@@ -535,14 +514,16 @@ pset.addTerminal(Keyword("frozen"), Keyword, name="FrozenK")
 pset.addTerminal(Boolean(True), Boolean, name="True")
 pset.addTerminal(Boolean(False), Boolean, name="False")
 
-for i in range(10):
-  pset.addTerminal(Integer(i), Integer, name=str(i))
+for j in string.ascii_lowercase:
+  for i in range(10):
+    pset.addTerminal(Integer(i), Integer, name=(j+str(i)))
+
 
 creator.create("FitnessMax", base.Fitness, weights=(-1.0,))
 creator.create("Individual", gp.PrimitiveTree, fitness=creator.FitnessMax)
 
 toolbox = base.Toolbox()
-# toolbox.register("pre_built", initial_individual, pset)
+toolbox.register("pre_built", initial_individual, pset)
 toolbox.register("expr", gp.genGrow, pset=pset, min_=3, max_=3)
 toolbox.register("individual", tools.initIterate, creator.Individual, toolbox.expr)
 toolbox.register("population", tools.initRepeat, list, toolbox.individual)
@@ -568,6 +549,10 @@ use_checkpoint = False
 
 draw_plot = False
 print_stats = False
+print_hero = True
+
+initial_individual(pset)
+
 
 if use_checkpoint:
   # A file name has been given, then load the data from the file
@@ -614,18 +599,27 @@ for gen in tqdm(range(start_gen, NGEN)):
     with open("checkpoint_alpha.pkl", "wb") as cp_file:
       pickle.dump(cp, cp_file)
 
-# eaSimpleCheckpointed(population, toolbox, 0.5, 0.2, 10, stats, halloffame=halloffame)
+if print_hero:
+  print(f"Generation: {gen+1}")
 
+  for i, hero in enumerate(halloffame):
+    # print(hero)
+    compiled = gp.compile(hero, pset)
+    asJson = json.dumps(compiled, default=lambda x: x.__repr__(), indent=4)
+    print(f"Hall of famer {i}/{POP_SIZE}: {asJson}")
 
-print(f"Generation: {gen+1}")
+    nodes, edges, labels = gp.graph(hero)
 
-for i, hero in enumerate(halloffame):
-  compiled = gp.compile(hero, pset)
-  asJson = json.dumps(compiled, default=lambda x: x.__repr__(), indent=4)
-  print(f"Hall of famer {i}/{POP_SIZE}: {asJson}")
+    g = pgv.AGraph()
+    g.add_nodes_from(nodes)
+    g.add_edges_from(edges)
+    g.layout(prog="dot")
 
-with open('newRawCard.json', 'w') as outfile:
-  json.dump(compiled, default=lambda x: x.__repr__(), indent=4, fp=outfile)
+    for i in nodes:
+        n = g.get_node(i)
+        n.attr["label"] = labels[i]
+
+    g.draw("tree.pdf")
 
 if print_stats:
   print(logbook.stream)
