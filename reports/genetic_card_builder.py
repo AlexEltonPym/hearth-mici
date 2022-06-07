@@ -21,7 +21,9 @@ import numpy
 from tqdm import tqdm
 
 import sim
+import subprocess
 
+from scoop import futures
 
 class Boolean:
   def __init__(self, val):
@@ -353,7 +355,7 @@ class Card:
       'baseHp':self.baseHp,
       'baseAttack':self.baseAttack, 
       'attributes': self.attributes,
-      'creature_type': self.creature_type,
+      'race': self.creature_type,
       'effect1': self.effect1,
       'effect2': self.effect2,
       'effect3': self.effect3,
@@ -379,20 +381,49 @@ class Effect:
       return {}
 
 #NOTE: must return a tuple
-def evalCard(indi_uncompiled):
-    compiled = toolbox.compile(expr=indi_uncompiled)
-    indi = json.loads(json.dumps(compiled, default=lambda x: x.__repr__()))
+def evalCards(indi_uncompileds, num_games):
 
+    compileds = [toolbox.compile(expr=indi_uncompiled) for indi_uncompiled in indi_uncompileds]
+    indis = [json.loads(json.dumps(compiled, default=lambda x: x.__repr__(), indent=4)) for compiled in compileds]
+    indis_as_spellsource = [convert_genetic_to_spellsource(indi) for indi in indis]
 
+    winrates = []
 
-    # sim.experiment_simple_game()
+    if sim:
+      with open('generation.json', 'w', encoding='utf-8') as outfile:
+        json.dump(indis_as_spellsource, outfile, ensure_ascii=False, indent=2)
 
-    costs = 0
-    # costs = sum((indi["baseManaCost"], 10-indi["baseAttack"], 10-indi["baseHp"]))
-    costs = costs + abs(EFFECT_TARGET-sum([0 if indi[f"effect{i}"]=={} else 1 for i in range(1, 5)])) * EFFECT_TARGET_WEIGHT
+      cmd = subprocess.run(["python3", "sim.py", f"{num_games}"], capture_output=True, check=True)
+      sim_results = json.loads(cmd.stdout.decode())
 
-    return costs,
+      winrates = [abs(0.50 - float(sim_result)) for sim_result in sim_results]
+    else:
+      winrates = [abs(0.50 - random.random()) for i in range(10)]
 
+    attribute_complexities = [abs(1-sum([1 if active == "True" else 0 for (attribute, active) in indi["attributes"].items()])) for indi in indis]
+    race_complexities = [abs(1-sum([1 if active == "True" else 0 for (race, active) in indi["race"].items()]))  for indi in indis]
+    effect_complexities = [abs(1-sum([0 if indi[f"effect{i}"]=={} else 1 for i in range(1, 5)]))  for indi in indis]
+    fitnesses = [(winrate + attribute_complexity * 1 + race_complexity * 1 + effect_complexity * 1,) for \
+                  winrate, attribute_complexity, race_complexity, effect_complexity in \
+                  zip(winrates, attribute_complexities, race_complexities, effect_complexities)]
+    return fitnesses
+
+def convert_genetic_to_spellsource(genetic_card):
+  card = {"name": "Custom Card", "type": "MINION", "rarity": "COMMON", "description": "A custom card", "collectible": True, "set": "CUSTOM", "fileFormatVersion": 1}
+  for race, active in genetic_card['race'].items():
+    if active:
+      card["race"] = race
+      break
+  
+  card['attributes'] = genetic_card['attributes']
+  card['attributes']['SPELL_DAMAGE'] = 1 if card['attributes']['DIVINE_SHIELD'] == "True" else 0
+  
+  card['baseManaCost'] = genetic_card['baseManaCost']
+  card['baseHp'] = genetic_card['baseHp']
+  card['baseAttack'] = genetic_card['baseAttack']
+
+  # card = json.dumps(card, indent=4)
+  return card
 
 def initial_individual(pset):
   # test_string = "Card(BaseManaCost(Integer(a7)), BaseHp(Integer(p8)), BaseAttack(Integer(l7)), Attributes(Taunt(True), Charge(False), Lifesteal(False), SpellDamage(True), DivineShield(True), Poisonous(True), Windfury(True), Frozen(True)), Creature_Type(Pirate(False), Beast(True), Elemental(False), Totem(True)), Effect(EffectName(GainArmourT), Boolean(True), SetStats(Targeted, u7, b2, Pirates, AllF, Permanently), GiveStats(Randomly, a3, a1, Beasts, Friendly, Permanently)), Effect(EffectName(RetoreHealthT), Boolean(False), SetStats(All, l0, z9, Beasts, AllF, Turn), GiveStats(Targeted, c3, x0, Beasts, AllF, Turn)), Effect(EffectName(GiveKeywordsT), Boolean(True), SetStats(Randomly, e8, e2, Pirates, AllF, Permanently), GiveStats(Targeted, k9, y1, Minions, Friendly, Turn)), Effect(EffectName(GiveStatsT), Boolean(False), SetStats(Randomly, a9, i3, Totems, AllF, Turn), GiveStats(Randomly, r6, g7, Elementals, Enemy, Turn)), Effect(EffectName(SetStatsT), Boolean(False), SetStats(Randomly, z6, u1, Elementals, AllF, Turn), GiveStats(Targeted, n2, w1, Elementals, Friendly, Permanently)), Effect(EffectName(ReturnHandT), Boolean(False), SetStats(Targeted, p7, l1, Minions, AllF, Permanently), GiveStats(Targeted, Integer(Integer(Integer(j3))), r5, Totems, Enemy, Turn)))"
@@ -409,15 +440,14 @@ def initial_individual(pset):
   return None
 
 # effect_text, effect_short, method, param, targets, filters, duration
-
 pset = gp.PrimitiveSetTyped("main", [], Card)
 pset.addPrimitive(Card, [BaseManaCost, BaseHp, BaseAttack, Attributes, Creature_Type, Effect, Effect, Effect, Effect], Card)
 pset.addPrimitive(BaseManaCost, [Integer,], BaseManaCost)
 pset.addPrimitive(BaseHp, [Integer,], BaseHp)
 pset.addPrimitive(BaseAttack, [Integer,], BaseAttack)
 pset.addPrimitive(Effect, [EffectName, Boolean, SetStats, GiveStats,\
-                           DrawCards, DealDamage, GainArmour, GiveKeyword,\
-                           RestoreHealth, ReturnHand, SummonToken, Destroy, GainMana], Effect)
+                          DrawCards, DealDamage, GainArmour, GiveKeyword,\
+                          RestoreHealth, ReturnHand, SummonToken, Destroy, GainMana], Effect)
 
 pset.addPrimitive(SetStats, [Method, Integer, Integer, TargetMinions, Filter, Duration], SetStats)
 pset.addPrimitive(GiveStats, [Method, Integer, Integer, TargetMinions, Filter, Duration], GiveStats)
@@ -495,7 +525,7 @@ pset.addTerminal(TargetHeroes("elementals"), TargetHeroes, name="ElementalsH")
 pset.addTerminal(TargetHeroes("totems"), TargetHeroes, name="TotemsH")
 
 pset.addTerminal(Filter("enemy"), Filter, name="Enemy")
-pset.addTerminal(Filter("firendly"), Filter, name="Friendly")
+pset.addTerminal(Filter("friendly"), Filter, name="Friendly")
 pset.addTerminal(Filter("all"), Filter, name="AllF")
 
 pset.addTerminal(Duration("turn"), Duration, name="Turn")
@@ -511,144 +541,144 @@ pset.addTerminal(Keyword("windfury"), Keyword, name="WindfuryK")
 pset.addTerminal(Keyword("frozen"), Keyword, name="FrozenK")
 
 
-pset.addTerminal(Boolean(True), Boolean, name="True")
-pset.addTerminal(Boolean(False), Boolean, name="False")
+
 
 for j in string.ascii_lowercase:
   for i in range(10):
     pset.addTerminal(Integer(i), Integer, name=(j+str(i)))
 
+  pset.addTerminal(Boolean(True), Boolean, name=(j+"True"))
+  pset.addTerminal(Boolean(False), Boolean, name=(j+"False"))
 
-creator.create("FitnessMax", base.Fitness, weights=(-1.0,))
-creator.create("Individual", gp.PrimitiveTree, fitness=creator.FitnessMax)
+creator.create("FitnessMin", base.Fitness, weights=(-1.0,))
+creator.create("Individual", gp.PrimitiveTree, fitness=creator.FitnessMin)
+
 
 toolbox = base.Toolbox()
+toolbox.register("map", futures.map)
 toolbox.register("pre_built", initial_individual, pset)
 toolbox.register("expr", gp.genGrow, pset=pset, min_=3, max_=3)
 toolbox.register("individual", tools.initIterate, creator.Individual, toolbox.expr)
 toolbox.register("population", tools.initRepeat, list, toolbox.individual)
 toolbox.register("compile", gp.compile, pset=pset)
-toolbox.register("evaluate", evalCard)
-toolbox.register("select", tools.selTournament, tournsize=3)
+toolbox.register("select", tools.selTournament, tournsize=10)
 toolbox.register("mate", gp.cxOnePoint)
 toolbox.register("expr_mut", gp.genGrow, min_=3, max_=3)
 toolbox.register("mutate", gp.mutUniform, expr=toolbox.expr_mut, pset=pset)
 
 
+if __name__ == "__main__":
 
-CXPB = 0.5
-MUTPB = 0.2
-POP_SIZE = 100
-NGEN = 10
-CP_FREQ = 5
-EFFECT_TARGET_WEIGHT = 3.0
-EFFECT_TARGET = 2
+  CXPB = 0.5 #crossbread probability
+  MUTPB = 0.2 #mutation probability
+  CP_FREQ = 5 #frequency of generation saved to checpoint
 
-checkpoint = "checkpoint_alpha.pkl"
-use_checkpoint = False
+  POP_SIZE = 2 #total population size
+  NGEN = 2 #number of generations to run
+  NUM_GAMES = 2 #games to play when evaluating fitness
+  sim = True #should games be simulated or random
 
-draw_plot = False
-print_stats = False
-print_hero = True
+  checkpoint = "checkpoint_alpha.pkl"
+  use_checkpoint = False
 
-initial_individual(pset)
+  draw_plot = True
+  print_stats = True
+  print_hero = True
 
-
-if use_checkpoint:
-  # A file name has been given, then load the data from the file
-  with open(checkpoint, "rb") as cp_file:
-    cp = pickle.load(cp_file)
-  population = cp["population"]
-  start_gen = cp["generation"]
-  halloffame = cp["halloffame"]
-  logbook = cp["logbook"]
-  random.setstate(cp["rndstate"])
-else:
-  # Start a new evolution
-  population = toolbox.population(n=POP_SIZE)
-  start_gen = 0
-  halloffame = tools.HallOfFame(maxsize=1)
-  logbook = tools.Logbook()
-
-  
-stats = tools.Statistics(lambda ind: ind.fitness.values)
-stats.register("avg", numpy.mean)
-stats.register("min", numpy.min)
-stats.register("max", numpy.max)
-
-for gen in tqdm(range(start_gen, NGEN)):
-  population = algorithms.varAnd(population, toolbox, cxpb=CXPB, mutpb=MUTPB)
-
-  # Evaluate the individuals with an invalid fitness
-  invalid_ind = [ind for ind in population if not ind.fitness.valid]
-  fitnesses = toolbox.map(toolbox.evaluate, invalid_ind)
-  for ind, fit in zip(invalid_ind, fitnesses):
-    ind.fitness.values = fit
-
-  halloffame.update(population)
-  record = stats.compile(population)
-  logbook.record(gen=gen, evals=len(invalid_ind), **record)
-  logbook.header = "gen", "evals", "avg", "min", "max"
+  # initial_individual(pset)
 
 
-  population = toolbox.select(population, k=len(population))
+  if use_checkpoint:
+    # A file name has been given, then load the data from the file
+    with open(checkpoint, "rb") as cp_file:
+      cp = pickle.load(cp_file)
+    population = cp["population"]
+    start_gen = cp["generation"]
+    halloffame = cp["halloffame"]
+    logbook = cp["logbook"]
+    random.setstate(cp["rndstate"])
+  else:
+    # Start a new evolution
+    population = toolbox.population(n=POP_SIZE)
+    start_gen = 0
+    halloffame = tools.HallOfFame(maxsize=2)
+    logbook = tools.Logbook()
 
-  if gen % CP_FREQ == 0:
-    # Fill the dictionary using the dict(key=value[, ...]) constructor
-    cp = dict(population=population, generation=gen, halloffame=halloffame, logbook=logbook, rndstate=random.getstate())
-    with open("checkpoint_alpha.pkl", "wb") as cp_file:
-      pickle.dump(cp, cp_file)
+    
+  stats = tools.Statistics(lambda ind: ind.fitness.values)
+  stats.register("avg", numpy.mean)
+  stats.register("min", numpy.min)
+  stats.register("max", numpy.max)
 
-if print_hero:
-  print(f"Generation: {gen+1}")
+  for gen in tqdm(range(start_gen, NGEN)):
+    population = algorithms.varAnd(population, toolbox, cxpb=CXPB, mutpb=MUTPB)
 
-  for i, hero in enumerate(halloffame):
-    # print(hero)
-    compiled = gp.compile(hero, pset)
-    asJson = json.dumps(compiled, default=lambda x: x.__repr__(), indent=4)
-    print(f"Hall of famer {i}/{POP_SIZE}: {asJson}")
+    # Evaluate the individuals with an invalid fitness
+    invalid_individuals = [ind for ind in population if not ind.fitness.valid]
+    fitnesses = evalCards(invalid_individuals, NUM_GAMES)
+    for ind, fit in zip(invalid_individuals, fitnesses):
+      ind.fitness.values = fit
 
-    nodes, edges, labels = gp.graph(hero)
-
-    g = pgv.AGraph()
-    g.add_nodes_from(nodes)
-    g.add_edges_from(edges)
-    g.layout(prog="dot")
-
-    for i in nodes:
-        n = g.get_node(i)
-        n.attr["label"] = labels[i]
-
-    g.draw("tree.pdf")
-
-if print_stats:
-  print(logbook.stream)
-
-if draw_plot:
-  gen = logbook.select("gen")
-  fit_min = logbook.select("min")
-  fit_avg = logbook.select("avg")
-  fit_max = logbook.select("evals")
-
-  fig, ax1 = plt.subplots()
-  line1 = ax1.plot(gen, fit_min, "b-", label="Minimum Fitness")
-  ax1.set_xlabel("Generation")
-  ax1.set_ylabel("Fitness min", color="b")
-  for tl in ax1.get_yticklabels():
-      tl.set_color("b")
-
-  ax2 = ax1.twinx()
-  line2 = ax2.plot(gen, fit_avg, "r-", label="Average Fitness")
-  ax2.set_ylabel("Fitness average", color="r")
-  for tl in ax2.get_yticklabels():
-      tl.set_color("r")
+    halloffame.update(population)
+    record = stats.compile(population)
+    logbook.record(gen=gen, evals=len(invalid_individuals), **record)
+    logbook.header = "gen", "evals", "avg", "min", "max"
 
 
-  lns = line1 + line2
-  labs = [l.get_label() for l in lns]
-  ax1.legend(lns, labs, loc="center right")
+    population = toolbox.select(population, k=len(population))
 
-  plt.show()
+    if gen % CP_FREQ == 0:
+      # Fill the dictionary using the dict(key=value[, ...]) constructor
+      cp = dict(population=population, generation=gen, halloffame=halloffame, logbook=logbook, rndstate=random.getstate())
+      with open("checkpoint_alpha.pkl", "wb") as cp_file:
+        pickle.dump(cp, cp_file)
+
+  if print_hero:
+    print(f"Generation: {gen+1}")
+
+    for i, hero in enumerate(halloffame):
+      evalCards(halloffame)
+      compiled = gp.compile(hero, pset)
+      asJson = json.dumps(compiled, default=lambda x: x.__repr__(), indent=4)
+      print(f"Hall of famer {i}/{len(halloffame)} in {POP_SIZE}: {asJson}")
+
+      nodes, edges, labels = gp.graph(hero)
+
+      g = pgv.AGraph()
+      g.add_nodes_from(nodes)
+      g.add_edges_from(edges)
+      g.layout(prog="dot")
+
+      for i in nodes:
+          n = g.get_node(i)
+          n.attr["label"] = labels[i]
+
+      g.draw("tree.pdf")
+
+  if print_stats:
+    print(logbook.stream)
+
+  if draw_plot:
+    gen = logbook.select("gen")
+    fit_min = logbook.select("min")
+    fit_avg = logbook.select("avg")
+    fit_max = logbook.select("evals")
+
+    fig, ax1 = plt.subplots()
+    line1 = ax1.plot(gen, fit_min, "b-", label="Minimum Fitness")
+    ax1.set_xlabel("Generation")
+    ax1.set_ylabel("Fitness min", color="b")
+    for tl in ax1.get_yticklabels():
+        tl.set_color("b")
+
+    line2 = ax1.plot(gen, fit_avg, "r-", label="Average Fitness")
+
+
+    lns = line1 + line2
+    labs = [l.get_label() for l in lns]
+    ax1.legend(lns, labs, loc="center right")
+
+    plt.show()
 
 
 

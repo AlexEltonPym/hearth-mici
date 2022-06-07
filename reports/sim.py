@@ -48,7 +48,7 @@ def run_with_context(num_games, custom_cards, decks):
   with Context() as context:
     for c in custom_cards:
       context.CardCatalogue.addOrReplaceCard(c)
-    test_results = list(tqdm(simulate(context=context, decks=decks, number=num_games, behaviours=['GameStateValueBehaviour', 'GameStateValueBehaviour'], reduce=False)))
+    test_results = list(simulate(context=context, decks=decks, number=num_games, behaviours=['GameStateValueBehaviour', 'GameStateValueBehaviour'], reduce=False))
     return test_results
 
 def get_stats(game_results, perspective):
@@ -74,23 +74,23 @@ def get_stats(game_results, perspective):
                       'HERO_POWER_DAMAGE_DEALT': 0,
                       'ARMOR_LOST': 0})
 
-  player_stats_deviations = dict({'WIN_RATE': 0,
-                      'DAMAGE_DEALT': 0,
-                      'HEALING_DONE': 0,
-                      'MANA_SPENT': 0,
-                      'CARDS_PLAYED': 0,
-                      'TURNS_TAKEN': 0,
-                      'ARMOR_GAINED': 0,
-                      'CARDS_DRAWN': 0,
-                      'FATIGUE_DAMAGE': 0,
-                      'MINIONS_PLAYED': 0,
-                      'SPELLS_CAST': 0,
-                      'HERO_POWER_USED': 0,
-                      'WEAPONS_EQUIPPED': 0,
-                      'WEAPONS_PLAYED': 0,
-                      'CARDS_DISCARDED': 0,
-                      'HERO_POWER_DAMAGE_DEALT': 0,
-                      'ARMOR_LOST': 0})
+  # player_stats_deviations = dict({'WIN_RATE': 0,
+  #                     'DAMAGE_DEALT': 0,
+  #                     'HEALING_DONE': 0,
+  #                     'MANA_SPENT': 0,
+  #                     'CARDS_PLAYED': 0,
+  #                     'TURNS_TAKEN': 0,
+  #                     'ARMOR_GAINED': 0,
+  #                     'CARDS_DRAWN': 0,
+  #                     'FATIGUE_DAMAGE': 0,
+  #                     'MINIONS_PLAYED': 0,
+  #                     'SPELLS_CAST': 0,
+  #                     'HERO_POWER_USED': 0,
+  #                     'WEAPONS_EQUIPPED': 0,
+  #                     'WEAPONS_PLAYED': 0,
+  #                     'CARDS_DISCARDED': 0,
+  #                     'HERO_POWER_DAMAGE_DEALT': 0,
+  #                     'ARMOR_LOST': 0})
   # for game_result in player_results:
   #   for x, y in player_stats.items():
   #     player_stats[x] = 0
@@ -104,25 +104,25 @@ def get_stats(game_results, perspective):
   for x, _ in player_stats.items():
     player_stats[x] = round(player_stats[x]/len(player_results), 30)
 
-  for game_result in player_results:
-    for i, j in game_result.items():
-      for x, _ in player_stats_deviations.items():
-        if i == x:
-          player_stats_deviations[i] += pow(j - player_stats[i], 2)
+  # for game_result in player_results:
+  #   for i, j in game_result.items():
+  #     for x, _ in player_stats_deviations.items():
+  #       if i == x:
+  #         player_stats_deviations[i] += pow(j - player_stats[i], 2)
   
-  for x, _ in player_stats_deviations.items():
-    player_stats[x] = (player_stats[x], math.sqrt(player_stats_deviations[x]/len(player_results)))
+  # for x, _ in player_stats_deviations.items():
+  #   player_stats[x] = (player_stats[x], math.sqrt(player_stats_deviations[x]/len(player_results)))
 
   return [(x, y) for x, y in player_stats.items() if x == 'WIN_RATE' or y != 0]
 
 def tryout(num_games, decks, custom_cards):
 
   #todo check JobLib.parralel threading
-  # pool = mp.Pool(processors_to_use)
-  # result_objects = [pool.apply_async(run_with_context, (custom_cards, decks)) for i in range(processors_to_use)]
+  # pool = mp.Pool(8)
+  # result_objects = [pool.apply_async(run_with_context, (3, custom_cards, decks)) for i in range(8)]
   # pool.close()
   # pool.join()
-  # results = [get_stats(r.get()) for r in result_objects]
+  # results = [get_stats(r.get(), decks[0]) for r in result_objects]
 
   #from perspective of deck 0
   stats = get_stats(run_with_context(num_games, custom_cards, decks), decks[0])
@@ -240,7 +240,7 @@ def experiment_simple_game():
   return stats
 
 def experiment_custom_card():
-  with open('experiment_cards/liamx.json', 'r') as c:
+  with open('experiment_cards/genetic_card.json', 'r') as c:
     custom_card = json.dumps(json.load(c))
     stats = progressive_tryout([3], [HUNTER_DECK_6_CUSTOM, HUNTER_DECK_MIRROR], [custom_card])
 
@@ -309,7 +309,19 @@ def initalise_system():
 
   global cpus_to_use
   cpus_to_use = os.cpu_count()
-  
+
+
+def run_cards(cards, num_games):
+  stats = []
+  decks = [HUNTER_DECK_6_CUSTOM, MAGE_DECK]
+  with Context() as context:
+    for c in cards:
+      asString = json.dumps(c)
+      context.CardCatalogue.addOrReplaceCard(asString)
+      sim_results = tqdm(list(simulate(context=context, decks=decks, number=int(num_games), behaviours=['GameStateValueBehaviour', 'GameStateValueBehaviour'], reduce=False)))
+      stats.append(get_stats(sim_results, decks[0]))
+  return stats
+
 def run_experiments(experiments): 
   pp = pprint.PrettyPrinter(indent=1, compact=False)
   # pdf = FPDF()
@@ -339,17 +351,28 @@ def run_experiments(experiments):
 
 if __name__ == '__main__':
  
+  experimenting = True
 
-  experiments = [(experiment_simple_game, True),\
-                 (experiment_timing_alpha, False),\
-                 (experiment_timing_beta, False),\
-                 (experiment_impact, False),\
-                 (experiment_baselines, False),\
-                 (experiment_histogram, False),\
-                 (experiment_minimeta, False),\
-                 (experiment_custom_card, False),\
-                 (experiment_custom_card_gauntlet, False),\
-                 (experiment_reference, False)]
+  if experimenting:
+    experiments = [(experiment_simple_game, False),\
+                  (experiment_timing_alpha, False),\
+                  (experiment_timing_beta, False),\
+                  (experiment_impact, False),\
+                  (experiment_baselines, False),\
+                  (experiment_histogram, False),\
+                  (experiment_minimeta, False),\
+                  (experiment_custom_card, False),\
+                  (experiment_custom_card_gauntlet, False),\
+                  (experiment_reference, False)]
 
-  initalise_system()
-  run_experiments(experiments)
+    initalise_system()
+    run_experiments(experiments)
+    for i in range(100):
+      experiment_simple_game()
+  else:
+    with open('generation.json', 'r') as data_in:
+      data = json.load(data_in)
+      game_results = run_cards(data, sys.argv[1])
+      print([stats[0][1] for stats in game_results])
+
+

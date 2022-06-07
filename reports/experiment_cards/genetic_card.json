@@ -1,0 +1,20 @@
+{
+    "name": "Custom Card",
+    "type": "MINION",
+    "rarity": "COMMON",
+    "description": "A custom card",
+    "collectible": true,
+    "set": "CUSTOM",
+    "fileFormatVersion": 1,
+    "race": "PIRATE",
+    "attributes": {
+        "TAUNT": "False",
+        "CHARGE": "False",
+        "LIFESTEAL": "False",
+        "SPELL_DAMAGE": "False",
+        "DIVINE_SHIELD": 0,
+        "POISONOUS": "False",
+        "WINDFURY": "False",
+        "FROZEN": "True"
+    }
+}
