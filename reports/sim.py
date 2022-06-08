@@ -318,7 +318,7 @@ def run_cards(cards, num_games):
     for c in cards:
       asString = json.dumps(c)
       context.CardCatalogue.addOrReplaceCard(asString)
-      sim_results = tqdm(list(simulate(context=context, decks=decks, number=int(num_games), behaviours=['GameStateValueBehaviour', 'GameStateValueBehaviour'], reduce=False)))
+      sim_results = list(simulate(context=context, decks=decks, number=int(num_games), behaviours=['GameStateValueBehaviour', 'GameStateValueBehaviour'], reduce=False))
       stats.append(get_stats(sim_results, decks[0]))
   return stats
 
@@ -354,7 +354,7 @@ if __name__ == '__main__':
   experimenting = True
 
   if experimenting:
-    experiments = [(experiment_simple_game, False),\
+    experiments = [(experiment_simple_game, True),\
                   (experiment_timing_alpha, False),\
                   (experiment_timing_beta, False),\
                   (experiment_impact, False),\
@@ -367,8 +367,6 @@ if __name__ == '__main__':
 
     initalise_system()
     run_experiments(experiments)
-    for i in range(100):
-      experiment_simple_game()
   else:
     with open('generation.json', 'r') as data_in:
       data = json.load(data_in)

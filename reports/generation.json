@@ -1,1 +1,25 @@
-[]
+[
+  {
+    "name": "Custom Card",
+    "type": "MINION",
+    "rarity": "COMMON",
+    "description": "A custom card",
+    "collectible": true,
+    "set": "CUSTOM",
+    "fileFormatVersion": 1,
+    "race": "PIRATE",
+    "attributes": {
+      "TAUNT": "True",
+      "CHARGE": "True",
+      "LIFESTEAL": "True",
+      "SPELL_DAMAGE": 0,
+      "DIVINE_SHIELD": "False",
+      "POISONOUS": "False",
+      "WINDFURY": "False",
+      "FROZEN": "False"
+    },
+    "baseManaCost": 9,
+    "baseHp": 5,
+    "baseAttack": 2
+  }
+]

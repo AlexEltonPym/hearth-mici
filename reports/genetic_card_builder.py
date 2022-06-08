@@ -389,7 +389,7 @@ def evalCards(indi_uncompileds, num_games):
 
     winrates = []
 
-    if sim:
+    if simu:
       with open('generation.json', 'w', encoding='utf-8') as outfile:
         json.dump(indis_as_spellsource, outfile, ensure_ascii=False, indent=2)
 
@@ -403,7 +403,7 @@ def evalCards(indi_uncompileds, num_games):
     attribute_complexities = [abs(1-sum([1 if active == "True" else 0 for (attribute, active) in indi["attributes"].items()])) for indi in indis]
     race_complexities = [abs(1-sum([1 if active == "True" else 0 for (race, active) in indi["race"].items()]))  for indi in indis]
     effect_complexities = [abs(1-sum([0 if indi[f"effect{i}"]=={} else 1 for i in range(1, 5)]))  for indi in indis]
-    fitnesses = [(winrate + attribute_complexity * 1 + race_complexity * 1 + effect_complexity * 1,) for \
+    fitnesses = [(winrate * 10 + attribute_complexity * 1 + race_complexity * 1 + effect_complexity * 1,) for \
                   winrate, attribute_complexity, race_complexity, effect_complexity in \
                   zip(winrates, attribute_complexities, race_complexities, effect_complexities)]
     return fitnesses
@@ -567,6 +567,9 @@ toolbox.register("expr_mut", gp.genGrow, min_=3, max_=3)
 toolbox.register("mutate", gp.mutUniform, expr=toolbox.expr_mut, pset=pset)
 
 
+
+
+
 if __name__ == "__main__":
 
   CXPB = 0.5 #crossbread probability
@@ -576,7 +579,7 @@ if __name__ == "__main__":
   POP_SIZE = 2 #total population size
   NGEN = 2 #number of generations to run
   NUM_GAMES = 2 #games to play when evaluating fitness
-  sim = True #should games be simulated or random
+  simu = True #should games be simulated or random
 
   checkpoint = "checkpoint_alpha.pkl"
   use_checkpoint = False
@@ -601,7 +604,7 @@ if __name__ == "__main__":
     # Start a new evolution
     population = toolbox.population(n=POP_SIZE)
     start_gen = 0
-    halloffame = tools.HallOfFame(maxsize=2)
+    halloffame = tools.HallOfFame(maxsize=1)
     logbook = tools.Logbook()
 
     
@@ -635,12 +638,15 @@ if __name__ == "__main__":
 
   if print_hero:
     print(f"Generation: {gen+1}")
+    
+    hall_fitnesses = evalCards(halloffame, NUM_GAMES)
 
-    for i, hero in enumerate(halloffame):
-      evalCards(halloffame)
+    for (i, hero), fitness in zip(enumerate(halloffame), hall_fitnesses):
       compiled = gp.compile(hero, pset)
       asJson = json.dumps(compiled, default=lambda x: x.__repr__(), indent=4)
-      print(f"Hall of famer {i}/{len(halloffame)} in {POP_SIZE}: {asJson}")
+      print(f"Hall of famer {i+1}/{len(halloffame)} in {POP_SIZE} total population")
+      print(f"Fitness == {fitness}\n")
+      print(asJson)
 
       nodes, edges, labels = gp.graph(hero)
 

@@ -18,7 +18,7 @@ DRUID_DECK = '''### DRUID_DECK
 # 2x Core Hound
 #'''
 
-DRUID_DECK_2_CUSTOM = '''### DRUID_DECK
+DRUID_DECK_2_CUSTOM = '''### DRUID_DECK_2_CUSTOM
 # Class: BROWN
 # Format: Standard
 # 2x Innervate
@@ -38,7 +38,7 @@ DRUID_DECK_2_CUSTOM = '''### DRUID_DECK
 # 2x Core Hound
 #'''
 
-DRUID_DECK_4_CUSTOM = '''### DRUID_DECK
+DRUID_DECK_4_CUSTOM = '''### DRUID_DECK_4_CUSTOM
 # Class: BROWN
 # Format: Standard
 # 2x Innervate
@@ -58,7 +58,7 @@ DRUID_DECK_4_CUSTOM = '''### DRUID_DECK
 #'''
 
 
-DRUID_DECK_6_CUSTOM = '''### DRUID_DECK
+DRUID_DECK_6_CUSTOM = '''### DRUID_DECK_6_CUSTOM
 # Class: BROWN
 # Format: Standard
 # 2x Innervate
@@ -156,8 +156,8 @@ HUNTER_DECK_4_CUSTOM = '''### HUNTER_DECK_4_CUSTOM
 #'''
 
 
-HUNTER_DECK_6_CUSTOM = '''### HUNTER_DECK
-# Class: GREEN
+HUNTER_DECK_6_CUSTOM = '''### HUNTER_DECK_6_CUSTOM
+# Class: "Hunter"
 # Format: Standard
 # 2x Arcane Shot
 # 2x Stonetusk Boar
@@ -175,7 +175,7 @@ HUNTER_DECK_6_CUSTOM = '''### HUNTER_DECK
 #'''
 
 MAGE_DECK = '''### MAGE_DECK
-# Class: BLUE
+# Class: "Mage"
 # Format: Standard
 # 2x Arcane Missiles
 # 2x Murloc Raider
