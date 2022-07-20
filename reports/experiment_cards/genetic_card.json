@@ -7,14 +7,8 @@
     "set": "CUSTOM",
     "fileFormatVersion": 1,
     "race": "PIRATE",
-    "attributes": {
-        "TAUNT": "False",
-        "CHARGE": "False",
-        "LIFESTEAL": "False",
-        "SPELL_DAMAGE": "False",
-        "DIVINE_SHIELD": 0,
-        "POISONOUS": "False",
-        "WINDFURY": "False",
-        "FROZEN": "True"
-    }
-}
+    "attributes": {},
+    "baseManaCost": 4,
+    "baseHp": 3,
+    "baseAttack": 9
+  }

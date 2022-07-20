@@ -114,6 +114,8 @@ export default function sketch(p) {
 
   let props;
 
+  let report;
+
 
   p.myCustomRedrawAccordingToNewPropsHandler = (_props) => {
     props = _props;
@@ -129,6 +131,7 @@ export default function sketch(p) {
     for (let im of props.gan_imgs) {
       gan_imgs.push(p.loadImage(im))
     }
+    report = p.loadJSON(props.report)
   }
 
 
@@ -136,6 +139,7 @@ export default function sketch(p) {
     p.createCanvas(p.windowWidth, p.windowHeight);
     user = p.getURLParams().user ?? 2;
 
+    print(report)
 
    
     the_mouse = new p.FancyMouse();

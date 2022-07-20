@@ -25,6 +25,7 @@ import subprocess
 
 from scoop import futures
 
+
 class Boolean:
   def __init__(self, val):
     self.val = val
@@ -398,15 +399,16 @@ def evalCards(indi_uncompileds, num_games):
 
       winrates = [abs(0.50 - float(sim_result)) for sim_result in sim_results]
     else:
-      winrates = [abs(0.50 - random.random()) for i in range(10)]
+      winrates = [abs(0.50 - random.random()) for i in range(num_games)]
 
     attribute_complexities = [abs(1-sum([1 if active == "True" else 0 for (attribute, active) in indi["attributes"].items()])) for indi in indis]
     race_complexities = [abs(1-sum([1 if active == "True" else 0 for (race, active) in indi["race"].items()]))  for indi in indis]
     effect_complexities = [abs(1-sum([0 if indi[f"effect{i}"]=={} else 1 for i in range(1, 5)]))  for indi in indis]
-    fitnesses = [(winrate * 10 + attribute_complexity * 1 + race_complexity * 1 + effect_complexity * 1,) for \
+    fitnesses = [winrate * 10 + attribute_complexity * 1 + race_complexity * 1 + effect_complexity * 1 for \
                   winrate, attribute_complexity, race_complexity, effect_complexity in \
                   zip(winrates, attribute_complexities, race_complexities, effect_complexities)]
-    return fitnesses
+    # return [(fitnesses[i], winrates[i], attribute_complexities[i], race_complexities[i], effect_complexities[i]) for i in range(len(indis_as_spellsource))]
+    return [(fitnesses[i],) for i in range(len(indis_as_spellsource))]
 
 def convert_genetic_to_spellsource(genetic_card):
   card = {"name": "Custom Card", "type": "MINION", "rarity": "COMMON", "description": "A custom card", "collectible": True, "set": "CUSTOM", "fileFormatVersion": 1}
@@ -415,14 +417,24 @@ def convert_genetic_to_spellsource(genetic_card):
       card["race"] = race
       break
   
-  card['attributes'] = genetic_card['attributes']
-  card['attributes']['SPELL_DAMAGE'] = 1 if card['attributes']['DIVINE_SHIELD'] == "True" else 0
+  card['attributes'] = {}
+
+  for attribute in genetic_card['attributes']:
+    if genetic_card['attributes'][attribute] == True:
+      if attribute == 'SPELL_DAMAGE':
+        card['attributes'][attribute] = 1
+      else:
+        card['attributes'][attribute] = True
   
+
   card['baseManaCost'] = genetic_card['baseManaCost']
   card['baseHp'] = genetic_card['baseHp']
   card['baseAttack'] = genetic_card['baseAttack']
 
-  # card = json.dumps(card, indent=4)
+  
+  pcard = json.dumps(card, indent=4)
+  # print(pcard)
+
   return card
 
 def initial_individual(pset):
@@ -574,7 +586,7 @@ if __name__ == "__main__":
 
   CXPB = 0.5 #crossbread probability
   MUTPB = 0.2 #mutation probability
-  CP_FREQ = 5 #frequency of generation saved to checpoint
+  CP_FREQ = 1 #frequency of generation saved to checpoint
 
   POP_SIZE = 2 #total population size
   NGEN = 2 #number of generations to run
@@ -584,9 +596,9 @@ if __name__ == "__main__":
   checkpoint = "checkpoint_alpha.pkl"
   use_checkpoint = False
 
-  draw_plot = True
-  print_stats = True
-  print_hero = True
+  draw_plot = False
+  print_stats = False
+  print_hero = False
 
   # initial_individual(pset)
 
@@ -639,13 +651,12 @@ if __name__ == "__main__":
   if print_hero:
     print(f"Generation: {gen+1}")
     
-    hall_fitnesses = evalCards(halloffame, NUM_GAMES)
 
-    for (i, hero), fitness in zip(enumerate(halloffame), hall_fitnesses):
+    for i, hero in enumerate(halloffame):
       compiled = gp.compile(hero, pset)
       asJson = json.dumps(compiled, default=lambda x: x.__repr__(), indent=4)
       print(f"Hall of famer {i+1}/{len(halloffame)} in {POP_SIZE} total population")
-      print(f"Fitness == {fitness}\n")
+      print(f"Fitness == {hero.fitness}\n")
       print(asJson)
 
       nodes, edges, labels = gp.graph(hero)

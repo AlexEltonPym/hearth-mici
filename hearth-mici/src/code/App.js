@@ -12,6 +12,8 @@ import full_blank_creature_img from '../images/blank_cards/fullBlankCreature.png
 import gan_img from '../images/GAN_sample.jpg'
 import hs_font from '../fonts/BelweBoldBT.ttf'
 
+import report from 'report.json'
+
 import sketch from './sketch.js';
 import P5Wrapper from "react-p5-wrapper";
 
@@ -132,6 +134,7 @@ class App extends Component {
           gan_img={gan_img}
           gan_imgs={gan_imgs}
           hs_font={hs_font}
+          report={report}
           send_to_google_sheets={this.send_to_google_sheets}
           save_to_google_sheets={this.save_to_google_sheets}
           load_from_google_sheets={this.load_from_google_sheets}

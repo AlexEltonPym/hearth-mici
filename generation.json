@@ -8,10 +8,15 @@
     "set": "CUSTOM",
     "fileFormatVersion": 1,
     "race": "PIRATE",
-    "attributes": {},
-    "baseManaCost": 1,
-    "baseHp": 9,
-    "baseAttack": 4
+    "attributes": {
+      "TAUNT": "True",
+      "LIFESTEAL": "True",
+      "DIVINE_SHIELD": "True",
+      "FROZEN": "True"
+    },
+    "baseManaCost": 5,
+    "baseHp": 0,
+    "baseAttack": 3
   },
   {
     "name": "Custom Card",
@@ -22,9 +27,14 @@
     "set": "CUSTOM",
     "fileFormatVersion": 1,
     "race": "PIRATE",
-    "attributes": {},
-    "baseManaCost": 4,
-    "baseHp": 3,
-    "baseAttack": 9
+    "attributes": {
+      "LIFESTEAL": "True",
+      "SPELL_DAMAGE": 1,
+      "POISONOUS": "True",
+      "FROZEN": "True"
+    },
+    "baseManaCost": 2,
+    "baseHp": 7,
+    "baseAttack": 6
   }
 ]

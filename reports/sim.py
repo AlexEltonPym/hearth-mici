@@ -1,7 +1,4 @@
 
-import sys
-sys.path.append('../../Spellsource/python')
-
 import multiprocessing as mp
 import time
 from spellsource.utils import simulate
@@ -18,7 +15,7 @@ from fpdf import FPDF
 import math
 from filelock import FileLock
 from tqdm import tqdm
-
+import sys
 
 
 def generate_custom_card(attack, hp, mana, taunt, lifesteal, charge):
@@ -74,23 +71,23 @@ def get_stats(game_results, perspective):
                       'HERO_POWER_DAMAGE_DEALT': 0,
                       'ARMOR_LOST': 0})
 
-  # player_stats_deviations = dict({'WIN_RATE': 0,
-  #                     'DAMAGE_DEALT': 0,
-  #                     'HEALING_DONE': 0,
-  #                     'MANA_SPENT': 0,
-  #                     'CARDS_PLAYED': 0,
-  #                     'TURNS_TAKEN': 0,
-  #                     'ARMOR_GAINED': 0,
-  #                     'CARDS_DRAWN': 0,
-  #                     'FATIGUE_DAMAGE': 0,
-  #                     'MINIONS_PLAYED': 0,
-  #                     'SPELLS_CAST': 0,
-  #                     'HERO_POWER_USED': 0,
-  #                     'WEAPONS_EQUIPPED': 0,
-  #                     'WEAPONS_PLAYED': 0,
-  #                     'CARDS_DISCARDED': 0,
-  #                     'HERO_POWER_DAMAGE_DEALT': 0,
-  #                     'ARMOR_LOST': 0})
+  player_stats_deviations = dict({'WIN_RATE': 0,
+                      'DAMAGE_DEALT': 0,
+                      'HEALING_DONE': 0,
+                      'MANA_SPENT': 0,
+                      'CARDS_PLAYED': 0,
+                      'TURNS_TAKEN': 0,
+                      'ARMOR_GAINED': 0,
+                      'CARDS_DRAWN': 0,
+                      'FATIGUE_DAMAGE': 0,
+                      'MINIONS_PLAYED': 0,
+                      'SPELLS_CAST': 0,
+                      'HERO_POWER_USED': 0,
+                      'WEAPONS_EQUIPPED': 0,
+                      'WEAPONS_PLAYED': 0,
+                      'CARDS_DISCARDED': 0,
+                      'HERO_POWER_DAMAGE_DEALT': 0,
+                      'ARMOR_LOST': 0})
   # for game_result in player_results:
   #   for x, y in player_stats.items():
   #     player_stats[x] = 0
@@ -104,14 +101,14 @@ def get_stats(game_results, perspective):
   for x, _ in player_stats.items():
     player_stats[x] = round(player_stats[x]/len(player_results), 30)
 
-  # for game_result in player_results:
-  #   for i, j in game_result.items():
-  #     for x, _ in player_stats_deviations.items():
-  #       if i == x:
-  #         player_stats_deviations[i] += pow(j - player_stats[i], 2)
+  for game_result in player_results:
+    for i, j in game_result.items():
+      for x, _ in player_stats_deviations.items():
+        if i == x:
+          player_stats_deviations[i] += pow(j - player_stats[i], 2)
   
-  # for x, _ in player_stats_deviations.items():
-  #   player_stats[x] = (player_stats[x], math.sqrt(player_stats_deviations[x]/len(player_results)))
+  for x, _ in player_stats_deviations.items():
+    player_stats[x] = (player_stats[x], math.sqrt(player_stats_deviations[x]/len(player_results)))
 
   return [(x, y) for x, y in player_stats.items() if x == 'WIN_RATE' or y != 0]
 
@@ -142,7 +139,8 @@ def progressive_tryout(games_to_sim_list, decks, custom_cards = []):
 
   return stats
 
-def send_to_database(user, card_id, player, enemy, stats):
+def send_to_database(user, card_id, games_played, player, enemy, stats):
+  
   with FileLock("../../hearth-mici/reports/database.json.lock"):
     with open('../../hearth-mici/reports/database.json', 'r') as database_file:
       entry_name = f"{user}_{card_id}_{player}_v_{enemy}"
@@ -150,7 +148,8 @@ def send_to_database(user, card_id, player, enemy, stats):
 
       database[entry_name] = {}
       database[entry_name]["user"] = user
-      database[entry_name]["card_id"] = user
+      database[entry_name]["card_id"] = card_id
+      database[entry_name]["games_played"] = games_played
       database[entry_name]["player"] = player
       database[entry_name]["enemy"] = enemy
       database[entry_name]["stats"] = stats
@@ -234,8 +233,51 @@ def experiment_timing_beta():
   print(progressive_tryout([3], [MAGE_DECK, DRUID_DECK], 0, 0, 0, False, False, False))
 
 def experiment_simple_game():
+
+  WARRIOR_DECK_LITERAL = '''### WARRIOR_DECK_LITERAL
+  # Class: RED
+  # Format: Standard
+  #
+  # 2x (1) Charge
+  # 2x (1) Murloc Raider
+  # 2x (2) Execute
+  # 2x (2) Frostwolf Grunt
+  # 2x (2) Heroic Strike
+  # 2x (2) Murloc Tidehunter
+  # 2x (3) Fiery War Axe
+  # 2x (3) Razorfen Hunter
+  # 2x (3) Warsong Commander
+  # 2x (3) Wolfrider
+  # 2x (4) Dragonling Mechanic
+  # 2x (4) Sen'jin Shieldmasta
+  # 2x (5) Gurubashi Berserker
+  # 2x (6) Boulderfist Ogre
+  # 2x (6) Lord of the Arena
+  #'''
+
+  MAGE_DECK_LITERAL = '''### MAGE_DECK_LITERAL
+  # Class: BLUE
+  # Format: Standard
+  #
+  # 2x (1) Arcane Missiles
+  # 2x (1) Murloc Raider
+  # 2x (2) Arcane Explosion
+  # 2x (2) Bloodfen Raptor
+  # 2x (2) Novice Engineer
+  # 2x (2) River Crocolisk
+  # 2x (3) Arcane Intellect
+  # 2x (3) Raid Leader
+  # 2x (3) Wolfrider
+  # 2x (4) Fireball
+  # 2x (4) Oasis Snapjaw
+  # 2x (4) Polymorph
+  # 2x (4) Sen'jin Shieldmasta
+  # 2x (5) Nightblade
+  # 2x (6) Boulderfist Ogre
+  #'''
+
   custom_card = generate_custom_card(9, 9, 0, False, False, False)
-  stats = progressive_tryout([3], [HUNTER_DECK_6_CUSTOM, MAGE_DECK], [custom_card])
+  stats = progressive_tryout([3], [WARRIOR_DECK_LITERAL, MAGE_DECK_LITERAL], [custom_card])
 
   return stats
 
@@ -245,6 +287,30 @@ def experiment_custom_card():
     stats = progressive_tryout([3], [HUNTER_DECK_6_CUSTOM, HUNTER_DECK_MIRROR], [custom_card])
 
     return stats
+
+
+def experiement_validate_card():
+  card = {
+    "baseManaCost": 5,
+    "baseHp": 5,
+    "baseAttack": 5,
+    "attributes": {
+        "TAUNT": False,
+        "LIFESTEAL": 17
+    },
+    "name": "Great Card",
+    "type": "MINION",
+    "rarity": "COMMON",
+    "description": "Custom card",
+    "collectible": True,
+    "set": "CUSTOM",
+    "fileFormatVersion": 1
+  }
+  
+  with Context() as context:
+    as_string = json.dumps(card)
+    card_name = context.CardCatalogue.addOrReplaceCard(as_string)
+    print(f"Successfully added {card_name}")
 
 
 def experiment_reference():
@@ -264,15 +330,15 @@ def experiment_reference():
 
     stats = progressive_tryout([1000], [player_deck, enemy_deck])
     
-    send_to_database("baseline", "x", player_deck_name, enemy_deck_name, stats)
+    send_to_database("baseline", "x", 1000, player_deck_name, enemy_deck_name, stats)
 
 def experiment_custom_card_gauntlet():
   pp = pprint.PrettyPrinter(indent=1, compact=False)
   username = "liam"
-  card_id = "x"
+  card_id = "01"
   test_class = "HUNTER" #HUNTER, MAGE, WARRIOR, NEUTRAL
   card_swaps = 2
-  games_to_play = 3
+  games_to_play = 1000
   
   with open(f'experiment_cards/{username}{card_id}.json', 'r') as c:
     custom_card = json.dumps(json.load(c))
@@ -291,13 +357,14 @@ def experiment_custom_card_gauntlet():
         player_deck_name = PLAYER_DECK.split("\n")[0].split(" ")[1]
         enemy_deck_name =  ENEMY_DECK.split("\n")[0].split(" ")[1]
         
-        send_to_database(username, card_id, player_deck_name, enemy_deck_name, stats)
+        send_to_database(username, card_id, games_to_play, player_deck_name, enemy_deck_name, stats)
 
         pp.pprint(f"{username}_{card_id}")
         pp.pprint(f"{player_deck_name} vs {enemy_deck_name}")
         pp.pprint(f"Card swaps: {card_swaps}")
         pp.pprint(f"Games played: {games_to_play}")
         pp.pprint(stats)
+
 
 def initalise_system():
 
@@ -354,7 +421,8 @@ if __name__ == '__main__':
   experimenting = True
 
   if experimenting:
-    experiments = [(experiment_simple_game, True),\
+    experiments = [(experiment_simple_game, False),\
+                  (experiement_validate_card, False),\
                   (experiment_timing_alpha, False),\
                   (experiment_timing_beta, False),\
                   (experiment_impact, False),\
@@ -362,7 +430,7 @@ if __name__ == '__main__':
                   (experiment_histogram, False),\
                   (experiment_minimeta, False),\
                   (experiment_custom_card, False),\
-                  (experiment_custom_card_gauntlet, False),\
+                  (experiment_custom_card_gauntlet, True),\
                   (experiment_reference, False)]
 
     initalise_system()

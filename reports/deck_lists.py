@@ -157,7 +157,7 @@ HUNTER_DECK_4_CUSTOM = '''### HUNTER_DECK_4_CUSTOM
 
 
 HUNTER_DECK_6_CUSTOM = '''### HUNTER_DECK_6_CUSTOM
-# Class: "Hunter"
+# Class: GREEN
 # Format: Standard
 # 2x Arcane Shot
 # 2x Stonetusk Boar
@@ -175,7 +175,7 @@ HUNTER_DECK_6_CUSTOM = '''### HUNTER_DECK_6_CUSTOM
 #'''
 
 MAGE_DECK = '''### MAGE_DECK
-# Class: "Mage"
+# Class: BLUE
 # Format: Standard
 # 2x Arcane Missiles
 # 2x Murloc Raider
