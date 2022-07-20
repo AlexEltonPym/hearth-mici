@@ -1,5 +1,6 @@
 import random
 import math
+
 import statistics as stats
 from scipy.stats import binomtest, ttest_1samp, ttest_ind_from_stats
 import json
@@ -8,6 +9,7 @@ import pprint
 nearly_sig = 0.1
 global_sig = 0.05
 really_sig = 0.001
+max_sig = 0.1
 user = "liam"
 
 outjson = {}
@@ -41,9 +43,8 @@ with open('database.json', 'r') as db:
             else:
                 p = ttest_ind_from_stats(base_mean, base_std, 1000, sample_mean, sample_std, 1000, equal_var=False, alternative='two-sided').pvalue
             
-            if(p < global_sig):
-                outjson[f"{user}_{card_id}_{player}_v_{enemy}"][base[0]] = [base_mean, sample_mean]
-            elif(sample_mean != 0):
-                pass
+            if(sample_mean != 0 and p < max_sig):
+                outjson[f"{user}_{card_id}_{player}_v_{enemy}"][base[0]] = [base[0],player,enemy,base_mean, sample_mean,p]
 
-print(outjson)
+with open("../hearth-mici/src/code/report.json", "w") as report_json:
+    json.dump(outjson, report_json)

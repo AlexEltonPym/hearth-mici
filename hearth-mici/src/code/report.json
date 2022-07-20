@@ -1,95 +1,254 @@
-{'liam_01_HUNTER_DECK_v_MAGE_DECK': {'WIN_RATE': [
+{
+    "liam_01_HUNTER_DECK_v_MAGE_DECK": {
+        "WIN_RATE": [
+            "WIN_RATE",
+            "HUNTER_DECK",
+            "MAGE_DECK",
             0.29489795918367345,
-            0.20636550308008214
-        ], 'MANA_SPENT': [
+            0.20636550308008214,
+            2.3763107738557086e-10
+        ],
+        "MANA_SPENT": [
+            "MANA_SPENT",
+            "HUNTER_DECK",
+            "MAGE_DECK",
             47.61224489795919,
-            46.45893223819302
+            46.45893223819302,
+            0.017389183077920808
         ]
-    }, 'liam_01_HUNTER_DECK_v_WARRIOR_DECK': {'WIN_RATE': [
+    },
+    "liam_01_HUNTER_DECK_v_WARRIOR_DECK": {
+        "WIN_RATE": [
+            "WIN_RATE",
+            "HUNTER_DECK",
+            "WARRIOR_DECK",
             0.5704081632653061,
-            0.48417721518987344
+            0.48417721518987344,
+            4.3793365626174e-08
         ]
-    }, 'liam_01_HUNTER_DECK_v_HUNTER_DECK_MIRROR': {'WIN_RATE': [
+    },
+    "liam_01_HUNTER_DECK_v_HUNTER_DECK_MIRROR": {
+        "WIN_RATE": [
+            "WIN_RATE",
+            "HUNTER_DECK",
+            "HUNTER_DECK_MIRROR",
             0.497907949790795,
-            0.4112734864300626
-        ], 'MANA_SPENT': [
+            0.4112734864300626,
+            4.156674918286019e-08
+        ],
+        "MANA_SPENT": [
+            "MANA_SPENT",
+            "HUNTER_DECK",
+            "HUNTER_DECK_MIRROR",
             47.25209205020921,
-            45.798538622129435
-        ], 'TURNS_TAKEN': [
+            45.798538622129435,
+            0.0031949933940727524
+        ],
+        "TURNS_TAKEN": [
+            "TURNS_TAKEN",
+            "HUNTER_DECK",
+            "HUNTER_DECK_MIRROR",
             10.338912133891213,
-            10.153444676409185
-        ], 'CARDS_DRAWN': [
+            10.153444676409185,
+            0.026183255148081657
+        ],
+        "CARDS_DRAWN": [
+            "CARDS_DRAWN",
+            "HUNTER_DECK",
+            "HUNTER_DECK_MIRROR",
             11.292887029288703,
-            11.051148225469728
-        ]
-    }, 'liam_02_HUNTER_DECK_v_MAGE_DECK': {'WIN_RATE': [
-            0.29489795918367345,
-            0.3374233128834356
-        ], 'MANA_SPENT': [
-            47.61224489795919,
-            51.33946830265849
-        ], 'CARDS_PLAYED': [
-            18.144897959183673,
-            19.03271983640082
-        ], 'TURNS_TAKEN': [
-            10.316326530612244,
-            10.550102249488752
-        ], 'CARDS_DRAWN': [
-            11.225510204081633,
-            12.605316973415134
-        ], 'MINIONS_PLAYED': [
-            24.36530612244898,
-            26.38445807770961
-        ], 'SPELLS_CAST': [
-            3.2020408163265306,
-            3.457055214723926
-        ], 'HERO_POWER_USED': [
-            3.2642857142857142,
-            2.962167689161554
-        ], 'HERO_POWER_DAMAGE_DEALT': [
-            6.5285714285714285,
-            5.924335378323108
-        ]
-    }, 'liam_02_HUNTER_DECK_v_WARRIOR_DECK': {'WIN_RATE': [
-            0.5704081632653061,
-            0.6103626943005181
-        ], 'MANA_SPENT': [
-            50.340816326530614,
-            54.00621761658031
-        ], 'CARDS_PLAYED': [
-            19.462244897959184,
-            20.152331606217615
-        ], 'CARDS_DRAWN': [
-            11.927551020408163,
-            13.197927461139896
-        ], 'MINIONS_PLAYED': [
-            25.36530612244898,
-            27.140932642487048
-        ], 'SPELLS_CAST': [
-            3.353061224489796,
-            3.5927461139896373
-        ], 'HERO_POWER_USED': [
-            3.976530612244898,
-            3.566839378238342
-        ], 'HERO_POWER_DAMAGE_DEALT': [
-            7.953061224489796,
-            7.133678756476684
-        ]
-    }, 'liam_02_HUNTER_DECK_v_HUNTER_DECK_MIRROR': {'MANA_SPENT': [
-            47.25209205020921,
-            49.33192389006342
-        ], 'CARDS_DRAWN': [
-            11.292887029288703,
-            12.30338266384778
-        ], 'MINIONS_PLAYED': [
+            11.051148225469728,
+            0.010883817572921964
+        ],
+        "MINIONS_PLAYED": [
+            "MINIONS_PLAYED",
+            "HUNTER_DECK",
+            "HUNTER_DECK_MIRROR",
             24.10774058577406,
-            25.267441860465116
-        ], 'HERO_POWER_USED': [
+            23.758872651356995,
+            0.07072241758540965
+        ]
+    },
+    "liam_02_HUNTER_DECK_v_MAGE_DECK": {
+        "WIN_RATE": [
+            "WIN_RATE",
+            "HUNTER_DECK",
+            "MAGE_DECK",
+            0.29489795918367345,
+            0.3374233128834356,
+            0.003980325345902434
+        ],
+        "MANA_SPENT": [
+            "MANA_SPENT",
+            "HUNTER_DECK",
+            "MAGE_DECK",
+            47.61224489795919,
+            51.33946830265849,
+            7.627807661444519e-12
+        ],
+        "CARDS_PLAYED": [
+            "CARDS_PLAYED",
+            "HUNTER_DECK",
+            "MAGE_DECK",
+            18.144897959183673,
+            19.03271983640082,
+            2.9542133229626714e-06
+        ],
+        "TURNS_TAKEN": [
+            "TURNS_TAKEN",
+            "HUNTER_DECK",
+            "MAGE_DECK",
+            10.316326530612244,
+            10.550102249488752,
+            0.004765076407432706
+        ],
+        "CARDS_DRAWN": [
+            "CARDS_DRAWN",
+            "HUNTER_DECK",
+            "MAGE_DECK",
+            11.225510204081633,
+            12.605316973415134,
+            4.811333581393004e-40
+        ],
+        "MINIONS_PLAYED": [
+            "MINIONS_PLAYED",
+            "HUNTER_DECK",
+            "MAGE_DECK",
+            24.36530612244898,
+            26.38445807770961,
+            2.6302666598423245e-21
+        ],
+        "SPELLS_CAST": [
+            "SPELLS_CAST",
+            "HUNTER_DECK",
+            "MAGE_DECK",
+            3.2020408163265306,
+            3.457055214723926,
+            1.87785591547202e-05
+        ],
+        "HERO_POWER_USED": [
+            "HERO_POWER_USED",
+            "HUNTER_DECK",
+            "MAGE_DECK",
+            3.2642857142857142,
+            2.962167689161554,
+            4.8773544724045095e-05
+        ],
+        "HERO_POWER_DAMAGE_DEALT": [
+            "HERO_POWER_DAMAGE_DEALT",
+            "HUNTER_DECK",
+            "MAGE_DECK",
+            6.5285714285714285,
+            5.924335378323108,
+            4.8773544724045095e-05
+        ]
+    },
+    "liam_02_HUNTER_DECK_v_WARRIOR_DECK": {
+        "WIN_RATE": [
+            "WIN_RATE",
+            "HUNTER_DECK",
+            "WARRIOR_DECK",
+            0.5704081632653061,
+            0.6103626943005181,
+            0.011604436091130124
+        ],
+        "MANA_SPENT": [
+            "MANA_SPENT",
+            "HUNTER_DECK",
+            "WARRIOR_DECK",
+            50.340816326530614,
+            54.00621761658031,
+            2.6777311084739107e-06
+        ],
+        "CARDS_PLAYED": [
+            "CARDS_PLAYED",
+            "HUNTER_DECK",
+            "WARRIOR_DECK",
+            19.462244897959184,
+            20.152331606217615,
+            0.01556764510075504
+        ],
+        "CARDS_DRAWN": [
+            "CARDS_DRAWN",
+            "HUNTER_DECK",
+            "WARRIOR_DECK",
+            11.927551020408163,
+            13.197927461139896,
+            4.921198669501697e-17
+        ],
+        "MINIONS_PLAYED": [
+            "MINIONS_PLAYED",
+            "HUNTER_DECK",
+            "WARRIOR_DECK",
+            25.36530612244898,
+            27.140932642487048,
+            5.258842189362919e-10
+        ],
+        "SPELLS_CAST": [
+            "SPELLS_CAST",
+            "HUNTER_DECK",
+            "WARRIOR_DECK",
+            3.353061224489796,
+            3.5927461139896373,
+            0.0002697407539648705
+        ],
+        "HERO_POWER_USED": [
+            "HERO_POWER_USED",
+            "HUNTER_DECK",
+            "WARRIOR_DECK",
+            3.976530612244898,
+            3.566839378238342,
+            0.00046490571776604944
+        ],
+        "HERO_POWER_DAMAGE_DEALT": [
+            "HERO_POWER_DAMAGE_DEALT",
+            "HUNTER_DECK",
+            "WARRIOR_DECK",
+            7.953061224489796,
+            7.133678756476684,
+            0.00046490571776604944
+        ]
+    },
+    "liam_02_HUNTER_DECK_v_HUNTER_DECK_MIRROR": {
+        "MANA_SPENT": [
+            "MANA_SPENT",
+            "HUNTER_DECK",
+            "HUNTER_DECK_MIRROR",
+            47.25209205020921,
+            49.33192389006342,
+            8.285988284099451e-05
+        ],
+        "CARDS_DRAWN": [
+            "CARDS_DRAWN",
+            "HUNTER_DECK",
+            "HUNTER_DECK_MIRROR",
+            11.292887029288703,
+            12.30338266384778,
+            1.2610596885102676e-21
+        ],
+        "MINIONS_PLAYED": [
+            "MINIONS_PLAYED",
+            "HUNTER_DECK",
+            "HUNTER_DECK_MIRROR",
+            24.10774058577406,
+            25.267441860465116,
+            4.121970022909254e-08
+        ],
+        "HERO_POWER_USED": [
+            "HERO_POWER_USED",
+            "HUNTER_DECK",
+            "HUNTER_DECK_MIRROR",
             3.2531380753138075,
-            2.755813953488372
-        ], 'HERO_POWER_DAMAGE_DEALT': [
+            2.755813953488372,
+            6.392889411429345e-11
+        ],
+        "HERO_POWER_DAMAGE_DEALT": [
+            "HERO_POWER_DAMAGE_DEALT",
+            "HUNTER_DECK",
+            "HUNTER_DECK_MIRROR",
             6.506276150627615,
-            5.511627906976744
+            5.511627906976744,
+            6.392889411429345e-11
         ]
     }
 }

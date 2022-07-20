@@ -57,6 +57,8 @@ export default function sketch(p) {
 
 
   let user = ""
+  let report_enabled = false
+  let report_array = []
 
   let tasks = [];
   const card_types = ["spell", "minion", "weapon"]
@@ -80,6 +82,7 @@ export default function sketch(p) {
   let font_pixels_large = 32;
   let font_pixels = 24;
   let font_pixels_small = 20;
+  let font_pixels_extra_small = 16;
 
   let hearthstone_font;
   const mouse_padding = 1;
@@ -131,16 +134,17 @@ export default function sketch(p) {
     for (let im of props.gan_imgs) {
       gan_imgs.push(p.loadImage(im))
     }
-    report = p.loadJSON(props.report)
+    report = props.report
   }
 
 
   p.setup = () => {
     p.createCanvas(p.windowWidth, p.windowHeight);
     user = p.getURLParams().user ?? 2;
-
-    print(report)
-
+    report_enabled = (p.getURLParams().report ?? false) === "true";
+    for(let report_key in report){
+      report_array.push(Object.values(report[report_key]))
+    }
    
     the_mouse = new p.FancyMouse();
 
@@ -195,8 +199,8 @@ export default function sketch(p) {
     }
   
     p.textSize(font_pixels+4)
-    p.text("Base attributes:", w_padding/2, h_padding)
-    p.text("Battlecrys:", w_padding/2, p.map(3, 0, 16, h_padding, p.height - h_padding))
+    p.text("Base attributes:", report_enabled?w_padding/4:w_padding/2, h_padding)
+    p.text("Battlecrys:",report_enabled?w_padding/4:w_padding/2, p.map(3, 0, 16, h_padding, p.height - h_padding))
   }
 
 
@@ -230,7 +234,7 @@ export default function sketch(p) {
 
 
     let next_x = p.width - w_padding;
-    let next_y = p.height - h_padding;
+    let next_y = p.height - (report_enabled?h_padding/2:h_padding);
     mouse_over_next = p.dist(p.mouseX, p.mouseY, next_x, next_y) < 75;
 
     p.push();
@@ -253,12 +257,12 @@ export default function sketch(p) {
   p.draw_task_overlay = () => {
     p.textAlign(p.RIGHT, p.CENTER)
     p.textSize(font_pixels);
-    p.text(task_details[current_task_index].instruction, p.width - w_padding / 2, h_padding)
+    p.text(task_details[current_task_index].instruction, p.width - w_padding / 2, report_enabled?h_padding/2:h_padding)
 
 
     p.fill(0);
     p.textAlign(p.CENTER, p.CENTER);
-    p.text(`Task ${current_task_index + 1} \\ ${task_details.length}`, p.map(2, 0, 3, w_padding, p.width - w_padding), p.height - h_padding)
+    p.text(`Task ${current_task_index + 1} \\ ${task_details.length}`, p.map(2, 0, 3, w_padding, p.width - w_padding), p.height - (report_enabled?h_padding/2:h_padding))
   }
 
 
@@ -596,7 +600,7 @@ export default function sketch(p) {
 
   p.keyPressed = () => {
 
-
+    report_enabled = !report_enabled
   }
 
   p.windowResized = () => {
@@ -958,10 +962,9 @@ export default function sketch(p) {
       } else if (tasks[this.card_task_index].length == 2) {
         this.x = p.map(this.card_id == 0 ? 1.5 : 2.5, 0, 3, w_padding, p.width - w_padding)
       } else {
-        this.x = p.map(this.card_id + 1, 0, 3, w_padding, p.width - w_padding)
+        this.x = p.map(this.card_id + 1, 0, 3, report_enabled?w_padding/2:w_padding, p.width - w_padding)
       }
-      
-      this.y = p.height / 2;
+      this.y = report_enabled?p.height / 3:p.height/2;
       this.w = blank_spell_img.width * p.min(p.width*0.0005, 0.75);
       this.h = blank_spell_img.height * p.min(p.width*0.0005, 0.75);
 
@@ -1145,8 +1148,8 @@ export default function sketch(p) {
     }
 
     display() {
-
       p.push();
+
       p.fill(0);
       p.textAlign(p.CENTER, p.CENTER)
       if (this.effects.length > 1) {
@@ -1256,6 +1259,95 @@ export default function sketch(p) {
 
       p.pop();
       p.pop();
+
+      if(report_enabled){
+        let card_number = this.card_task_index * 3 + this.card_id
+        if(card_number < 2){
+
+
+          let report_stats = report_array[card_number*3].concat(report_array[card_number*3+1]).concat(report_array[card_number*3+2])
+          report_stats = report_stats.sort((a, b) => a[5]-b[5]).slice(0, 6)
+
+          let mage_stats = []
+          let hunter_stats = []
+          let warrior_stats = []
+          for(let stat of report_stats){
+            if(stat[2] == "MAGE_DECK" || stat[2] == "MAGE_DECK_MIRROR"){
+              mage_stats.push(stat);
+            } else if(stat[2] == "HUNTER_DECK" || stat[2] == "HUNTER_DECK_MIRROR"){
+              hunter_stats.push(stat);
+            } else {
+              warrior_stats.push(stat);
+            }
+          }
+
+          p.textAlign(p.LEFT, p.TOP)
+  
+
+          let mage_padding = 0;
+          let str = "Verses Mage:\n"
+          p.textSize(font_pixels_small)
+          p.text(str, this.x-this.w/2.5, this.y+this.h/2)
+          str = ""
+          for(let stat of mage_stats){
+            str+=this.convertStatToName(stat[0]) + ": " + stat[3].toFixed(2) + "   > " + stat[4].toFixed(2) + "\n"
+            mage_padding++;
+          }
+          p.textSize(font_pixels_extra_small)
+          p.text(str, this.x-this.w/2.5, this.y+this.h/2+font_pixels_small)
+
+          let hunter_padding = 0;
+          str = "Verses Hunter:\n"
+          p.textSize(font_pixels_small)
+          p.text(str, this.x-this.w/2.5, this.y+this.h/2+font_pixels_small*2+font_pixels_extra_small*mage_padding)
+          str = ""
+
+          for(let stat of hunter_stats){
+            str+=this.convertStatToName(stat[0]) + ": " + stat[3].toFixed(2) + "   > " + stat[4].toFixed(2) + "\n"
+            hunter_padding++;
+          }
+          p.textSize(font_pixels_extra_small)
+          p.text(str, this.x-this.w/2.5, this.y+this.h/2+font_pixels_small*3+font_pixels_extra_small*mage_padding)
+
+
+          str = "Verses Warrior:\n"
+          p.textSize(font_pixels_small)
+
+          p.text(str, this.x-this.w/2.5, this.y+this.h/2+font_pixels_small*4+font_pixels_extra_small*(mage_padding+hunter_padding))
+          str = ""
+
+          for(let stat of warrior_stats){
+            str+=this.convertStatToName(stat[0]) + ": " + stat[3].toFixed(2) + "   > " + stat[4].toFixed(2) + "\n"
+          }
+          p.textSize(font_pixels_extra_small)
+
+          p.text(str, this.x-this.w/2.5, this.y+this.h/2+font_pixels_small*5+font_pixels_extra_small*(mage_padding+hunter_padding))
+
+       }
+      }
+    }
+
+    convertStatToName(stat){
+      let conversionMap = {
+        'WIN_RATE': 'Winrate',
+        'DAMAGE_DEALT': 'Damage',
+        'HEALING_DONE': 'Healing',
+        'MANA_SPENT': 'Mana spent',
+        'CARDS_PLAYED': 'Cards played',
+        'TURNS_TAKEN': 'Turns',
+        'ARMOR_GAINED': 'Armor',
+        'CARDS_DRAWN': 'Cards drawn',
+        'FATIGUE_DAMAGE': 'Fatigue',
+        'MINIONS_PLAYED': 'Minions',
+        'SPELLS_CAST': 'Spells',
+        'HERO_POWER_USED': 'Hero power',
+        'WEAPONS_EQUIPPED': 'Weapons',
+        'WEAPONS_PLAYED': 'Weapons',
+        'CARDS_DISCARDED': 'Discards',
+        'HERO_POWER_DAMAGE_DEALT': 'Hero power damage',
+        'ARMOR_LOST': 'Armor lost'
+      }
+     return conversionMap[stat]
     }
 
 
@@ -1305,7 +1397,7 @@ export default function sketch(p) {
       this.w = p.textWidth(this.button_name) + 14;
       this.h = font_pixels + 10;
 
-      this.x = w_padding/2 + this.w / 2 - 7;
+      this.x = (report_enabled?w_padding/4:w_padding/2) + this.w / 2 - 7;
       this.y = p.map(this.button_id, 0, 15, h_padding, p.height - h_padding);
       this.text_x = this.x - this.w / 2 + 7;
       this.text_y = this.y - 6;

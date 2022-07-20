@@ -10,9 +10,9 @@ import creature_img from '../images/blank_cards/creature.png'
 import weapon_img from '../images/blank_cards/weapon.png'
 import full_blank_creature_img from '../images/blank_cards/fullBlankCreature.png'
 import gan_img from '../images/GAN_sample.jpg'
-import hs_font from '../fonts/BelweBoldBT.ttf'
+import hs_font from '../fonts/BelweArrow.ttf'
 
-import report from 'report.json'
+import report from './report.json'
 
 import sketch from './sketch.js';
 import P5Wrapper from "react-p5-wrapper";
