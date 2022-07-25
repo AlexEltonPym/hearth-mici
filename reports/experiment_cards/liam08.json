@@ -1,0 +1,16 @@
+{
+    "baseManaCost": 0,
+    "baseHp": 1,
+    "baseAttack": 0,
+    "attributes": {
+        "SPELL_DAMAGE": 1
+      },
+    "name": "Custom Card",
+    "type": "MINION",
+    "rarity": "COMMON",
+    "description": "A custom card",
+    "collectible": true,
+    "set": "CUSTOM",
+    "fileFormatVersion": 1
+}
+

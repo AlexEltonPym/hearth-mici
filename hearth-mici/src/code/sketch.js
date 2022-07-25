@@ -599,8 +599,9 @@ export default function sketch(p) {
   }
 
   p.keyPressed = () => {
-
-    report_enabled = !report_enabled
+    if(p.key == 'r'){
+      report_enabled = !report_enabled
+    }
   }
 
   p.windowResized = () => {
@@ -1285,39 +1286,43 @@ export default function sketch(p) {
   
 
           let mage_padding = 0;
-          let str = "Verses Mage:\n"
+          let str = "Versus Mage:\n"
           p.textSize(font_pixels_small)
           p.text(str, this.x-this.w/2.5, this.y+this.h/2)
           str = ""
           for(let stat of mage_stats){
-            str+=this.convertStatToName(stat[0]) + ": " + stat[3].toFixed(2) + "   > " + stat[4].toFixed(2) + "\n"
+            let change = ((stat[4]-stat[3])/stat[3]*100).toFixed(0)
+            str+=this.convertStatToName(stat[0]) + ": " + stat[3].toFixed(2) + "   > " + stat[4].toFixed(2) + " ("+ (change>0?"+":"") + change +"%)" + "\n"
             mage_padding++;
           }
           p.textSize(font_pixels_extra_small)
           p.text(str, this.x-this.w/2.5, this.y+this.h/2+font_pixels_small)
 
           let hunter_padding = 0;
-          str = "Verses Hunter:\n"
+          str = "Versus Hunter:\n"
           p.textSize(font_pixels_small)
           p.text(str, this.x-this.w/2.5, this.y+this.h/2+font_pixels_small*2+font_pixels_extra_small*mage_padding)
           str = ""
 
           for(let stat of hunter_stats){
-            str+=this.convertStatToName(stat[0]) + ": " + stat[3].toFixed(2) + "   > " + stat[4].toFixed(2) + "\n"
+            let change = ((stat[4]-stat[3])/stat[3]*100).toFixed(0)
+            str+=this.convertStatToName(stat[0]) + ": " + stat[3].toFixed(2) + "   > " + stat[4].toFixed(2) + " ("+ (change>0?"+":"") + change +"%)" + "\n"
             hunter_padding++;
           }
           p.textSize(font_pixels_extra_small)
           p.text(str, this.x-this.w/2.5, this.y+this.h/2+font_pixels_small*3+font_pixels_extra_small*mage_padding)
 
 
-          str = "Verses Warrior:\n"
+          str = "Versus Warrior:\n"
           p.textSize(font_pixels_small)
 
           p.text(str, this.x-this.w/2.5, this.y+this.h/2+font_pixels_small*4+font_pixels_extra_small*(mage_padding+hunter_padding))
           str = ""
 
           for(let stat of warrior_stats){
-            str+=this.convertStatToName(stat[0]) + ": " + stat[3].toFixed(2) + "   > " + stat[4].toFixed(2) + "\n"
+            let change = ((stat[4]-stat[3])/stat[3]*100).toFixed(0)
+
+            str+=this.convertStatToName(stat[0]) + ": " + stat[3].toFixed(2) + "   > " + stat[4].toFixed(2) + " ("+ (change>0?"+":"") + change +"%)" + "\n"
           }
           p.textSize(font_pixels_extra_small)
 
@@ -1340,7 +1345,7 @@ export default function sketch(p) {
         'FATIGUE_DAMAGE': 'Fatigue',
         'MINIONS_PLAYED': 'Minions',
         'SPELLS_CAST': 'Spells',
-        'HERO_POWER_USED': 'Hero power',
+        'HERO_POWER_USED': 'Hero powers used',
         'WEAPONS_EQUIPPED': 'Weapons',
         'WEAPONS_PLAYED': 'Weapons',
         'CARDS_DISCARDED': 'Discards',
