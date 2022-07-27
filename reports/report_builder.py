@@ -10,19 +10,18 @@ nearly_sig = 0.1
 global_sig = 0.05
 really_sig = 0.001
 max_sig = 0.1
-user = "liam"
 
 outjson = {}
 
 with open('database.json', 'r') as db:
     data = json.load(db)
 
-    for key in list(filter(lambda x: 'user' in data[x] and \
-                                  data[x]['user'] == user, data)):
+    for key in list(filter(lambda x: 'user' in data[x], data)):
 
         player = data[key]['player'].split("_2")[0]
         enemy = data[key]['enemy']
         card_id = data[key]['card_id']
+        user = data[key]['user']
 
         if player == enemy:
             enemy += "_MIRROR"

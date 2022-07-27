@@ -45,18 +45,19 @@ export default function sketch(p) {
     num_cards: 3,
     class: "mage"
   },
-  {
-    id: 3,
-    title: "3 Neutral Cards",
-    instruction: "Design three neutral cards",
-    num_cards: 3,
-    class: "all"
-  }
+  // {
+  //   id: 3,
+  //   title: "3 Neutral Cards",
+  //   instruction: "Design three neutral cards",
+  //   num_cards: 3,
+  //   class: "all"
+  // }
   ]
 
 
 
   let user = ""
+  let username = ""
   let report_enabled = false
   let report_array = []
 
@@ -82,7 +83,7 @@ export default function sketch(p) {
   let font_pixels_large = 32;
   let font_pixels = 24;
   let font_pixels_small = 20;
-  let font_pixels_extra_small = 16;
+  let font_pixels_extra_small = 14;
 
   let hearthstone_font;
   const mouse_padding = 1;
@@ -142,8 +143,11 @@ export default function sketch(p) {
     p.createCanvas(p.windowWidth, p.windowHeight);
     user = p.getURLParams().user ?? 2;
     report_enabled = (p.getURLParams().report ?? false) === "true";
+    username = p.convertUserToName(user)
     for(let report_key in report){
-      report_array.push(Object.values(report[report_key]))
+      if(report_key.split("_")[0] == username){
+        report_array.push(Object.values(report[report_key]))
+      }
     }
    
     the_mouse = new p.FancyMouse();
@@ -1261,9 +1265,9 @@ export default function sketch(p) {
       p.pop();
       p.pop();
 
-      if(report_enabled){
+      if(report_enabled && report_array.length > 0){
         let card_number = this.card_task_index * 3 + this.card_id
-        if(card_number < 2){
+        if(card_number < report_array.length/3){
 
 
           let report_stats = report_array[card_number*3].concat(report_array[card_number*3+1]).concat(report_array[card_number*3+2])
@@ -1335,25 +1339,26 @@ export default function sketch(p) {
     convertStatToName(stat){
       let conversionMap = {
         'WIN_RATE': 'Winrate',
-        'DAMAGE_DEALT': 'Damage',
-        'HEALING_DONE': 'Healing',
+        'DAMAGE_DEALT': 'Damage dealt',
+        'HEALING_DONE': 'Healing done',
         'MANA_SPENT': 'Mana spent',
         'CARDS_PLAYED': 'Cards played',
-        'TURNS_TAKEN': 'Turns',
-        'ARMOR_GAINED': 'Armor',
+        'TURNS_TAKEN': 'Turns taken',
+        'ARMOR_GAINED': 'Armor gained',
         'CARDS_DRAWN': 'Cards drawn',
-        'FATIGUE_DAMAGE': 'Fatigue',
-        'MINIONS_PLAYED': 'Minions',
-        'SPELLS_CAST': 'Spells',
-        'HERO_POWER_USED': 'Hero powers used',
-        'WEAPONS_EQUIPPED': 'Weapons',
-        'WEAPONS_PLAYED': 'Weapons',
-        'CARDS_DISCARDED': 'Discards',
+        'FATIGUE_DAMAGE': 'Fatigue damage',
+        'MINIONS_PLAYED': 'Minions played',
+        'SPELLS_CAST': 'Spells cast',
+        'HERO_POWER_USED': 'Hero power used',
+        'WEAPONS_EQUIPPED': 'Weapons equipped',
+        'WEAPONS_PLAYED': 'Weapons played',
+        'CARDS_DISCARDED': 'Cards discarded',
         'HERO_POWER_DAMAGE_DEALT': 'Hero power damage',
         'ARMOR_LOST': 'Armor lost'
       }
      return conversionMap[stat]
     }
+
 
 
     mouseInImg() {
@@ -1373,6 +1378,16 @@ export default function sketch(p) {
   }
 
 
+  p.convertUserToName = (user) => {
+    let conversionMap = {
+      "2": "noUser",
+      "3": "kaz",
+      "4": "marcus",
+      "5": "alex",
+      "6": "liam"
+    }
+   return conversionMap[user]
+  }
 
 
 
