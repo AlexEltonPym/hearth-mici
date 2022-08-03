@@ -240,6 +240,36 @@ def print_deck(deck, sorted=False):
     num_in_deck = len([c for c in deck if c is card])
     print(f"{card['id']}: {num_in_deck}x ({card['baseManaCost']}) {card['name']}")
 
+class Archive():
+  def __init__(self, x_range, y_range, num_buckets=10):
+    self.x_bin_ranges = []
+    self.y_bin_ranges = []
+    self.x_min, self.x_max = x_range
+    self.y_min, self.y_max = y_range
+    self.bins = [[None for x in range(num_buckets)] for y in range(num_buckets)] 
+    
+    for i in range(num_buckets):
+      self.x_bin_ranges.append(self.x_min+(i/num_buckets)*(self.x_max-self.x_min))
+      self.y_bin_ranges.append(self.y_min+(i/num_buckets)*(self.y_max-self.y_min))
+
+  def val_to_bin_index(self, value, dimension):
+    if dimension == 0:
+      for index, x in enumerate(self.x_bin_ranges):
+        if value < x:
+          return index-1
+    elif dimension == 1:
+      for index, y in enumerate(self.y_bin_ranges):
+        if value < y:
+          return index-1
+    
+  def add_sample(self, x,y,fitness):
+    x_index = self.val_to_bin_index(x, 0)
+    y_index = self.val_to_bin_index(y, 1)
+    self.bins[x_index][y_index] = fitness
+    
+    
+
+
 if __name__ == "__main__":
   with Context() as ctx:
     player1_ai = ctx.behaviour.GameStateValueBehaviour()
@@ -250,8 +280,20 @@ if __name__ == "__main__":
     warrior_popularity = 0.33
 
     hunter_cards, mage_cards, warrior_card, all_cards = load_cards()
+
+    truth_archive = Archive((0, 10), (0, 10))
+
+
     hunter_sample = random_deck(hunter_cards)
     mana_mean, mana_variance = get_mana_curve(hunter_sample)
+    # wwr, whd = fitness_evaluation(ctx, as_spellsource, 100)
+    wwr = 0.2
+    whd = 10
+
+    print(mana_mean, mana_variance)
+    truth_archive.add_sample(mana_mean, mana_variance, wwr)
+    print(truth_archive.bins)
+
     as_spellsource = convert_deck_to_spellsource(hunter_sample, 'hunter')
     as_bag_of_cards = convert_deck_to_bag_of_cards(hunter_sample, 'hunter')
 
@@ -260,9 +302,7 @@ if __name__ == "__main__":
     warrior_deck_as_bag = convert_spellsource_to_bag_of_cards(WARRIOR_DECK, 'warrior')
 
     combined = as_bag_of_cards + mage_deck_as_bag
-    print(combined)
     
     # print_deck(hunter_sample, sorted=True)
 
-    # wwr, whd = fitness_evaluation(ctx, as_spellsource, 100)
     # print(wwr, whd, mana_mean, mana_variance)
