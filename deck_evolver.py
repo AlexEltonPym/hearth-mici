@@ -246,7 +246,7 @@ class Archive():
     self.y_bin_ranges = []
     self.x_min, self.x_max = x_range
     self.y_min, self.y_max = y_range
-    self.bins = [[None for x in range(num_buckets)] for y in range(num_buckets)] 
+    self.bins = [[{"Fitness": None, "Sample": None} for x in range(num_buckets)] for y in range(num_buckets)] 
     
     for i in range(num_buckets):
       self.x_bin_ranges.append(self.x_min+(i/num_buckets)*(self.x_max-self.x_min))
@@ -262,12 +262,13 @@ class Archive():
         if value < y:
           return index-1
     
-  def add_sample(self, x,y,fitness):
+  def add_sample(self, x, y, fitness, sample):
     x_index = self.val_to_bin_index(x, 0)
     y_index = self.val_to_bin_index(y, 1)
-    self.bins[x_index][y_index] = fitness
-    
-    
+    bin_fitness = self.bins[x_index][y_index]['fitness']
+    if bin_fitness != None and bin_fitness < fitness:
+      self.bins[x_index][y_index]['fitness'] = fitness
+      self.bins[x_index][y_index]['sample'] = sample
 
 
 if __name__ == "__main__":
@@ -279,22 +280,20 @@ if __name__ == "__main__":
     mage_popularity = 0.33
     warrior_popularity = 0.33
 
+    elite_population = 3
+
     hunter_cards, mage_cards, warrior_card, all_cards = load_cards()
 
-    truth_archive = Archive((0, 10), (0, 10))
+    truth_archive = Archive((0, 10), (0, 10), num_buckets=10)
 
-
-    hunter_sample = random_deck(hunter_cards)
-    mana_mean, mana_variance = get_mana_curve(hunter_sample)
-    # wwr, whd = fitness_evaluation(ctx, as_spellsource, 100)
-    wwr = 0.2
-    whd = 10
-
-    print(mana_mean, mana_variance)
-    truth_archive.add_sample(mana_mean, mana_variance, wwr)
+    for i in range(elite_population):
+      hunter_sample = random_deck(hunter_cards)
+      mana_mean, mana_variance = get_mana_curve(hunter_sample)
+      hunter_sample_as_spellsource = convert_deck_to_spellsource(hunter_sample, 'hunter')
+      wwr, whd = fitness_evaluation(ctx, hunter_sample_as_spellsource, 1)
+      truth_archive.add_sample(mana_mean, mana_variance, wwr, hunter_sample)
     print(truth_archive.bins)
 
-    as_spellsource = convert_deck_to_spellsource(hunter_sample, 'hunter')
     as_bag_of_cards = convert_deck_to_bag_of_cards(hunter_sample, 'hunter')
 
     hunter_deck_as_bag = convert_spellsource_to_bag_of_cards(HUNTER_DECK, 'hunter')
