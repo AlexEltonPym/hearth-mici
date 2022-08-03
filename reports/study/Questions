@@ -1,7 +1,17 @@
 Research questions:
+1. How can simulation data be used to help game content designers make decisions?
+2. How do game content designers respond to feedback from simulations of their content? How does that change based on how expected/unexpected the feedback was?
+3. Do game content designers make significant changes after recieving simulation data?
+
+
+Goals:
 1. Does the interface facilitate the designs people wanted to make? What would help them?
 2. How do participants feel about the feedback they are given? Was it expected?
 3. Do participants make changes after being given feedback? How significant?
+
+
+
+Study 1 Questions:
 
 Pre-interview:
 1. How much experience do you have with Hearthstone or other CCGs?
@@ -12,9 +22,74 @@ While designing cards:
 2. What impact do you think this card will have on games?
 
 After the design task:
-1. Were you able to create the cards you wanted to make?
-2. What would you like to see added or changed to make the interface better?
+1a. How do you feel about the cards you created?
+    1b. Were you able to create the cards you wanted to make?
+2a. How did you feel about the interface?
+    2b. Is there anything you'd like to see added or changed?
 
 At the followup:
 1. Did this card have the impact you were expecting?
 2. Would you like to make any changes to your card?
+
+Reddit script:
+Hello Reddit,
+
+My name is Alex, I’m a researcher at The University of Sydney studying how machine learning can assist in card design. I’m looking for participants for a pair of 30-minute studies. In the first half you will design cards for a mini metagame. In the second study, at a later date, you will review feedback on your cards after they have been simulated in many virtual games. Participants who complete both halves of the study are eligible for a $50 AUD Battle.net gift card.
+
+If this sounds like something you would be interested in, please sign up for the first 30-minute study using this doodle poll: https://doodle.com/bp/alexelton-pym/hearthstone-card-creation
+
+
+
+
+
+
+todo:
+per turn
+winrate always shown
+croc instead of arcane intellect
+change title
+
+
+liam followup:
+are the stats signficnant
+hunter likes to use hero power
+card 2 too powerful
+
+changed card 1 to target minions as well
+looked at the 1 drops for neutrals
+realised card 1 dominated by elven archer, changed again
+
+card 3 makes sense as card seems bad
+tryed balanced before
+-----
+card 4: increased armour gained, no useful information, but behavied as expected
+card 5: if i were to balance this card... its a buff to warrior
+card 6: makes sense that it had little effect vs mage
+confused at hunter stats, armour makes sense because you use hero power less
+left warrior cards alone
+requested additional stats from database
+-----
+
+card 7:
+hero power usage reduced because better use of turn 5
+
+
+card 8: hero power being used to remove warrior armour, more artifcat of arcane intellect replacement
+
+
+
+card 9: really interested in big nuke, similar to magic the gathering card which they wanted to recreate
+made sense that it increased damage vs warrior
+spells cast makes sense because added card is a creature, dont think they can learn much from this
+
+reduced mana cost and damage of nuke
+wanted to give it 11 health, instead reduced damage
+
+hard to tell if they had an impact for some cards, most of them made sense
+some of that stats didnt mean anything to them
+for example whether spells were cast or not didnt tell anything about impact on the game
+overall surprised some were "trash", for example i didnt think about the elven archer card being dominated
+interesting if played with elven archer to get 4 total elven archerish cards
+some cards like card 2 made lots of sense
+
+did make some changes
