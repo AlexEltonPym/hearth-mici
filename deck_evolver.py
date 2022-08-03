@@ -147,21 +147,40 @@ def get_mana_curve(deck):
   return (statistics.mean(mana_costs), statistics.variance(mana_costs))
 
 def convert_deck_to_bag_of_cards(deck, hero_class):
-  bag = [0] * 306 #230 base cards + 70 new cards + 3 classes + 3 popularities
+  bag = [0] * 303 #(230 base cards + 70 new cards + 3 classes) * 2
   for card in deck:
     bag[card['id']] += 1
 
   if(hero_class == 'hunter'):
-    bag[-6] = 1
+    bag[-3] = 1
   elif(hero_class == 'mage'):
-    bag[-5] = 1
+    bag[-2] = 1
+  elif(hero_class == 'warrior'):
+    bag[-1] = 1
   else:
-    bag[-4] = 1
+    raise Exception("Invalid hero class")
   
-  bag[-3] = hunter_populatrity
-  bag[-2] = mage_popularity
-  bag[-1] = warrior_popularity
   return bag
+
+def convert_spellsource_to_bag_of_cards(deck, hero_class):
+  bag = [0] * 303
+  deck = [(int(card.split("x ")[0].split(" ")[1]), card.split("x ")[1]) for card in deck.split("\n")[3:-1]]
+  for num, name in deck:
+    for card in all_cards:
+      if card['name'] == name:
+        bag[card['id']] = num
+  
+  if(hero_class == 'hunter'):
+    bag[-3] = 1
+  elif(hero_class == 'mage'):
+    bag[-2] = 1
+  elif(hero_class == 'warrior'):
+    bag[-1] = 1
+  else:
+    raise Exception("Invalid hero class")
+
+  return bag
+
 
 def fitness_evaluation(ctx, deck, num_games):
   winrate_vs_hunter, health_delta_vs_hunter = playtest(ctx, deck, HUNTER_DECK, num_games)
@@ -214,6 +233,13 @@ def playtest(ctx, player_deck, enemy_deck, num_games):
   return player_stats['WIN_RATE'], player_stats['HEALTH_DELTA']
 
 
+def print_deck(deck, sorted=False):
+  if sorted:
+    deck.sort(key=lambda card : card['baseManaCost'])
+  for card in deck:
+    num_in_deck = len([c for c in deck if c is card])
+    print(f"{card['id']}: {num_in_deck}x ({card['baseManaCost']}) {card['name']}")
+
 if __name__ == "__main__":
   with Context() as ctx:
     player1_ai = ctx.behaviour.GameStateValueBehaviour()
@@ -229,7 +255,14 @@ if __name__ == "__main__":
     as_spellsource = convert_deck_to_spellsource(hunter_sample, 'hunter')
     as_bag_of_cards = convert_deck_to_bag_of_cards(hunter_sample, 'hunter')
 
-    wwr, whd = fitness_evaluation(ctx, as_spellsource, 100)
+    hunter_deck_as_bag = convert_spellsource_to_bag_of_cards(HUNTER_DECK, 'hunter')
+    mage_deck_as_bag = convert_spellsource_to_bag_of_cards(MAGE_DECK, 'mage')
+    warrior_deck_as_bag = convert_spellsource_to_bag_of_cards(WARRIOR_DECK, 'warrior')
 
+    combined = as_bag_of_cards + mage_deck_as_bag
+    print(combined)
+    
+    # print_deck(hunter_sample, sorted=True)
 
-    print(wwr, whd, mana_mean, mana_variance)
+    # wwr, whd = fitness_evaluation(ctx, as_spellsource, 100)
+    # print(wwr, whd, mana_mean, mana_variance)
