@@ -13,7 +13,7 @@ from matplotlib.ticker import MaxNLocator
 import numpy as np
 import numpy.ma as ma
 
-
+from sklearn.neural_network import MLPRegressor
 
 HUNTER_DECK = '''### HUNTER_DECK
 # Class: GREEN
@@ -73,6 +73,40 @@ WARRIOR_DECK = '''### WARRIOR_DECK
 # 2x Sen'jin Shieldmasta
 # 2x Warsong Commander
 # 2x Wolfrider
+#'''
+
+test_deck ='''### CONSTRUCTED_HUNTER_DECK
+# Class: GREEN
+# Format: Standard
+
+# 2xSecretkeeper
+# 1xVoodoo Doctor
+# 1xWindfury Harpy
+# 1xExplosive Trap
+# 1xSpiteful Smith
+# 1xStampeding Kodo
+# 1xYsera
+# 1xLeper Gnome
+# 2xAcolyte of Pain
+# 1xSnake Trap
+# 1xBluegill Warrior
+# 1xRazorfen Hunter
+# 1xBloodfen Raptor
+# 1xInjured Blademaster
+# 1xKing Krush
+# 1xAzure Drake
+# 1xJungle Panther
+# 1xSnipe
+# 1xTracking
+# 1xEmperor Cobra
+# 1xLeeroy Jenkins
+# 1xMad Bomber
+# 1xMisdirection
+# 1xTauren Warrior
+# 1xFlesheating Ghoul
+# 1xKing Mukla
+# 1xOasis Snapjaw
+# 1xMillhouse Manastorm
 #'''
 
 def load_cards():
@@ -149,24 +183,27 @@ def perturb_deck(deck, available_cards):
   return deck
 
 def convert_deck_to_spellsource(deck, hero_class):
+  already_added = []
   if hero_class == "hunter":
     CONSTRUCTED_DECK = '''### CONSTRUCTED_HUNTER_DECK
-    # Class: GREEN
-    # Format: Standard
-    '''
+# Class: GREEN
+# Format: Standard
+'''
   elif hero_class == "mage":
     CONSTRUCTED_DECK = '''### CONSTRUCTED_MAGE_DECK
-    # Class: BLUE
-    # Format: Standard
-    '''
+# Class: BLUE
+# Format: Standard
+'''
   else:
     CONSTRUCTED_DECK = '''### CONSTRUCTED_WARRIOR_DECK
-    # Class: RED
-    # Format: Standard
-    '''
+# Class: RED
+# Format: Standard
+'''
   for card in deck:
     num_in_deck = len([c for c in deck if c is card])
-    CONSTRUCTED_DECK += f"\n# {num_in_deck}x{card['name']}"
+    if card['name'] not in already_added:
+      CONSTRUCTED_DECK += f"\n# {num_in_deck}x{card['name']}"
+      already_added.append(card['name'])
   return CONSTRUCTED_DECK
 
 def get_mana_curve(deck):
@@ -215,13 +252,19 @@ def fitness_evaluation(ctx, deck, num_games):
   if num_games == -1:
     return random.random(), random.gauss(0, 10)
   else:
-    winrate_vs_hunter, health_delta_vs_hunter = playtest(ctx, deck, HUNTER_DECK, int(num_games/3))
-    winrate_vs_mage, health_delta_vs_mage = playtest(ctx, deck, MAGE_DECK, int(num_games/3))
-    winrate_vs_warrior, health_delta_vs_warrior = playtest(ctx, deck, WARRIOR_DECK, int(num_games/3))
+    with tqdm(total=1, disable=True, leave=False, desc='           classes') as pbar:
 
-    weighted_win_rate = winrate_vs_hunter * hunter_populatrity + winrate_vs_mage * mage_popularity + winrate_vs_warrior * warrior_popularity
-    weighted_health_delta = health_delta_vs_hunter * hunter_populatrity + health_delta_vs_mage * mage_popularity + health_delta_vs_warrior * warrior_popularity
-    return weighted_win_rate, weighted_health_delta
+      winrate_vs_hunter, health_delta_vs_hunter = playtest(ctx, deck, HUNTER_DECK, int(num_games))
+      pbar.update(1)
+      return winrate_vs_hunter, health_delta_vs_hunter
+    #   winrate_vs_mage, health_delta_vs_mage = playtest(ctx, deck, MAGE_DECK, int(num_games/3))
+    #   pbar.update(1)
+    #   winrate_vs_warrior, health_delta_vs_warrior = playtest(ctx, deck, WARRIOR_DECK, int(num_games/3))
+    #   pbar.update(1)
+
+    # weighted_win_rate = winrate_vs_hunter * hunter_populatrity + winrate_vs_mage * mage_popularity + winrate_vs_warrior * warrior_popularity
+    # weighted_health_delta = health_delta_vs_hunter * hunter_populatrity + health_delta_vs_mage * mage_popularity + health_delta_vs_warrior * warrior_popularity
+    # return weighted_win_rate, weighted_health_delta
 
 def playtest(ctx, player_deck, enemy_deck, num_games):
 
@@ -243,34 +286,97 @@ def playtest(ctx, player_deck, enemy_deck, num_games):
                       'CARDS_DISCARDED': 0,
                       'HERO_POWER_DAMAGE_DEALT': 0,
                       'ARMOR_LOST': 0})
+  i = 0 
+  with tqdm(total=num_games, disable=num_games==1, leave=False, desc='             games') as pbar:
+    while i < num_games:
+      try:
+        game_context = ctx.GameContext.fromDeckLists([player_deck, enemy_deck])
+        game_context.setBehaviour(ctx.GameContext.PLAYER_1, player1_ai)
+        game_context.setBehaviour(ctx.GameContext.PLAYER_2, player2_ai)
+        game_context.play()
+        stats = str(game_context.getPlayer(ctx.GameContext.PLAYER_1).getStatistics())
+        for stat in stats.split("\n")[1:-1]:
+          stat_name, stat_value = tuple(stat.split(": "))
+          if(stat_name in player_stats):
+            player_stats[stat_name] += float(stat_value)/num_games
 
-  for i in tqdm(range(num_games)):
-    game_context = ctx.GameContext.fromDeckLists([player_deck, enemy_deck])
-    game_context.setBehaviour(ctx.GameContext.PLAYER_1, player1_ai)
-    game_context.setBehaviour(ctx.GameContext.PLAYER_2, player2_ai)
+        player1health = int(str(game_context.getPlayer(ctx.GameContext.PLAYER_1).getHero()).split(",")[3].split("/")[1])
+        player2health = int(str(game_context.getPlayer(ctx.GameContext.PLAYER_2).getHero()).split(",")[3].split("/")[1])
+        player_stats['HEALTH_DELTA'] += (player1health-player2health)/num_games
+        i+=1
+        pbar.update(1)
 
-    game_context.play()
-
-    stats = str(game_context.getPlayer(ctx.GameContext.PLAYER_1).getStatistics())
-    for stat in stats.split("\n")[1:-1]:
-      stat_name, stat_value = tuple(stat.split(": "))
-      if(stat_name in player_stats):
-        player_stats[stat_name] += float(stat_value)/num_games
-
-    player1health = int(str(game_context.getPlayer(ctx.GameContext.PLAYER_1).getHero()).split(",")[3].split("/")[1])
-    player2health = int(str(game_context.getPlayer(ctx.GameContext.PLAYER_2).getHero()).split(",")[3].split("/")[1])
-    player_stats['HEALTH_DELTA'] += (player1health-player2health)/num_games
+      except Exception as e:
+        # print("error in sim, trying again")
+        pass
 
   # [print(f"{stat}: {player_stats[stat]}") for stat in player_stats]
   return player_stats['WIN_RATE'], player_stats['HEALTH_DELTA']
 
 
 def print_deck(deck, sorted=False):
+  already_printed = []
   if sorted:
     deck.sort(key=lambda card : card['baseManaCost'])
   for card in deck:
     num_in_deck = len([c for c in deck if c is card])
-    print(f"{card['id']}: {num_in_deck}x ({card['baseManaCost']}) {card['name']}")
+    if card['name'] not in already_printed:
+      print(f"{card['id']}: {num_in_deck}x ({card['baseManaCost']}) {card['name']}")
+    already_printed.append(card['name'])
+
+def DSAME():
+  truth_archive = Archive((0, 10), (0, 20), num_buckets=20)
+  surrogate_archive = Archive((0, 10), (0, 20), num_buckets=20)
+  surrogate_model = MLPRegressor(random_state=1, max_iter=500, hidden_layer_sizes=[128, 64, 32], verbose=False)
+  training_buffer = [[], []]
+  fittest_history = []
+
+  for intitial in tqdm(range(elite_population), leave=False, desc='initial population'):
+    hunter_sample = random_deck(hunter_cards)
+    mana_mean, mana_variance = get_mana_curve(hunter_sample)
+    hunter_sample_as_spellsource = convert_deck_to_spellsource(hunter_sample, 'hunter')
+    wwr, whd = fitness_evaluation(ctx, hunter_sample_as_spellsource, num_games)
+
+    truth_archive.add_sample(mana_mean, mana_variance, whd, hunter_sample, wwr)
+    training_buffer[0].append(convert_deck_to_bag_of_cards(hunter_sample, 'hunter'))
+    training_buffer[1].append(whd)
+
+  for outer in tqdm(range(num_outer_loops), desc='        outer loop'):
+    surrogate_model.fit(training_buffer[0], training_buffer[1])
+    surrogate_archive.clear()
+    for inner in tqdm(range(num_inner_loops), leave=False, desc='        inner loop'):
+      if inner < elite_population:
+        surrogate_elite = random_deck(hunter_cards)
+      else:
+        random_elite = surrogate_archive.get_random()['sample']
+        surrogate_elite = perturb_deck(random_elite, hunter_cards)
+      
+      mana_mean, mana_variance = get_mana_curve(surrogate_elite)
+      elite_as_bag = convert_deck_to_bag_of_cards(surrogate_elite, 'hunter')
+      elite_as_bag = np.array(elite_as_bag)
+      elite_as_bag = np.reshape(elite_as_bag, (1, -1))
+      estimated_delta_health = surrogate_model.predict(elite_as_bag)
+      surrogate_archive.add_sample(mana_mean, mana_variance, estimated_delta_health, surrogate_elite)
+
+    # print(f"Simulating {len(surrogate_archive.get_elites())} elites")
+    for elite in tqdm(surrogate_archive.get_elites(num_to_get=max_simulated_elites), leave=False, desc=' simulating elites'):
+      elite_sample = elite['sample']
+      elite_as_spellsource = convert_deck_to_spellsource(elite_sample, 'hunter')
+
+      wwr, whd = fitness_evaluation(ctx, elite_as_spellsource, num_games)
+
+      training_buffer[0].append(convert_deck_to_bag_of_cards(elite_sample, 'hunter'))
+      training_buffer[1].append(whd)
+      truth_archive.add_sample(mana_mean, mana_variance, whd, elite_sample, wwr)
+    fittest_history.append(truth_archive.get_most_fit()['winrate'])
+
+  most_fit = truth_archive.get_most_fit()
+  print(fittest_history)
+  print(f"Number of elites: {len(truth_archive.get_elites())}")
+  print(f"Fitness: {most_fit['fitness']}")
+  print(f"Winrate: {most_fit['winrate']}")
+  print_deck(most_fit['sample'], sorted=True)
+  return truth_archive
 
 class Archive():
   def __init__(self, x_range, y_range, num_buckets=10):
@@ -310,13 +416,17 @@ class Archive():
   def clear(self):
     self.bins = [[{"fitness": None, "winrate": None, "sample": None} for x in range(self.num_buckets)] for y in range(self.num_buckets)] 
 
-  def get_elites(self):
+  def get_elites(self, num_to_get=-1):
     all_elites = []
     for row in self.bins:
       for elite in row:
         if(elite['sample'] != None):
           all_elites.append(elite)
-    return all_elites
+    if num_to_get == -1:
+      return all_elites
+    else:
+      random.shuffle(all_elites)
+      return all_elites[:num_to_get]
 
   def get_most_fit(self):
     return max(self.get_elites(), key = lambda x: x['fitness'])
@@ -347,61 +457,24 @@ class Archive():
 
 if __name__ == "__main__":
   with Context() as ctx:
-    player1_ai = ctx.behaviour.GameStateValueBehaviour()
-    player2_ai = ctx.behaviour.GameStateValueBehaviour()
-
     hunter_populatrity = 0.33
     mage_popularity = 0.33
     warrior_popularity = 0.33
 
-    elite_population = 100
-    num_outer_loops = 10
-    num_inner_loops = 200
-    num_games = -1
+    elite_population = 3
+    num_outer_loops = 100
+    num_inner_loops = 1000
+    num_games = 1
+    ai_depth = 3
+    max_simulated_elites = 200
+
+    player1_ai = ctx.behaviour.GameStateValueBehaviour().setMaxDepth(ai_depth)
+    player2_ai = ctx.behaviour.GameStateValueBehaviour().setMaxDepth(ai_depth)
 
     hunter_cards, mage_cards, warrior_card, all_cards = load_cards()
 
-    truth_archive = Archive((0, 10), (0, 20), num_buckets=20)
-    surrogate_archive = Archive((0, 10), (0, 20), num_buckets=20)
-
-    training_buffer = []
-    for i in range(elite_population):
-      hunter_sample = random_deck(hunter_cards)
-      mana_mean, mana_variance = get_mana_curve(hunter_sample)
-      hunter_sample_as_spellsource = convert_deck_to_spellsource(hunter_sample, 'hunter')
-      wwr, whd = fitness_evaluation(ctx, hunter_sample_as_spellsource, num_games)
-
-      truth_archive.add_sample(mana_mean, mana_variance, whd, hunter_sample, wwr)
-      training_buffer.append((convert_deck_to_bag_of_cards(hunter_sample, 'hunter'), whd))
-
-    for outer in range(num_outer_loops):
-      # sm.train(training_buffer[0], training_buffer[1])
-      surrogate_archive.clear()
-      for inner in range(num_inner_loops):
-        if inner < elite_population:
-          surrogate_elite = random_deck(hunter_cards)
-        else:
-          random_elite = surrogate_archive.get_random()['sample']
-          surrogate_elite = perturb_deck(random_elite, hunter_cards)
-        
-        mana_mean, mana_variance = get_mana_curve(surrogate_elite)
-        # estimated_delta_health, estimated_weighted_win_rate = sm.evaluate(surrogate_elite)
-        estimated_delta_health, estimated_weighted_win_rate = random.gauss(0, 10), random.random()
-        surrogate_archive.add_sample(mana_mean, mana_variance, estimated_delta_health, surrogate_elite)
-
-      for elite in surrogate_archive.get_elites():
-        elite_sample = elite['sample']
-        wwr, whd = fitness_evaluation(ctx, elite_sample, num_games)
-
-        training_buffer.append((convert_deck_to_bag_of_cards(elite_sample, 'hunter'), whd))
-        truth_archive.add_sample(mana_mean, mana_variance, whd, elite_sample, wwr)
-
-    most_fit = truth_archive.get_most_fit()
-    print(most_fit['fitness'])
-    print(most_fit['winrate'])
-
-    print_deck(most_fit['sample'])
-    truth_archive.display(display='winrate')
+    final_archive = DSAME()
+    final_archive.display(display='winrate')
 
 
     # as_bag_of_cards = convert_deck_to_bag_of_cards(hunter_sample, 'hunter')
