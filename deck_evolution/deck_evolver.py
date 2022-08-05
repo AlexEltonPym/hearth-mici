@@ -5,6 +5,7 @@ import zipfile
 from spellsource.context import Context
 from tqdm import tqdm
 import json
+import csv
 import random
 import statistics
 
@@ -219,8 +220,9 @@ def get_mana_curve(deck):
 
 def convert_deck_to_bag_of_cards(deck, hero_class):
   bag = [0] * 303 #(230 base cards + 70 new cards + 3 classes) * 2
-  for card in deck:
-    bag[int(card['id'])] += 1
+  if deck != None:
+    for card in deck:
+      bag[int(card['id'])] += 1
 
   if(hero_class == 'hunter'):
     bag[-3] = 1
@@ -252,24 +254,12 @@ def convert_spellsource_to_bag_of_cards(deck, hero_class):
 
   return bag
 
-
 def fitness_evaluation(deck, num_games):
   if num_games == -1:
-    return random.random(), random.gauss(0, 10)
+    return random.gauss(0, 10)
   else:
-    with tqdm(total=1, disable=True, leave=False, desc='           classes') as pbar:
-
-      health_delta_vs_hunter = playtest(deck, HUNTER_DECK, int(num_games))
-      pbar.update(1)
-      return health_delta_vs_hunter
-    #   winrate_vs_mage, health_delta_vs_mage = playtest(ctx, deck, MAGE_DECK, int(num_games/3))
-    #   pbar.update(1)
-    #   winrate_vs_warrior, health_delta_vs_warrior = playtest(ctx, deck, WARRIOR_DECK, int(num_games/3))
-    #   pbar.update(1)
-
-    # weighted_win_rate = winrate_vs_hunter * hunter_populatrity + winrate_vs_mage * mage_popularity + winrate_vs_warrior * warrior_popularity
-    # weighted_health_delta = health_delta_vs_hunter * hunter_populatrity + health_delta_vs_mage * mage_popularity + health_delta_vs_warrior * warrior_popularity
-    # return weighted_win_rate, weighted_health_delta
+    health_delta_vs_hunter = playtest(deck, HUNTER_DECK, int(num_games))
+    return health_delta_vs_hunter
 
 def playtest(player_deck, enemy_deck, num_games):
   player_stats = dict({'HEALTH_DELTA': 0,
@@ -327,6 +317,19 @@ def print_deck(deck, sorted=False):
       print(f"{card['id']}: {num_in_deck}x ({card['baseManaCost']}) {card['name']}")
     already_printed.append(card['name'])
 
+def save_buffer(buffer):
+  with open(buffer_filename, 'w', encoding='utf-8') as f:
+    writer = csv.writer(f)
+    for deck, result in zip(buffer[0], buffer[1]):
+      combined = deck.copy()
+      combined.append(result)
+      writer.writerow(combined)
+
+def save_history(history):
+  with open(history_filename, 'w', encoding='utf-8') as f:
+    writer = csv.writer(f)
+    writer.writerow(history)
+
 def DSAME():
   truth_archive = Archive((0, 10), (0, 20), num_buckets=20)
   surrogate_archive = Archive((0, 10), (0, 20), num_buckets=20)
@@ -334,7 +337,7 @@ def DSAME():
   training_buffer = [[], []]
   fittest_history = []
 
-  for intitial in tqdm(range(elite_population), leave=False, desc='initial population'):
+  for intitial in range(elite_population):
     hunter_sample = random_deck(hunter_cards)
     mana_mean, mana_variance = get_mana_curve(hunter_sample)
     hunter_sample_as_spellsource = convert_deck_to_spellsource(hunter_sample, 'hunter')
@@ -344,10 +347,10 @@ def DSAME():
     training_buffer[0].append(convert_deck_to_bag_of_cards(hunter_sample, 'hunter'))
     training_buffer[1].append(whd)
 
-  for outer in tqdm(range(num_outer_loops), desc='        outer loop'):
+  for outer in tqdm(range(num_outer_loops), desc='Outer loop'):
     surrogate_model.fit(training_buffer[0], training_buffer[1])
     surrogate_archive.clear()
-    for inner in tqdm(range(num_inner_loops), leave=False, desc='        inner loop'):
+    for inner in range(num_inner_loops):
       if inner < elite_population:
         surrogate_elite = random_deck(hunter_cards)
       else:
@@ -361,8 +364,7 @@ def DSAME():
       estimated_delta_health = surrogate_model.predict(elite_as_bag)
       surrogate_archive.add_sample(mana_mean, mana_variance, estimated_delta_health, surrogate_elite)
 
-    # print(f"Simulating {len(surrogate_archive.get_elites())} elites")
-    for elite in tqdm(surrogate_archive.get_elites(num_to_get=max_simulated_elites), leave=False, desc=' simulating elites'):
+    for elite in surrogate_archive.get_elites(num_to_get=max_simulated_elites):
       elite_sample = elite['sample']
       elite_as_spellsource = convert_deck_to_spellsource(elite_sample, 'hunter')
 
@@ -371,14 +373,13 @@ def DSAME():
       training_buffer[0].append(convert_deck_to_bag_of_cards(elite_sample, 'hunter'))
       training_buffer[1].append(whd)
       truth_archive.add_sample(mana_mean, mana_variance, whd, elite_sample)
-    fittest_history.append(truth_archive.get_most_fit()['winrate'])
 
-  most_fit = truth_archive.get_most_fit()
-  print(fittest_history)
-  print(f"Number of elites: {len(truth_archive.get_elites())}")
-  print(f"Fitness: {most_fit['fitness']}")
-  print(f"Winrate: {most_fit['winrate']}")
-  print_deck(most_fit['sample'], sorted=True)
+    
+    truth_archive.save()
+    fittest_history.append(truth_archive.get_most_fit()['fitness'])
+    save_buffer(training_buffer)
+    save_history(fittest_history)
+
   return truth_archive, fittest_history, training_buffer, surrogate_model
 
 class Archive():
@@ -388,7 +389,7 @@ class Archive():
     self.y_bin_ranges = []
     self.x_min, self.x_max = x_range
     self.y_min, self.y_max = y_range
-    self.bins = [[{"fitness": None, "winrate": None, "sample": None} for x in range(self.num_buckets)] for y in range(self.num_buckets)] 
+    self.bins = [[{"x": x, "y": y, "fitness": None, "sample": None} for x in range(self.num_buckets)] for y in range(self.num_buckets)] 
     
     for i in range(num_buckets):
       self.x_bin_ranges.append(self.x_min+(i/num_buckets)*(self.x_max-self.x_min))
@@ -406,18 +407,17 @@ class Archive():
           return index-1
       return len(self.y_bin_ranges)-1
     
-  def add_sample(self, x, y, fitness, sample, winrate = None):
+  def add_sample(self, x, y, fitness, sample):
     x_index = self.val_to_bin_index(x, 0)
     y_index = self.val_to_bin_index(y, 1)
 
     bin_fitness = self.bins[x_index][y_index]['fitness']
     if bin_fitness == None or bin_fitness < fitness:
       self.bins[x_index][y_index]['fitness'] = fitness
-      self.bins[x_index][y_index]['winrate'] = winrate
       self.bins[x_index][y_index]['sample'] = sample
 
   def clear(self):
-    self.bins = [[{"fitness": None, "winrate": None, "sample": None} for x in range(self.num_buckets)] for y in range(self.num_buckets)] 
+    self.bins = [[{"x": x, "y": y, "fitness": None, "sample": None} for x in range(self.num_buckets)] for y in range(self.num_buckets)] 
 
   def get_elites(self, num_to_get=-1):
     all_elites = []
@@ -430,6 +430,15 @@ class Archive():
     else:
       random.shuffle(all_elites)
       return all_elites[:num_to_get]
+
+  def get_bins(self):
+    all_bins = []
+    for row in self.bins:
+      for elite in row:
+        all_bins.append({'x': elite['x'], 'y': elite['y'],\
+                         'fitness': elite['fitness'], \
+                         'sample': convert_deck_to_bag_of_cards(elite['sample'], 'hunter')})
+    return all_bins
 
   def get_most_fit(self):
     return max(self.get_elites(), key = lambda x: x['fitness'])
@@ -456,7 +465,10 @@ class Archive():
     ax.set_ylabel('Mana-cost variance')
     plt.show()
 
-
+  def save(self):
+    with open(archive_filename, 'w', encoding='utf-8') as f:
+      archive_bins_as_bag = self.get_bins()
+      json.dump(archive_bins_as_bag, f, ensure_ascii=False)
 
 if __name__ == "__main__":
   hunter_populatrity = 0.33
@@ -465,27 +477,29 @@ if __name__ == "__main__":
 
   elite_population = 10
   num_outer_loops = 10
-  num_inner_loops = 100
-  num_games = -1
+  num_inner_loops = 1000
+  num_games = 1
   max_simulated_elites = 100
+
+  on_artemis = True
+  if on_artemis:
+    archive_filename = "/project/RDS-SADP-PQE-RW/archive.json"
+    buffer_filename = "/project/RDS-SADP-PQE-RW/buffer.csv"
+    history_filename = "/project/RDS-SADP-PQE-RW/history.csv"
+
+  else:
+    archive_filename = "../../hearth-mici/deck_evolution/data/archive.json"
+    buffer_filename = "../../hearth-mici/deck_evolution/data/buffer.csv"
+    history_filename = "../../hearth-mici/deck_evolution/data/history.csv"
 
   hunter_cards, mage_cards, warrior_card, all_cards = load_cards()
   with Parallel(n_jobs=multiprocessing.cpu_count(), verbose=100) as parallel:
 
-    archive, history, buffer, model = DSAME()
-    archive.display(display='winrate')
-    with open('data/buffer.json', 'w', encoding='utf-8') as f:
-      json.dump(buffer, f, ensure_ascii=False, indent=4)
+    archive, history, data_buffer, model = DSAME()
 
-
-    # as_bag_of_cards = convert_deck_to_bag_of_cards(hunter_sample, 'hunter')
-
-    # hunter_deck_as_bag = convert_spellsource_to_bag_of_cards(HUNTER_DECK, 'hunter')
-    # mage_deck_as_bag = convert_spellsource_to_bag_of_cards(MAGE_DECK, 'mage')
-    # warrior_deck_as_bag = convert_spellsource_to_bag_of_cards(WARRIOR_DECK, 'warrior')
-
-    # combined = as_bag_of_cards + mage_deck_as_bag
-    
-    # print_deck(hunter_sample, sorted=True)
-
-    # print(wwr, whd, mana_mean, mana_variance)
+    most_fit = archive.get_most_fit()
+    print(history)
+    print(f"Number of elites: {len(archive.get_elites())}")
+    print(f"Fitness: {most_fit['fitness']}")
+    print_deck(most_fit['sample'], sorted=True)
+    archive.display(display='fitness')
