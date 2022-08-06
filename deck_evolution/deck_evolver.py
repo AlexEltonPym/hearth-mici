@@ -19,7 +19,7 @@ from sklearn.neural_network import MLPRegressor
 
 from joblib import Parallel, delayed
 import multiprocessing
-
+from subprocess import run, PIPE
 
 HUNTER_DECK = '''### HUNTER_DECK
 # Class: GREEN
@@ -193,18 +193,15 @@ def convert_deck_to_spellsource(deck, hero_class):
   if hero_class == "hunter":
     CONSTRUCTED_DECK = '''### CONSTRUCTED_HUNTER_DECK
 # Class: GREEN
-# Format: Standard
-'''
+# Format: Standard'''
   elif hero_class == "mage":
     CONSTRUCTED_DECK = '''### CONSTRUCTED_MAGE_DECK
 # Class: BLUE
-# Format: Standard
-'''
+# Format: Standard'''
   else:
     CONSTRUCTED_DECK = '''### CONSTRUCTED_WARRIOR_DECK
 # Class: RED
-# Format: Standard
-'''
+# Format: Standard'''
   for card in deck:
     num_in_deck = len([c for c in deck if c is card])
     if card['name'] not in already_added:
@@ -219,7 +216,7 @@ def get_mana_curve(deck):
   return (statistics.mean(mana_costs), statistics.variance(mana_costs))
 
 def convert_deck_to_bag_of_cards(deck, hero_class):
-  bag = [0] * 303 #(230 base cards + 70 new cards + 3 classes) * 2
+  bag = [0] * 303 #(230 base cards + 70 new cards + 3 classes) * 2?
   if deck != None:
     for card in deck:
       bag[int(card['id'])] += 1
@@ -254,58 +251,6 @@ def convert_spellsource_to_bag_of_cards(deck, hero_class):
 
   return bag
 
-def fitness_evaluation(deck, num_games):
-  if num_games == -1:
-    return random.gauss(0, 10)
-  else:
-    health_delta_vs_hunter = playtest(deck, HUNTER_DECK, int(num_games))
-    return health_delta_vs_hunter
-
-def playtest(player_deck, enemy_deck, num_games):
-  player_stats = dict({'HEALTH_DELTA': 0,
-                      'WIN_RATE': 0,
-                      'DAMAGE_DEALT': 0,
-                      'HEALING_DONE': 0,
-                      'MANA_SPENT': 0,
-                      'CARDS_PLAYED': 0,
-                      'TURNS_TAKEN': 0,
-                      'ARMOR_GAINED': 0,
-                      'CARDS_DRAWN': 0,
-                      'FATIGUE_DAMAGE': 0,
-                      'MINIONS_PLAYED': 0,
-                      'SPELLS_CAST': 0,
-                      'HERO_POWER_USED': 0,
-                      'WEAPONS_EQUIPPED': 0,
-                      'WEAPONS_PLAYED': 0,
-                      'CARDS_DISCARDED': 0,
-                      'HERO_POWER_DAMAGE_DEALT': 0,
-                      'ARMOR_LOST': 0})
-  with Context() as ctx:
-    player1_ai = ctx.behaviour.GameStateValueBehaviour()
-    player2_ai = ctx.behaviour.GameStateValueBehaviour()
-
-    delta_health = 0
-    i = 0
-    while i < num_games:
-      try:
-        game_context = ctx.GameContext.fromDeckLists([player_deck, enemy_deck])
-        game_context.setBehaviour(ctx.GameContext.PLAYER_1, player1_ai)
-        game_context.setBehaviour(ctx.GameContext.PLAYER_2, player2_ai)
-        game_context.play()
-        player1health = int(str(game_context.getPlayer(ctx.GameContext.PLAYER_1).getHero()).split(",")[3].split("/")[1])
-        player2health = int(str(game_context.getPlayer(ctx.GameContext.PLAYER_2).getHero()).split(",")[3].split("/")[1])
-        # stats = str(game_context.getPlayer(ctx.GameContext.PLAYER_1).getStatistics())
-        # for stat in stats.split("\n")[1:-1]:
-        #   stat_name, stat_value = tuple(stat.split(": "))
-        #   if(stat_name in player_stats):
-        #     player_stats[stat_name] += float(stat_value)/num_games
-
-        # player_stats['HEALTH_DELTA'] += (player1health-player2health)/num_games
-        delta_health += player1health-player2health
-        i += 1
-      except Exception as e:
-        pass
-  return delta_health / num_games
 
 def print_deck(deck, sorted=False):
   already_printed = []
@@ -330,6 +275,15 @@ def save_history(history):
     writer = csv.writer(f)
     writer.writerow(history)
 
+def fitness_evaluation(deck):
+  deck_as_spellsource = convert_deck_to_spellsource(deck, 'hunter')
+  subp = run(['python3', 'sim_games.py', str(num_games)], \
+  stdout=PIPE, input=deck_as_spellsource, \
+  encoding='ascii')
+  whd, sucesses, failures = subp.stdout.split(",")
+  # print(f"{failures}/{sucesses}")
+  return float(whd)
+
 def DSAME():
   truth_archive = Archive((0, 10), (0, 20), num_buckets=20)
   surrogate_archive = Archive((0, 10), (0, 20), num_buckets=20)
@@ -340,8 +294,7 @@ def DSAME():
   for intitial in range(elite_population):
     hunter_sample = random_deck(hunter_cards)
     mana_mean, mana_variance = get_mana_curve(hunter_sample)
-    hunter_sample_as_spellsource = convert_deck_to_spellsource(hunter_sample, 'hunter')
-    whd = fitness_evaluation(hunter_sample_as_spellsource, num_games)
+    whd = fitness_evaluation(hunter_sample)
 
     truth_archive.add_sample(mana_mean, mana_variance, whd, hunter_sample)
     training_buffer[0].append(convert_deck_to_bag_of_cards(hunter_sample, 'hunter'))
@@ -364,15 +317,14 @@ def DSAME():
       estimated_delta_health = surrogate_model.predict(elite_as_bag)
       surrogate_archive.add_sample(mana_mean, mana_variance, estimated_delta_health, surrogate_elite)
 
-    for elite in surrogate_archive.get_elites(num_to_get=max_simulated_elites):
-      elite_sample = elite['sample']
-      elite_as_spellsource = convert_deck_to_spellsource(elite_sample, 'hunter')
-
-      whd = fitness_evaluation(elite_as_spellsource, num_games)
-
-      training_buffer[0].append(convert_deck_to_bag_of_cards(elite_sample, 'hunter'))
+    elites_to_testout = surrogate_archive.get_elites(num_to_get=max_simulated_elites)
+    
+    results = parallel(delayed(fitness_evaluation)(elite['sample']) for elite in elites_to_testout)
+    
+    for whd, elite in zip(results, elites_to_testout):
+      training_buffer[0].append(convert_deck_to_bag_of_cards(elite['sample'], 'hunter'))
       training_buffer[1].append(whd)
-      truth_archive.add_sample(mana_mean, mana_variance, whd, elite_sample)
+      truth_archive.add_sample(mana_mean, mana_variance, whd, elite['sample'])
 
     
     truth_archive.save()
@@ -475,13 +427,13 @@ if __name__ == "__main__":
   mage_popularity = 0.33
   warrior_popularity = 0.33
 
-  elite_population = 10
+  elite_population = 2
   num_outer_loops = 10
   num_inner_loops = 1000
   num_games = 1
-  max_simulated_elites = 100
+  max_simulated_elites = 3
 
-  on_artemis = True
+  on_artemis = False
   if on_artemis:
     archive_filename = "/project/RDS-SADP-PQE-RW/archive.json"
     buffer_filename = "/project/RDS-SADP-PQE-RW/buffer.csv"
@@ -493,8 +445,7 @@ if __name__ == "__main__":
     history_filename = "../../hearth-mici/deck_evolution/data/history.csv"
 
   hunter_cards, mage_cards, warrior_card, all_cards = load_cards()
-  with Parallel(n_jobs=multiprocessing.cpu_count(), verbose=100) as parallel:
-
+  with Parallel(n_jobs=multiprocessing.cpu_count(), verbose=50) as parallel:
     archive, history, data_buffer, model = DSAME()
 
     most_fit = archive.get_most_fit()
@@ -503,3 +454,4 @@ if __name__ == "__main__":
     print(f"Fitness: {most_fit['fitness']}")
     print_deck(most_fit['sample'], sorted=True)
     archive.display(display='fitness')
+
