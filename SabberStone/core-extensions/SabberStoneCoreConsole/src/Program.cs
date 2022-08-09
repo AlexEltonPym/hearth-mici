@@ -111,12 +111,12 @@ namespace SabberStoneCoreConsole
 			//Card elekk = Cards.FromName("Augmented Elekk");
 			//elekk.ATK = 1000;
 			//Card elekk2 = Cards.FromName("Augmented Elekk");
-			Console.WriteLine(Cards.Data.Cards);
-			CardDef def = new CardDef(new Dictionary<PlayReq, int>() { { PlayReq.REQ_TARGET_IF_AVAILABLE, 0 }, { PlayReq.REQ_NONSELF_TARGET, 0 } }, new Power
-			{
-				PowerTask = new DamageTask(1, EntityType.TARGET)
-			});
-			Cards.Data.Cards.Add("CS2_666", new Card());
+			// Console.WriteLine(Cards.Data.Cards);
+			// CardDef def = new CardDef(new Dictionary<PlayReq, int>() { { PlayReq.REQ_TARGET_IF_AVAILABLE, 0 }, { PlayReq.REQ_NONSELF_TARGET, 0 } }, new Power
+			// {
+			// 	PowerTask = new DamageTask(1, EntityType.TARGET)
+			// });
+			// Cards.Data.Cards.Add("CS2_666", new Card());
 
 			ParallelGameDispatcher();
 
@@ -391,36 +391,36 @@ namespace SabberStoneCoreConsole
 				Player1HeroClass = CardClass.PALADIN,
 				Player1Deck = new List<Card>()
 					{
-					Cards.FromName("Augmented Elekk"),
-					Cards.FromName("Augmented Elekk"),
-					Cards.FromName("Augmented Elekk"),
-					Cards.FromName("Augmented Elekk"),
-					Cards.FromName("Augmented Elekk"),
-					Cards.FromName("Augmented Elekk"),
-					Cards.FromName("Augmented Elekk"),
-					Cards.FromName("Augmented Elekk"),
-					Cards.FromName("Augmented Elekk"),
-					Cards.FromName("Augmented Elekk"),
-					Cards.FromName("Augmented Elekk"),
-					Cards.FromName("Augmented Elekk"),
-					Cards.FromName("Augmented Elekk"),
-					Cards.FromName("Augmented Elekk"),
-					Cards.FromName("Augmented Elekk"),
-					Cards.FromName("Augmented Elekk"),
-					Cards.FromName("Augmented Elekk"),
-					Cards.FromName("Augmented Elekk"),
-					Cards.FromName("Augmented Elekk"),
-					Cards.FromName("Augmented Elekk"),
-					Cards.FromName("Augmented Elekk"),
-					Cards.FromName("Augmented Elekk"),
-					Cards.FromName("Augmented Elekk"),
-					Cards.FromName("Augmented Elekk"),
-					Cards.FromName("Augmented Elekk"),
-					Cards.FromName("Augmented Elekk"),
-					Cards.FromName("Augmented Elekk"),
-					Cards.FromName("Augmented Elekk"),
-					Cards.FromName("Augmented Elekk"),
-					Cards.FromName("Augmented Elekk")
+					Cards.FromName("Blessing of Might"),
+					Cards.FromName("Blessing of Might"),
+					Cards.FromName("Gnomish Inventor"),
+					Cards.FromName("Gnomish Inventor"),
+					Cards.FromName("Goldshire Footman"),
+					Cards.FromName("Goldshire Footman"),
+					Cards.FromName("Hammer of Wrath"),
+					Cards.FromName("Hammer of Wrath"),
+					Cards.FromName("Hand of Protection"),
+					Cards.FromName("Hand of Protection"),
+					Cards.FromName("Holy Light"),
+					Cards.FromName("Holy Light"),
+					Cards.FromName("Ironforge Rifleman"),
+					Cards.FromName("Ironforge Rifleman"),
+					Cards.FromName("Light's Justice"),
+					Cards.FromName("Light's Justice"),
+					Cards.FromName("Lord of the Arena"),
+					Cards.FromName("Lord of the Arena"),
+					Cards.FromName("Nightblade"),
+					Cards.FromName("Nightblade"),
+					Cards.FromName("Raid Leader"),
+					Cards.FromName("Raid Leader"),
+					Cards.FromName("Stonetusk Boar"),
+					Cards.FromName("Stonetusk Boar"),
+					Cards.FromName("Stormpike Commando"),
+					Cards.FromName("Stormpike Commando"),
+					Cards.FromName("Stormwind Champion"),
+					Cards.FromName("Stormwind Champion"),
+					Cards.FromName("Stormwind Knight"),
+					Cards.FromName("Stormwind Knight")
 					},
 				Player2Name = "RehHausZuckFuchs",
 				Player2HeroClass = CardClass.PALADIN,
@@ -463,8 +463,6 @@ namespace SabberStoneCoreConsole
 				Logging = false,
 				History = false
 			};
-
-			Console.WriteLine(Cards.FromName("Augmented Elekk").ATK);
 			
 			int[] results = new int[num_games];
 			Parallel.For(0, num_games, i =>
@@ -480,10 +478,10 @@ namespace SabberStoneCoreConsole
 
 		static int RunGame(Game game, int game_id)
 		{
-			Console.WriteLine($"Starting game {game_id} on thread {Thread.CurrentThread.ManagedThreadId}");
+			//Console.WriteLine($"Starting game {game_id} on thread {Thread.CurrentThread.ManagedThreadId}");
 
-			int maxDepth = 3;
-			int maxWidth = 3;
+			int maxDepth = 10;
+			int maxWidth = 14;
 			var aiPlayer1 = new AggroScore();
 			var aiPlayer2 = new AggroScore();
 
@@ -522,7 +520,7 @@ namespace SabberStoneCoreConsole
 					}
 				}
 			}
-			Console.WriteLine($"Finshed game {game_id} on thread {Thread.CurrentThread.ManagedThreadId}");
+			//Console.WriteLine($"Finshed game {game_id} on thread {Thread.CurrentThread.ManagedThreadId}");
 			return game.Player1.Hero.Health - game.Player2.Hero.Health;
 
 
