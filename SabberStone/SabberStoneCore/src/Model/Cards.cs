@@ -49,6 +49,13 @@ namespace SabberStoneCore.Model
 			CardSet.DRAGONS // 2019 Descent of Dragons
 		};
 
+
+		public static CardSet[] ClassicSets { get; } = {
+			CardSet.CORE,
+			CardSet.EXPERT1
+		};
+
+
 		/// <summary>
 		/// Specifies which card sets combine into the WILD set.
 		/// </summary>
@@ -138,6 +145,7 @@ namespace SabberStoneCore.Model
 
 			//Log.Debug("AllStandard:");
 			AllStandard = All.Where(c => c.Collectible && c.Type != CardType.HERO && StandardSets.Contains(c.Set)).ToList().AsReadOnly();
+			AllClassic = All.Where(c => c.Collectible && c.Type != CardType.HERO && ClassicSets.Contains(c.Set)).ToList().AsReadOnly();
 
 			//Log.Debug("Wild:");
 			Enum.GetValues(typeof(CardClass)).Cast<CardClass>().ToList().ForEach(heroClass =>
@@ -205,6 +213,7 @@ namespace SabberStoneCore.Model
 		/// </summary>
 		public static ReadOnlyCollection<Card> AllStandard { get; }
 
+		public static ReadOnlyCollection<Card> AllClassic { get;  }
 		/// <summary>
 		/// All cards belonging to the Wild set.
 		/// </summary>
@@ -416,6 +425,7 @@ namespace SabberStoneCore.Model
 		public static string Statistics()
 		{
 			IEnumerable<Card> standard = All.Where(c => c.Collectible && StandardSets.Contains(c.Set));
+			IEnumerable<Card> classic = All.Where(c => c.Collectible && ClassicSets.Contains(c.Set));
 			IEnumerable<Card> wild = All.Where(c => c.Collectible);
 			var implemented = standard.Where(p => p.Implemented)
 				.GroupBy(p => p.Set)
