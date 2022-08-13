@@ -55,7 +55,12 @@ namespace SabberStoneCoreConsole
 
 	  if (args.Length > 0)
 	  {
-		num_games = Int32.Parse(args[0]);
+		try{
+			num_games = Int32.Parse(args[0]);
+		} catch(Exception e){
+			num_games = 10;
+		}			
+
 	  }
 
 	  string line = Console.ReadLine();

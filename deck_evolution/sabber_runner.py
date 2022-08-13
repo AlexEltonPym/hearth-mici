@@ -21,10 +21,10 @@ from joblib import Parallel, delayed
 import multiprocessing
 from subprocess import run, PIPE
 
-DOTNET_DIR = '/home/ubuntu/.dotnet/dotnet' #dotnet
+DOTNET_DIR = 'dotnet'#'/home/ubuntu/.dotnet/dotnet'
 SABBERSTONE_DIR = '../SabberStone/core-extensions/SabberStoneCoreConsole/bin/Debug/netcoreapp2.1/SabberStoneCoreConsole.dll'
-NUM_GAMES = 10
-NUM_DECKS = 4
+NUM_GAMES = 100
+NUM_DECKS = 160
 hunter_available_cards = []
 
 def get_bag(deck):
