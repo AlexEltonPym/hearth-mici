@@ -6,6 +6,8 @@ from game import Game
 from enums import *
 from card_sets import build_pool
 from strategy import GreedyAction
+import numpy as np
+from tqdm import tqdm
 
 def main():
     
@@ -16,10 +18,11 @@ def main():
     enemy = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
     game = Game(player, enemy)
 
-
-    game_results = game.simulate_game()
+    game_results = np.empty(100)
+    for i in tqdm(range(100)):
+        game_results[i] = game.simulate_game()
+    
     print(game_results)
-
 
 if __name__ == '__main__':
     main()

@@ -8,19 +8,20 @@ class Player():
         self.deck = deck
         self.strategy = strategy
         self.hero_power = get_hero_power(player_class)
-        self.current_mana = 1
-        self.max_mana = 1
+        self.current_mana = 0
+        self.max_mana = 0
         self.health = 30
         self.weapon = None
         self.attack = 0
         self.armor = 0
         self.has_attacked = False
+        self.used_hero_power = False
         self.hand = []
         self.board = []
         self.graveyard = []
         self.other_player = None
         self.game = None
-
+        self.fatigue_damage = 1
 
     def add_coin(self):
         coin = get_utility_card('coin')
@@ -39,11 +40,15 @@ class Player():
 
     def draw(self, num_to_draw):
         for i in range(num_to_draw):
-            if(len(self.hand) < 10):
-                self.deck_to_hand()
+            if(len(self.deck.deck) > 0):
+                if(len(self.hand) < 10):
+                    self.deck_to_hand()
+                else:
+                    self.deck_to_graveyard()
             else:
-                self.deck_to_graveyard()
-        
+                self.health -= self.fatigue_damage
+                self.fatigue_damage += 1
+            
   
     def mulligan(self):
         mulligan_count = 0
@@ -61,10 +66,17 @@ class Player():
         self.max_mana += 1
         self.current_mana = self.max_mana
         self.draw(1)
-        while True:
+        self.has_attacked = False
+        self.used_hero_power = False
+        for minion in self.board:
+            minion.has_attacked = False
+
+        turn_passed = False
+        while not turn_passed:
             available_actions = self.get_available_actions()
             next_action = self.strategy.choose_action(available_actions)
-            self.game.perform_action(next_action)
+            turn_passed = self.game.perform_action(next_action)
+        
 
     def get_available_effect_targets(self, card):
         available_targets = []
@@ -75,14 +87,14 @@ class Player():
                 for card in self.board:
                     if targets == Targets.MINIONS or targets == Targets.MINIONS_OR_HEROES or card.card_details['minion_type'] == targets:
                         available_targets.append(card)
-                    if targets == Targets.HEROES or targets == Targets.MINIONS_OR_HEROES:
-                        available_targets.append(self)
+                if targets == Targets.HEROES or targets == Targets.MINIONS_OR_HEROES:
+                    available_targets.append(self)
             if filters == Filters.ENEMY or filters == Filters.ALL:
                 for card in self.other_player.board:
                     if targets == Targets.MINIONS or targets == Targets.MINIONS_OR_HEROES or card.card_details['minion_type'] == targets:
                         available_targets.append(card)
-                    if targets == Targets.HEROES or targets == Targets.MINIONS_OR_HEROES:
-                        available_targets.append(self.other_player)
+                if targets == Targets.HEROES or targets == Targets.MINIONS_OR_HEROES:
+                    available_targets.append(self.other_player)
         return available_targets
 
 
@@ -126,19 +138,20 @@ class Player():
         playable_spell_actions = []
         for card in filter(lambda card: card.card_details['mana'] <= self.current_mana and card.card_details['card_type'] == 'spell', self.hand):
             for effect in card.card_details['effects']:
-                cast_targets = self.get_available_effect_targets(card)
-                if effect['method'] == Methods.TARGETED:
-                    for target in cast_targets:
-                        playable_spell_actions.append({'action_type': Actions.CAST_SPELL, 'source': card, 'target': target})
-                elif effect['method'] == Methods.RANDOMLY:
-                    playable_spell_actions.append({'action_type': Actions.CAST_SPELL, 'source': card, 'target': random.choice(cast_targets)})
-                else:
-                    playable_spell_actions.append({'action_type': Actions.CAST_SPELL, 'source': card, 'target': 'board'})
+                if effect['method'] != Methods.NONE:
+                    cast_targets = self.get_available_effect_targets(card)
+                    if effect['method'] == Methods.TARGETED:
+                        for target in cast_targets:
+                            playable_spell_actions.append({'action_type': Actions.CAST_SPELL, 'source': card, 'target': target})
+                    elif effect['method'] == Methods.RANDOMLY:
+                        playable_spell_actions.append({'action_type': Actions.CAST_SPELL, 'source': card, 'target': random.choice(cast_targets)})
+                    else:
+                        playable_spell_actions.append({'action_type': Actions.CAST_SPELL, 'source': card, 'target': 'board'})
         return playable_spell_actions
 
     def get_hero_power_actions(self):
         hero_power_actions = []
-        if self.current_mana >= 2:
+        if self.current_mana >= 2 and not self.used_hero_power:
             hero_power_actions.append({'action_type': Actions.CAST_HERO_POWER, 'source': self.hero_power, 'target': self.other_player})
         return hero_power_actions
 
@@ -154,7 +167,7 @@ class Player():
         return available_actions
 
     def __str__(self):
-        return str((self.player_class, str(self.health), str(self.deck)))
+        return str((self.name, self.player_class, str(self.health)))
 
     def __repr__(self):
-        return self.name
+        return str((self.name, self.player_class, str(self.health)))
