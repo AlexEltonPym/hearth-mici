@@ -30,6 +30,7 @@
 /reports/study/videos
 
 /deck_evolution/results.out
+/deck_evolution/data
 
 /classic_sim/env
 /deck_evolution/env
