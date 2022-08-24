@@ -10,19 +10,19 @@ import numpy as np
 from tqdm import tqdm
 
 def main():
-    
-    random.seed(0)
+  
+  random.seed(0)
 
-    card_pool = build_pool(CardSets.CLASSIC_HUNTER)
-    player = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
-    enemy = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
-    game = Game(player, enemy)
+  card_pool = build_pool(CardSets.CLASSIC_HUNTER)
+  player = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
+  enemy = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
+  game = Game(player, enemy)
 
-    game_results = np.empty(100)
-    for i in tqdm(range(100)):
-        game_results[i] = game.simulate_game()
-    
-    print(game_results)
+  game_results = np.empty(100)
+  for i in tqdm(range(100)):
+    game_results[i] = game.simulate_game()
+  
+  print(game_results)
 
 if __name__ == '__main__':
-    main()
+  main()
