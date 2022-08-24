@@ -30,7 +30,7 @@ def test_game():
 
 
   for i in range(8000):
-    game.current_player.take_turn()
+    game.take_turn()
 
     if(game.player.health <= 0):
       return 0

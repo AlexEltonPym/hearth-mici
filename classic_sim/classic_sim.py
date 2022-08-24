@@ -10,16 +10,17 @@ import numpy as np
 from tqdm import tqdm
 
 def main():
-  
+  num_games = 10
+
   random.seed(0)
 
-  card_pool = build_pool(CardSets.CLASSIC_HUNTER)
+  card_pool = build_pool([CardSets.CLASSIC_HUNTER, CardSets.CLASSIC_NEUTRAL])
   player = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
   enemy = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
   game = Game(player, enemy)
 
-  game_results = np.empty(100)
-  for i in tqdm(range(100)):
+  game_results = np.empty(num_games)
+  for i in tqdm(range(num_games)):
     game_results[i] = game.simulate_game()
   
   print(game_results)

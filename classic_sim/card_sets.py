@@ -24,8 +24,11 @@ def get_classic_cards():
   classic_cards = []
   return classic_cards
 
-def build_pool(set_name):
+def build_pool(set_names):
   pool = []
-  if set_name == CardSets.CLASSIC_HUNTER:
-    pool = get_classic_cards() + get_hunter_cards()
+  for set_name in set_names:
+    if set_name == CardSets.CLASSIC_NEUTRAL:
+      pool.extend(get_classic_cards())
+    elif set_name == CardSets.CLASSIC_HUNTER:
+      pool.extend(get_hunter_cards()) 
   return pool
