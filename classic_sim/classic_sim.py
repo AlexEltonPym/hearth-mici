@@ -17,10 +17,10 @@ def main():
   card_pool = build_pool([CardSets.CLASSIC_HUNTER, CardSets.CLASSIC_NEUTRAL])
   player = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
   enemy = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
-  game = Game(player, enemy)
 
   game_results = np.empty(num_games)
   for i in tqdm(range(num_games)):
+    game = Game(player, enemy)
     game_results[i] = game.simulate_game()
   
   print(game_results)

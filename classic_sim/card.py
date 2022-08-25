@@ -11,9 +11,9 @@ class Card():
 
   def get_string(self):
     if(self.card_details['card_type'] == 'minion'):
-      return str((self.name, self.card_details['mana'], str(self.card_details['attack'])+"/"+str(self.card_details['health'])))
+      return str((self.owner.name, self.name, self.card_details['mana'], str(self.card_details['attack'])+"/"+str(self.card_details['health'])))
     else:
-      return str((self.name, self.card_details['mana']))
+      return str((self.owner, self.name, self.card_details['mana']))
 
   def __str__(self):
     return self.get_string()
