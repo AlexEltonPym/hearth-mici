@@ -41,10 +41,10 @@ class Game():
 
     turn_passed = False
     while not turn_passed:
-      available_actions = self.get_available_actions(self.current_player)
-      next_action = self.current_player.strategy.choose_action(available_actions)
+      # available_actions = self.get_available_actions(self.current_player)
+      self, turn_passed = self.current_player.strategy.choose_action(self)
       # print(next_action)
-      turn_passed = self.perform_action(next_action)
+      # self, turn_passed = self.perform_action(available_actions[next_action])
   
   def add_coin(self, player):
     coin = get_utility_card('coin')
@@ -63,8 +63,8 @@ class Game():
       self.cast_hero_power(action)
     elif action['action_type'] == Actions.END_TURN:
       self.current_player = self.current_player.other_player
-      return True
-    return False
+      return (self, True)
+    return (self, False)
 
   def cast_hero_power(self, action):
     self.current_player.used_hero_power = True

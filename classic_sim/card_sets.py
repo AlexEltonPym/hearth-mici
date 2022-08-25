@@ -20,6 +20,11 @@ def get_hunter_cards():
 
   return hunter_cards
 
+def get_op_cards():
+  big_minion = Card(3, 'Big minion', {'card_type': 'minion', 'mana': 0, 'attack': 100, 'health': 100, 'effects': [] })
+  op_cards = [big_minion]
+  return op_cards
+
 def get_classic_cards():
   classic_cards = []
   return classic_cards
@@ -30,5 +35,7 @@ def build_pool(set_names):
     if set_name == CardSets.CLASSIC_NEUTRAL:
       pool.extend(get_classic_cards())
     elif set_name == CardSets.CLASSIC_HUNTER:
-      pool.extend(get_hunter_cards()) 
+      pool.extend(get_hunter_cards())
+    elif set_name == CardSets.OP_CARDS:
+      pool.extend(get_op_cards())
   return pool

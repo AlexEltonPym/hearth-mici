@@ -52,6 +52,7 @@ class Methods(Enum):
 class CardSets(Enum):
   CLASSIC_HUNTER = 0
   CLASSIC_NEUTRAL = 1
+  OP_CARDS = 2
 
 
 class Classes(Enum):
