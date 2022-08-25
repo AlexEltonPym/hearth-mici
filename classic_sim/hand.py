@@ -19,3 +19,6 @@ class Hand():
 
   def __str__(self):
     return str((self.name, self.parent.name, self.hand))
+
+  def __repr__(self):
+    return str((self.name, self.parent.name, self.hand))

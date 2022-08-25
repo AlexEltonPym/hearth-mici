@@ -5,20 +5,20 @@ class Deck():
   def __init__(self):
     self.name = 'deck'
     self.deck = []
-    self.owner = None
-    self.parent = None
 
   def generate_random(self, available_cards):
+    id = 0
     while len(self.deck) < 30:
       rand_card = copy.copy(random.choice(available_cards))
       rand_card.parent = self
+      rand_card.id = id
       self.deck.append(rand_card)
-      self.deck.append(rand_card)
+      id += 1
     return self
     
   def update_owner(self, owner):
-    self.owner = owner
-    self.parent = owner
+    for card in self.deck:
+      card.owner = owner
 
   def remove(self, card):
     self.deck.remove(card)
@@ -29,8 +29,8 @@ class Deck():
   def get_all(self):
     return self.deck
 
-  def pop(self, card):
-    return self.deck.pop(card)
+  def pop(self):
+    return self.deck.pop()
 
   def __str__(self):
     return str(self.deck)

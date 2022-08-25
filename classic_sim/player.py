@@ -1,6 +1,7 @@
 from card_sets import get_hero_power
 from hand import Hand
 from board import Board
+from graveyard import Graveyard
 
 class Player():
   def __init__(self, player_class, deck, strategy):
@@ -23,7 +24,7 @@ class Player():
     self.used_hero_power = False
     self.hand = Hand(self)
     self.board = Board(self)
-    self.graveyard = []
+    self.graveyard = Graveyard(self)
     self.other_player = None
     self.game = None
     self.fatigue_damage = 1

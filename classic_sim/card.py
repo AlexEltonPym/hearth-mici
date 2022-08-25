@@ -11,9 +11,12 @@ class Card():
 
   def get_string(self):
     if(self.card_details['card_type'] == 'minion'):
-      return str((self.owner.name, self.name, self.card_details['mana'], str(self.card_details['attack'])+"/"+str(self.card_details['health'])))
+      return str((self.id, self.owner.name, self.parent.name, self.name, self.card_details['mana'], str(self.card_details['attack'])+"/"+str(self.card_details['health'])))
     else:
-      return str((self.owner, self.name, self.card_details['mana']))
+      return str((self.id, self.owner.name, self.parent.name, self.name, self.card_details['mana']))
+
+  def change_parent(self, new_parent):
+    self.parent = new_parent
 
   def __str__(self):
     return self.get_string()
@@ -21,5 +24,5 @@ class Card():
   def __repr__(self):
     return self.get_string()
 
-  def __eq__(self, other):
-    return self.name == other.name and self.card_details == other.card_details
+  # def __eq__(self, other):
+  #   return self.name == other.name and self.card_details == other.card_details

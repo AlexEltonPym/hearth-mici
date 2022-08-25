@@ -18,4 +18,7 @@ class Board():
     return key in self.board
 
   def __str__(self):
-    return str((self.name, self.parent.name, self.board))
+    return str((self.name, self.parent.name))
+
+  def __repr__(self):
+    return str((self.name, self.parent.name))

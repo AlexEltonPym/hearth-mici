@@ -36,13 +36,14 @@ class Game():
     self.draw(self.current_player, 1)
     self.current_player.has_attacked = False
     self.current_player.used_hero_power = False
-    for minion in self.current_player.board.board:
+    for minion in self.current_player.board.get_all():
       minion.has_attacked = False
 
     turn_passed = False
     while not turn_passed:
       available_actions = self.get_available_actions(self.current_player)
       next_action = self.current_player.strategy.choose_action(available_actions)
+      # print(next_action)
       turn_passed = self.perform_action(next_action)
   
   def add_coin(self, player):
@@ -79,22 +80,27 @@ class Game():
     for effect in action['source'].card_details['effects']:
       if effect['trigger'] == Triggers.BATTLECRY:
         self.resolve_effect(effect, action)
-   
+    # print(self.current_player.board.get_all())
+
 
   def cast_spell(self, action):
     self.current_player.current_mana -= action['source'].card_details['mana']
     self.current_player.hand.remove(action['source'])
     action['source'].parent = self.current_player.graveyard
+    self.current_player.graveyard.add(action['source'])
     for effect in action['source'].card_details['effects']:
       self.resolve_effect(effect, action)
 
   def handle_attack(self, action):
+    # print(action)
     action['target'].card_details['health'] -= action['source'].card_details['attack']
     action['source'].has_attacked = True
 
     if type(action['target']) != Player and action['target'].card_details['health'] <= 0:
       action['target'].parent.remove(action['target'])
       action['target'].owner.graveyard.add(action['target'])
+      action['target'].parent = action['target'].owner.graveyard
+
 
 
   def resolve_effect(self, effect, action):
@@ -103,6 +109,7 @@ class Game():
       if type(action['target']) != Player and action['target'].card_details['health'] <= 0:
         action['target'].parent.remove(action['target'])
         action['target'].owner.graveyard.add(action['target'])
+        action['target'].parent = action['target'].owner.graveyard
 
   def get_available_targets(self, card):
     targets = []
@@ -112,6 +119,10 @@ class Game():
     else:
       targets = [card.owner.other_player]
       targets.extend(card.owner.other_player.board.get_all())
+    # print()
+    # print(card)
+    # print(card.owner.other_player.board.get_all())
+    # print(targets)
     return targets
 
   def get_playable_spells_actions(self, player):
@@ -139,6 +150,7 @@ class Game():
     available_actions = []
 
     available_actions.extend(self.get_minion_attack_actions(player))
+
     available_actions.extend(self.get_hero_attack_actions(player))
     available_actions.extend(self.get_playable_minion_actions(player))
     available_actions.extend(self.get_playable_spells_actions(player))
@@ -150,6 +162,7 @@ class Game():
   def deck_to_hand(self, player):
     new_card = player.deck.pop()
     new_card.parent = player.hand
+    print(f"drawing: {new_card}")
     player.hand.add(new_card)
 
   def deck_to_graveyard(self, player):
@@ -207,6 +220,7 @@ class Game():
       if not minion.has_attacked:
         for target in self.get_available_targets(minion):
           minion_attack_options.append({'action_type': Actions.ATTACK, 'source': minion, 'target': target})
+
     return minion_attack_options
   
 

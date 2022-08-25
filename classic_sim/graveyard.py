@@ -16,4 +16,4 @@ class Graveyard():
     return self.graveyard
 
   def __str__(self):
-    return str((self.name, self.parent.name, self.graveyard))
+    return str((self.name, self.parent.name))

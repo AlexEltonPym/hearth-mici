@@ -14,23 +14,24 @@ def test_classic_pool():
 
 
 def test_game():
-  
-  random.seed(2)
-
+  seed = random.randrange(1000)
+  random.seed(seed)
+  print("Seed was:", seed)
+  random.seed(283)
   card_pool = build_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER])
-  player = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
-  enemy = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
-  game = Game(player, enemy)
-
-  game.initalise_game()
+  _player = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
+  _enemy = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
+  game = Game(_player, _enemy)
+  # [print(card) for card in game.player.deck.get_all()]
   # assert game.current_player == game.player
 
 
-  assert get_utility_card('coin') in game.current_player.other_player.hand
+  # assert get_utility_card('coin') in game.current_player.other_player.hand
 
-  for i in range(100):
+
+  for i in range(10):
     game.take_turn()
-
+    # print(game.player.board.get_all())
 
   # print(game.current_player.name)
   if(game.player.card_details['health'] <= 0):
