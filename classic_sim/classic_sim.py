@@ -10,7 +10,7 @@ import numpy as np
 from tqdm import tqdm
 
 def main():
-  num_games = 10
+  num_games = 1000
 
   random.seed(0)
 

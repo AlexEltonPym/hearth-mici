@@ -80,7 +80,6 @@ class Game():
     for effect in action['source'].card_details['effects']:
       if effect['trigger'] == Triggers.BATTLECRY:
         self.resolve_effect(effect, action)
-    # print(self.current_player.board.get_all())
 
 
   def cast_spell(self, action):
@@ -92,7 +91,6 @@ class Game():
       self.resolve_effect(effect, action)
 
   def handle_attack(self, action):
-    # print(action)
     action['target'].card_details['health'] -= action['source'].card_details['attack']
     action['source'].has_attacked = True
 
@@ -119,10 +117,7 @@ class Game():
     else:
       targets = [card.owner.other_player]
       targets.extend(card.owner.other_player.board.get_all())
-    # print()
-    # print(card)
-    # print(card.owner.other_player.board.get_all())
-    # print(targets)
+
     return targets
 
   def get_playable_spells_actions(self, player):
@@ -162,7 +157,7 @@ class Game():
   def deck_to_hand(self, player):
     new_card = player.deck.pop()
     new_card.parent = player.hand
-    print(f"drawing: {new_card}")
+    # print(f"drawing: {new_card}")
     player.hand.add(new_card)
 
   def deck_to_graveyard(self, player):
@@ -258,7 +253,7 @@ class Game():
     for _ in range(8000):
       self.take_turn()
 
-    if(self.player.card_details['health'] <= 0):
-      return 0
-    elif(self.enemy.card_details['health'] <= 0):
-      return 1
+      if(self.player.card_details['health'] <= 0):
+        return 0
+      elif(self.enemy.card_details['health'] <= 0):
+        return 1

@@ -17,7 +17,7 @@ def test_game():
   seed = random.randrange(1000)
   random.seed(seed)
   print("Seed was:", seed)
-  random.seed(283)
+  # random.seed(283)
   card_pool = build_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER])
   _player = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
   _enemy = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
@@ -29,15 +29,14 @@ def test_game():
   # assert get_utility_card('coin') in game.current_player.other_player.hand
 
 
-  for i in range(10):
+  for i in range(100):
     game.take_turn()
-    # print(game.player.board.get_all())
+    print(game.current_player)
 
-  # print(game.current_player.name)
-  if(game.player.card_details['health'] <= 0):
-    return 0
-  elif(game.enemy.card_details['health'] <= 0):
-    return 1
+    if(game.player.card_details['health'] <= 0):
+      return 0
+    elif(game.enemy.card_details['health'] <= 0):
+      return 1
 
 
   assert True
