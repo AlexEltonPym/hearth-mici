@@ -63,8 +63,8 @@ class Game():
       self.cast_hero_power(action)
     elif action['action_type'] == Actions.END_TURN:
       self.current_player = self.current_player.other_player
-      return (self, True)
-    return (self, False)
+      return True
+    return False
 
   def cast_hero_power(self, action):
     self.current_player.used_hero_power = True

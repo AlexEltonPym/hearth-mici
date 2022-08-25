@@ -9,9 +9,11 @@ from strategy import GreedyAction, RandomAction
 import numpy as np
 from tqdm import tqdm
 from statistics import mean
+from joblib import Parallel, delayed
+
+NUM_GAMES = 10
 
 def main():
-  num_games = 10
 
   random.seed(0)
 
@@ -21,12 +23,17 @@ def main():
   player = Player(Classes.HUNTER, mirror_deck, GreedyAction)
   enemy = Player(Classes.HUNTER, mirror_deck, GreedyAction)
 
-  game_results = np.empty(num_games)
-  for i in tqdm(range(num_games)):
+  game_results = Parallel(n_jobs=8)(delayed(run_games)(player, enemy) for i in range(8))
+ 
+  print(game_results)
+
+def run_games(player, enemy):
+  games = np.empty(NUM_GAMES)
+  for i in tqdm(range(NUM_GAMES)):
     game = Game(player, enemy)
-    game_results[i] = game.simulate_game()
+    games[i] = game.simulate_game()
+  return games.mean()
   
-  print(mean(game_results))
 
 if __name__ == '__main__':
   main()
