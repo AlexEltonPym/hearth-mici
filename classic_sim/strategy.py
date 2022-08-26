@@ -1,12 +1,13 @@
 from random import choice, random
 from copy import deepcopy
-
+from enums import Actions
+import time
 
 class GreedyAction():
   def mulligan_rule(card):
     return card.card_details['mana'] < 3
   
-  def choose_action(state):
+  def choose_action(state):     
     available_actions = state.get_available_actions(state.current_player)
     possible_actions = []
     for action_index in range(len(available_actions)):
@@ -17,7 +18,6 @@ class GreedyAction():
         possible_state.current_player = possible_state.current_player.other_player
       possible_actions.append((action_index, state_score, turn_passed))
     best_action = sorted(possible_actions, key=lambda x: x[1])[-1]
-    print(available_actions[best_action[0]])
     state.perform_action(available_actions[best_action[0]])
     return best_action[2]
 
@@ -35,7 +35,25 @@ class RandomAction():
   def choose_action(state):
     chosen_action = choice(state.get_available_actions(state.current_player))
     turn_passed = state.perform_action(chosen_action)
-    # print(chosen_action)
+    if turn_passed:
+      state.current_player = state.current_player.other_player
+    return turn_passed
+
+class RandomNoEarlyPassing():
+  def mulligan_rule(card):
+    return card.card_details['mana'] < 3
+  
+  def choose_action(state):
+    all_available_actions = state.get_available_actions(state.current_player)
+
+    available_actions_without_ending = list(filter(lambda x: x['action_type'] != Actions.END_TURN, all_available_actions))
+
+    if len(available_actions_without_ending) > 0:
+      chosen_action = choice(available_actions_without_ending)
+    else:
+      chosen_action = all_available_actions[0]
+
+    turn_passed = state.perform_action(chosen_action)
     if turn_passed:
       state.current_player = state.current_player.other_player
     return turn_passed
