@@ -11,7 +11,7 @@ from tqdm import tqdm
 from statistics import mean
 from joblib import Parallel, delayed
 
-NUM_GAMES = 100
+NUM_GAMES = 1
 
 def main():
 

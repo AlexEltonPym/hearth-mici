@@ -1,5 +1,7 @@
+import cython
+
 class Card():
-  def __init__(self, id, name, card_details):
+  def __init__(self, id: cython.int, name, card_details):
     self.id = id
     self.name = name
     self.card_details = card_details

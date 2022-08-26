@@ -5,6 +5,7 @@
 /.pnp
 .pnp.js
 
+
 # testing
 /hearth-mici/coverage
 
@@ -33,7 +34,15 @@
 /deck_evolution/data
 
 /classic_sim/env
+
+/classic_sim/*.c
+/classic_sim/*.html
+/classic_sim/*.so
+/classic_sim/build
+
 /deck_evolution/env
 
 
 */env
+*/__pychache__
+*/.vscode
