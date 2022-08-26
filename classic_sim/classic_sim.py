@@ -11,20 +11,18 @@ from tqdm import tqdm
 from statistics import mean
 from joblib import Parallel, delayed
 
-NUM_GAMES = 10
+NUM_GAMES = 1
 
 def main():
 
   random.seed(0)
-
   hunter_pool = build_pool([CardSets.CLASSIC_HUNTER, CardSets.CLASSIC_NEUTRAL])
   op_pool = build_pool([CardSets.OP_CARDS])
   mirror_deck = Deck().generate_random(hunter_pool)
-  player = Player(Classes.HUNTER, mirror_deck, GreedyAction)
+  player = Player(Classes.HUNTER, mirror_deck, RandomAction)
   enemy = Player(Classes.HUNTER, mirror_deck, GreedyAction)
 
-  game_results = Parallel(n_jobs=8)(delayed(run_games)(player, enemy) for i in range(8))
- 
+  game_results = Parallel(n_jobs=-1, verbose=100)(delayed(run_games)(player, enemy) for i in range(1))
   print(game_results)
 
 def run_games(player, enemy):

@@ -42,7 +42,7 @@ class Game():
     turn_passed = False
     while not turn_passed:
       # available_actions = self.get_available_actions(self.current_player)
-      self, turn_passed = self.current_player.strategy.choose_action(self)
+      turn_passed = self.current_player.strategy.choose_action(self)
       # print(next_action)
       # self, turn_passed = self.perform_action(available_actions[next_action])
   
@@ -62,12 +62,12 @@ class Game():
     elif action['action_type'] == Actions.CAST_HERO_POWER:
       self.cast_hero_power(action)
     elif action['action_type'] == Actions.END_TURN:
-      self.current_player = self.current_player.other_player
       return True
     return False
 
   def cast_hero_power(self, action):
     self.current_player.used_hero_power = True
+    self.current_player.current_mana -= action['source'].card_details['mana']
     for effect in action['source'].card_details['effects']:
       self.resolve_effect(effect, action)
 
@@ -249,10 +249,10 @@ class Game():
 
 
   def simulate_game(self):
-      
     for _ in range(8000):
       self.take_turn()
-
+      # print(self.player.board.get_all())
+      # print(self.enemy.board.get_all())
       if(self.player.card_details['health'] <= 0):
         return 0
       elif(self.enemy.card_details['health'] <= 0):
