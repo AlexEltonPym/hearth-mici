@@ -2,7 +2,6 @@ from card_sets import get_hero_power
 from hand import Hand
 from board import Board
 from graveyard import Graveyard
-import cython
 
 class Player():
   def __init__(self, player_class, deck, strategy):
@@ -18,7 +17,7 @@ class Player():
       'attack': 0,
       'armor': 0
     }
-    self.current_mana: cython.int = 0
+    self.current_mana = 0
     self.max_mana = 0
    
     self.has_attacked = False
