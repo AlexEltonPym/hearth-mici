@@ -39,6 +39,7 @@
 /classic_sim/*.html
 /classic_sim/*.so
 /classic_sim/build
+/classic_sim/__pychache__
 
 /deck_evolution/env
 
