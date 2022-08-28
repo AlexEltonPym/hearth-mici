@@ -1,6 +1,7 @@
 from card import Card
 from enums import *
 from effects import GainMana, DealDamage, ChangeStats
+from copy import deepcopy
 
 def get_utility_card(utility_card):
   the_coin = Card(name='The coin', card_type=CardTypes.SPELL, mana=0, \
@@ -27,7 +28,7 @@ def get_op_cards():
 
 def get_classic_cards():
   wisp = Card(name='Wisp', card_type = CardTypes.MINION, mana = 0, attack = 1, health = 1)
-  abusive_sergeant = Card(name='Abusive Sergeant', card_type=CardTypes.MINION, mana=1, attack=1, health=1,\
+  abusive_sergeant = Card(name='Abusive sergeant', card_type=CardTypes.MINION, mana=1, attack=1, health=1,\
                           effects=[ChangeStats(attack_amount=2, health_amount=0, method = Methods.TARGETED,\
                           target=Targets.MINIONS, owner_filter = OwnerFilters.ALL, duration = Durations.TURN,\
                           trigger= Triggers.BATTLECRY, type_filter=CreatureTypes.ALL)])
@@ -44,3 +45,8 @@ def build_pool(set_names):
     elif set_name == CardSets.OP_CARDS:
       pool.extend(get_op_cards())
   return pool
+
+def get_from_name(pool, name):
+  for card in pool:
+    if card.name == name:
+      return deepcopy(card)

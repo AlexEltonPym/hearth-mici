@@ -39,7 +39,7 @@ class Game():
     self.mulligan(self.current_player.other_player)
     self.add_coin(self.current_player.other_player)
   
-  def take_turn(self):
+  def untap(self):
     self.current_player.max_mana += 1
     self.current_player.current_mana = self.current_player.max_mana
     self.draw(self.current_player, 1)
@@ -50,6 +50,9 @@ class Game():
       minion.temp_attack = 0
       minion.temp_health = 0
 
+
+  def take_turn(self):
+    self.untap()
     turn_passed = False
     while not turn_passed:
       turn_passed = self.current_player.strategy.choose_action(self)
@@ -88,7 +91,8 @@ class Game():
     self.current_player.board.add(action['source'])
     self.current_player.hand.remove(action['source'])
     for effect in action['source'].effects:
-      if effect.trigger == Triggers.CAST:
+      if effect.trigger == Triggers.BATTLECRY:
+
         effect.resolve_action(action)
 
 
@@ -101,7 +105,7 @@ class Game():
       effect.resolve_action(action)
 
   def handle_attack(self, action):
-    action['target'].health -= action['source'].attack
+    action['target'].health -= action['source'].attack + action['source'].temp_attack
     action['source'].has_attacked = True
 
     if type(action['target']) != Player and action['target'].health <= 0:

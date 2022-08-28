@@ -18,7 +18,7 @@ class Card():
 
   def get_string(self):
     if(self.card_type == CardTypes.MINION):
-      return str((self.owner.name, self.parent.name, self.name, self.mana, str(self.attack)+"/"+str(self.health)))
+      return str((self.owner.name, self.parent.name, self.name, self.mana, str(self.attack+self.temp_attack)+"/"+str(self.health+self.temp_health)))
     else:
       return str((self.owner.name, self.parent.name, self.name, self.mana))
 
