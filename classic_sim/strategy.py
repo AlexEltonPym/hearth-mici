@@ -14,8 +14,6 @@ class GreedyAction():
       possible_state = deepcopy(state)
       turn_passed = possible_state.perform_action(possible_state.get_available_actions(possible_state.current_player)[action_index])
       state_score = GreedyAction.get_score(possible_state, turn_passed) #must get before passing turn
-      if turn_passed:
-        possible_state.current_player = possible_state.current_player.other_player
       possible_actions.append((action_index, state_score, turn_passed))
     best_action = sorted(possible_actions, key=lambda x: x[1])[-1]
     state.perform_action(available_actions[best_action[0]])

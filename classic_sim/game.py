@@ -18,17 +18,19 @@ class Game():
     self.player.deck.update_owner(self.player)
     self.enemy.deck.update_owner(self.enemy)
 
+
     self.current_player = choice([self.player, self.enemy])
 
     self.player.deck.shuffle()
     self.enemy.deck.shuffle()
+
+
 
     self.draw(self.current_player, 4)
     self.mulligan(self.current_player)
     self.draw(self.current_player.other_player, 3)
     self.mulligan(self.current_player.other_player)
     self.add_coin(self.current_player.other_player)
-    
   
   def take_turn(self):
     self.current_player.max_mana += 1
@@ -41,11 +43,10 @@ class Game():
 
     turn_passed = False
     while not turn_passed:
-      # available_actions = self.get_available_actions(self.current_player)
       turn_passed = self.current_player.strategy.choose_action(self)
-      # print(next_action)
-      # self, turn_passed = self.perform_action(available_actions[next_action])
-  
+      if turn_passed:
+        self.current_player = self.current_player.other_player
+
   def add_coin(self, player):
     coin = get_utility_card('coin')
     coin.owner = player
@@ -102,12 +103,21 @@ class Game():
 
 
   def resolve_effect(self, effect, action):
-    if effect['effect_type'] == 'deal_damage':
-      action['target'].card_details['health'] -= effect['amount']
-      if type(action['target']) != Player and action['target'].card_details['health'] <= 0:
-        action['target'].parent.remove(action['target'])
-        action['target'].owner.graveyard.add(action['target'])
-        action['target'].parent = action['target'].owner.graveyard
+    if effect['effect_type'] == EffectType.GAIN_MANA:
+      self.gain_mana(effect, action)
+    elif effect['effect_type'] == EffectType.DEAL_DAMAGE:
+      self.deal_damage(effect, action)
+
+
+  def deal_damage(self, effect, action):
+    action['target'].card_details['health'] -= effect['amount']
+    if type(action['target']) != Player and action['target'].card_details['health'] <= 0:
+      action['target'].parent.remove(action['target'])
+      action['target'].owner.graveyard.add(action['target'])
+      action['target'].parent = action['target'].owner.graveyard
+
+  def gain_mana(self, effect, action):
+    action['target'].current_mana += effect['amount']
 
   def get_available_targets(self, card):
     targets = []
@@ -122,7 +132,8 @@ class Game():
 
   def get_playable_spells_actions(self, player):
     playable_spell_actions = []
-    for card in filter(lambda card: card.card_details['mana'] <= player.current_mana and card.card_details['card_type'] == 'spell', player.hand.get_all()):
+    for card in filter(lambda card: card.card_details['mana'] <= player.current_mana and card.card_details['card_type'] == CardType.SPELL, player.hand.get_all()):
+
       for effect in card.card_details['effects']:
         if effect['method'] != Methods.NONE:
           cast_targets = self.get_available_effect_targets(player, card)
@@ -133,6 +144,8 @@ class Game():
             playable_spell_actions.append({'action_type': Actions.CAST_SPELL, 'source': card, 'target': choice(cast_targets)})
           else:
             playable_spell_actions.append({'action_type': Actions.CAST_SPELL, 'source': card, 'target': player.board})
+        else:
+          playable_spell_actions.append({'action_type': Actions.CAST_SPELL, 'source': card, 'target': player})
     return playable_spell_actions
 
   def get_hero_power_actions(self, player):
@@ -157,7 +170,6 @@ class Game():
   def deck_to_hand(self, player):
     new_card = player.deck.pop()
     new_card.parent = player.hand
-    # print(f"drawing: {new_card}")
     player.hand.add(new_card)
 
   def deck_to_graveyard(self, player):
@@ -230,7 +242,7 @@ class Game():
   def get_playable_minion_actions(self, player):
     playable_minion_actions = []
     if len(player.board.get_all()) < 7:
-      for card in filter(lambda card: card.card_details['mana'] <= player.current_mana and card.card_details['card_type'] == 'minion', player.hand.get_all()):
+      for card in filter(lambda card: card.card_details['mana'] <= player.current_mana and card.card_details['card_type'] == CardType.MINION, player.hand.get_all()):
         has_battlecry = False
         for effect in card.card_details['effects']:
           if effect['trigger'] == Triggers.BATTLECRY:
@@ -250,9 +262,9 @@ class Game():
 
   def simulate_game(self):
     for _ in range(8000):
+
       self.take_turn()
-      # print(self.player.board.get_all())
-      # print(self.enemy.board.get_all())
+
       if(self.player.card_details['health'] <= 0):
         return 0
       elif(self.enemy.card_details['health'] <= 0):

@@ -57,3 +57,15 @@ class CardSets(Enum):
 
 class Classes(Enum):
   HUNTER = 0
+
+
+class CardType(Enum):
+  MINION = 0
+  SPELL = 1
+  WEAPON = 2
+  HERO_POWER = 3
+
+class EffectType(Enum):
+  GAIN_MANA = 0
+  DEAL_DAMAGE = 1
+  CHANGE_STATS = 2
