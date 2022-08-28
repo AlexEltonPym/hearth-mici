@@ -9,6 +9,7 @@ class Attributes(Enum):
 class Triggers(Enum):
   BATTLECRY = 0
   DEATHRATTLE = 1
+  CAST = 2
 
 
 class Actions(Enum):
@@ -23,19 +24,20 @@ class Targets(Enum):
   MINIONS = 0
   HEROES = 1
   MINIONS_OR_HEROES = 2
-  PIRATES = 3
-  BEASTS = 4
-  ELEMENTALS = 5
-  TOTEMS = 6
-  WEAPONS = 7
+  WEAPONS = 3
 
-
-class Filters(Enum):
+class OwnerFilters(Enum):
   FRIENDLY = 0
   ENEMY = 1
   ALL = 2
+  
 
-
+class CreatureTypes(Enum):
+  ALL = 0
+  PIRATES = 1
+  BEASTS = 2
+  ELEMENTALS = 3
+  TOTEMS = 4
 
 class Durations(Enum):
   TURN = 0
@@ -46,7 +48,7 @@ class Methods(Enum):
   TARGETED = 0
   RANDOMLY = 1
   ALL = 2
-  NONE = 3
+  SELF = 3
 
 
 class CardSets(Enum):
@@ -59,13 +61,15 @@ class Classes(Enum):
   HUNTER = 0
 
 
-class CardType(Enum):
+class CardTypes(Enum):
   MINION = 0
   SPELL = 1
   WEAPON = 2
   HERO_POWER = 3
 
-class EffectType(Enum):
-  GAIN_MANA = 0
-  DEAL_DAMAGE = 1
-  CHANGE_STATS = 2
+
+class ParamTypes(Enum):
+  Keyword = 0
+  CreatureType = 1
+  X = 2
+  XY = 3

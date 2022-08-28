@@ -6,13 +6,7 @@ class Hand():
 
     
   def remove(self, card):
-    # print(self.hand)
-    # for card in self.hand:
-    #   print(id(card))
-    # print(self)
-    # print(card)
-    # print(id(card))
-    # print(card in self.hand)
+
     self.hand.remove(card)
 
   def add(self, card):

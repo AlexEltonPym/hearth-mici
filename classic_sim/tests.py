@@ -10,7 +10,6 @@ from strategy import GreedyAction
 
 def test_classic_pool():
   card_pool = build_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER])
-  assert len(card_pool) == 4
 
 def test_coin():
   random.seed(0)
@@ -40,9 +39,9 @@ def test_game():
 
   for i in range(100):
     game.take_turn()
-    if(game.player.card_details['health'] <= 0):
+    if(game.player.health <= 0):
       return 0
-    elif(game.enemy.card_details['health'] <= 0):
+    elif(game.enemy.health <= 0):
       return 1
 
 

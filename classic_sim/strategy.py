@@ -5,7 +5,7 @@ import time
 
 class GreedyAction():
   def mulligan_rule(card):
-    return card.card_details['mana'] < 3
+    return card.mana < 3
   
   def choose_action(state):     
     available_actions = state.get_available_actions(state.current_player)
@@ -22,13 +22,13 @@ class GreedyAction():
   def get_score(possible_state, turn_passed):
     if turn_passed:
       return -100
-    hp = possible_state.current_player.card_details['health']
-    enemy_hp = possible_state.current_player.other_player.card_details['health']
+    hp = possible_state.current_player.health
+    enemy_hp = possible_state.current_player.other_player.health
     return hp - enemy_hp
 
 class RandomAction():
   def mulligan_rule(card):
-    return card.card_details['mana'] < 3
+    return card.mana < 3
   
   def choose_action(state):
     chosen_action = choice(state.get_available_actions(state.current_player))
@@ -39,7 +39,7 @@ class RandomAction():
 
 class RandomNoEarlyPassing():
   def mulligan_rule(card):
-    return card.card_details['mana'] < 3
+    return card.mana < 3
   
   def choose_action(state):
     all_available_actions = state.get_available_actions(state.current_player)

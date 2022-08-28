@@ -1,34 +1,37 @@
 from card import Card
 from enums import *
+from effects import GainMana, DealDamage, ChangeStats
 
 def get_utility_card(utility_card):
-  the_coin = Card('The coin', {'card_type': CardType.SPELL, 'mana': 0, 'effects': [{'effect_type': EffectType.GAIN_MANA, 'amount': 1, 'method': Methods.NONE, 'duration': Durations.TURN, 'trigger': Triggers.BATTLECRY}]} )
+  the_coin = Card(name='The coin', card_type=CardTypes.SPELL, mana=0, \
+                  effects=[GainMana(amount = 1, method = Methods.SELF,\
+                  duration = Durations.TURN, trigger=Triggers.CAST)])
   utility_cards = {'coin': the_coin}
   return utility_cards[utility_card]
 
 def get_hero_power(hero_class): 
-  hunter_hero_power = Card('Hunter hero power', {'card_type': CardType.HERO_POWER, 'mana': 2, 'effects':[{'effect_type': EffectType.DEAL_DAMAGE, 'amount': 2, 'method': Methods.ALL, 'targets': Targets.HEROES, 'filter': Filters.ENEMY}]})
+  hunter_hero_power = Card(name='Hunter hero power', card_type=CardTypes.HERO_POWER, mana=2, \
+                          effects=[DealDamage(amount=2, method=Methods.ALL, \
+                          target=Targets.HEROES, owner_filter=OwnerFilters.ENEMY, trigger=Triggers.CAST)])
   hero_powers = {Classes.HUNTER: hunter_hero_power}
   return hero_powers[hero_class]
 
 def get_hunter_cards():
-  elven_archer = Card('Elven archer', {'card_type': CardType.MINION, 'mana': 1, 'attack':1, 'health':1, 'effects':[{'effect_type': EffectType.DEAL_DAMAGE, 'amount': 1, 'method': Methods.TARGETED,'targets': Targets.MINIONS_OR_HEROES, 'filter': Filters.ALL, 'trigger': Triggers.BATTLECRY}]})
-  basic_minion = Card('Basic minion', {'card_type': CardType.MINION, 'minion_type': Targets.ELEMENTALS, 'mana': 4, 'attack':5, 'health':5, 'effects':[]})
-  taunt_minion = Card('Taunt minion', {'card_type': CardType.MINION, 'mana': 1, 'attack':5, 'health':5, 'effects':[], 'attributes': [Attributes.TAUNT]})
-
-  hunter_cards = [elven_archer, basic_minion, taunt_minion]
+  hunter_cards = []
 
   return hunter_cards
 
 def get_op_cards():
-  big_minion = Card('Big minion', {'card_type': CardType.MINION, 'mana': 0, 'attack': 100, 'health': 100, 'effects': [] })
-  op_cards = [big_minion]
+  op_cards = []
   return op_cards
 
 def get_classic_cards():
-  wisp = Card('Wisp', {'card_type': CardType.MINION, 'mana': 0, 'attack':1, 'health': 1})
-  abusive_sergeant = Card('Abusive Sergeant', {'card_type': CardType.MINION, 'mana': 1, 'attack':1, 'health': 1, 'effects': []})
-  classic_cards = [wisp]
+  wisp = Card(name='Wisp', card_type = CardTypes.MINION, mana = 0, attack = 1, health = 1)
+  abusive_sergeant = Card(name='Abusive Sergeant', card_type=CardTypes.MINION, mana=1, attack=1, health=1,\
+                          effects=[ChangeStats(attack_amount=2, health_amount=0, method = Methods.TARGETED,\
+                          target=Targets.MINIONS, owner_filter = OwnerFilters.ALL, duration = Durations.TURN,\
+                          trigger= Triggers.BATTLECRY, type_filter=CreatureTypes.ALL)])
+  classic_cards = [wisp, abusive_sergeant]
   return classic_cards
 
 def build_pool(set_names):

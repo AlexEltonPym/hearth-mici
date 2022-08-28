@@ -22,8 +22,11 @@ def main():
   player = Player(Classes.HUNTER, mirror_deck, RandomNoEarlyPassing)
   enemy = Player(Classes.HUNTER, mirror_deck, RandomNoEarlyPassing)
 
-  game_results = Parallel(n_jobs=-1, verbose=10)(delayed(run_games)(player, enemy) for i in range(1))
-  print(mean(game_results))
+  # game_results = Parallel(n_jobs=-1, verbose=10)(delayed(run_games)(player, enemy) for i in range(1))
+  # print(mean(game_results))
+
+  game_results = run_games(player,enemy)
+  print(game_results)
 
 def run_games(player, enemy):
   games = np.empty(NUM_GAMES)
