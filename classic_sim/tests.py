@@ -63,6 +63,39 @@ def test_hunter_hero_power():
   game.perform_action(use_hero_power)
   assert game.current_player.other_player.health == 28
 
+def test_argent_squire():
+  random.seed(0)
+  card_pool = build_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER])
+  _player = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
+  _enemy = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
+  game = Game(_player, _enemy)
+
+  new_squire = get_from_name(card_pool, 'Argent squire')
+  new_squire.owner = game.current_player.other_player
+  new_squire.parent = game.current_player.other_player.board
+  game.current_player.other_player.board.add(new_squire)
+  assert Attributes.DIVINE_SHIELD in new_squire.attributes
+  
+  new_wisp = get_from_name(card_pool, 'Wisp')
+  new_wisp.owner = game.current_player
+  new_wisp.parent = game.current_player.board
+  game.current_player.board.add(new_wisp)
+  assert new_wisp.attack == 1
+
+  attack_squire = {'action_type': Actions.ATTACK, 'source': new_wisp, 'target': new_squire}
+  game.perform_action(attack_squire)
+  assert Attributes.DIVINE_SHIELD not in new_squire.attributes
+  assert new_wisp.parent == game.current_player.graveyard
+  
+  another_wisp = get_from_name(card_pool, 'Wisp')
+  another_wisp.owner = game.current_player
+  another_wisp.parent = game.current_player.board
+  game.current_player.board.add(another_wisp)
+  attack_squire = {'action_type': Actions.ATTACK, 'source': another_wisp, 'target': new_squire}
+  game.perform_action(attack_squire)
+  assert new_squire.parent == game.current_player.other_player.graveyard
+
+
 def test_game():
   seed = random.randrange(1000)
   random.seed(seed)
@@ -85,7 +118,7 @@ def test_game():
   assert True
 
 def main():
-  test_hunter_hero_power()
+  test_argent_squire()
 
 if __name__ == '__main__':
   main()

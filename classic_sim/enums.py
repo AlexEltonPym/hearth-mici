@@ -4,6 +4,7 @@ from enum import Enum
 class Attributes(Enum):
   TAUNT = 0
   LIFESTEAL = 1
+  DIVINE_SHIELD = 2
 
 
 class Triggers(Enum):

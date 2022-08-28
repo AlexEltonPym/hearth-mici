@@ -7,13 +7,17 @@ import copy
 
 class Game():
   def __init__(self, player, enemy):
-  
     self.player = copy.deepcopy(player)
     self.enemy = copy.deepcopy(enemy)
+    self.setup_players()
+    self.start_game()
 
+  
+  def setup_players(self):
     self.player.other_player = self.enemy
-    self.player.name = 'player'
     self.enemy.other_player = self.player
+
+    self.player.name = 'player'
     self.enemy.name = 'enemy'
 
     self.player.deck.update_owner(self.player)
@@ -27,18 +31,19 @@ class Game():
     self.enemy.hero_power.owner = self.enemy
     self.enemy.hero_power.parent = self.enemy
 
-
-    self.current_player = choice([self.player, self.enemy])
-
+  def start_game(self):
     self.player.deck.shuffle()
     self.enemy.deck.shuffle()
+    
+    self.current_player = choice([self.player, self.enemy])
 
     self.draw(self.current_player, 4)
     self.mulligan(self.current_player)
+
     self.draw(self.current_player.other_player, 3)
     self.mulligan(self.current_player.other_player)
     self.add_coin(self.current_player.other_player)
-  
+
   def untap(self):
     self.current_player.max_mana += 1
     self.current_player.current_mana = self.current_player.max_mana
@@ -105,15 +110,31 @@ class Game():
       effect.resolve_action(action)
 
   def handle_attack(self, action):
-    action['target'].health -= action['source'].attack + action['source'].temp_attack
-    action['source'].has_attacked = True
+    if Attributes.DIVINE_SHIELD in action['target'].attributes:
+      action['target'].attributes.remove(Attributes.DIVINE_SHIELD)
+      action['source'].has_attacked = True
+      if Attributes.DIVINE_SHIELD in action['source'].attributes:
+        action['source'].attributes.remove(Attributes.DIVINE_SHIELD)
+      else:
+        action['source'].health -= action['target'].attack + action['target'].temp_attack
+        if type(action['source']) != Player and action['source'].health <= 0:
+          action['source'].parent.remove(action['source'])
+          action['source'].owner.graveyard.add(action['source'])
+          action['source'].parent = action['source'].owner.graveyard
+    else:
+      action['target'].health -= action['source'].attack + action['source'].temp_attack
+      action['source'].has_attacked = True
+      action['source'].health -= action['target'].attack + action['target'].temp_attack
 
     if type(action['target']) != Player and action['target'].health <= 0:
       action['target'].parent.remove(action['target'])
       action['target'].owner.graveyard.add(action['target'])
       action['target'].parent = action['target'].owner.graveyard
 
-
+    if type(action['source']) != Player and action['source'].health <= 0:
+      action['source'].parent.remove(action['source'])
+      action['source'].owner.graveyard.add(action['source'])
+      action['source'].parent = action['source'].owner.graveyard
 
 
 
@@ -237,7 +258,7 @@ class Game():
   def get_minion_attack_actions(self, player):
     minion_attack_options = []
     for minion in player.board.get_all():
-      if not minion.has_attacked:
+      if not minion.has_attacked and minion.attack+minion.temp_attack > 0:
         for target in self.get_available_targets(minion):
           minion_attack_options.append({'action_type': Actions.ATTACK, 'source': minion, 'target': target})
 

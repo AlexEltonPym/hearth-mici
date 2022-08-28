@@ -19,8 +19,8 @@ def main():
   hunter_pool = build_pool([CardSets.CLASSIC_HUNTER, CardSets.CLASSIC_NEUTRAL])
   op_pool = build_pool([CardSets.OP_CARDS])
   mirror_deck = Deck().generate_random(hunter_pool)
-  player = Player(Classes.HUNTER, mirror_deck, RandomNoEarlyPassing)
-  enemy = Player(Classes.HUNTER, mirror_deck, RandomNoEarlyPassing)
+  player = Player(Classes.HUNTER, mirror_deck, GreedyAction)
+  enemy = Player(Classes.HUNTER, mirror_deck, GreedyAction)
 
   # game_results = Parallel(n_jobs=-1, verbose=10)(delayed(run_games)(player, enemy) for i in range(1))
   # print(mean(game_results))

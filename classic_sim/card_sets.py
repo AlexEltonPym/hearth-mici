@@ -32,7 +32,9 @@ def get_classic_cards():
                           effects=[ChangeStats(attack_amount=2, health_amount=0, method = Methods.TARGETED,\
                           target=Targets.MINIONS, owner_filter = OwnerFilters.ALL, duration = Durations.TURN,\
                           trigger= Triggers.BATTLECRY, type_filter=CreatureTypes.ALL)])
-  classic_cards = [wisp, abusive_sergeant]
+  argent_squire = Card(name='Argent squire', card_type=CardTypes.MINION, mana = 1, attack=1, health=1,\
+                       attributes=[Attributes.DIVINE_SHIELD])
+  classic_cards = [wisp, abusive_sergeant, argent_squire]
   return classic_cards
 
 def build_pool(set_names):

@@ -2,14 +2,14 @@ from enums import *
 from player import Player
 
 class GainMana():
+  available_methods = [Methods.SELF, Methods.TARGETED, Methods.RANDOMLY, Methods.ALL]
+  param_type = ParamTypes.X
+  available_targets = [Targets.HEROES]
+  available_filters = [f for f in OwnerFilters]
+  available_type_filters = []
+  available_durations = [Durations.TURN, Durations.PERMANENTLY]
+  available_triggers = [Triggers.BATTLECRY, Triggers.DEATHRATTLE]
   def __init__(self, method, amount, duration, trigger, target=None, owner_filter=None):
-    self.available_methods = [Methods.SELF, Methods.TARGETED, Methods.RANDOMLY, Methods.ALL]
-    self.param_type = ParamTypes.X
-    self.available_targets = [Targets.HEROES]
-    self.available_filters = [f for f in OwnerFilters]
-    self.available_type_filters = []
-    self.available_durations = [Durations.TURN, Durations.PERMANENTLY]
-    self.available_triggers = [Triggers.BATTLECRY, Triggers.DEATHRATTLE]
 
     self.method = method
     self.amount = amount
@@ -27,14 +27,15 @@ class GainMana():
 
 
 class DealDamage():
+  available_methods = [Methods.TARGETED, Methods.RANDOMLY, Methods.ALL]
+  param_type = ParamTypes.X
+  available_targets = [Targets.MINIONS, Targets.HEROES, Targets.MINIONS_OR_HEROES]
+  available_filters = [f for f in OwnerFilters]
+  available_type_filters = [c for c in CreatureTypes]
+  available_durations = []
+  available_triggers = [Triggers.BATTLECRY, Triggers.DEATHRATTLE]
+
   def __init__(self, method, amount, target, owner_filter, trigger, type_filter=None):
-    self.available_methods = [Methods.TARGETED, Methods.RANDOMLY, Methods.ALL]
-    self.param_type = ParamTypes.X
-    self.available_targets = [Targets.MINIONS, Targets.HEROES, Targets.MINIONS_OR_HEROES]
-    self.available_filters = [f for f in OwnerFilters]
-    self.available_type_filters = [c for c in CreatureTypes]
-    self.available_durations = []
-    self.available_triggers = [Triggers.BATTLECRY, Triggers.DEATHRATTLE]
 
     self.method = method
     self.amount = amount
@@ -44,6 +45,10 @@ class DealDamage():
     self.trigger = trigger
 
   def resolve_action(self, action):
+    if Attributes.DIVINE_SHIELD in action['target'].attributes:
+      action['target'].attributes.remove(Attributes.DIVINE_SHIELD)
+      return
+
     action['target'].health -= self.amount
     if not isinstance(action['target'], Player) and action['target'].health <= 0:
       action['target'].parent.remove(action['target'])
@@ -52,15 +57,14 @@ class DealDamage():
 
 
 class ChangeStats():
+  available_methods = [Methods.TARGETED, Methods.RANDOMLY, Methods.ALL]
+  param_type = ParamTypes.XY
+  available_targets = [Targets.MINIONS, Targets.HEROES, Targets.MINIONS_OR_HEROES, Targets.WEAPONS]
+  available_filters = [f for f in OwnerFilters]
+  available_type_filters = [c for c in CreatureTypes]
+  available_durations = [Durations.TURN, Durations.PERMANENTLY]
+  available_triggers = [Triggers.BATTLECRY]
   def __init__(self, method, attack_amount, health_amount, target, owner_filter, type_filter, trigger, duration):
-    self.available_methods = [Methods.TARGETED, Methods.RANDOMLY, Methods.ALL]
-    self.param_type = ParamTypes.XY
-    self.available_targets = [Targets.MINIONS, Targets.HEROES, Targets.MINIONS_OR_HEROES, Targets.WEAPONS]
-    self.available_filters = [f for f in OwnerFilters]
-    self.available_type_filters = [c for c in CreatureTypes]
-    self.available_durations = [Durations.TURN, Durations.PERMANENTLY]
-    self.available_triggers = [Triggers.BATTLECRY]
-
     self.method = method
     self.attack_amount = attack_amount
     self.health_amount = health_amount
@@ -77,3 +81,4 @@ class ChangeStats():
     else:
       action['target'].attack += self.attack_amount
       action['target'].health += self.health_amount
+
