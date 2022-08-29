@@ -11,7 +11,7 @@ from tqdm import tqdm
 from statistics import mean
 from joblib import Parallel, delayed
 
-NUM_GAMES = 100
+NUM_GAMES = 50
 
 def main():
 
@@ -30,11 +30,13 @@ def main():
 
 def run_games(player, enemy):
   games = np.empty(NUM_GAMES)
+  game = Game(player, enemy)
+
   for i in tqdm(range(NUM_GAMES)):
-    game = Game(player, enemy)
     games[i] = game.simulate_game()
+    game.reset_game()
+    
   return games.mean()
-  
 
 if __name__ == '__main__':
   main()

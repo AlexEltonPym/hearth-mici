@@ -6,14 +6,18 @@ from effects import *
 import copy
 
 class Game():
-  def __init__(self, player, enemy):
-    self.player = copy.deepcopy(player)
-    self.enemy = copy.deepcopy(enemy)
+  def __init__(self, _player, _enemy):
+    self.original_player = _player
+    self.original_enemy = _enemy
+
     self.setup_players()
     self.start_game()
 
   
   def setup_players(self):
+
+    self.player = copy.deepcopy(self.original_player)
+    self.enemy = copy.deepcopy(self.original_enemy)
     self.player.other_player = self.enemy
     self.enemy.other_player = self.player
 
@@ -24,11 +28,11 @@ class Game():
     self.enemy.deck.update_owner(self.enemy)
 
     self.player.hero_power = get_hero_power(self.player.player_class)
-    self.player.hero_power.owner = self.player
+    self.player.hero_power.set_owner(self.player)
     self.player.hero_power.parent = self.player
 
     self.enemy.hero_power = get_hero_power(self.enemy.player_class)
-    self.enemy.hero_power.owner = self.enemy
+    self.enemy.hero_power.set_owner(self.enemy)
     self.enemy.hero_power.parent = self.enemy
 
   def start_game(self):
@@ -43,6 +47,19 @@ class Game():
     self.draw(self.current_player.other_player, 3)
     self.mulligan(self.current_player.other_player)
     self.add_coin(self.current_player.other_player)
+
+  def reset_game(self):
+
+    for player in [self.player, self.enemy]:
+      player.health = 30
+      player.weapon = None
+      player.had_attacked = False
+
+      all_cards = player.graveyard.get_all() + player.board.get_all() + player.hand.get_all()
+      for card in all_cards:
+        card.has_attacked = False
+        card.health = card.original_health
+        card.change_parent(card.owner.deck)
 
   def untap(self):
     self.current_player.max_mana += 1
@@ -59,16 +76,17 @@ class Game():
   def take_turn(self):
     self.untap()
     turn_passed = False
+
     while not turn_passed:
+
       turn_passed = self.current_player.strategy.choose_action(self)
       if turn_passed:
         self.current_player = self.current_player.other_player
 
   def add_coin(self, player):
     coin = get_utility_card('coin')
-    coin.owner = player
-    coin.parent = player.hand
-    player.hand.add(coin)
+    coin.set_owner(player)
+    coin.set_parent(coin.owner.hand)
 
   def perform_action(self, action):
     if action['action_type'] == Actions.CAST_MINION:
@@ -87,56 +105,40 @@ class Game():
     self.current_player.used_hero_power = True
     self.current_player.current_mana -= action['source'].mana
     for effect in action['source'].effects:
-      effect.resolve_action(action)
+      effect.resolve_action(self, action)
 
 
   def cast_minion(self, action):
     self.current_player.current_mana -= action['source'].mana
-    action['source'].parent = self.current_player.board
-    self.current_player.board.add(action['source'])
-    self.current_player.hand.remove(action['source'])
+    # print(f"casting {action['source']}")
+    action['source'].change_parent(action['source'].owner.board)
+
     for effect in action['source'].effects:
       if effect.trigger == Triggers.BATTLECRY:
-
-        effect.resolve_action(action)
+        effect.resolve_action(self, action)
 
 
   def cast_spell(self, action):
     self.current_player.current_mana -= action['source'].mana
-    self.current_player.hand.remove(action['source'])
-    action['source'].parent = self.current_player.graveyard
-    self.current_player.graveyard.add(action['source'])
+    action['source'].change_parent(action['source'].owner.graveyard)
     for effect in action['source'].effects:
-      effect.resolve_action(action)
+      effect.resolve_action(self, action)
 
   def handle_attack(self, action):
-    if Attributes.DIVINE_SHIELD in action['target'].attributes:
-      action['target'].attributes.remove(Attributes.DIVINE_SHIELD)
-      action['source'].has_attacked = True
-      if Attributes.DIVINE_SHIELD in action['source'].attributes:
-        action['source'].attributes.remove(Attributes.DIVINE_SHIELD)
-      else:
-        action['source'].health -= action['target'].attack + action['target'].temp_attack
-        if type(action['source']) != Player and action['source'].health <= 0:
-          action['source'].parent.remove(action['source'])
-          action['source'].owner.graveyard.add(action['source'])
-          action['source'].parent = action['source'].owner.graveyard
+    self.deal_damage(action['target'], action['source'].attack + action['source'].temp_attack)
+    self.deal_damage(action['source'], action['target'].attack + action['target'].temp_attack)
+    action['source'].has_attacked = True
+
+  def deal_damage(self, target, amount):
+    if Attributes.DIVINE_SHIELD in target.attributes:
+      target.attributes.remove(Attributes.DIVINE_SHIELD)
     else:
-      action['target'].health -= action['source'].attack + action['source'].temp_attack
-      action['source'].has_attacked = True
-      action['source'].health -= action['target'].attack + action['target'].temp_attack
+      target.health -= amount
+      self.check_dead(target)
 
-    if type(action['target']) != Player and action['target'].health <= 0:
-      action['target'].parent.remove(action['target'])
-      action['target'].owner.graveyard.add(action['target'])
-      action['target'].parent = action['target'].owner.graveyard
-
-    if type(action['source']) != Player and action['source'].health <= 0:
-      action['source'].parent.remove(action['source'])
-      action['source'].owner.graveyard.add(action['source'])
-      action['source'].parent = action['source'].owner.graveyard
-
-
+  def check_dead(self, card):
+    if card.health <= 0 and not isinstance(card, Player):
+      card.change_parent(card.owner.graveyard)
 
   def get_available_targets(self, card):
     targets = []
@@ -185,7 +187,6 @@ class Game():
     available_actions = []
 
     available_actions.extend(self.get_minion_attack_actions(player))
-
     available_actions.extend(self.get_hero_attack_actions(player))
     available_actions.extend(self.get_playable_minion_actions(player))
     available_actions.extend(self.get_playable_spells_actions(player))
@@ -196,13 +197,13 @@ class Game():
 
   def deck_to_hand(self, player):
     new_card = player.deck.pop()
-    new_card.parent = player.hand
-    player.hand.add(new_card)
+    new_card.set_parent(new_card.owner.hand)
+    # print(f"drawing {new_card}")
+
 
   def deck_to_graveyard(self, player):
     new_card = player.deck.pop()
-    new_card.parent = player.graveyard
-    player.graveyard.add(new_card)
+    new_card.set_parent(new_card.owner.graveyard)
 
   def draw(self, player, num_to_draw):
     for i in range(num_to_draw):
@@ -219,9 +220,7 @@ class Game():
     mulligan_count = 0
     for card in player.hand.get_all():
       if not player.strategy.mulligan_rule(card):
-        player.hand.remove(card)
-        card.parent = player.deck
-        player.deck.add(card)
+        card.change_parent(card.owner.deck)
         mulligan_count += 1
 
     player.deck.shuffle()
@@ -275,6 +274,11 @@ class Game():
 
   def get_playable_minion_actions(self, player):
     playable_minion_actions = []
+    # print(len(player.hand.get_all()))
+    # print(player.hand.get_all())
+    # for index, card in enumerate(player.hand.get_all()):
+    #   print(index, card)
+
     if len(player.board.get_all()) < 7:
       for card in filter(lambda card: card.mana <= player.current_mana and card.card_type == CardTypes.MINION, player.hand.get_all()):
         has_battlecry = False
@@ -293,10 +297,9 @@ class Game():
 
 
   def simulate_game(self):
-    for _ in range(8000):
+    for _ in range(100):
 
       self.take_turn()
-
       if(self.player.health <= 0):
         return 0
       elif(self.enemy.health <= 0):

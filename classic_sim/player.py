@@ -14,6 +14,8 @@ class Player():
     self.attack = 0
     self.armor = 0
     self.attributes = []
+    self.temp_attack = 0
+    self.temp_health = 0
 
     self.current_mana = 0
     self.max_mana = 0

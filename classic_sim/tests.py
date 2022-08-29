@@ -97,18 +97,22 @@ def test_argent_squire():
 
 
 def test_game():
-  seed = random.randrange(1000)
-  random.seed(seed)
-  print("Seed was:", seed)
-  # random.seed(283)
+  # seed = random.randrange(1000)
+  # random.seed(seed)
+  # print("Seed was:", seed)
+  random.seed(0)
   card_pool = build_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER])
   _player = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
   _enemy = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
   game = Game(_player, _enemy)
 
+  # print(f"board: {game.player.board.get_all()}")
+  # print(f"hand: {game.player.hand.get_all()}")
   for i in range(100):
     game.take_turn()
-    print(game.current_player.board.get_all())
+    # print(f"board: {game.player.board.get_all()}")
+    # print(f"hand: {game.player.hand.get_all()}")
+    
     if(game.player.health <= 0):
       return 0
     elif(game.enemy.health <= 0):
@@ -118,7 +122,7 @@ def test_game():
   assert True
 
 def main():
-  test_argent_squire()
+  test_game()
 
 if __name__ == '__main__':
   main()

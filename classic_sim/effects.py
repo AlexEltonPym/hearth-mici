@@ -18,7 +18,7 @@ class GainMana():
     self.duration = duration
     self.trigger = trigger
 
-  def resolve_action(self, action):
+  def resolve_action(self, game, action):
     if self.duration == Durations.TURN:
       action['target'].current_mana += self.amount
     elif self.duration == Durations.PERMANENTLY:
@@ -36,7 +36,6 @@ class DealDamage():
   available_triggers = [Triggers.BATTLECRY, Triggers.DEATHRATTLE]
 
   def __init__(self, method, amount, target, owner_filter, trigger, type_filter=None):
-
     self.method = method
     self.amount = amount
     self.target = target
@@ -44,17 +43,9 @@ class DealDamage():
     self.type_filter = type_filter
     self.trigger = trigger
 
-  def resolve_action(self, action):
-    if Attributes.DIVINE_SHIELD in action['target'].attributes:
-      action['target'].attributes.remove(Attributes.DIVINE_SHIELD)
-      return
-
-    action['target'].health -= self.amount
-    if not isinstance(action['target'], Player) and action['target'].health <= 0:
-      action['target'].parent.remove(action['target'])
-      action['target'].owner.graveyard.add(action['target'])
-      action['target'].parent = action['target'].owner.graveyard
-
+  def resolve_action(self, game, action):
+    game.deal_damage(action['target'], self.amount)
+    
 
 class ChangeStats():
   available_methods = [Methods.TARGETED, Methods.RANDOMLY, Methods.ALL]
@@ -74,7 +65,7 @@ class ChangeStats():
     self.trigger = trigger
     self.duration = duration
 
-  def resolve_action(self, action):
+  def resolve_action(self, game, action):
     if self.duration == Durations.TURN:
       action['target'].temp_attack += self.attack_amount
       action['target'].temp_health += self.health_amount

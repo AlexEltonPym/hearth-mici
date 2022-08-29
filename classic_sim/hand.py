@@ -19,10 +19,10 @@ class Hand():
     return key in self.hand
 
   def __str__(self):
-    return str([id(card) for card in self.hand])
-    # return str((self.name, self.parent.name, self.hand))
+    # return str([id(card) for card in self.hand])
+    return str((self.name, self.parent.name))
 
   def __repr__(self):
-    return str([id(card) for card in self.hand])
+    # return str([id(card) for card in self.hand])
 
-    return str((self.name, self.parent.name, self.hand))
+    return str((self.name, self.parent.name))
