@@ -41,15 +41,13 @@ def test_abusive_sergeant():
   game = Game(_player, _enemy)
 
   new_wisp = get_from_name(card_pool, 'Wisp')
-  new_wisp.owner = game.current_player
-  new_wisp.parent = game.current_player.board
-  game.current_player.board.add(new_wisp)
+  new_wisp.set_owner(game.current_player)
+  new_wisp.set_parent(game.current_player.board)
   assert new_wisp.attack == 1
 
   new_card = get_from_name(card_pool, 'Abusive sergeant')
-  new_card.owner = game.current_player
-  new_card.parent = game.current_player.hand
-  game.current_player.hand.add(new_card)
+  new_card.set_owner(game.current_player)
+  new_card.set_parent(game.current_player.hand)
 
   buff_wisp = {'action_type': Actions.CAST_MINION, 'source': new_card, 'target': new_wisp}
   game.perform_action(buff_wisp)
@@ -78,15 +76,13 @@ def test_argent_squire():
   game = Game(_player, _enemy)
 
   new_squire = get_from_name(card_pool, 'Argent squire')
-  new_squire.owner = game.current_player.other_player
-  new_squire.parent = game.current_player.other_player.board
-  game.current_player.other_player.board.add(new_squire)
+  new_squire.set_owner(game.current_player.other_player)
+  new_squire.set_parent(game.current_player.other_player.board)
   assert Attributes.DIVINE_SHIELD in new_squire.attributes
   
   new_wisp = get_from_name(card_pool, 'Wisp')
-  new_wisp.owner = game.current_player
-  new_wisp.parent = game.current_player.board
-  game.current_player.board.add(new_wisp)
+  new_wisp.set_owner(game.current_player)
+  new_wisp.set_parent(game.current_player.board)
   assert new_wisp.attack == 1
 
   attack_squire = {'action_type': Actions.ATTACK, 'source': new_wisp, 'target': new_squire}
@@ -95,9 +91,8 @@ def test_argent_squire():
   assert new_wisp.parent == game.current_player.graveyard
   
   another_wisp = get_from_name(card_pool, 'Wisp')
-  another_wisp.owner = game.current_player
-  another_wisp.parent = game.current_player.board
-  game.current_player.board.add(another_wisp)
+  another_wisp.set_owner(game.current_player)
+  another_wisp.set_parent(game.current_player.board)
   attack_squire = {'action_type': Actions.ATTACK, 'source': another_wisp, 'target': new_squire}
   game.perform_action(attack_squire)
   assert new_squire.parent == game.current_player.other_player.graveyard
