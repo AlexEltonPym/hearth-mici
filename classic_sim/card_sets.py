@@ -34,7 +34,10 @@ def get_classic_cards():
                           trigger= Triggers.BATTLECRY, type_filter=CreatureTypes.ALL)])
   argent_squire = Card(name='Argent squire', card_type=CardTypes.MINION, mana = 1, attack=1, health=1,\
                        attributes=[Attributes.DIVINE_SHIELD])
-  classic_cards = [wisp, abusive_sergeant, argent_squire]
+  leper_gnome = Card(name='Leper gnome', card_type=CardTypes.MINION, mana=1, attack=2, health=1,\
+                    effects=[DealDamage(amount=2, method=Methods.ALL, target=Targets.HEROES,\
+                    owner_filter=OwnerFilters.ENEMY, trigger=Triggers.DEATHRATTLE)])
+  classic_cards = [wisp, abusive_sergeant, argent_squire, leper_gnome]
   return classic_cards
 
 def build_pool(set_names):

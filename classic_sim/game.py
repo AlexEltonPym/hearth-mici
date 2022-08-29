@@ -102,6 +102,8 @@ class Game():
       self.cast_minion(action)
     elif action['action_type'] == Actions.CAST_SPELL:
       self.cast_spell(action)
+    elif action['action_type'] == Actions.CAST_EFFECT:
+      self.cast_effect(action)
     elif action['action_type'] == Actions.ATTACK:
       self.handle_attack(action)
     elif action['action_type'] == Actions.CAST_HERO_POWER:
@@ -133,6 +135,10 @@ class Game():
     for effect in action['source'].effects:
       effect.resolve_action(self, action)
 
+  def cast_effect(self, action):
+    for effect in action['source'].effects:
+      effect.resolve_action(self, action)
+
   def handle_attack(self, action):
     self.deal_damage(action['target'], action['source'].attack + action['source'].temp_attack)
     self.deal_damage(action['source'], action['target'].attack + action['target'].temp_attack)
@@ -147,6 +153,11 @@ class Game():
 
   def check_dead(self, card):
     if card.health <= 0 and not isinstance(card, Player):
+      for effect in card.effects:
+        if effect.trigger == Triggers.DEATHRATTLE:
+          deathrattle_target = self.get_available_effect_targets(card.owner, card)[0]
+          effect.resolve_action(self, {'action_type': Actions.CAST_EFFECT, 'source': card, 'target': deathrattle_target})
+
       card.change_parent(card.owner.graveyard)
 
   def get_available_targets(self, card):

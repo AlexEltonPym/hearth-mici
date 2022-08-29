@@ -19,6 +19,7 @@ class Actions(Enum):
   CAST_HERO_POWER = 2
   CAST_SPELL = 3
   END_TURN = 4
+  CAST_EFFECT = 5
 
 
 class Targets(Enum):

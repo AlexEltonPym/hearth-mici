@@ -18,7 +18,15 @@ def test_coin():
   _enemy = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
   game = Game(_player, _enemy)
   game.take_turn()
-  cast_coin = game.get_available_actions(game.current_player)[0]
+
+  coin_card = None
+  for card in game.current_player.hand.get_all():
+    if card.name == 'The coin':
+      coin_card = card
+      break
+
+  cast_coin = {'action_type': Actions.CAST_SPELL, 'source': coin_card, 'target': game.current_player}
+
   assert game.current_player.current_mana == 0
   assert cast_coin['source'] in game.current_player.hand.get_all()
   game.perform_action(cast_coin)
@@ -94,6 +102,27 @@ def test_argent_squire():
   game.perform_action(attack_squire)
   assert new_squire.parent == game.current_player.other_player.graveyard
 
+def test_leper_gnome():
+  random.seed(0)
+  card_pool = build_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER])
+  _player = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
+  _enemy = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
+  game = Game(_player, _enemy)
+  
+  new_leper = get_from_name(card_pool, 'Leper gnome')
+  new_leper.set_owner(game.current_player)
+  new_leper.set_parent(game.current_player.board)
+
+  new_wisp = get_from_name(card_pool, 'Wisp')
+  new_wisp.set_owner(game.current_player.other_player)
+  new_wisp.set_parent(game.current_player.other_player.board)
+
+  attack_leper = {'action_type': Actions.ATTACK, 'source': new_leper, 'target': new_wisp}
+  game.perform_action(attack_leper)
+  assert new_leper.parent == new_leper.owner.graveyard
+  assert new_wisp.parent == new_wisp.owner.graveyard
+  assert game.current_player.other_player.health == 28
+  
 
 def test_game():
   # seed = random.randrange(1000)
@@ -121,7 +150,7 @@ def test_game():
   assert True
 
 def main():
-  test_game()
+  test_coin()
 
 if __name__ == '__main__':
   main()
