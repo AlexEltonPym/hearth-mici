@@ -69,8 +69,7 @@ class Game():
     self.current_player.used_hero_power = False
     for minion in self.current_player.board.get_all():
       minion.has_attacked = False
-      minion.temp_attack = 0
-      minion.temp_health = 0
+
 
 
   def take_turn(self):
@@ -78,10 +77,20 @@ class Game():
     turn_passed = False
 
     while not turn_passed:
-
       turn_passed = self.current_player.strategy.choose_action(self)
       if turn_passed:
-        self.current_player = self.current_player.other_player
+        self.end_turn()
+
+  def end_turn(self):
+    self.current_player.temp_attack = 0
+    self.current_player.temp_health = 0
+  
+    for minion in self.current_player.board.get_all():
+      minion.temp_attack = 0
+      minion.temp_health = 0
+
+    self.current_player = self.current_player.other_player
+
 
   def add_coin(self, player):
     coin = get_utility_card('coin')
@@ -294,7 +303,6 @@ class Game():
         if not has_battlecry:
           playable_minion_actions.append({'action_type': Actions.CAST_MINION, 'source': card, 'target': player.board})
     return playable_minion_actions
-
 
   def simulate_game(self):
     for _ in range(100):

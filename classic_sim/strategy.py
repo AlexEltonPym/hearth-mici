@@ -2,6 +2,7 @@ from random import choice, random
 from copy import deepcopy
 from enums import Actions
 import time
+import _pickle as cPickle
 
 class GreedyAction():
   def mulligan_rule(card):
@@ -12,7 +13,8 @@ class GreedyAction():
     # print(available_actions)
     possible_actions = []
     for action_index in range(len(available_actions)):
-      possible_state = deepcopy(state)
+      possible_state = cPickle.loads(cPickle.dumps(state, -1))
+      # possible_state = deepcopy(state)
       turn_passed = possible_state.perform_action(possible_state.get_available_actions(possible_state.current_player)[action_index])
 
       state_score = GreedyAction.get_score(possible_state, turn_passed) #must get before passing turn

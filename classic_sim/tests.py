@@ -18,7 +18,6 @@ def test_coin():
   _enemy = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
   game = Game(_player, _enemy)
   game.take_turn()
-  assert get_utility_card('coin') in game.current_player.hand.get_all()
   cast_coin = game.get_available_actions(game.current_player)[0]
   assert game.current_player.current_mana == 0
   assert cast_coin['source'] in game.current_player.hand.get_all()
@@ -47,7 +46,7 @@ def test_abusive_sergeant():
   buff_wisp = {'action_type': Actions.CAST_MINION, 'source': new_card, 'target': new_wisp}
   game.perform_action(buff_wisp)
   assert new_wisp.temp_attack == 2
-  game.untap()
+  game.end_turn()
   assert new_wisp.temp_attack == 0
 
 def test_hunter_hero_power():
@@ -57,7 +56,7 @@ def test_hunter_hero_power():
   _enemy = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
   game = Game(_player, _enemy)
 
-  assert game.current_player.hero_power == get_hero_power(Classes.HUNTER)
+  assert game.current_player.hero_power.name == get_hero_power(Classes.HUNTER).name
   assert game.current_player.other_player.health == 30
   use_hero_power = {'action_type': Actions.CAST_HERO_POWER, 'source': game.current_player.hero_power, 'target': game.current_player.other_player}
   game.perform_action(use_hero_power)
