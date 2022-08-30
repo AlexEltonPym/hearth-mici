@@ -57,7 +57,6 @@ class Methods(Enum):
   TARGETED = 0
   RANDOMLY = 1
   ALL = 2
-  SELF = 3
 
 
 class CardSets(Enum):
@@ -65,6 +64,7 @@ class CardSets(Enum):
   CLASSIC_NEUTRAL = 1
   OP_CARDS = 2
   TEST_CARDS = 3
+  RANDOM_CARDS = 4
 
 class Classes(Enum):
   HUNTER = 0

@@ -4,7 +4,7 @@ from deck import Deck
 from player import Player
 from game import Game
 from enums import *
-from card_sets import build_pool, get_utility_card, get_from_name, get_hero_power
+from card_sets import *
 from strategy import GreedyAction
 import numpy as np
 from action import Action
@@ -176,6 +176,14 @@ def test_damage_all():
   assert game.enemy.health == 27
   assert wisp.parent == wisp.owner.graveyard
 
+def test_random_damage_card():
+  random.seed(0)
+  card_pool = build_pool([CardSets.CLASSIC_NEUTRAL, CardSets.RANDOM_CARDS])
+  _player = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
+  _enemy = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
+  game = Game(_player, _enemy)
+  print(game.simulate_game())
+
 
 def test_game():
   random.seed(0)
@@ -211,7 +219,7 @@ def test_simulate():
 
 
 def main():
-  test_damage_all()
+  test_random_damage_card()
 
 if __name__ == '__main__':
   main()

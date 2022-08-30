@@ -156,11 +156,15 @@ class Game():
 
   def check_dead(self, card):
     if card.health <= 0 and not isinstance(card, Player):
-      for effect in card.effects:
-        if effect.trigger == Triggers.DEATHRATTLE:
-          deathrattle_target = self.get_available_effect_targets(card.owner, card)[0]
-          effect.resolve_action(self, Action(Actions.CAST_EFFECT, card, [deathrattle_target]))
-
+      for effect in filter(lambda effect: effect.trigger == Triggers.DEATHRATTLE, card.effects):
+        deathrattle_targets = self.get_available_effect_targets(card.owner, card)
+        if len(deathrattle_targets) > 0:
+          if effect.method == Methods.ALL:
+            effect.resolve_action(self, Action(Actions.CAST_EFFECT, card, deathrattle_targets))
+          elif effect.method == Methods.TARGETED:
+            effect.resolve_action(self, Action(Actions.CAST_EFFECT, card, [deathrattle_targets[0]]))
+          elif effect.method == Methods.RANDOMLY:
+            effect.resolve_action(self, Action(Actions.CAST_EFFECT, card, [choice(deathrattle_targets)]))
       card.change_parent(card.owner.graveyard)
 
   def get_available_targets(self, card):
@@ -178,17 +182,14 @@ class Game():
     playable_spell_actions = []
     for card in filter(lambda card: card.mana <= player.current_mana and card.card_type == CardTypes.SPELL, player.hand.get_all()):
       for effect in card.effects:
-        if effect.method == Methods.SELF:
-          playable_spell_actions.append(Action(Actions.CAST_SPELL, card, [player]))
-        else:
-          cast_targets = self.get_available_effect_targets(player, card)
-          if effect.method == Methods.TARGETED:
-            for target in cast_targets:
-              playable_spell_actions.append(Action(Actions.CAST_SPELL, card, [target]))
-          elif effect.method == Methods.RANDOMLY:
-            playable_spell_actions.append(Action(Actions.CAST_SPELL, card, [choice(cast_targets)]))
-          elif effect.method == Methods.ALL:
-            playable_spell_actions.append(Action(Actions.CAST_SPELL, card, cast_targets))
+        cast_targets = self.get_available_effect_targets(player, card)
+        if effect.method == Methods.TARGETED:
+          for target in cast_targets:
+            playable_spell_actions.append(Action(Actions.CAST_SPELL, card, [target]))
+        elif effect.method == Methods.RANDOMLY:
+          playable_spell_actions.append(Action(Actions.CAST_SPELL, card, [choice(cast_targets)]))
+        elif effect.method == Methods.ALL:
+          playable_spell_actions.append(Action(Actions.CAST_SPELL, card, cast_targets))
     return playable_spell_actions
 
   def get_hero_power_actions(self, player):
@@ -196,17 +197,15 @@ class Game():
     if player.current_mana >= 2 and not player.used_hero_power:
 
       for effect in player.hero_power.effects:
-        if effect.method == Methods.SELF:
-          hero_power_actions.append(Action(Actions.CAST_HERO_POWER, player.hero_power, [player]))
-        else:
-          cast_targets = self.get_available_effect_targets(player, player.hero_power)
-          if effect.method == Methods.TARGETED:
-            for target in cast_targets:
-              hero_power_actions.append(Action(Actions.CAST_HERO_POWER, player.hero_power, [target]))
-          elif effect.method == Methods.RANDOMLY:
-            hero_power_actions.append(Action(Actions.CAST_HERO_POWER, player.hero_power, [choice(cast_targets)]))
-          elif effect.method == Methods.ALL:
-            hero_power_actions.append(Action(Actions.CAST_HERO_POWER, player.hero_power, cast_targets))
+    
+        cast_targets = self.get_available_effect_targets(player, player.hero_power)
+        if effect.method == Methods.TARGETED:
+          for target in cast_targets:
+            hero_power_actions.append(Action(Actions.CAST_HERO_POWER, player.hero_power, [target]))
+        elif effect.method == Methods.RANDOMLY:
+          hero_power_actions.append(Action(Actions.CAST_HERO_POWER, player.hero_power, [choice(cast_targets)]))
+        elif effect.method == Methods.ALL:
+          hero_power_actions.append(Action(Actions.CAST_HERO_POWER, player.hero_power, cast_targets))
 
     return hero_power_actions
     

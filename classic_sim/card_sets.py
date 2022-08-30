@@ -2,11 +2,12 @@ from card import Card
 from enums import *
 from effects import GainMana, DealDamage, ChangeStats
 from copy import deepcopy
+import random
 
 def get_utility_card(utility_card):
   the_coin = Card(name='The coin', card_type=CardTypes.SPELL, mana=0, \
-                  effects=[GainMana(amount = 1, method = Methods.SELF,\
-                  duration = Durations.TURN, trigger=Triggers.CAST)])
+                  effects=[GainMana(amount = 1, method = Methods.TARGETED,\
+                  duration = Durations.TURN, trigger=Triggers.CAST, target=Targets.HEROES, owner_filter=OwnerFilters.FRIENDLY)])
   utility_cards = {'coin': the_coin}
   return utility_cards[utility_card]
 
@@ -42,12 +43,33 @@ def get_classic_cards():
   return classic_cards
 
 def get_test_cards():
-  all_dam = Card('All dam', card_type= CardTypes.SPELL, mana=0, attack=1, health=5,\
+  all_dam = Card('All dam', card_type=CardTypes.SPELL, mana=0, attack=1, health=5,\
                 effects=[DealDamage(amount=3, method=Methods.ALL, target=Targets.MINIONS_OR_HEROES,\
                   owner_filter=OwnerFilters.ALL, trigger=Triggers.CAST)]
     )
   test_cards = [all_dam]
   return test_cards
+
+def get_random_cards():
+  return [make_random_damage_card(i) for i in range(10)]
+
+
+def make_random_damage_card(id):
+  _amount = random.randint(1, 10)
+  _method = random.choice(DealDamage.available_methods)
+  _target = random.choice(DealDamage.available_targets)
+  _owner_filter = random.choice(DealDamage.available_owner_filters)
+  _type_filter = random.choice(DealDamage.available_type_filters)
+  _trigger = random.choice(DealDamage.available_triggers)
+
+  rand_damage_card = Card(f'Random damage {id}', card_type=CardTypes.MINION, mana=1, attack=1, health=1,\
+    effects=[DealDamage(amount=_amount, method=_method, target=_target, owner_filter=_owner_filter, type_filter=_type_filter, trigger=_trigger)]
+  )
+
+  print(rand_damage_card.effects)
+
+  return rand_damage_card
+
 
 
 def build_pool(set_names):
@@ -60,6 +82,8 @@ def build_pool(set_names):
     pool.extend(get_op_cards())
   if CardSets.TEST_CARDS in set_names:
     pool.extend(get_test_cards())
+  if CardSets.RANDOM_CARDS in set_names:
+    pool.extend(get_random_cards())
   return pool
 
 def get_from_name(pool, name):
