@@ -11,6 +11,12 @@ class Triggers(Enum):
   BATTLECRY = 0
   DEATHRATTLE = 1
   CAST = 2
+  WEAPON_PLAYED = 3
+  WEAPON_DESTROYED = 4
+  MINION_DIES = 5
+  SPELL_CAST = 6
+  CHARACTER_HEALED = 7
+  MURLOC_SUMMONED = 8
 
 
 class Actions(Enum):
@@ -44,6 +50,7 @@ class CreatureTypes(Enum):
 class Durations(Enum):
   TURN = 0
   PERMANENTLY = 1
+  AURA = 3 #an aura is permentant until the source disapears
 
 
 class Methods(Enum):
@@ -57,7 +64,7 @@ class CardSets(Enum):
   CLASSIC_HUNTER = 0
   CLASSIC_NEUTRAL = 1
   OP_CARDS = 2
-
+  TEST_CARDS = 3
 
 class Classes(Enum):
   HUNTER = 0

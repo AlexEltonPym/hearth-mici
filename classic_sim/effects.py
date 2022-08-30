@@ -10,7 +10,6 @@ class GainMana():
   available_durations = [Durations.TURN, Durations.PERMANENTLY]
   available_triggers = [Triggers.BATTLECRY, Triggers.DEATHRATTLE]
   def __init__(self, method, amount, duration, trigger, target=None, owner_filter=None):
-
     self.method = method
     self.amount = amount
     self.target = target
@@ -19,11 +18,12 @@ class GainMana():
     self.trigger = trigger
 
   def resolve_action(self, game, action):
-    if self.duration == Durations.TURN:
-      action['target'].current_mana += self.amount
-    elif self.duration == Durations.PERMANENTLY:
-      action['target'].current_mana += self.amount
-      action['target'].max_mana += self.amount
+    for target in action.targets:
+      if self.duration == Durations.TURN:
+        target.current_mana += self.amount
+      elif self.duration == Durations.PERMANENTLY:
+        target.current_mana += self.amount
+        target.max_mana += self.amount
 
 
 class DealDamage():
@@ -44,7 +44,8 @@ class DealDamage():
     self.trigger = trigger
 
   def resolve_action(self, game, action):
-    game.deal_damage(action['target'], self.amount)
+    for target in action.targets:
+      game.deal_damage(target, self.amount)
     
 
 class ChangeStats():
@@ -53,7 +54,7 @@ class ChangeStats():
   available_targets = [Targets.MINIONS, Targets.HEROES, Targets.MINIONS_OR_HEROES, Targets.WEAPONS]
   available_filters = [f for f in OwnerFilters]
   available_type_filters = [c for c in CreatureTypes]
-  available_durations = [Durations.TURN, Durations.PERMANENTLY]
+  available_durations = [Durations.TURN, Durations.PERMANENTLY, Durations.AURA]
   available_triggers = [Triggers.BATTLECRY]
   def __init__(self, method, attack_amount, health_amount, target, owner_filter, type_filter, trigger, duration):
     self.method = method
@@ -66,10 +67,11 @@ class ChangeStats():
     self.duration = duration
 
   def resolve_action(self, game, action):
-    if self.duration == Durations.TURN:
-      action['target'].temp_attack += self.attack_amount
-      action['target'].temp_health += self.health_amount
-    else:
-      action['target'].attack += self.attack_amount
-      action['target'].health += self.health_amount
+    for target in action.targets:
+      if self.duration == Durations.TURN:
+        target.temp_attack += self.attack_amount
+        target.temp_health += self.health_amount
+      else:
+        target.attack += self.attack_amount
+        target.health += self.health_amount
 

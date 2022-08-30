@@ -49,7 +49,7 @@ class RandomNoEarlyPassing():
   def choose_action(state):
     all_available_actions = state.get_available_actions(state.current_player)
 
-    available_actions_without_ending = list(filter(lambda x: x['action_type'] != Actions.END_TURN, all_available_actions))
+    available_actions_without_ending = list(filter(lambda x: x.action_type != Actions.END_TURN, all_available_actions))
 
     if len(available_actions_without_ending) > 0:
       chosen_action = choice(available_actions_without_ending)
