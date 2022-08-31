@@ -1,7 +1,7 @@
 from enums import *
 
 class Card():
-  def __init__(self, name, card_type, mana, creature_type=None, attack=None, health=None, attributes=[], effects=[]):
+  def __init__(self, name, card_type, mana, collectable=True, creature_type=None, attack=None, health=None, attributes=[], effect=None):
     self.name = name
     self.card_type = card_type
     self.creature_type = creature_type
@@ -10,12 +10,13 @@ class Card():
     self.health = health
     self.mana = mana
     self.attributes = attributes
-    self.effects = effects
+    self.effect = effect
     self.owner = None
     self.has_attacked = True
     self.parent = None
     self.temp_attack = 0
     self.temp_health = 0
+    self.collectable = collectable
 
   def get_string(self):
     if(self.card_type == CardTypes.MINION):

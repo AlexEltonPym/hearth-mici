@@ -10,7 +10,8 @@ class Attributes(Enum):
 class Triggers(Enum):
   BATTLECRY = 0
   DEATHRATTLE = 1
-  CAST = 2
+
+class Events(Enum):
   WEAPON_PLAYED = 3
   WEAPON_DESTROYED = 4
   MINION_DIES = 5

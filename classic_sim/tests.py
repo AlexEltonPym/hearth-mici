@@ -5,9 +5,10 @@ from player import Player
 from game import Game
 from enums import *
 from card_sets import *
-from strategy import GreedyAction
+from strategy import GreedyAction, RandomAction, RandomNoEarlyPassing
 import numpy as np
 from action import Action
+from tqdm import tqdm
 
 def test_classic_pool():
   card_pool = build_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER])
@@ -176,13 +177,65 @@ def test_damage_all():
   assert game.enemy.health == 27
   assert wisp.parent == wisp.owner.graveyard
 
-def test_random_damage_card():
+
+
+
+def test_random_cards():
   random.seed(0)
-  card_pool = build_pool([CardSets.CLASSIC_NEUTRAL, CardSets.RANDOM_CARDS])
-  _player = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
-  _enemy = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
+  for k in range(10):
+    card_pool = build_pool([CardSets.RANDOM_CARDS])
+    for j in range(10):
+      mirror_deck = Deck().generate_random(card_pool)
+
+      _player = Player(Classes.HUNTER, mirror_deck, RandomNoEarlyPassing)
+      _enemy = Player(Classes.HUNTER, mirror_deck, RandomNoEarlyPassing)
+      game = Game(_player, _enemy)
+
+      game_results = np.empty(100)
+
+      for i in range(100):
+        game_result = game.simulate_game()
+        assert game_result == 1 or game_result == 0
+        game_results[i] = game_result
+        game.reset_game()
+      
+      assert game_results.mean() < 1 and game_results.mean() > 0
+
+def test_big_random_cards():
+  random.seed(0)
+  for k in tqdm(range(100)):
+    card_pool = build_pool([CardSets.RANDOM_CARDS])
+    for j in range(100):
+      mirror_deck = Deck().generate_random(card_pool)
+
+      _player = Player(Classes.HUNTER, mirror_deck, RandomNoEarlyPassing)
+      _enemy = Player(Classes.HUNTER, mirror_deck, RandomNoEarlyPassing)
+      game = Game(_player, _enemy)
+
+      game_results = np.empty(100)
+
+      for i in range(100):
+        game_result = game.simulate_game()
+        assert game_result == 1 or game_result == 0
+        game_results[i] = game_result
+        game.reset_game()
+      
+      assert game_results.mean() < 1 and game_results.mean() > 0
+
+def test_random_card_game():
+  card_pool = build_pool([CardSets.RANDOM_CARDS])
+  mirror_deck = Deck().generate_random(card_pool)
+  _player = Player(Classes.HUNTER, mirror_deck, RandomNoEarlyPassing)
+  _enemy = Player(Classes.HUNTER, mirror_deck, RandomNoEarlyPassing)
   game = Game(_player, _enemy)
-  print(game.simulate_game())
+
+  game_results = np.empty(100)
+
+  for i in range(100):
+    game_results[i] = game.simulate_game()
+    game.reset_game()
+  
+  assert game_results.mean() < 1 and game_results.mean() > 0
 
 
 def test_game():
@@ -203,23 +256,32 @@ def test_game():
   assert False
 
 def test_simulate():
-  random.seed(0)
   hunter_pool = build_pool([CardSets.CLASSIC_HUNTER, CardSets.CLASSIC_NEUTRAL])
   mirror_deck = Deck().generate_random(hunter_pool)
-  player = Player(Classes.HUNTER, mirror_deck, GreedyAction)
-  enemy = Player(Classes.HUNTER, mirror_deck, GreedyAction)
-  games = np.empty(3)
+  player = Player(Classes.HUNTER, mirror_deck, RandomNoEarlyPassing)
+  enemy = Player(Classes.HUNTER, mirror_deck, RandomNoEarlyPassing)
+  game_results = np.empty(10)
   game = Game(player, enemy)
 
-  for i in range(3):
-    games[i] = game.simulate_game()
+  for i in range(10):
+    game_results[i] = game.simulate_game()
     game.reset_game()
-    
-  assert games.mean() < 1 and games.mean() > 0
+    assert len(game.player.deck.get_all()) == 30
+    assert len(game.enemy.deck.get_all()) == 30
+    assert len(game.player.hand.get_all()) == 0
+    assert len(game.enemy.hand.get_all()) == 0
+    assert len(game.player.graveyard.get_all()) == 0
+    assert len(game.enemy.graveyard.get_all()) == 0
+    assert game.player.attack == 0
+    assert game.player.health == 30
+    assert game.enemy.attack == 0
+    assert game.enemy.health == 30
+
+  assert game_results.mean() < 1 and game_results.mean() > 0
 
 
 def main():
-  test_random_damage_card()
+  pass
 
 if __name__ == '__main__':
   main()

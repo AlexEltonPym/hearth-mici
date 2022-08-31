@@ -1,11 +1,12 @@
 from hand import Hand
 from board import Board
 from graveyard import Graveyard
+from copy import deepcopy
 
 class Player():
   def __init__(self, player_class, deck, strategy):
     self.player_class = player_class
-    self.deck = deck
+    self.deck = deepcopy(deck)
     self.strategy = strategy
     self.hero_power = None
 
@@ -28,6 +29,7 @@ class Player():
     self.other_player = None
     self.game = None
     self.fatigue_damage = 1
+    self.owner = self
 
   def __str__(self):
     return str((self.name, self.player_class, str(self.health)))
