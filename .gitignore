@@ -29,6 +29,7 @@
 /hearth-mici/functions/config.json
 
 *.mp4
+*.zip
 
 /deck_evolution/results.out
 /deck_evolution/data
