@@ -42,7 +42,7 @@ with open('database.json', 'r') as db:
       else:
         p = ttest_ind_from_stats(base_mean, base_std, 1000, sample_mean, sample_std, 1000, equal_var=False, alternative='two-sided').pvalue
       
-      if(sample_mean != 0 and p < max_sig):
+      if(sample_mean != 0 and p < max_sig or base[0] == 'WIN_RATE'):
         outjson[f"{user}_{card_id}_{player}_v_{enemy}"][base[0]] = [base[0],player,enemy,base_mean, sample_mean,p]
 
 with open("../hearth-mici/src/code/report.json", "w") as report_json:
