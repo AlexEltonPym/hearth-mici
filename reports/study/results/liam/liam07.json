@@ -1,0 +1,22 @@
+{
+    "baseManaCost": 5,
+    "baseHp": 1,
+    "baseAttack": 1,
+    "battlecry": {
+      "spell":{
+        "class": "DrawCardSpell",
+        "value": 4
+      }
+    },
+    "attributes": {
+        "BATTLECRY": true
+    },
+    "name": "Custom Card",
+    "type": "MINION",
+    "rarity": "COMMON",
+    "description": "A custom card",
+    "collectible": true,
+    "set": "CUSTOM",
+    "fileFormatVersion": 1
+}
+

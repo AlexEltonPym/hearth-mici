@@ -8,17 +8,14 @@ from action import Action
 
 class Game():
   def __init__(self, _player, _enemy):
-    self.original_player = _player
-    self.original_enemy = _enemy
+    self.player = copy.deepcopy(_player)
+    self.enemy = copy.deepcopy(_enemy)
 
     self.setup_players()
     self.start_game()
 
   
   def setup_players(self):
-
-    self.player = copy.deepcopy(self.original_player)
-    self.enemy = copy.deepcopy(self.original_enemy)
     self.player.other_player = self.enemy
     self.enemy.other_player = self.player
 
@@ -103,7 +100,7 @@ class Game():
 
 
   def add_coin(self, player):
-    coin = get_utility_card('coin')
+    coin = get_utility_card('Coin')
     coin.set_owner(player)
     coin.set_parent(coin.owner.hand)
 

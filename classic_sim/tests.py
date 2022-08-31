@@ -23,7 +23,7 @@ def test_coin():
 
   coin_card = None
   for card in game.current_player.hand.get_all():
-    if card.name == 'The coin':
+    if card.name == 'The Coin':
       coin_card = card
       break
 
@@ -47,7 +47,7 @@ def test_abusive_sergeant():
   new_wisp.set_parent(game.current_player.board)
   assert new_wisp.attack == 1
 
-  new_card = get_from_name(card_pool, 'Abusive sergeant')
+  new_card = get_from_name(card_pool, 'Abusive Sergeant')
   new_card.set_owner(game.current_player)
   new_card.set_parent(game.current_player.hand)
 
@@ -77,7 +77,7 @@ def test_argent_squire():
   _enemy = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
   game = Game(_player, _enemy)
 
-  new_squire = get_from_name(card_pool, 'Argent squire')
+  new_squire = get_from_name(card_pool, 'Argent Squire')
   new_squire.set_owner(game.current_player.other_player)
   new_squire.set_parent(game.current_player.other_player.board)
   assert Attributes.DIVINE_SHIELD in new_squire.attributes
@@ -106,7 +106,7 @@ def test_leper_gnome():
   _enemy = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
   game = Game(_player, _enemy)
   
-  new_leper = get_from_name(card_pool, 'Leper gnome')
+  new_leper = get_from_name(card_pool, 'Leper Gnome')
   new_leper.set_owner(game.current_player)
   new_leper.set_parent(game.current_player.board)
 
@@ -150,7 +150,7 @@ def test_southsea_deckhand():
   assert not new_deckhand.condition.requirement(game)
   assert len(list(filter(lambda action: action.action_type == Actions.ATTACK, game.get_available_actions(game.current_player)))) == 0
 
-  new_weapon = get_from_name(card_pool, 'Generic weapon')
+  new_weapon = get_from_name(card_pool, 'Generic Weapon')
   new_weapon.set_owner(game.current_player)
   new_weapon.set_parent(game.current_player)
   assert new_deckhand.has_attacked
@@ -221,7 +221,7 @@ def test_damage_all():
   _enemy = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
   game = Game(_player, _enemy)
 
-  new_dam_all = get_from_name(card_pool, 'All dam')
+  new_dam_all = get_from_name(card_pool, 'All Damage')
   new_dam_all.set_owner(game.current_player)
   new_dam_all.set_parent(game.current_player.hand)
   
@@ -244,7 +244,7 @@ def test_generic_weapon():
   _enemy = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
   game = Game(_player, _enemy)
   game.current_player.current_mana = 3
-  new_weapon = get_from_name(card_pool, 'Generic weapon')
+  new_weapon = get_from_name(card_pool, 'Generic Weapon')
   new_weapon.set_owner(game.current_player)
   new_weapon.set_parent(game.current_player.hand)
 

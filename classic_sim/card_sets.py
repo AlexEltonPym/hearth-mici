@@ -6,14 +6,14 @@ from copy import deepcopy
 import random
 
 def get_utility_card(utility_card):
-  the_coin = Card(name='The coin', collectable=False, card_type=CardTypes.SPELL, mana=0, \
+  the_coin = Card(name="The Coin", collectable=False, card_type=CardTypes.SPELL, mana=0, \
                   effect=GainMana(value = 1, method = Methods.TARGETED,\
                   duration = Durations.TURN, target=Targets.HEROES, owner_filter=OwnerFilters.FRIENDLY))
-  utility_cards = {'coin': the_coin}
+  utility_cards = {"Coin": the_coin}
   return utility_cards[utility_card]
 
 def get_hero_power(hero_class): 
-  steady_shot = Card(name='Steady shot', card_type=CardTypes.HERO_POWER, mana=2, \
+  steady_shot = Card(name="Steady Shot", collectable=False, card_type=CardTypes.HERO_POWER, mana=2, \
                           effect=DealDamage(value=2, method=Methods.ALL, \
                           target=Targets.HEROES, owner_filter=OwnerFilters.ENEMY))
   hero_powers = {Classes.HUNTER: steady_shot}
@@ -29,31 +29,31 @@ def get_op_cards():
   return op_cards
 
 def get_classic_cards():
-  wisp = Card(name='Wisp', card_type = CardTypes.MINION, mana = 0, attack = 1, health = 1)
-  abusive_sergeant = Card(name='Abusive sergeant', card_type=CardTypes.MINION, mana=1, attack=1, health=1,\
+  wisp = Card(name="Wisp", card_type = CardTypes.MINION, mana = 0, attack = 1, health = 1)
+  abusive_sergeant = Card(name="Abusive Sergeant", card_type=CardTypes.MINION, mana=1, attack=1, health=1,\
                           effect=ChangeStats(value=(2,0), method = Methods.TARGETED,\
                           target=Targets.MINIONS, owner_filter = OwnerFilters.ALL, duration = Durations.TURN,\
                           trigger= Triggers.BATTLECRY, type_filter=CreatureTypes.ALL))
-  argent_squire = Card(name='Argent squire', card_type=CardTypes.MINION, mana = 1, attack=1, health=1,\
+  argent_squire = Card(name="Argent Squire", card_type=CardTypes.MINION, mana = 1, attack=1, health=1,\
                        attributes=[Attributes.DIVINE_SHIELD])
-  leper_gnome = Card(name='Leper gnome', card_type=CardTypes.MINION, mana=1, attack=2, health=1,\
+  leper_gnome = Card(name="Leper Gnome", card_type=CardTypes.MINION, mana=1, attack=2, health=1,\
                     effect=DealDamage(value=2, method=Methods.ALL, target=Targets.HEROES,\
                     owner_filter=OwnerFilters.ENEMY, trigger=Triggers.DEATHRATTLE))
-  shieldbearer = Card(name='Shieldbearer', card_type=CardTypes.MINION, mana=1, attack=0, health=4, attributes=[Attributes.TAUNT])
-  southsea_deckhand = Card(name='Southsea Deckhand', card_type=CardTypes.MINION, mana=1, attack=2, health=1, condition=Condition(requirement=Condition.has_weapon, result={'attributes': [Attributes.CHARGE]}))
+  shieldbearer = Card(name="Shieldbearer", card_type=CardTypes.MINION, mana=1, attack=0, health=4, attributes=[Attributes.TAUNT])
+  southsea_deckhand = Card(name="Southsea Deckhand", card_type=CardTypes.MINION, mana=1, attack=2, health=1, condition=Condition(requirement=Condition.has_weapon, result={'attributes': [Attributes.CHARGE]}))
   classic_cards = [wisp, abusive_sergeant, argent_squire, leper_gnome, shieldbearer, southsea_deckhand]
   return classic_cards
 
 
 
 def get_test_cards():
-  all_dam = Card('All dam', card_type=CardTypes.SPELL, mana=0,\
+  all_dam = Card("All Damage", card_type=CardTypes.SPELL, mana=0,\
                 effect=DealDamage(value=3, method=Methods.ALL, target=Targets.MINIONS_OR_HEROES,\
                   owner_filter=OwnerFilters.ALL)
     )
-  generic_weapon = Card('Generic weapon', card_type=CardTypes.WEAPON, mana=1,\
+  generic_weapon = Card("Generic Weapon", card_type=CardTypes.WEAPON, mana=1,\
                         attack=3, health=2)
-  battlecry_weapon = Card('Battlecry Weapon', card_type=CardTypes.WEAPON, mana=1, attack=3, health=2,\
+  battlecry_weapon = Card("Battlecry Weapon", card_type=CardTypes.WEAPON, mana=1, attack=3, health=2,\
                           effect=DealDamage(value=1, method=Methods.ALL, target=Targets.MINIONS_OR_HEROES, owner_filter=OwnerFilters.ALL, trigger=Triggers.BATTLECRY))
   test_cards = [all_dam, generic_weapon, battlecry_weapon]
   return test_cards
@@ -80,11 +80,11 @@ def make_random_card(id):
     _duration = choice_with_none(EffectType.available_durations)
     _trigger = choice_with_none(EffectType.available_triggers)
 
-    rand_card = Card(f'Random card {id}', card_type=_card_type, mana=_mana, attack=_attack, health=_health,\
+    rand_card = Card(f"Random Card {id}", card_type=_card_type, mana=_mana, attack=_attack, health=_health,\
       effect=EffectType(value=_value, method=_method, target=_target, owner_filter=_owner_filter, type_filter=_type_filter, duration=_duration, trigger=_trigger)
     )
   else:
-    rand_card = Card(f'Random card {id}', card_type=CardTypes.MINION, mana=_mana, attack=_attack, health=_health)
+    rand_card = Card(f"Random Card {id}", card_type=CardTypes.MINION, mana=_mana, attack=_attack, health=_health)
 
   return rand_card
 

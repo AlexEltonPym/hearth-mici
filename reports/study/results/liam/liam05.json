@@ -1,0 +1,23 @@
+{
+    "baseManaCost": 3,
+    "baseHp": 1,
+    "baseAttack": 2,
+    "battlecry": {
+        "targetSelection": "ENEMY_MINIONS",
+        "spell": {
+          "class": "DamageSpell",
+          "value": 4
+        }
+    },
+    "attributes": {
+        "BATTLECRY": true
+    },
+    "name": "Custom Card",
+    "type": "MINION",
+    "rarity": "COMMON",
+    "description": "A custom card",
+    "collectible": true,
+    "set": "CUSTOM",
+    "fileFormatVersion": 1
+}
+

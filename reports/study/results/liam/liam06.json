@@ -1,0 +1,40 @@
+{
+    "baseManaCost": 7,
+    "baseHp": 3,
+    "baseAttack": 2,
+    "battlecry": {
+        "targetSelection": "FRIENDLY_MINIONS",
+        "spell": {
+          "class": "MetaSpell",
+          "spells": [
+            {
+                "class": "BuffSpell",
+                "attackBonus": 4
+            },
+            {
+                "class": "AddAttributeSpell",
+                "attribute": "CHARGE"
+            },
+            {
+                "class": "AddAttributeSpell",
+                "attribute": "RUSH"
+            },
+            {
+                "class": "AddAttributeSpell",
+                "attribute": "DIVINE_SHIELD"
+            }
+            ]
+        }
+    },
+    "attributes": {
+        "BATTLECRY": true
+    },
+    "name": "Custom Card",
+    "type": "MINION",
+    "rarity": "COMMON",
+    "description": "A custom card",
+    "collectible": true,
+    "set": "CUSTOM",
+    "fileFormatVersion": 1
+}
+
