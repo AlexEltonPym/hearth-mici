@@ -6,7 +6,6 @@ class Hand():
 
     
   def remove(self, card):
-
     self.hand.remove(card)
 
   def add(self, card):
@@ -24,5 +23,4 @@ class Hand():
 
   def __repr__(self):
     # return str([id(card) for card in self.hand])
-
     return str((self.name, self.parent.name))

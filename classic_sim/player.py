@@ -21,7 +21,7 @@ class Player():
     self.current_mana = 0
     self.max_mana = 0
    
-    self.has_attacked = True
+    self.has_attacked = False
     self.used_hero_power = False
     self.hand = Hand(self)
     self.board = Board(self)
@@ -31,6 +31,14 @@ class Player():
     self.fatigue_damage = 1
     self.owner = self
 
+     
+  def remove(self, card):
+    if self.weapon == card:
+      self.weapon = None
+
+  def add(self, card):
+    self.weapon = card
+  
   def __str__(self):
     return str((self.name, self.player_class, str(self.health)))
 

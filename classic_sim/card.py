@@ -41,6 +41,3 @@ class Card():
 
   def __repr__(self):
     return self.get_string()
-
-  # def __eq__(self, other):
-  #   return self.name == other.name

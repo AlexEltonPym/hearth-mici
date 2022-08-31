@@ -25,8 +25,9 @@ class Actions(Enum):
   CAST_MINION = 1
   CAST_HERO_POWER = 2
   CAST_SPELL = 3
-  END_TURN = 4
-  CAST_EFFECT = 5
+  CAST_WEAPON = 4
+  END_TURN = 5
+  CAST_EFFECT = 6
 
 
 class Targets(Enum):

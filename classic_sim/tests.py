@@ -177,6 +177,41 @@ def test_damage_all():
   assert game.enemy.health == 27
   assert wisp.parent == wisp.owner.graveyard
 
+def test_generic_weapon():
+  random.seed(0)
+  card_pool = build_pool([CardSets.CLASSIC_NEUTRAL, CardSets.TEST_CARDS])
+  _player = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
+  _enemy = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
+  game = Game(_player, _enemy)
+  game.current_player.current_mana = 3
+  new_weapon = get_from_name(card_pool, 'Generic weapon')
+  new_weapon.set_owner(game.current_player)
+  new_weapon.set_parent(game.current_player.hand)
+
+  cast_weap = list(filter(lambda action: action.action_type == Actions.CAST_WEAPON, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(cast_weap)
+  assert game.current_player.weapon == new_weapon
+
+  wisp = get_from_name(card_pool, 'Wisp')
+  wisp.set_owner(game.current_player.other_player)
+  wisp.set_parent(game.current_player.other_player.board)
+
+  hero_attack_options = list(filter(lambda action: action.action_type == Actions.ATTACK, game.get_available_actions(game.current_player)))
+  assert len(hero_attack_options) == 2
+  game.perform_action(hero_attack_options[0])
+  assert game.current_player.other_player.health == 27
+  assert game.current_player.health == 30
+  assert game.current_player.weapon.health == 1
+  assert game.current_player.has_attacked
+  
+  game.current_player.has_attacked = False
+  game.perform_action(hero_attack_options[1])
+  assert wisp.parent == wisp.owner.graveyard
+  assert game.current_player.health == 29
+  assert game.current_player.weapon == None
+  assert new_weapon.parent == new_weapon.owner.graveyard
+  assert game.current_player.has_attacked
+
 
 
 
@@ -281,7 +316,7 @@ def test_simulate():
 
 
 def main():
-  pass
+  test_generic_weapon()
 
 if __name__ == '__main__':
   main()

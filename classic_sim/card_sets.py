@@ -12,10 +12,10 @@ def get_utility_card(utility_card):
   return utility_cards[utility_card]
 
 def get_hero_power(hero_class): 
-  hunter_hero_power = Card(name='Hunter hero power', card_type=CardTypes.HERO_POWER, mana=2, \
+  steady_shot = Card(name='Steady shot', card_type=CardTypes.HERO_POWER, mana=2, \
                           effect=DealDamage(value=2, method=Methods.ALL, \
                           target=Targets.HEROES, owner_filter=OwnerFilters.ENEMY))
-  hero_powers = {Classes.HUNTER: hunter_hero_power}
+  hero_powers = {Classes.HUNTER: steady_shot}
   return hero_powers[hero_class]
 
 def get_hunter_cards():
@@ -39,6 +39,7 @@ def get_classic_cards():
                     effect=DealDamage(value=2, method=Methods.ALL, target=Targets.HEROES,\
                     owner_filter=OwnerFilters.ENEMY, trigger=Triggers.DEATHRATTLE))
   shieldbearer = Card(name='Shieldbearer', card_type=CardTypes.MINION, mana=1, attack=0, health=4, attributes=[Attributes.TAUNT])
+  southsea_deckhand = Card(name='Southsea deckhand', card_type=CardTypes.)
   classic_cards = [wisp, abusive_sergeant, argent_squire, leper_gnome, shieldbearer]
   return classic_cards
 
@@ -47,7 +48,9 @@ def get_test_cards():
                 effect=DealDamage(value=3, method=Methods.ALL, target=Targets.MINIONS_OR_HEROES,\
                   owner_filter=OwnerFilters.ALL)
     )
-  test_cards = [all_dam]
+  generic_weapon = Card('Generic weapon', card_type=CardTypes.WEAPON, mana=1,\
+                        attack=3, health=2)
+  test_cards = [all_dam, generic_weapon]
   return test_cards
 
 def get_random_cards():

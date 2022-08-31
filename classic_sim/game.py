@@ -53,14 +53,14 @@ class Game():
     for player in [self.player, self.enemy]:
       player.health = 30
       player.weapon = None
-      player.had_attacked = True
+      player.had_attacked = False
       player.temp_attack = 0
       player.temp_health = 0
       player.armor = 0
       player.attack = 0
 
       all_cards = player.graveyard.get_all() + player.board.get_all() + player.hand.get_all()
-      if player.weapon is not None:
+      if player.weapon:
         all_cards.append(player.weapon)
       for card in all_cards:
         if card.collectable:
@@ -114,6 +114,8 @@ class Game():
       self.cast_spell(action)
     elif action.action_type == Actions.CAST_EFFECT:
       self.cast_effect(action)
+    elif action.action_type == Actions.CAST_WEAPON:
+      self.cast_weapon(action)
     elif action.action_type == Actions.ATTACK:
       self.handle_attack(action)
     elif action.action_type == Actions.CAST_HERO_POWER:
@@ -130,7 +132,6 @@ class Game():
 
   def cast_minion(self, action):
     self.current_player.current_mana -= action.source.mana
-    # print(f"casting {action.source}")
     action.source.change_parent(action.source.owner.board)
 
     if action.source.effect and action.source.effect.trigger == Triggers.BATTLECRY:
@@ -145,8 +146,20 @@ class Game():
   def cast_effect(self, action):
     action.source.effect.resolve_action(self, action)
 
+  def cast_weapon(self, action):
+    self.current_player.current_mana -= action.source.mana
+    action.source.change_parent(action.source.owner)
+    if action.source.effect and action.source.effect.trigger == Triggers.BATTLECRY:
+      action.source.effect.resolve_action(self, action)
+
   def handle_attack(self, action):
-    self.deal_damage(action.targets[0], action.source.attack + action.source.temp_attack)
+    if isinstance(action.source, Player) and action.source.weapon:
+      damage = action.source.attack + action.source.temp_attack + action.source.weapon.attack
+      action.source.weapon.health -= 1
+      self.check_dead(action.source.weapon)
+    else:
+      damage = action.source.attack + action.source.temp_attack
+    self.deal_damage(action.targets[0], damage)
     self.deal_damage(action.source, action.targets[0].attack + action.targets[0].temp_attack)
     action.source.has_attacked = True
 
@@ -178,7 +191,6 @@ class Game():
     else:
       targets = [card.owner.other_player]
       targets.extend(card.owner.other_player.board.get_all())
-
     return targets
 
   def get_playable_spells_actions(self, player):
@@ -217,6 +229,7 @@ class Game():
     available_actions.extend(self.get_hero_attack_actions(player))
     available_actions.extend(self.get_playable_minion_actions(player))
     available_actions.extend(self.get_playable_spells_actions(player))
+    available_actions.extend(self.get_playable_weapon_actions(player))
     available_actions.extend(self.get_hero_power_actions(player))
     available_actions.append(Action(Actions.END_TURN, player, [player.board]))
     return available_actions
@@ -225,7 +238,6 @@ class Game():
   def deck_to_hand(self, player):
     new_card = player.deck.pop()
     new_card.set_parent(new_card.owner.hand)
-    # print(f"drawing {new_card}")
 
 
   def deck_to_graveyard(self, player):
@@ -294,7 +306,7 @@ class Game():
 
   def get_hero_attack_actions(self, player):
     hero_attack_options = []
-    if player.attack > 0 and not player.has_attacked:
+    if (player.attack > 0 or player.weapon) and not player.has_attacked:
       for target in self.get_available_targets(player):
         hero_attack_options.append(Action(Actions.ATTACK, player, [target]))
     return hero_attack_options
@@ -318,6 +330,24 @@ class Game():
         else:
           playable_minion_actions.append(Action(Actions.CAST_MINION, card, [player.board]))
     return playable_minion_actions
+
+  def get_playable_weapon_actions(self, player):
+    playable_weapon_actions = []
+    if not player.weapon:
+      for card in filter(lambda card: card.mana <= player.current_mana and card.card_type == CardTypes.WEAPON, player.hand.get_all()):
+        if card.effect and card.effect.trigger == Triggers.BATTLECRY:
+          battlecry_targets = self.get_available_effect_targets(player, card)
+          if len(battlecry_targets) > 0:
+            if card.effect.method == Methods.TARGETED:
+              for target in battlecry_targets:
+                playable_weapon_actions.append(Action(Actions.CAST_WEAPON, card, [target]))
+            elif card.effect.method == Methods.RANDOMLY:
+              playable_weapon_actions.append(Action(Actions.CAST_WEAPON, card, [choice(battlecry_targets)]))
+            elif card.effect.method == Methods.ALL:
+              playable_weapon_actions.append(Action(Actions.CAST_WEAPON, card, battlecry_targets))
+        else:
+          playable_weapon_actions.append(Action(Actions.CAST_WEAPON, card, [player]))
+    return playable_weapon_actions
 
   def simulate_game(self):
     self.start_game()
