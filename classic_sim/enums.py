@@ -5,6 +5,7 @@ class Attributes(Enum):
   TAUNT = 0
   LIFESTEAL = 1
   DIVINE_SHIELD = 2
+  CHARGE = 3
 
 
 class Triggers(Enum):

@@ -223,6 +223,8 @@ class Game():
     
 
   def get_available_actions(self, player):
+
+
     available_actions = []
 
     available_actions.extend(self.get_minion_attack_actions(player))
@@ -234,6 +236,11 @@ class Game():
     available_actions.append(Action(Actions.END_TURN, player, [player.board]))
     return available_actions
 
+  # def update_conitions(self):
+  #   for player in [self.player, self.enemy]:
+  #     for card in player.board.get_all():
+  #       if card.condition and card.condition.requirement():
+  #         card.temp_attack += 
 
   def deck_to_hand(self, player):
     new_card = player.deck.pop()
@@ -297,7 +304,9 @@ class Game():
   def get_minion_attack_actions(self, player):
     minion_attack_options = []
     for minion in player.board.get_all():
-      if not minion.has_attacked and minion.attack+minion.temp_attack > 0:
+      if (not minion.has_attacked or Attributes.CHARGE in minion.attributes\
+          or (minion.condition and Attributes.CHARGE in minion.condition.result['attributes'] and minion.condition.requirement(self)))\
+          and minion.attack+minion.temp_attack > 0:
         for target in self.get_available_targets(minion):
           minion_attack_options.append(Action(Actions.ATTACK, minion, [target]))
 

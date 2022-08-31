@@ -1,4 +1,5 @@
 from card import Card
+from condition import Condition
 from enums import *
 from effects import *
 from copy import deepcopy
@@ -39,8 +40,8 @@ def get_classic_cards():
                     effect=DealDamage(value=2, method=Methods.ALL, target=Targets.HEROES,\
                     owner_filter=OwnerFilters.ENEMY, trigger=Triggers.DEATHRATTLE))
   shieldbearer = Card(name='Shieldbearer', card_type=CardTypes.MINION, mana=1, attack=0, health=4, attributes=[Attributes.TAUNT])
-  southsea_deckhand = Card(name='Southsea deckhand', card_type=CardTypes.)
-  classic_cards = [wisp, abusive_sergeant, argent_squire, leper_gnome, shieldbearer]
+  southsea_deckhand = Card(name='Southsea Deckhand', card_type=CardTypes.MINION, mana=1, attack=2, health=1, condition=Condition(requirement=lambda game: game.current_player.weapon, result={'attributes': [Attributes.CHARGE]}))
+  classic_cards = [wisp, abusive_sergeant, argent_squire, leper_gnome, shieldbearer, southsea_deckhand]
   return classic_cards
 
 def get_test_cards():
@@ -144,3 +145,5 @@ def get_from_name(pool, name):
   for card in pool:
     if card.name == name:
       return deepcopy(card)
+  
+  raise KeyError("Could not find card")

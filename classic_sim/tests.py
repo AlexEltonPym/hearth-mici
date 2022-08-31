@@ -135,6 +135,31 @@ def test_shieldbearer():
   for action in available_actions:
     assert action.action_type != Actions.ATTACK
 
+def test_southsea_deckhand():
+  random.seed(0)
+  card_pool = build_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER, CardSets.TEST_CARDS])
+  _player = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
+  _enemy = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
+  game = Game(_player, _enemy)
+
+  new_deckhand = get_from_name(card_pool, 'Southsea Deckhand')
+  new_deckhand.set_owner(game.current_player)
+  new_deckhand.set_parent(game.current_player.board)
+
+  assert new_deckhand.has_attacked
+  assert not new_deckhand.condition.requirement(game)
+  assert len(list(filter(lambda action: action.action_type == Actions.ATTACK, game.get_available_actions(game.current_player)))) == 0
+
+
+  new_weapon = get_from_name(card_pool, 'Generic weapon')
+  new_weapon.set_owner(game.current_player)
+  new_weapon.set_parent(game.current_player)
+  assert new_deckhand.has_attacked
+  assert new_deckhand.condition.requirement(game)
+  assert len(list(filter(lambda action: action.action_type == Actions.ATTACK, game.get_available_actions(game.current_player)))) == 2 #attack with charge, attack with weapon
+
+
+
 def test_taunt():
   random.seed(0)
   card_pool = build_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER])
@@ -316,7 +341,8 @@ def test_simulate():
 
 
 def main():
-  test_generic_weapon()
+  test_southsea_deckhand()
+
 
 if __name__ == '__main__':
   main()
