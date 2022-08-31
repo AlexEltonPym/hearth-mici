@@ -40,9 +40,11 @@ def get_classic_cards():
                     effect=DealDamage(value=2, method=Methods.ALL, target=Targets.HEROES,\
                     owner_filter=OwnerFilters.ENEMY, trigger=Triggers.DEATHRATTLE))
   shieldbearer = Card(name='Shieldbearer', card_type=CardTypes.MINION, mana=1, attack=0, health=4, attributes=[Attributes.TAUNT])
-  southsea_deckhand = Card(name='Southsea Deckhand', card_type=CardTypes.MINION, mana=1, attack=2, health=1, condition=Condition(requirement=lambda game: game.current_player.weapon, result={'attributes': [Attributes.CHARGE]}))
+  southsea_deckhand = Card(name='Southsea Deckhand', card_type=CardTypes.MINION, mana=1, attack=2, health=1, condition=Condition(requirement=Condition.has_weapon, result={'attributes': [Attributes.CHARGE]}))
   classic_cards = [wisp, abusive_sergeant, argent_squire, leper_gnome, shieldbearer, southsea_deckhand]
   return classic_cards
+
+
 
 def get_test_cards():
   all_dam = Card('All dam', card_type=CardTypes.SPELL, mana=0,\
@@ -51,73 +53,38 @@ def get_test_cards():
     )
   generic_weapon = Card('Generic weapon', card_type=CardTypes.WEAPON, mana=1,\
                         attack=3, health=2)
-  test_cards = [all_dam, generic_weapon]
+  battlecry_weapon = Card('Battlecry Weapon', card_type=CardTypes.WEAPON, mana=1, attack=3, health=2,\
+                          effect=DealDamage(value=1, method=Methods.ALL, target=Targets.MINIONS_OR_HEROES, owner_filter=OwnerFilters.ALL, trigger=Triggers.BATTLECRY))
+  test_cards = [all_dam, generic_weapon, battlecry_weapon]
   return test_cards
 
 def get_random_cards():
-  # rand_damage_cards = [make_random_damage_card(i) for i in range(100)]
-  # rand_mana_cards = [make_random_mana_card(i) for i in range(100)]
   rand_cards = [make_random_card(i) for i in range(100)]
   return rand_cards
-
-
-def make_random_damage_card(id):
-  _card_type = random.choice(list(CardTypes))
-  _mana = random.randint(0, 10)
-  _attack = random.randint(0, 10)
-  _health = random.randint(1, 10)
-  _value = random.randint(1, 10)
-  _method = choice_with_none(DealDamage.available_methods)
-  _target = choice_with_none(DealDamage.available_targets)
-  _owner_filter = choice_with_none(DealDamage.available_owner_filters)
-  _type_filter = choice_with_none(DealDamage.available_type_filters)
-  _duration = choice_with_none(DealDamage.available_durations)
-  _trigger = choice_with_none(DealDamage.available_triggers)
-
-
-  rand_damage_card = Card(f'Random damage {id}', card_type=_card_type, mana=_mana, attack=_attack, health=_health,\
-    effect=DealDamage(value=_value, method=_method, target=_target, owner_filter=_owner_filter, type_filter=_type_filter, trigger=_trigger)
-  )
-  return rand_damage_card
-
-def make_random_mana_card(id):
-  _card_type = random.choice(list(CardTypes))
-  _mana = random.randint(0, 10)
-  _attack = random.randint(0, 10)
-  _health = random.randint(1, 10)
-  _value = random.randint(1, 10)
-  _method = choice_with_none(GainMana.available_methods)
-  _target = choice_with_none(GainMana.available_targets)
-  _owner_filter = choice_with_none(GainMana.available_owner_filters)
-  _type_filter = choice_with_none(GainMana.available_type_filters)
-  _duration = choice_with_none(GainMana.available_durations)
-  _trigger = choice_with_none(GainMana.available_triggers)
-
-  rand_mana_card = Card(f'Random mana {id}', card_type=_card_type, mana=_mana, attack=_attack, health=_health,\
-    effect=GainMana(value=_value, method=_method, target=_target, owner_filter=_owner_filter, type_filter=_type_filter, duration=_duration, trigger=_trigger)
-  )
-  return rand_mana_card
 
 def make_random_card(id):
   _card_type = random.choice(list(CardTypes))
   _mana = random.randint(0, 10)
   _attack = random.randint(0, 10)
   _health = random.randint(1, 10)
-  EffectType = random.choice([DealDamage, GainMana, ChangeStats])
-  if EffectType.param_type == ParamTypes.X:
-    _value = random.randint(1, 10)
-  elif EffectType.param_type == ParamTypes.XY:
-    _value = (random.randint(1, 10), random.randint(1, 10))
-  _method = choice_with_none(EffectType.available_methods)
-  _target = choice_with_none(EffectType.available_targets)
-  _owner_filter = choice_with_none(EffectType.available_owner_filters)
-  _type_filter = choice_with_none(EffectType.available_type_filters)
-  _duration = choice_with_none(EffectType.available_durations)
-  _trigger = choice_with_none(EffectType.available_triggers)
+  EffectType = random.choice([None, DealDamage, GainMana, ChangeStats])
+  if EffectType:
+    if EffectType.param_type == ParamTypes.X:
+      _value = random.randint(1, 10)
+    elif EffectType.param_type == ParamTypes.XY:
+      _value = (random.randint(1, 10), random.randint(1, 10))
+    _method = choice_with_none(EffectType.available_methods)
+    _target = choice_with_none(EffectType.available_targets)
+    _owner_filter = choice_with_none(EffectType.available_owner_filters)
+    _type_filter = choice_with_none(EffectType.available_type_filters)
+    _duration = choice_with_none(EffectType.available_durations)
+    _trigger = choice_with_none(EffectType.available_triggers)
 
-  rand_card = Card(f'Random card {id}', card_type=_card_type, mana=_mana, attack=_attack, health=_health,\
-    effect=EffectType(value=_value, method=_method, target=_target, owner_filter=_owner_filter, type_filter=_type_filter, duration=_duration, trigger=_trigger)
-  )
+    rand_card = Card(f'Random card {id}', card_type=_card_type, mana=_mana, attack=_attack, health=_health,\
+      effect=EffectType(value=_value, method=_method, target=_target, owner_filter=_owner_filter, type_filter=_type_filter, duration=_duration, trigger=_trigger)
+    )
+  else:
+    rand_card = Card(f'Random card {id}', card_type=CardTypes.MINION, mana=_mana, attack=_attack, health=_health)
 
   return rand_card
 

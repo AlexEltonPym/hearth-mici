@@ -223,8 +223,6 @@ class Game():
     
 
   def get_available_actions(self, player):
-
-
     available_actions = []
 
     available_actions.extend(self.get_minion_attack_actions(player))
@@ -235,12 +233,6 @@ class Game():
     available_actions.extend(self.get_hero_power_actions(player))
     available_actions.append(Action(Actions.END_TURN, player, [player.board]))
     return available_actions
-
-  # def update_conitions(self):
-  #   for player in [self.player, self.enemy]:
-  #     for card in player.board.get_all():
-  #       if card.condition and card.condition.requirement():
-  #         card.temp_attack += 
 
   def deck_to_hand(self, player):
     new_card = player.deck.pop()

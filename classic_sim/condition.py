@@ -11,3 +11,9 @@ class Condition():
   
   def __srt__(self):
     return str((self.requirement, self.result))
+
+  def get_available_conditions():
+    return [Condition.has_weapon]
+
+  def has_weapon(game):
+    return game.current_player.weapon

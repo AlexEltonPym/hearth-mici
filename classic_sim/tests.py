@@ -150,7 +150,6 @@ def test_southsea_deckhand():
   assert not new_deckhand.condition.requirement(game)
   assert len(list(filter(lambda action: action.action_type == Actions.ATTACK, game.get_available_actions(game.current_player)))) == 0
 
-
   new_weapon = get_from_name(card_pool, 'Generic weapon')
   new_weapon.set_owner(game.current_player)
   new_weapon.set_parent(game.current_player)
@@ -158,7 +157,43 @@ def test_southsea_deckhand():
   assert new_deckhand.condition.requirement(game)
   assert len(list(filter(lambda action: action.action_type == Actions.ATTACK, game.get_available_actions(game.current_player)))) == 2 #attack with charge, attack with weapon
 
+def test_battlecry_weapon():
+  random.seed(0)
+  card_pool = build_pool([CardSets.CLASSIC_NEUTRAL, CardSets.TEST_CARDS])
+  _player = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
+  _enemy = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
+  game = Game(_player, _enemy)
+  game.current_player.current_mana = 3
+  new_weapon = get_from_name(card_pool, 'Battlecry Weapon')
+  new_weapon.set_owner(game.current_player)
+  new_weapon.set_parent(game.current_player.hand)
 
+  cast_weap = list(filter(lambda action: action.action_type == Actions.CAST_WEAPON and action.source==new_weapon, game.get_available_actions(game.current_player)))[0]
+
+  game.perform_action(cast_weap)
+  assert game.current_player.weapon == new_weapon
+  assert game.current_player.health == 29
+  assert game.current_player.other_player.health == 29
+
+  wisp = get_from_name(card_pool, 'Wisp')
+  wisp.set_owner(game.current_player.other_player)
+  wisp.set_parent(game.current_player.other_player.board)
+
+  hero_attack_options = list(filter(lambda action: action.action_type == Actions.ATTACK, game.get_available_actions(game.current_player)))
+  assert len(hero_attack_options) == 2
+  game.perform_action(hero_attack_options[0])
+  assert game.current_player.other_player.health == 26
+  assert game.current_player.health == 29
+  assert game.current_player.weapon.health == 1
+  assert game.current_player.has_attacked
+  
+  game.current_player.has_attacked = False
+  game.perform_action(hero_attack_options[1])
+  assert wisp.parent == wisp.owner.graveyard
+  assert game.current_player.health == 28
+  assert game.current_player.weapon == None
+  assert new_weapon.parent == new_weapon.owner.graveyard
+  assert game.current_player.has_attacked
 
 def test_taunt():
   random.seed(0)
@@ -194,7 +229,7 @@ def test_damage_all():
   wisp.set_owner(game.current_player.other_player)
   wisp.set_parent(game.current_player.other_player.board)
 
-  cast_new_dam = game.get_available_actions(game.current_player)[1]
+  cast_new_dam = list(filter(lambda action: action.source == new_dam_all, game.get_available_actions(game.current_player)))[0]
   assert len(cast_new_dam.targets) == 3
 
   game.perform_action(cast_new_dam)
@@ -213,7 +248,7 @@ def test_generic_weapon():
   new_weapon.set_owner(game.current_player)
   new_weapon.set_parent(game.current_player.hand)
 
-  cast_weap = list(filter(lambda action: action.action_type == Actions.CAST_WEAPON, game.get_available_actions(game.current_player)))[0]
+  cast_weap = list(filter(lambda action: action.action_type == Actions.CAST_WEAPON and action.source == new_weapon, game.get_available_actions(game.current_player)))[0]
   game.perform_action(cast_weap)
   assert game.current_player.weapon == new_weapon
 
@@ -242,18 +277,18 @@ def test_generic_weapon():
 
 def test_random_cards():
   random.seed(0)
-  for k in range(10):
+  for k in range(3):
     card_pool = build_pool([CardSets.RANDOM_CARDS])
-    for j in range(10):
+    for j in range(3):
       mirror_deck = Deck().generate_random(card_pool)
 
       _player = Player(Classes.HUNTER, mirror_deck, RandomNoEarlyPassing)
       _enemy = Player(Classes.HUNTER, mirror_deck, RandomNoEarlyPassing)
       game = Game(_player, _enemy)
 
-      game_results = np.empty(100)
+      game_results = np.empty(10)
 
-      for i in range(100):
+      for i in range(10):
         game_result = game.simulate_game()
         assert game_result == 1 or game_result == 0
         game_results[i] = game_result
@@ -341,7 +376,7 @@ def test_simulate():
 
 
 def main():
-  test_southsea_deckhand()
+  test_damage_all()
 
 
 if __name__ == '__main__':
