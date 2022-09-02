@@ -314,8 +314,7 @@ class Game():
     if (player.get_attack(self) > 0
         or (player.weapon and player.weapon.attack > 0))\
         and (player.attacks_this_turn == 0\
-        or (player.attacks_this_turn == 1 and (player.has_attribute(self, Attributes.WINDFURY)\
-        or player.weapon and player.weapon.has_attribute(self, Attributes.WINDFURY)))):
+        or (player.attacks_this_turn == 1 and player.has_attribute(self, Attributes.WINDFURY))):
       for target in self.get_available_targets(player):
         hero_attack_options.append(Action(Actions.ATTACK, player, [target]))
     return hero_attack_options

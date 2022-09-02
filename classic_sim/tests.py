@@ -309,6 +309,35 @@ def test_bloodsail():
   assert new_bloodsail.attack == 5
 
   
+def test_windfury_weapon():
+  random.seed(0)
+  card_pool = build_pool([CardSets.CLASSIC_NEUTRAL, CardSets.TEST_CARDS])
+  _player = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
+  _enemy = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
+  game = Game(_player, _enemy)
+  new_weapon = get_from_name(card_pool, 'Windfury Weapon')
+  new_weapon.set_owner(game.current_player)
+  new_weapon.set_parent(game.current_player.hand)
+
+  cast_weap = list(filter(lambda action: action.action_type == Actions.CAST_WEAPON and action.source == new_weapon, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(cast_weap)
+  assert game.current_player.weapon == new_weapon
+
+  hero_attack_options = list(filter(lambda action: action.action_type == Actions.ATTACK, game.get_available_actions(game.current_player)))
+  assert len(hero_attack_options) == 1
+  game.perform_action(hero_attack_options[0])
+  assert game.current_player.other_player.health == 28
+  assert game.current_player.health == 30
+  assert game.current_player.weapon.health == 1
+  assert game.current_player.attacks_this_turn == 1
+  
+  hero_attack_options = list(filter(lambda action: action.action_type == Actions.ATTACK, game.get_available_actions(game.current_player)))
+
+  game.perform_action(hero_attack_options[0])
+  assert game.current_player.other_player.health == 26
+  assert game.current_player.weapon == None
+  assert new_weapon.parent == new_weapon.owner.graveyard
+  assert game.current_player.attacks_this_turn == 2
 
 def test_damage_all():
   random.seed(0)

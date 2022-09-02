@@ -65,7 +65,8 @@ def get_test_cards():
                         attack=3, health=2)
   battlecry_weapon = Card("Battlecry Weapon", card_type=CardTypes.WEAPON, mana=1, attack=3, health=2,\
                           effect=DealDamage(value=1, method=Methods.ALL, target=Targets.MINIONS_OR_HEROES, owner_filter=OwnerFilters.ALL, trigger=Triggers.BATTLECRY))
-  test_cards = [all_dam, generic_weapon, battlecry_weapon]
+  windfury_weapon = Card("Windfury Weapon", card_type=CardTypes.WEAPON, mana=0, attack=2, health=2, attributes=[Attributes.WINDFURY])
+  test_cards = [all_dam, generic_weapon, battlecry_weapon, windfury_weapon]
   return test_cards
 
 def get_random_cards():

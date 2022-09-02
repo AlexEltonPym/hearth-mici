@@ -46,9 +46,13 @@ class Player():
 
   
   def has_attribute(self, game, attribute):
-    return attribute in self.attributes\
+    player_has = attribute in self.attributes\
           or (self.condition and attribute in self.condition.result['attributes']\
-          and self.condition.requirement(game, self))\
+          and self.condition.requirement(game, self))
+    weapon_has = self.weapon and (attribute in self.weapon.attributes\
+          or (self.weapon.condition and attribute in self.weapon.condition.result['attributes']\
+            and self.weapon.condition.requirement(game, self)))
+    return player_has or weapon_has
 
   def __str__(self):
     return str((self.name, self.player_class, str(self.health)))
