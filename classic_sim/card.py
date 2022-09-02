@@ -13,7 +13,7 @@ class Card():
     self.effect = effect
     self.condition = condition
     self.owner = None
-    self.has_attacked = True
+    self.attacks_this_turn = -1
     self.parent = None
     self.temp_attack = 0
     self.temp_health = 0

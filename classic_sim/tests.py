@@ -130,7 +130,7 @@ def test_shieldbearer():
   new_shieldbearer = get_from_name(card_pool, 'Shieldbearer')
   new_shieldbearer.set_owner(game.current_player)
   new_shieldbearer.set_parent(game.current_player.board)
-  new_shieldbearer.has_attacked = False
+  new_shieldbearer.attacks_this_turn = 0
   available_actions=game.get_available_actions(game.current_player)
   for action in available_actions:
     assert action.action_type != Actions.ATTACK
@@ -146,14 +146,14 @@ def test_southsea_deckhand():
   new_deckhand.set_owner(game.current_player)
   new_deckhand.set_parent(game.current_player.board)
 
-  assert new_deckhand.has_attacked
+  assert new_deckhand.attacks_this_turn == -1
   assert not new_deckhand.condition.requirement(game)
   assert len(list(filter(lambda action: action.action_type == Actions.ATTACK, game.get_available_actions(game.current_player)))) == 0
 
   new_weapon = get_from_name(card_pool, 'Generic Weapon')
   new_weapon.set_owner(game.current_player)
   new_weapon.set_parent(game.current_player)
-  assert new_deckhand.has_attacked
+  assert new_deckhand.attacks_this_turn == -1
   assert new_deckhand.condition.requirement(game)
   assert len(list(filter(lambda action: action.action_type == Actions.ATTACK, game.get_available_actions(game.current_player)))) == 2 #attack with charge, attack with weapon
 
@@ -185,15 +185,15 @@ def test_battlecry_weapon():
   assert game.current_player.other_player.health == 26
   assert game.current_player.health == 29
   assert game.current_player.weapon.health == 1
-  assert game.current_player.has_attacked
+  assert game.current_player.attacks_this_turn == 1
   
-  game.current_player.has_attacked = False
+  game.current_player.attacks_this_turn = 0
   game.perform_action(hero_attack_options[1])
   assert wisp.parent == wisp.owner.graveyard
   assert game.current_player.health == 28
   assert game.current_player.weapon == None
   assert new_weapon.parent == new_weapon.owner.graveyard
-  assert game.current_player.has_attacked
+  assert game.current_player.attacks_this_turn == 1
 
 def test_taunt():
   random.seed(0)
@@ -209,10 +209,38 @@ def test_taunt():
   wisp = get_from_name(card_pool, 'Wisp')
   wisp.set_owner(game.current_player)
   wisp.set_parent(game.current_player.board)
-  wisp.has_attacked = False
+  wisp.attacks_this_turn == 0
   available_actions=game.get_available_actions(game.current_player)
   for action in available_actions:
     assert not (action.action_type == Actions.ATTACK and action.targets[0] == game.current_player.other_player)
+
+def test_stealth():
+  random.seed(0)
+  card_pool = build_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER])
+  _player = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
+  _enemy = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
+  game = Game(_player, _enemy)
+
+  new_worgen = get_from_name(card_pool, 'Worgen Infiltrator')
+  new_worgen.set_owner(game.current_player)
+  new_worgen.set_parent(game.current_player.board)
+  assert Attributes.STEALTH in new_worgen.attributes
+
+  new_wisp = get_from_name(card_pool, 'Wisp')
+  new_wisp.set_owner(game.current_player.other_player)
+  new_wisp.set_parent(game.current_player.other_player.board)
+  new_wisp.attacks_this_turn = 0
+
+  assert len(list(filter(lambda action: action.action_type == Actions.ATTACK, game.get_available_actions(game.current_player.other_player)))) == 1
+
+  new_worgen.attacks_this_turn = 0
+  attack_action = list(filter(lambda action: action.action_type == Actions.ATTACK, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(attack_action)
+  assert not Attributes.STEALTH in new_worgen.attributes
+
+  assert len(list(filter(lambda action: action.action_type == Actions.ATTACK, game.get_available_actions(game.current_player.other_player)))) == 2
+
+
 
 def test_damage_all():
   random.seed(0)
@@ -262,60 +290,15 @@ def test_generic_weapon():
   assert game.current_player.other_player.health == 27
   assert game.current_player.health == 30
   assert game.current_player.weapon.health == 1
-  assert game.current_player.has_attacked
+  assert game.current_player.attacks_this_turn == 1
   
-  game.current_player.has_attacked = False
+  game.current_player.attacks_this_turn = 0
   game.perform_action(hero_attack_options[1])
   assert wisp.parent == wisp.owner.graveyard
   assert game.current_player.health == 29
   assert game.current_player.weapon == None
   assert new_weapon.parent == new_weapon.owner.graveyard
-  assert game.current_player.has_attacked
-
-
-
-
-def test_random_cards():
-  random.seed(0)
-  for k in range(3):
-    card_pool = build_pool([CardSets.RANDOM_CARDS])
-    for j in range(3):
-      mirror_deck = Deck().generate_random(card_pool)
-
-      _player = Player(Classes.HUNTER, mirror_deck, RandomNoEarlyPassing)
-      _enemy = Player(Classes.HUNTER, mirror_deck, RandomNoEarlyPassing)
-      game = Game(_player, _enemy)
-
-      game_results = np.empty(10)
-
-      for i in range(10):
-        game_result = game.simulate_game()
-        assert game_result == 1 or game_result == 0
-        game_results[i] = game_result
-        game.reset_game()
-      
-      assert game_results.mean() < 1 and game_results.mean() > 0
-
-def test_big_random_cards():
-  random.seed(0)
-  for k in tqdm(range(100)):
-    card_pool = build_pool([CardSets.RANDOM_CARDS])
-    for j in range(100):
-      mirror_deck = Deck().generate_random(card_pool)
-
-      _player = Player(Classes.HUNTER, mirror_deck, RandomNoEarlyPassing)
-      _enemy = Player(Classes.HUNTER, mirror_deck, RandomNoEarlyPassing)
-      game = Game(_player, _enemy)
-
-      game_results = np.empty(100)
-
-      for i in range(100):
-        game_result = game.simulate_game()
-        assert game_result == 1 or game_result == 0
-        game_results[i] = game_result
-        game.reset_game()
-      
-      assert game_results.mean() < 1 and game_results.mean() > 0
+  assert game.current_player.attacks_this_turn == 1
 
 def test_random_card_game():
   card_pool = build_pool([CardSets.RANDOM_CARDS])
@@ -324,14 +307,13 @@ def test_random_card_game():
   _enemy = Player(Classes.HUNTER, mirror_deck, RandomNoEarlyPassing)
   game = Game(_player, _enemy)
 
-  game_results = np.empty(100)
+  game_results = np.empty(10)
 
-  for i in range(100):
+  for i in range(10):
     game_results[i] = game.simulate_game()
     game.reset_game()
   
   assert game_results.mean() < 1 and game_results.mean() > 0
-
 
 def test_game():
   random.seed(0)
@@ -374,9 +356,31 @@ def test_simulate():
 
   assert game_results.mean() < 1 and game_results.mean() > 0
 
+def test_big_random_cards():
+  random.seed(0)
+  for k in tqdm(range(100)):
+    card_pool = build_pool([CardSets.RANDOM_CARDS])
+    for j in range(100):
+      mirror_deck = Deck().generate_random(card_pool)
+
+      _player = Player(Classes.HUNTER, mirror_deck, RandomNoEarlyPassing)
+      _enemy = Player(Classes.HUNTER, mirror_deck, RandomNoEarlyPassing)
+      game = Game(_player, _enemy)
+
+      game_results = np.empty(100)
+
+      for i in range(100):
+        game_result = game.simulate_game()
+        assert game_result == 1 or game_result == 0
+        game_results[i] = game_result
+        game.reset_game()
+      
+      assert game_results.mean() < 1 and game_results.mean() > 0
 
 def main():
-  test_damage_all()
+  test_stealth()
+  # test_game()
+  # test_simulate()
 
 
 if __name__ == '__main__':

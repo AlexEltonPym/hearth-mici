@@ -21,7 +21,7 @@ class Player():
     self.current_mana = 0
     self.max_mana = 0
    
-    self.has_attacked = False
+    self.attacks_this_turn = 0
     self.used_hero_power = False
     self.hand = Hand(self)
     self.board = Board(self)

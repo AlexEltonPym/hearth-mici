@@ -40,8 +40,10 @@ def get_classic_cards():
                     effect=DealDamage(value=2, method=Methods.ALL, target=Targets.HEROES,\
                     owner_filter=OwnerFilters.ENEMY, trigger=Triggers.DEATHRATTLE))
   shieldbearer = Card(name="Shieldbearer", card_type=CardTypes.MINION, mana=1, attack=0, health=4, attributes=[Attributes.TAUNT])
-  southsea_deckhand = Card(name="Southsea Deckhand", card_type=CardTypes.MINION, mana=1, attack=2, health=1, condition=Condition(requirement=Condition.has_weapon, result={'attributes': [Attributes.CHARGE]}))
-  classic_cards = [wisp, abusive_sergeant, argent_squire, leper_gnome, shieldbearer, southsea_deckhand]
+  southsea_deckhand = Card(name="Southsea Deckhand", card_type=CardTypes.MINION, mana=1, attack=2, health=1,\
+                          condition=Condition(requirement=Condition.has_weapon, result={'attributes': [Attributes.CHARGE]}))
+  worgen_infiltrator = Card(name="Worgen Infiltrator", card_type=CardTypes.MINION, mana=1, attack=2, health=1, attributes=[Attributes.STEALTH])
+  classic_cards = [wisp, abusive_sergeant, argent_squire, leper_gnome, shieldbearer, southsea_deckhand, worgen_infiltrator]
   return classic_cards
 
 
@@ -67,6 +69,7 @@ def make_random_card(id):
   _mana = random.randint(0, 10)
   _attack = random.randint(0, 10)
   _health = random.randint(1, 10)
+  _attributes = random.choice([[random.choice([a for a in Attributes])], []])
   EffectType = random.choice([None, DealDamage, GainMana, ChangeStats])
   if EffectType:
     if EffectType.param_type == ParamTypes.X:
@@ -80,11 +83,11 @@ def make_random_card(id):
     _duration = choice_with_none(EffectType.available_durations)
     _trigger = choice_with_none(EffectType.available_triggers)
 
-    rand_card = Card(f"Random Card {id}", card_type=_card_type, mana=_mana, attack=_attack, health=_health,\
+    rand_card = Card(f"Random Card {id}", card_type=_card_type, mana=_mana, attack=_attack, health=_health, attributes=_attributes,\
       effect=EffectType(value=_value, method=_method, target=_target, owner_filter=_owner_filter, type_filter=_type_filter, duration=_duration, trigger=_trigger)
     )
   else:
-    rand_card = Card(f"Random Card {id}", card_type=CardTypes.MINION, mana=_mana, attack=_attack, health=_health)
+    rand_card = Card(f"Random Card {id}", card_type=CardTypes.MINION, mana=_mana, attack=_attack, health=_health, attributes=_attributes)
 
   return rand_card
 
