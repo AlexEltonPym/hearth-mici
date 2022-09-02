@@ -308,7 +308,26 @@ def test_bloodsail():
   assert new_bloodsail.parent == new_bloodsail.owner.board
   assert new_bloodsail.attack == 5
 
+def test_direwolf():
+  random.seed(0)
+  card_pool = build_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER, CardSets.TEST_CARDS])
+  _player = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
+  _enemy = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
+  game = Game(_player, _enemy)
+
+  new_wolf = get_from_name(card_pool, 'Dire Wolf Alpha')
+  new_wolf.set_owner(game.current_player)
+  new_wolf.set_parent(game.current_player.board)
+
+  new_wisp = get_from_name(card_pool, 'Wisp')
+  new_wisp.set_owner(game.current_player)
+  new_wisp.set_parent(game.current_player.board)
+
+  assert new_wisp.get_attack(game) == 2
+  assert new_wolf.get_attack(game) == 3
   
+
+
 def test_windfury_weapon():
   random.seed(0)
   card_pool = build_pool([CardSets.CLASSIC_NEUTRAL, CardSets.TEST_CARDS])

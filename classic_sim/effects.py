@@ -64,7 +64,7 @@ class ChangeStats():
   available_type_filters = [c for c in CreatureTypes]
   available_durations = [d for d in Durations]
   available_triggers = [t for t in Triggers]
-  def __init__(self, method, value, target, owner_filter, duration, trigger=None, type_filter=None):
+  def __init__(self, value, method=None, target=None, owner_filter=None, duration=None, trigger=None, type_filter=None):
     self.method = method
     self.attack_value, self.health_value = value
     self.target = target

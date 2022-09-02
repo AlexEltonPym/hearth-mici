@@ -1,4 +1,5 @@
 from enums import *
+from effects import *
 
 class Card():
   def __init__(self, name, card_type, mana, collectable=True, creature_type=None, attack=None, health=None, attributes=[], effect=None, condition=None):
@@ -45,7 +46,13 @@ class Card():
           and self.condition.requirement(game, self))\
   
   def get_attack(self, game):
-    return self.attack+self.temp_attack+(self.condition.result['temp_attack'] if self.condition and self.condition.requirement(game, self) else 0)
+    aura_attack = 0
+    for card in filter(lambda card: card.effect and card.effect.trigger == Triggers.AURA, self.owner.board.get_all()):
+      if isinstance(card.effect, ChangeStats):
+        aura_attack += card.effect.attack_value
+
+    condition_attack = self.condition.result['temp_attack'] if self.condition and self.condition.requirement(game, self) else 0
+    return self.attack+self.temp_attack+condition_attack+aura_attack
 
   def __str__(self):
     return self.get_string()

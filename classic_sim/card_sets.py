@@ -50,8 +50,10 @@ def get_classic_cards():
   amani_berserker = Card(name="Amani Berserker", card_type=CardTypes.MINION, mana=2, attack=2, health=3, condition=Condition(requirement=Condition.damaged, result={'temp_attack': 3}))
   bloodsail_raider = Card(name="Bloodsail Raider", card_type=CardTypes.MINION, mana=2, attack=2, health=3,\
                          effect=GainWeaponAttack(method=Methods.TARGETED, owner_filter=OwnerFilters.FRIENDLY, duration=Durations.PERMANENTLY))
+  dire_wolf_alpha = Card(name="Dire Wolf Alpha", card_type=CardTypes.MINION, mana=2, attack=2, health=2, effect=ChangeStats(value=(1,0), trigger=Triggers.AURA, type_filter=CreatureTypes.ALL)) #gives all minions +1 including self, nerf attack by 1, mana by 1?
+  
   one_drops = [wisp, abusive_sergeant, argent_squire, leper_gnome, shieldbearer, southsea_deckhand, worgen_infiltrator, young_dragonhawk]
-  two_drops = [amani_berserker, bloodsail_raider]
+  two_drops = [amani_berserker, bloodsail_raider, dire_wolf_alpha]
   return one_drops + two_drops
 
 
