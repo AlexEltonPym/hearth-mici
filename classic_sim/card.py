@@ -5,9 +5,10 @@ class Card():
     self.name = name
     self.card_type = card_type
     self.creature_type = creature_type
-    self.original_health = health
+    self.original_health = health #used for reseting games, never changes
+    self.max_health = health #used during the game as the max health for healing, enrage etc, can change
+    self.health = health #used during game as current health
     self.attack = attack
-    self.health = health
     self.mana = mana
     self.attributes = attributes
     self.effect = effect
@@ -37,6 +38,14 @@ class Card():
     self.parent.remove(self)
     self.parent = new_parent
     self.parent.add(self)
+
+  def has_attribute(self, game, attribute):
+    return attribute in self.attributes\
+          or (self.condition and attribute in self.condition.result['attributes']\
+          and self.condition.requirement(game, self))\
+  
+  def get_attack(self, game):
+    return self.attack+self.temp_attack+(self.condition.result['temp_attack'] if self.condition and self.condition.requirement(game, self) else 0)
 
   def __str__(self):
     return self.get_string()

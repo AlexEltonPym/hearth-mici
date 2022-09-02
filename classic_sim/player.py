@@ -10,6 +10,7 @@ class Player():
     self.strategy = strategy
     self.hero_power = None
 
+    self.max_health = 30
     self.health = 30
     self.weapon = None
     self.attack = 0
@@ -30,6 +31,7 @@ class Player():
     self.game = None
     self.fatigue_damage = 1
     self.owner = self
+    self.condition = None
 
      
   def remove(self, card):
@@ -38,7 +40,16 @@ class Player():
 
   def add(self, card):
     self.weapon = card
+
+  def get_attack(self, game):
+    return self.attack+self.temp_attack+(self.condition.result['temp_attack'] if self.condition and self.condition.requirement(game, self) else 0)
+
   
+  def has_attribute(self, game, attribute):
+    return attribute in self.attributes\
+          or (self.condition and attribute in self.condition.result['attributes']\
+          and self.condition.requirement(game, self))\
+
   def __str__(self):
     return str((self.name, self.player_class, str(self.health)))
 

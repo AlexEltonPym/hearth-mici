@@ -29,6 +29,7 @@ def get_op_cards():
   return op_cards
 
 def get_classic_cards():
+  #One drops
   wisp = Card(name="Wisp", card_type = CardTypes.MINION, mana = 0, attack = 1, health = 1)
   abusive_sergeant = Card(name="Abusive Sergeant", card_type=CardTypes.MINION, mana=1, attack=1, health=1,\
                           effect=ChangeStats(value=(2,0), method = Methods.TARGETED,\
@@ -43,8 +44,15 @@ def get_classic_cards():
   southsea_deckhand = Card(name="Southsea Deckhand", card_type=CardTypes.MINION, mana=1, attack=2, health=1,\
                           condition=Condition(requirement=Condition.has_weapon, result={'attributes': [Attributes.CHARGE]}))
   worgen_infiltrator = Card(name="Worgen Infiltrator", card_type=CardTypes.MINION, mana=1, attack=2, health=1, attributes=[Attributes.STEALTH])
-  classic_cards = [wisp, abusive_sergeant, argent_squire, leper_gnome, shieldbearer, southsea_deckhand, worgen_infiltrator]
-  return classic_cards
+  young_dragonhawk = Card(name="Young Dragonhawk", card_type=CardTypes.MINION, mana=1, attack=1, health=1, attributes=[Attributes.WINDFURY])
+  
+  #Two drops
+  amani_berserker = Card(name="Amani Berserker", card_type=CardTypes.MINION, mana=2, attack=2, health=3, condition=Condition(requirement=Condition.damaged, result={'temp_attack': 3}))
+  bloodsail_raider = Card(name="Bloodsail Raider", card_type=CardTypes.MINION, mana=2, attack=2, health=3,\
+                         effect=GainWeaponAttack(method=Methods.TARGETED, owner_filter=OwnerFilters.FRIENDLY, duration=Durations.PERMANENTLY))
+  one_drops = [wisp, abusive_sergeant, argent_squire, leper_gnome, shieldbearer, southsea_deckhand, worgen_infiltrator, young_dragonhawk]
+  two_drops = [amani_berserker, bloodsail_raider]
+  return one_drops + two_drops
 
 
 

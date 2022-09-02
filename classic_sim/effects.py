@@ -78,7 +78,34 @@ class ChangeStats():
       if self.duration == Durations.TURN:
         target.temp_attack += self.attack_value
         target.temp_health += self.health_value
-      else:
+      elif self.duration == Durations.PERMANENTLY:
         target.attack += self.attack_value
         target.health += self.health_value
+
+
+
+class GainWeaponAttack():
+  available_methods = [m for m in Methods]
+  param_type = ParamTypes.NONE
+  available_targets = [Targets.WEAPONS]
+  available_owner_filters = [f for f in OwnerFilters]
+  available_type_filters = []
+  available_durations = [Durations.TURN, Durations.PERMANENTLY]
+  available_triggers = [Triggers.BATTLECRY]
+  def __init__(self, method, owner_filter, duration, value=None, target=Targets.WEAPONS, trigger=Triggers.BATTLECRY, type_filter=None):
+    self.method = method
+    self.value = value
+    self.target = target
+    self.owner_filter = owner_filter
+    self.type_filter = type_filter
+    self.trigger = trigger
+    self.duration = duration
+
+  def resolve_action(self, game, action):
+    if self.duration == Durations.TURN:
+      for target in action.targets:
+        action.source.temp_attack += target.attack + target.temp_attack
+    elif self.duration == Durations.PERMANENTLY:
+      for target in action.targets:
+        action.source.attack += target.attack + target.temp_attack
 

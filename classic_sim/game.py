@@ -151,13 +151,15 @@ class Game():
 
   def handle_attack(self, action):
     if isinstance(action.source, Player) and action.source.weapon:
-      damage = action.source.attack + action.source.temp_attack + action.source.weapon.attack
+      damage = action.source.get_attack(self) + action.source.weapon.attack
+      other_damage = action.targets[0].get_attack(self)
       action.source.weapon.health -= 1
       self.check_dead(action.source.weapon)
     else:
-      damage = action.source.attack + action.source.temp_attack
+      damage = action.source.get_attack(self)
+      other_damage = action.targets[0].get_attack(self)
     self.deal_damage(action.targets[0], damage)
-    self.deal_damage(action.source, action.targets[0].attack + action.targets[0].temp_attack)
+    self.deal_damage(action.source, other_damage)
     if action.source.attacks_this_turn == -1: #used charge to attack
       action.source.attacks_this_turn += 2
     else:
@@ -297,13 +299,10 @@ class Game():
   def get_minion_attack_actions(self, player):
     minion_attack_options = []
     for minion in player.board.get_all():
-      if (minion.attacks_this_turn == 0 \
-          or (minion.attacks_this_turn == -1 \
-          and (Attributes.CHARGE in minion.attributes\
-          or (minion.condition and Attributes.CHARGE in minion.condition.result['attributes']\
-          and minion.condition.requirement(self))))\
-          or (minion.attacks_this_turn == 1 and Attributes.WINDFURY in minion.attributes))\
-          and minion.attack+minion.temp_attack > 0:
+      if  (minion.attacks_this_turn == 0 \
+          or (minion.attacks_this_turn == -1 and minion.has_attribute(self, Attributes.CHARGE))\
+          or (minion.attacks_this_turn == 1 and minion.has_attribute(self, Attributes.WINDFURY)))\
+          and minion.get_attack(self) > 0:
         for target in self.get_available_targets(minion):
           minion_attack_options.append(Action(Actions.ATTACK, minion, [target]))
 
@@ -312,11 +311,11 @@ class Game():
 
   def get_hero_attack_actions(self, player):
     hero_attack_options = []
-    if (player.attack > 0\
+    if (player.get_attack(self) > 0
         or (player.weapon and player.weapon.attack > 0))\
         and (player.attacks_this_turn == 0\
-        or (player.attacks_this_turn == 1\
-        and player.weapon and Attributes.WINDFURY in player.weapon.attributes)):
+        or (player.attacks_this_turn == 1 and (player.has_attribute(self, Attributes.WINDFURY)\
+        or player.weapon and player.weapon.has_attribute(self, Attributes.WINDFURY)))):
       for target in self.get_available_targets(player):
         hero_attack_options.append(Action(Actions.ATTACK, player, [target]))
     return hero_attack_options

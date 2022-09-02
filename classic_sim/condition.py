@@ -17,6 +17,9 @@ class Condition():
     return [Condition.has_weapon]
   
   @staticmethod
-  def has_weapon(game):
+  def has_weapon(game, card):
     return game.current_player.weapon
 
+  @staticmethod
+  def damaged(game, card):
+    return card.health < card.max_health

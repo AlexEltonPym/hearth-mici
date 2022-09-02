@@ -132,6 +132,7 @@ def test_shieldbearer():
   new_shieldbearer.set_parent(game.current_player.board)
   new_shieldbearer.attacks_this_turn = 0
   available_actions=game.get_available_actions(game.current_player)
+  print(available_actions)
   for action in available_actions:
     assert action.action_type != Actions.ATTACK
 
@@ -147,14 +148,14 @@ def test_southsea_deckhand():
   new_deckhand.set_parent(game.current_player.board)
 
   assert new_deckhand.attacks_this_turn == -1
-  assert not new_deckhand.condition.requirement(game)
+  assert not new_deckhand.condition.requirement(game, new_deckhand)
   assert len(list(filter(lambda action: action.action_type == Actions.ATTACK, game.get_available_actions(game.current_player)))) == 0
 
   new_weapon = get_from_name(card_pool, 'Generic Weapon')
   new_weapon.set_owner(game.current_player)
   new_weapon.set_parent(game.current_player)
   assert new_deckhand.attacks_this_turn == -1
-  assert new_deckhand.condition.requirement(game)
+  assert new_deckhand.condition.requirement(game, new_deckhand)
   assert len(list(filter(lambda action: action.action_type == Actions.ATTACK, game.get_available_actions(game.current_player)))) == 2 #attack with charge, attack with weapon
 
 def test_battlecry_weapon():
@@ -240,7 +241,74 @@ def test_stealth():
 
   assert len(list(filter(lambda action: action.action_type == Actions.ATTACK, game.get_available_actions(game.current_player.other_player)))) == 2
 
+def test_windfury():
+  random.seed(0)
+  card_pool = build_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER])
+  _player = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
+  _enemy = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
+  game = Game(_player, _enemy)
 
+  new_dragonhawk = get_from_name(card_pool, 'Young Dragonhawk')
+  new_dragonhawk.set_owner(game.current_player)
+  new_dragonhawk.set_parent(game.current_player.board)
+  assert Attributes.WINDFURY in new_dragonhawk.attributes
+  new_dragonhawk.attacks_this_turn = 0
+
+  attack_action = list(filter(lambda action: action.action_type == Actions.ATTACK, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(attack_action)
+  assert new_dragonhawk.attacks_this_turn == 1
+
+  attack_action = list(filter(lambda action: action.action_type == Actions.ATTACK, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(attack_action)
+  assert new_dragonhawk.attacks_this_turn == 2
+  assert len(list(filter(lambda action: action.action_type == Actions.ATTACK, game.get_available_actions(game.current_player)))) == 0
+
+  assert game.current_player.other_player.health == 28
+
+def test_enrage():
+  random.seed(0)
+  card_pool = build_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER])
+  _player = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
+  _enemy = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
+  game = Game(_player, _enemy)
+
+  new_berserker = get_from_name(card_pool, 'Amani Berserker')
+  new_berserker.set_owner(game.current_player)
+  new_berserker.set_parent(game.current_player.board)
+  assert not new_berserker.condition.requirement(game, new_berserker)
+  new_berserker.attacks_this_turn = 0
+  new_berserker.health = 2
+  assert new_berserker.condition.requirement(game, new_berserker)
+  attack_action = Action(action_type=Actions.ATTACK, source=new_berserker, targets=[game.current_player.other_player])
+  game.perform_action(attack_action)
+  assert game.current_player.other_player.health == 25
+
+def test_bloodsail():
+  random.seed(0)
+  card_pool = build_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER, CardSets.TEST_CARDS])
+  _player = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
+  _enemy = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
+  game = Game(_player, _enemy)
+
+  new_bloodsail = get_from_name(card_pool, 'Bloodsail Raider')
+  new_bloodsail.set_owner(game.current_player)
+  new_bloodsail.set_parent(game.current_player.hand)
+
+  game.current_player.current_mana = 10
+  new_weapon = get_from_name(card_pool, 'Generic Weapon')
+  new_weapon.set_owner(game.current_player)
+  new_weapon.set_parent(game.current_player.hand)
+
+  cast_weap = list(filter(lambda action: action.action_type == Actions.CAST_WEAPON and action.source == new_weapon, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(cast_weap)
+  assert game.current_player.weapon == new_weapon
+
+  cast_bloodsail = list(filter(lambda action: action.source == new_bloodsail, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(cast_bloodsail)
+  assert new_bloodsail.parent == new_bloodsail.owner.board
+  assert new_bloodsail.attack == 5
+
+  
 
 def test_damage_all():
   random.seed(0)
@@ -378,7 +446,7 @@ def test_big_random_cards():
       assert game_results.mean() < 1 and game_results.mean() > 0
 
 def main():
-  test_stealth()
+  test_bloodsail()
   # test_game()
   # test_simulate()
 

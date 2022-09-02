@@ -13,6 +13,8 @@ class Attributes(Enum):
 class Triggers(Enum):
   BATTLECRY = 0
   DEATHRATTLE = 1
+  AURA = 2 #an aura is permentant until the source disapears
+
 
 class Events(Enum):
   WEAPON_PLAYED = 3
@@ -55,7 +57,6 @@ class CreatureTypes(Enum):
 class Durations(Enum):
   TURN = 0
   PERMANENTLY = 1
-  AURA = 3 #an aura is permentant until the source disapears
 
 
 class Methods(Enum):
@@ -83,7 +84,8 @@ class CardTypes(Enum):
 
 
 class ParamTypes(Enum):
-  Keyword = 0
-  CreatureType = 1
+  KEYWORD = 0
+  CREATURE_TYPE = 1
   X = 2
   XY = 3
+  NONE = 4
