@@ -7,6 +7,7 @@ class Player():
   def __init__(self, player_class, deck, strategy):
     self.player_class = player_class
     self.deck = deepcopy(deck)
+    self.deck.update_owner(self)
     self.strategy = strategy
     self.hero_power = None
 

@@ -1,5 +1,6 @@
 from enums import *
 
+
 class GainMana():
   available_methods = [m for m in Methods]
   param_type = ParamTypes.X
@@ -133,3 +134,27 @@ class DrawCards():
   def resolve_action(self, game, action):
     for target in action.targets:
       game.draw(target, self.value)
+
+class ReturnToHand():
+  available_methods = [m for m in Methods]
+  param_type = ParamTypes.NONE
+  available_targets = [Targets.MINIONS] #could theoreticaly do weapons too
+  available_owner_filters = [f for f in OwnerFilters]
+  available_type_filters = [t for t in CreatureTypes]
+  available_durations = []
+  available_triggers = [Triggers.BATTLECRY, Triggers.DEATHRATTLE]
+
+  def __init__(self, method, owner_filter, target=Targets.MINIONS, value=None, trigger=None, type_filter=None, duration=None):
+    self.method = method
+    self.value = value
+    self.target = target
+    self.owner_filter = owner_filter
+    self.type_filter = type_filter
+    self.trigger = trigger
+    self.duration = duration
+
+  def resolve_action(self, game, action):
+    for target in action.targets:
+      target.change_parent(target.parent.parent.hand) #return to targets parent's player's hand (the parent of the board is the player)
+
+

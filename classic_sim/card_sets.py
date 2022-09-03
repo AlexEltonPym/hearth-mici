@@ -2,8 +2,8 @@ from card import Card
 from condition import Condition
 from enums import *
 from effects import *
+from card_generator import make_random_card
 from copy import deepcopy
-import random
 
 def get_utility_card(utility_card):
   the_coin = Card(name="The Coin", collectable=False, card_type=CardTypes.SPELL, mana=0, \
@@ -60,6 +60,8 @@ def get_classic_cards():
   mad_bomber = Card(name="Mad Bomber", card_type=CardTypes.MINION, mana=2, attack=3, health=2,\
                     effect=DealDamage(value=3, method = Methods.RANDOMLY, target=Targets.MINIONS_OR_HEROES,\
                     owner_filter=OwnerFilters.ALL, trigger=Triggers.BATTLECRY))
+  youthful_brewmaster = Card(name="Youthful Brewmaster", card_type=CardTypes.MINION, mana=2, attack=3, health=2,\
+                          effect=ReturnToHand(method=Methods.TARGETED, target=Targets.MINIONS, owner_filter=OwnerFilters.FRIENDLY))
 
   common_one_drops = [wisp, abusive_sergeant, argent_squire, leper_gnome, shieldbearer, southsea_deckhand, worgen_infiltrator, young_dragonhawk]
   common_two_drops = [amani_berserker, bloodsail_raider, dire_wolf_alpha, faerie_dragon, loot_hoarder, mad_bomber]
@@ -82,45 +84,9 @@ def get_test_cards():
   test_cards = [all_dam, generic_weapon, battlecry_weapon, windfury_weapon]
   return test_cards
 
-
-
-
 def get_random_cards():
   rand_cards = [make_random_card(i) for i in range(100)]
   return rand_cards
-
-def make_random_card(id):
-  _card_type = random.choice(list(CardTypes))
-  _mana = random.randint(0, 10)
-  _attack = random.randint(0, 10)
-  _health = random.randint(1, 10)
-  _attributes = random.choice([[random.choice([a for a in Attributes])], []])
-  EffectType = random.choice([None, DealDamage, GainMana, ChangeStats])
-  if EffectType:
-    if EffectType.param_type == ParamTypes.X:
-      _value = random.randint(1, 10)
-    elif EffectType.param_type == ParamTypes.XY:
-      _value = (random.randint(1, 10), random.randint(1, 10))
-    _method = choice_with_none(EffectType.available_methods)
-    _target = choice_with_none(EffectType.available_targets)
-    _owner_filter = choice_with_none(EffectType.available_owner_filters)
-    _type_filter = choice_with_none(EffectType.available_type_filters)
-    _duration = choice_with_none(EffectType.available_durations)
-    _trigger = choice_with_none(EffectType.available_triggers)
-
-    rand_card = Card(f"Random Card {id}", card_type=_card_type, mana=_mana, attack=_attack, health=_health, attributes=_attributes,\
-      effect=EffectType(value=_value, method=_method, target=_target, owner_filter=_owner_filter, type_filter=_type_filter, duration=_duration, trigger=_trigger)
-    )
-  else:
-    rand_card = Card(f"Random Card {id}", card_type=CardTypes.MINION, mana=_mana, attack=_attack, health=_health, attributes=_attributes)
-
-  return rand_card
-
-def choice_with_none(iterable):
-  if len(iterable) == 0:
-    return None
-  else:
-    return random.choice(iterable)
 
 def build_pool(set_names):
   pool = []

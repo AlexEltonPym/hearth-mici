@@ -132,7 +132,6 @@ def test_shieldbearer():
   new_shieldbearer.set_parent(game.current_player.board)
   new_shieldbearer.attacks_this_turn = 0
   available_actions=game.get_available_actions(game.current_player)
-  print(available_actions)
   for action in available_actions:
     assert action.action_type != Actions.ATTACK
 
@@ -536,16 +535,18 @@ def test_simulate():
   assert game_results.mean() < 1 and game_results.mean() > 0
 
 def test_big_random_cards():
-  random.seed(0)
+
   for k in tqdm(range(100)):
+    seed = random.randint(0, 1000)
+    print(f"seed was {seed}")
+    random.seed(seed)
     card_pool = build_pool([CardSets.RANDOM_CARDS])
     for j in range(100):
       mirror_deck = Deck().generate_random(card_pool)
-
       _player = Player(Classes.HUNTER, mirror_deck, RandomNoEarlyPassing)
       _enemy = Player(Classes.HUNTER, mirror_deck, RandomNoEarlyPassing)
       game = Game(_player, _enemy)
-
+      
       game_results = np.empty(100)
 
       for i in range(100):
@@ -557,7 +558,7 @@ def test_big_random_cards():
       assert game_results.mean() < 1 and game_results.mean() > 0
 
 def main():
-  test_mad_bomber()
+  test_big_random_cards()
   # test_simulate()
 
 

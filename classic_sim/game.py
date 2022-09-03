@@ -22,8 +22,7 @@ class Game():
     self.player.name = 'player'
     self.enemy.name = 'enemy'
 
-    self.player.deck.update_owner(self.player)
-    self.enemy.deck.update_owner(self.enemy)
+
 
     self.player.hero_power = get_hero_power(self.player.player_class)
     self.player.hero_power.set_owner(self.player)
@@ -273,6 +272,7 @@ class Game():
     owner_filter = card.effect.owner_filter
     type_filter = card.effect.type_filter
     target = card.effect.target
+    
     if owner_filter == OwnerFilters.FRIENDLY or owner_filter == OwnerFilters.ALL:
       if target == Targets.MINIONS or target == Targets.MINIONS_OR_HEROES:
         for minion in player.board.get_all():
@@ -293,6 +293,7 @@ class Game():
         available_targets.append(player.other_player.weapon)
     if card in available_targets:
       available_targets.remove(card)
+
     return available_targets
 
 
@@ -364,6 +365,7 @@ class Game():
     for _ in range(100):
 
       self.take_turn()
+
       if(self.player.health <= 0):
         return 0
       elif(self.enemy.health <= 0):

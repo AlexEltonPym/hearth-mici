@@ -20,13 +20,6 @@ class Card():
     self.temp_attack = 0
     self.temp_health = 0
     self.collectable = collectable
-    
-
-  def get_string(self):
-    if(self.card_type == CardTypes.MINION):
-      return str((id(self), self.owner.name, self.parent.name, self.name, self.mana, str(self.attack+self.temp_attack)+"/"+str(self.health+self.temp_health)))
-    else:
-      return str((id(self), self.owner.name, self.parent.name, self.name, self.mana))
 
   def set_owner(self, owner):
     self.owner = owner
@@ -53,6 +46,13 @@ class Card():
 
     condition_attack = self.condition.result['temp_attack'] if self.condition and self.condition.requirement(game, self) else 0
     return self.attack+self.temp_attack+condition_attack+aura_attack
+    
+
+  def get_string(self):
+    if(self.card_type == CardTypes.MINION):
+      return str((id(self), self.owner.name if self.owner else None, self.parent.name if self.parent else None, self.name, self.mana, self.effect, str(self.attack+self.temp_attack)+"/"+str(self.health+self.temp_health)))
+    else:
+      return str((id(self), self.owner.name if self.owner else None, self.parent.name if self.parent else None, self.name, self.mana, self.effect))
 
   def __str__(self):
     return self.get_string()
