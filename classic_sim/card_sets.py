@@ -64,7 +64,7 @@ def get_classic_cards():
                           effect=ReturnToHand(method=Methods.TARGETED, target=Targets.MINIONS, owner_filter=OwnerFilters.FRIENDLY))
 
   common_one_drops = [wisp, abusive_sergeant, argent_squire, leper_gnome, shieldbearer, southsea_deckhand, worgen_infiltrator, young_dragonhawk]
-  common_two_drops = [amani_berserker, bloodsail_raider, dire_wolf_alpha, faerie_dragon, loot_hoarder, mad_bomber]
+  common_two_drops = [amani_berserker, bloodsail_raider, dire_wolf_alpha, faerie_dragon, loot_hoarder, mad_bomber, youthful_brewmaster]
   return common_one_drops + common_two_drops
 
 def get_mage_cards():

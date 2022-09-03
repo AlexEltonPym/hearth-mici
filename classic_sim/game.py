@@ -47,25 +47,20 @@ class Game():
 
   def reset_game(self):
     for player in [self.player, self.enemy]:
-      player.health = 30
-      player.weapon = None
-      player.had_attacked = False
-      player.temp_attack = 0
-      player.temp_health = 0
-      player.armor = 0
-      player.attack = 0
-
       all_cards = player.graveyard.get_all() + player.board.get_all() + player.hand.get_all()
       if player.weapon:
         all_cards.append(player.weapon)
+        player.weapon = None
       for card in all_cards:
         if card.collectable:
           card.attacks_this_turn = -1
           card.health = card.original_health
+          card.clear_buffs()
           card.change_parent(card.owner.deck)
         else:
           card.parent.remove(card)
           del card
+      player.reset()
 
   def untap(self):
     self.current_player.max_mana += 1

@@ -80,8 +80,8 @@ class ChangeStats():
         target.temp_attack += self.attack_value
         target.temp_health += self.health_value
       elif self.duration == Durations.PERMANENTLY:
-        target.attack += self.attack_value
-        target.health += self.health_value
+        target.perm_attack += self.attack_value
+        target.perm_attack += self.health_value
 
 
 
@@ -105,10 +105,10 @@ class GainWeaponAttack():
   def resolve_action(self, game, action):
     if self.duration == Durations.TURN:
       for target in action.targets:
-        action.source.temp_attack += target.attack + target.temp_attack
+        action.source.temp_attack += target.get_attack(game)
     elif self.duration == Durations.PERMANENTLY:
       for target in action.targets:
-        action.source.attack += target.attack + target.temp_attack
+        action.source.perm_attack += target.get_attack(game)
 
 
 
@@ -156,5 +156,5 @@ class ReturnToHand():
   def resolve_action(self, game, action):
     for target in action.targets:
       target.change_parent(target.parent.parent.hand) #return to targets parent's player's hand (the parent of the board is the player)
-
+      target.clear_buffs()
 

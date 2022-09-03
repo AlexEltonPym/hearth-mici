@@ -46,11 +46,12 @@ class RandomNoEarlyPassing():
     all_available_actions = state.get_available_actions(state.current_player)
 
     available_actions_without_ending = list(filter(lambda x: x.action_type != Actions.END_TURN, all_available_actions))
-
+    
     if len(available_actions_without_ending) > 0:
       chosen_action = choice(available_actions_without_ending)
     else:
       chosen_action = all_available_actions[0]
+    # print(chosen_action)
     turn_passed = state.perform_action(chosen_action)
     
     return turn_passed

@@ -6,9 +6,10 @@ class Card():
     self.name = name
     self.card_type = card_type
     self.creature_type = creature_type
-    self.original_health = health #used for reseting games, never changes
+    self.original_health = health #used for reseting games and return to hand, never changes
     self.max_health = health #used during the game as the max health for healing, enrage etc, can change
     self.health = health #used during game as current health
+    self.original_attack = attack
     self.attack = attack
     self.mana = mana
     self.attributes = attributes
@@ -19,6 +20,8 @@ class Card():
     self.parent = None
     self.temp_attack = 0
     self.temp_health = 0
+    self.perm_attack = 0
+    self.perm_health = 0
     self.collectable = collectable
 
   def set_owner(self, owner):
@@ -45,8 +48,16 @@ class Card():
         aura_attack += card.effect.attack_value
 
     condition_attack = self.condition.result['temp_attack'] if self.condition and self.condition.requirement(game, self) else 0
-    return self.attack+self.temp_attack+condition_attack+aura_attack
+    return self.attack+self.perm_attack+self.temp_attack+condition_attack+aura_attack
     
+  def clear_buffs(self):
+    self.attacks_this_turn = -1
+    self.temp_attack = 0
+    self.temp_health = 0
+    self.perm_attack = 0
+    self.perm_health = 0 
+    self.health = self.original_health    
+
 
   def get_string(self):
     if(self.card_type == CardTypes.MINION):

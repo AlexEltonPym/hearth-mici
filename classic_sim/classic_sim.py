@@ -14,8 +14,6 @@ from joblib import Parallel, delayed
 NUM_GAMES = 100
 
 def main():
-
-  random.seed(0)
   hunter_pool = build_pool([CardSets.CLASSIC_HUNTER, CardSets.CLASSIC_NEUTRAL])
   op_pool = build_pool([CardSets.OP_CARDS])
   mirror_deck = Deck().generate_random(hunter_pool)
