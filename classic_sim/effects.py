@@ -109,3 +109,27 @@ class GainWeaponAttack():
       for target in action.targets:
         action.source.attack += target.attack + target.temp_attack
 
+
+
+
+class DrawCards():
+  available_methods = [m for m in Methods]
+  param_type = ParamTypes.X
+  available_targets = [Targets.HEROES]
+  available_owner_filters = [f for f in OwnerFilters]
+  available_type_filters = []
+  available_durations = []
+  available_triggers = [Triggers.BATTLECRY, Triggers.DEATHRATTLE]
+
+  def __init__(self, method, value, owner_filter, target=Targets.HEROES, trigger=None, type_filter=None, duration=None):
+    self.method = method
+    self.value = value
+    self.target = target
+    self.owner_filter = owner_filter
+    self.type_filter = type_filter
+    self.trigger = trigger
+    self.duration = duration
+
+  def resolve_action(self, game, action):
+    for target in action.targets:
+      game.draw(target, self.value)

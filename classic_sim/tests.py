@@ -325,8 +325,48 @@ def test_direwolf():
 
   assert new_wisp.get_attack(game) == 2
   assert new_wolf.get_attack(game) == 3
-  
 
+def test_loot_hoarder():
+  random.seed(0)
+  hunter_pool = build_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER])
+  mage_pool = build_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_MAGE])
+  _player = Player(Classes.HUNTER, Deck().generate_random(hunter_pool), GreedyAction)
+  _enemy = Player(Classes.MAGE, Deck().generate_random(mage_pool), GreedyAction)
+  game = Game(_player, _enemy)
+
+  new_hoarder = get_from_name(hunter_pool, 'Loot Hoarder')
+  new_hoarder.set_owner(game.current_player)
+  new_hoarder.set_parent(game.current_player.board)
+  assert len(game.current_player.hand.get_all()) == 4
+
+  fireblast_action = Action(action_type=Actions.CAST_HERO_POWER, source=game.enemy.hero_power, targets=[new_hoarder])
+  game.perform_action(fireblast_action)
+  assert new_hoarder.parent == new_hoarder.owner.graveyard
+  assert len(game.current_player.hand.get_all()) == 5
+
+def test_hexproof():
+  random.seed(0)
+  hunter_pool = build_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER])
+  mage_pool = build_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_MAGE])
+  _player = Player(Classes.HUNTER, Deck().generate_random(hunter_pool), GreedyAction)
+  _enemy = Player(Classes.MAGE, Deck().generate_random(mage_pool), GreedyAction)
+  game = Game(_player, _enemy)
+  game.player.hand.hand = []
+  game.enemy.hand.hand = []
+
+  new_faerie = get_from_name(hunter_pool, 'Faerie Dragon')
+  new_faerie.set_owner(game.player)
+  new_faerie.set_parent(game.player.board)
+  
+  new_fireball = get_from_name(mage_pool, 'Fireball')
+  new_fireball.set_owner(game.enemy)
+  new_fireball.set_parent(game.enemy.hand)
+
+  game.enemy.current_mana = 10
+
+  available_actions = game.get_available_actions(game.enemy)
+  available_actions = list(filter(lambda action: action.action_type==Actions.CAST_SPELL or action.action_type==Actions.CAST_HERO_POWER, available_actions))
+  assert len(available_actions) == 4 #fireblast self and enemy, fireball self and enemy
 
 def test_windfury_weapon():
   random.seed(0)
@@ -494,8 +534,7 @@ def test_big_random_cards():
       assert game_results.mean() < 1 and game_results.mean() > 0
 
 def main():
-  test_bloodsail()
-  # test_game()
+  test_loot_hoarder()
   # test_simulate()
 
 

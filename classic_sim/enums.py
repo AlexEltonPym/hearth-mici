@@ -8,6 +8,7 @@ class Attributes(Enum):
   CHARGE = 3
   STEALTH = 4
   WINDFURY = 5
+  HEXPROOF = 6
 
 
 class Triggers(Enum):
@@ -71,9 +72,11 @@ class CardSets(Enum):
   OP_CARDS = 2
   TEST_CARDS = 3
   RANDOM_CARDS = 4
+  CLASSIC_MAGE = 5
 
 class Classes(Enum):
   HUNTER = 0
+  MAGE = 1
 
 
 class CardTypes(Enum):

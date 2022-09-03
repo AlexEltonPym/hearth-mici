@@ -16,7 +16,10 @@ def get_hero_power(hero_class):
   steady_shot = Card(name="Steady Shot", collectable=False, card_type=CardTypes.HERO_POWER, mana=2, \
                           effect=DealDamage(value=2, method=Methods.ALL, \
                           target=Targets.HEROES, owner_filter=OwnerFilters.ENEMY))
-  hero_powers = {Classes.HUNTER: steady_shot}
+  fireblast = Card(name="Fireblast", collectable=False, card_type=CardTypes.HERO_POWER, mana=2,\
+                          effect=DealDamage(value=1, method=Methods.TARGETED, target=Targets.MINIONS_OR_HEROES,\
+                            owner_filter=OwnerFilters.ALL))
+  hero_powers = {Classes.HUNTER: steady_shot, Classes.MAGE: fireblast}
   return hero_powers[hero_class]
 
 def get_hunter_cards():
@@ -51,12 +54,18 @@ def get_classic_cards():
   bloodsail_raider = Card(name="Bloodsail Raider", card_type=CardTypes.MINION, mana=2, attack=2, health=3,\
                          effect=GainWeaponAttack(method=Methods.TARGETED, owner_filter=OwnerFilters.FRIENDLY, duration=Durations.PERMANENTLY))
   dire_wolf_alpha = Card(name="Dire Wolf Alpha", card_type=CardTypes.MINION, mana=2, attack=2, health=2, effect=ChangeStats(value=(1,0), trigger=Triggers.AURA, type_filter=CreatureTypes.ALL)) #gives all minions +1 including self, nerf attack by 1, mana by 1?
+  faerie_dragon = Card(name="Faerie Dragon", card_type=CardTypes.MINION, mana=2, attack=3, health=2, attributes=[Attributes.HEXPROOF])
+  loot_hoarder = Card(name="Loot Hoarder", card_type=CardTypes.MINION, mana=2, attack=2, health=1,\
+                      effect=DrawCards(value=1, method=Methods.ALL, owner_filter=OwnerFilters.FRIENDLY, trigger=Triggers.DEATHRATTLE))
   
-  one_drops = [wisp, abusive_sergeant, argent_squire, leper_gnome, shieldbearer, southsea_deckhand, worgen_infiltrator, young_dragonhawk]
-  two_drops = [amani_berserker, bloodsail_raider, dire_wolf_alpha]
-  return one_drops + two_drops
 
+  common_one_drops = [wisp, abusive_sergeant, argent_squire, leper_gnome, shieldbearer, southsea_deckhand, worgen_infiltrator, young_dragonhawk]
+  common_two_drops = [amani_berserker, bloodsail_raider, dire_wolf_alpha, faerie_dragon, loot_hoarder]
+  return common_one_drops + common_two_drops
 
+def get_mage_cards():
+  fireball = Card(name="Fireball", card_type=CardTypes.SPELL, mana=4, effect=DealDamage(value=6, method=Methods.TARGETED, target=Targets.MINIONS_OR_HEROES, owner_filter=OwnerFilters.ALL))
+  return [fireball]
 
 def get_test_cards():
   all_dam = Card("All Damage", card_type=CardTypes.SPELL, mana=0,\
@@ -70,6 +79,9 @@ def get_test_cards():
   windfury_weapon = Card("Windfury Weapon", card_type=CardTypes.WEAPON, mana=0, attack=2, health=2, attributes=[Attributes.WINDFURY])
   test_cards = [all_dam, generic_weapon, battlecry_weapon, windfury_weapon]
   return test_cards
+
+
+
 
 def get_random_cards():
   rand_cards = [make_random_card(i) for i in range(100)]
@@ -114,6 +126,8 @@ def build_pool(set_names):
     pool.extend(get_classic_cards())
   if CardSets.CLASSIC_HUNTER in set_names:
     pool.extend(get_hunter_cards())
+  if CardSets.CLASSIC_MAGE in set_names:
+    pool.extend(get_mage_cards())
   if CardSets.OP_CARDS in set_names:
     pool.extend(get_op_cards())
   if CardSets.TEST_CARDS in set_names:
