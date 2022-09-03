@@ -14,7 +14,7 @@ class Condition():
 
   @staticmethod
   def get_available_conditions():
-    return [Condition.has_weapon]
+    return [Condition.has_weapon, Condition.damaged]
   
   @staticmethod
   def has_weapon(game, card):

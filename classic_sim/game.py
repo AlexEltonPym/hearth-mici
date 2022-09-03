@@ -246,6 +246,7 @@ class Game():
     new_card = player.deck.pop()
     new_card.set_parent(new_card.owner.graveyard)
 
+
   def draw(self, player, num_to_draw):
     for i in range(num_to_draw):
       if(len(player.deck.get_all()) > 0):

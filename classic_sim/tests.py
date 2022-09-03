@@ -368,6 +368,29 @@ def test_hexproof():
   available_actions = list(filter(lambda action: action.action_type==Actions.CAST_SPELL or action.action_type==Actions.CAST_HERO_POWER, available_actions))
   assert len(available_actions) == 4 #fireblast self and enemy, fireball self and enemy
 
+def test_mad_bomber():
+  for i in range(10):
+    card_pool = build_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER])
+    _player = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
+    _enemy = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
+    game = Game(_player, _enemy)
+    game.current_player.hand.hand = []
+    game.current_player.current_mana = 10
+
+    new_bomber = get_from_name(card_pool, 'Mad Bomber')
+    new_bomber.set_owner(game.current_player)
+    new_bomber.set_parent(game.current_player.hand)
+
+    new_wisp = get_from_name(card_pool, 'Wisp')
+    new_wisp.set_owner(game.current_player.other_player)
+    new_wisp.set_parent(game.current_player.other_player.board)
+
+    cast_bomber = game.get_available_actions(game.current_player)[0]
+    game.perform_action(cast_bomber)
+
+    assert new_wisp.parent == new_wisp.owner.graveyard or game.current_player.other_player.health == 27 or game.current_player.health==27
+
+
 def test_windfury_weapon():
   random.seed(0)
   card_pool = build_pool([CardSets.CLASSIC_NEUTRAL, CardSets.TEST_CARDS])
@@ -534,7 +557,7 @@ def test_big_random_cards():
       assert game_results.mean() < 1 and game_results.mean() > 0
 
 def main():
-  test_loot_hoarder()
+  test_mad_bomber()
   # test_simulate()
 
 

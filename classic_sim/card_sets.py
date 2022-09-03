@@ -57,10 +57,12 @@ def get_classic_cards():
   faerie_dragon = Card(name="Faerie Dragon", card_type=CardTypes.MINION, mana=2, attack=3, health=2, attributes=[Attributes.HEXPROOF])
   loot_hoarder = Card(name="Loot Hoarder", card_type=CardTypes.MINION, mana=2, attack=2, health=1,\
                       effect=DrawCards(value=1, method=Methods.ALL, owner_filter=OwnerFilters.FRIENDLY, trigger=Triggers.DEATHRATTLE))
-  
+  mad_bomber = Card(name="Mad Bomber", card_type=CardTypes.MINION, mana=2, attack=3, health=2,\
+                    effect=DealDamage(value=3, method = Methods.RANDOMLY, target=Targets.MINIONS_OR_HEROES,\
+                    owner_filter=OwnerFilters.ALL, trigger=Triggers.BATTLECRY))
 
   common_one_drops = [wisp, abusive_sergeant, argent_squire, leper_gnome, shieldbearer, southsea_deckhand, worgen_infiltrator, young_dragonhawk]
-  common_two_drops = [amani_berserker, bloodsail_raider, dire_wolf_alpha, faerie_dragon, loot_hoarder]
+  common_two_drops = [amani_berserker, bloodsail_raider, dire_wolf_alpha, faerie_dragon, loot_hoarder, mad_bomber]
   return common_one_drops + common_two_drops
 
 def get_mage_cards():
