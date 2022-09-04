@@ -305,7 +305,7 @@ def test_bloodsail():
   cast_bloodsail = list(filter(lambda action: action.source == new_bloodsail, game.get_available_actions(game.current_player)))[0]
   game.perform_action(cast_bloodsail)
   assert new_bloodsail.parent == new_bloodsail.owner.board
-  assert new_bloodsail.attack == 5
+  assert new_bloodsail.get_attack() == 5
 
 def test_direwolf():
   random.seed(0)
@@ -322,8 +322,8 @@ def test_direwolf():
   new_wisp.set_owner(game.current_player)
   new_wisp.set_parent(game.current_player.board)
 
-  assert new_wisp.get_attack(game) == 2
-  assert new_wolf.get_attack(game) == 3
+  assert new_wisp.get_attack() == 2
+  assert new_wolf.get_attack() == 3
 
 def test_loot_hoarder():
   random.seed(0)
@@ -478,6 +478,39 @@ def test_generic_weapon():
   assert new_weapon.parent == new_weapon.owner.graveyard
   assert game.current_player.attacks_this_turn == 1
 
+def test_return_to_hand():
+  random.seed(0)
+  card_pool = build_pool([CardSets.CLASSIC_NEUTRAL, CardSets.TEST_CARDS])
+  _player = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
+  _enemy = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
+  game = Game(_player, _enemy)
+  game.current_player.current_mana = 10
+
+  wisp = get_from_name(card_pool, 'Wisp')
+  wisp.set_owner(game.current_player)
+  wisp.set_parent(game.current_player.board)
+
+  sergeant = get_from_name(card_pool, 'Abusive Sergeant')
+  sergeant.set_owner(game.current_player)
+  sergeant.set_parent(game.current_player.hand)
+
+  buff_wisp = Action(Actions.CAST_MINION, sergeant, [wisp])
+  game.perform_action(buff_wisp)
+  assert wisp.temp_attack == 2
+  assert wisp.get_attack() == 3
+
+  brewmaster = get_from_name(card_pool, 'Youthful Brewmaster')
+  brewmaster.set_owner(game.current_player)
+  brewmaster.set_parent(game.current_player.hand)
+
+  cast_brewmaster_actions = list(filter(lambda action: action.source == brewmaster, game.get_available_actions(game.current_player)))
+  assert len(cast_brewmaster_actions) == 2
+  game.perform_action(cast_brewmaster_actions[0])
+  assert wisp.parent == wisp.owner.hand
+  assert wisp.temp_attack == 0
+  assert wisp.get_attack() == 1
+
+
 def test_random_card_game():
   card_pool = build_pool([CardSets.RANDOM_CARDS])
   mirror_deck = Deck().generate_random(card_pool)
@@ -558,7 +591,7 @@ def test_big_random_cards():
       assert game_results.mean() < 1 and game_results.mean() > 0
 
 def main():
-  test_big_random_cards()
+  test_return_to_hand()
   # test_simulate()
 
 

@@ -55,17 +55,17 @@ class Player():
   def add(self, card):
     self.weapon = card
 
-  def get_attack(self, game):
-    return self.attack+self.temp_attack+(self.condition.result['temp_attack'] if self.condition and self.condition.requirement(game, self) else 0)
+  def get_attack(self):
+    return self.attack+self.temp_attack+(self.condition.result['temp_attack'] if self.condition and self.condition.requirement(self.game, self) else 0)
 
   
-  def has_attribute(self, game, attribute):
+  def has_attribute(self, attribute):
     player_has = attribute in self.attributes\
           or (self.condition and attribute in self.condition.result['attributes']\
-          and self.condition.requirement(game, self))
+          and self.condition.requirement(self.game, self))
     weapon_has = self.weapon and (attribute in self.weapon.attributes\
           or (self.weapon.condition and attribute in self.weapon.condition.result['attributes']\
-            and self.weapon.condition.requirement(game, self)))
+            and self.weapon.condition.requirement(self.game, self)))
     return player_has or weapon_has
 
   def __str__(self):

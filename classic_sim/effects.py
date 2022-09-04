@@ -105,10 +105,10 @@ class GainWeaponAttack():
   def resolve_action(self, game, action):
     if self.duration == Durations.TURN:
       for target in action.targets:
-        action.source.temp_attack += target.get_attack(game)
+        action.source.temp_attack += target.get_attack()
     elif self.duration == Durations.PERMANENTLY:
       for target in action.targets:
-        action.source.perm_attack += target.get_attack(game)
+        action.source.perm_attack += target.get_attack()
 
 
 

@@ -61,7 +61,7 @@ def get_classic_cards():
                     effect=DealDamage(value=3, method = Methods.RANDOMLY, target=Targets.MINIONS_OR_HEROES,\
                     owner_filter=OwnerFilters.ALL, trigger=Triggers.BATTLECRY))
   youthful_brewmaster = Card(name="Youthful Brewmaster", card_type=CardTypes.MINION, mana=2, attack=3, health=2,\
-                          effect=ReturnToHand(method=Methods.TARGETED, target=Targets.MINIONS, owner_filter=OwnerFilters.FRIENDLY))
+                          effect=ReturnToHand(method=Methods.TARGETED, target=Targets.MINIONS, owner_filter=OwnerFilters.FRIENDLY, trigger=Triggers.BATTLECRY))
 
   common_one_drops = [wisp, abusive_sergeant, argent_squire, leper_gnome, shieldbearer, southsea_deckhand, worgen_infiltrator, young_dragonhawk]
   common_two_drops = [amani_berserker, bloodsail_raider, dire_wolf_alpha, faerie_dragon, loot_hoarder, mad_bomber, youthful_brewmaster]

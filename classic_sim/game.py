@@ -16,6 +16,9 @@ class Game():
 
   
   def setup_players(self):
+    self.player.game = self
+    self.enemy.game = self
+
     self.player.other_player = self.enemy
     self.enemy.other_player = self.player
 
@@ -145,13 +148,13 @@ class Game():
 
   def handle_attack(self, action):
     if isinstance(action.source, Player) and action.source.weapon:
-      damage = action.source.get_attack(self) + action.source.weapon.attack
-      other_damage = action.targets[0].get_attack(self)
+      damage = action.source.get_attack() + action.source.weapon.attack
+      other_damage = action.targets[0].get_attack()
       action.source.weapon.health -= 1
       self.check_dead(action.source.weapon)
     else:
-      damage = action.source.get_attack(self)
-      other_damage = action.targets[0].get_attack(self)
+      damage = action.source.get_attack()
+      other_damage = action.targets[0].get_attack()
     self.deal_damage(action.targets[0], damage)
     self.deal_damage(action.source, other_damage)
     if action.source.attacks_this_turn == -1: #used charge to attack
@@ -182,12 +185,12 @@ class Game():
 
   def get_available_targets(self, card):
     targets = []
-    taunt_targets = list(filter(lambda target: target.has_attribute(self, Attributes.TAUNT), card.owner.other_player.board.get_all()))
+    taunt_targets = list(filter(lambda target: target.has_attribute(Attributes.TAUNT), card.owner.other_player.board.get_all()))
     if len(taunt_targets) > 0:
       targets = taunt_targets
     else:
       targets = [card.owner.other_player]
-      targets.extend(list(filter(lambda card: not card.has_attribute(self, Attributes.STEALTH), card.owner.other_player.board.get_all())))
+      targets.extend(list(filter(lambda card: not card.has_attribute(Attributes.STEALTH), card.owner.other_player.board.get_all())))
     return targets
 
   def get_playable_spells_actions(self, player):
@@ -196,7 +199,7 @@ class Game():
       cast_targets = self.get_available_effect_targets(player, card)
       if card.effect and len(cast_targets) > 0:
         if card.effect.method == Methods.TARGETED:
-          for target in filter(lambda target: not (target.has_attribute(self, Attributes.STEALTH) or target.has_attribute(self, Attributes.HEXPROOF)), cast_targets):
+          for target in filter(lambda target: not (target.has_attribute(Attributes.STEALTH) or target.has_attribute(Attributes.HEXPROOF)), cast_targets):
             playable_spell_actions.append(Action(Actions.CAST_SPELL, card, [target]))
         elif card.effect.method == Methods.RANDOMLY:
           playable_spell_actions.append(Action(Actions.CAST_SPELL, card, [choice(cast_targets)]))
@@ -209,7 +212,7 @@ class Game():
     if player.current_mana >= 2 and not player.used_hero_power:
       cast_targets = self.get_available_effect_targets(player, player.hero_power)
       if player.hero_power.effect.method == Methods.TARGETED:
-        for target in filter(lambda target: not (target.has_attribute(self, Attributes.STEALTH) or target.has_attribute(self, Attributes.HEXPROOF)), cast_targets):
+        for target in filter(lambda target: not (target.has_attribute(Attributes.STEALTH) or target.has_attribute(Attributes.HEXPROOF)), cast_targets):
           hero_power_actions.append(Action(Actions.CAST_HERO_POWER, player.hero_power, [target]))
       elif player.hero_power.effect.method == Methods.RANDOMLY:
         hero_power_actions.append(Action(Actions.CAST_HERO_POWER, player.hero_power, [choice(cast_targets)]))
@@ -297,9 +300,9 @@ class Game():
     minion_attack_options = []
     for minion in player.board.get_all():
       if  (minion.attacks_this_turn == 0 \
-          or (minion.attacks_this_turn == -1 and minion.has_attribute(self, Attributes.CHARGE))\
-          or (minion.attacks_this_turn == 1 and minion.has_attribute(self, Attributes.WINDFURY)))\
-          and minion.get_attack(self) > 0:
+          or (minion.attacks_this_turn == -1 and minion.has_attribute(Attributes.CHARGE))\
+          or (minion.attacks_this_turn == 1 and minion.has_attribute(Attributes.WINDFURY)))\
+          and minion.get_attack() > 0:
         for target in self.get_available_targets(minion):
           minion_attack_options.append(Action(Actions.ATTACK, minion, [target]))
 
@@ -308,10 +311,10 @@ class Game():
 
   def get_hero_attack_actions(self, player):
     hero_attack_options = []
-    if (player.get_attack(self) > 0
+    if (player.get_attack() > 0
         or (player.weapon and player.weapon.attack > 0))\
         and (player.attacks_this_turn == 0\
-        or (player.attacks_this_turn == 1 and player.has_attribute(self, Attributes.WINDFURY))):
+        or (player.attacks_this_turn == 1 and player.has_attribute(Attributes.WINDFURY))):
       for target in self.get_available_targets(player):
         hero_attack_options.append(Action(Actions.ATTACK, player, [target]))
     return hero_attack_options
@@ -322,11 +325,12 @@ class Game():
 
     if len(player.board.get_all()) < 7:
       for card in filter(lambda card: card.mana <= player.current_mana and card.card_type == CardTypes.MINION, player.hand.get_all()):
+
         if card.effect and card.effect.trigger == Triggers.BATTLECRY:
           battlecry_targets = self.get_available_effect_targets(player, card)
           if len(battlecry_targets) > 0:
             if card.effect.method == Methods.TARGETED:
-              for target in filter(lambda target: not target.has_attribute(self, Attributes.STEALTH),  battlecry_targets):
+              for target in filter(lambda target: not target.has_attribute(Attributes.STEALTH),  battlecry_targets):
                 playable_minion_actions.append(Action(Actions.CAST_MINION, card, [target]))
             elif card.effect.method == Methods.RANDOMLY:
               playable_minion_actions.append(Action(Actions.CAST_MINION, card, [choice(battlecry_targets)]))
@@ -344,7 +348,7 @@ class Game():
           battlecry_targets = self.get_available_effect_targets(player, card)
           if len(battlecry_targets) > 0:
             if card.effect.method == Methods.TARGETED:
-              for target in filter(lambda target: not target.has_attribute(self, Attributes.STEALTH), battlecry_targets):
+              for target in filter(lambda target: not target.has_attribute(Attributes.STEALTH), battlecry_targets):
                 playable_weapon_actions.append(Action(Actions.CAST_WEAPON, card, [target]))
             elif card.effect.method == Methods.RANDOMLY:
               playable_weapon_actions.append(Action(Actions.CAST_WEAPON, card, [choice(battlecry_targets)]))

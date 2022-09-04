@@ -36,18 +36,18 @@ class Card():
     self.parent = new_parent
     self.parent.add(self)
 
-  def has_attribute(self, game, attribute):
+  def has_attribute(self, attribute):
     return attribute in self.attributes\
           or (self.condition and attribute in self.condition.result['attributes']\
-          and self.condition.requirement(game, self))\
+          and self.condition.requirement(self.owner.game, self))\
   
-  def get_attack(self, game):
+  def get_attack(self):
     aura_attack = 0
     for card in filter(lambda card: card.effect and card.effect.trigger == Triggers.AURA, self.owner.board.get_all()):
       if isinstance(card.effect, ChangeStats):
         aura_attack += card.effect.attack_value
 
-    condition_attack = self.condition.result['temp_attack'] if self.condition and self.condition.requirement(game, self) else 0
+    condition_attack = self.condition.result['temp_attack'] if self.condition and self.condition.requirement(self.owner.game, self) else 0
     return self.attack+self.perm_attack+self.temp_attack+condition_attack+aura_attack
     
   def clear_buffs(self):
