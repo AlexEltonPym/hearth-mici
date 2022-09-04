@@ -2,7 +2,7 @@ from enums import *
 
 
 class GainMana():
-  available_methods = [m for m in Methods]
+  available_methods = [Methods.TARGETED, Methods.RANDOMLY, Methods.ALL]
   param_type = ParamTypes.X
   available_targets = [Targets.HEROES]
   available_owner_filters = [f for f in OwnerFilters]
@@ -28,7 +28,7 @@ class GainMana():
 
 
 class DealDamage():
-  available_methods = [m for m in Methods]
+  available_methods = [Methods.TARGETED, Methods.RANDOMLY, Methods.ALL]
   param_type = ParamTypes.X
   available_targets = [Targets.MINIONS, Targets.HEROES, Targets.MINIONS_OR_HEROES]
   available_owner_filters = [f for f in OwnerFilters]
@@ -86,7 +86,7 @@ class ChangeStats():
 
 
 class GainWeaponAttack():
-  available_methods = [m for m in Methods]
+  available_methods = [Methods.TARGETED, Methods.RANDOMLY, Methods.ALL]
   param_type = ParamTypes.NONE
   available_targets = [Targets.WEAPONS]
   available_owner_filters = [f for f in OwnerFilters]
@@ -114,7 +114,7 @@ class GainWeaponAttack():
 
 
 class DrawCards():
-  available_methods = [m for m in Methods]
+  available_methods = [Methods.TARGETED, Methods.RANDOMLY, Methods.ALL]
   param_type = ParamTypes.X
   available_targets = [Targets.HEROES]
   available_owner_filters = [f for f in OwnerFilters]
@@ -136,7 +136,7 @@ class DrawCards():
       game.draw(target, self.value)
 
 class ReturnToHand():
-  available_methods = [m for m in Methods]
+  available_methods = [Methods.TARGETED, Methods.RANDOMLY, Methods.ALL]
   param_type = ParamTypes.NONE
   available_targets = [Targets.MINIONS] #could theoreticaly do weapons too
   available_owner_filters = [f for f in OwnerFilters]
@@ -157,4 +157,16 @@ class ReturnToHand():
     for target in action.targets:
       target.change_parent(target.parent.parent.hand) #return to targets parent's player's hand (the parent of the board is the player)
       target.clear_buffs()
+
+
+# class DuelAction():
+#   def __init__(self, first_effect, second_effect):
+#     self.first_effect = first_effect
+#     self.second_effect = second_effect
+#     self.method = first_effect.method
+#     self.value = first_effect.value
+  
+#   def resolve_action(self, game, action):
+#     self.first_effect.resolve_action(self, game, action)
+#     self.second_effect.resolve_action(self, game, action)
 

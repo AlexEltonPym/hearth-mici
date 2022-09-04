@@ -389,7 +389,6 @@ def test_mad_bomber():
 
     assert new_wisp.parent == new_wisp.owner.graveyard or game.current_player.other_player.health == 27 or game.current_player.health==27
 
-
 def test_windfury_weapon():
   random.seed(0)
   card_pool = build_pool([CardSets.CLASSIC_NEUTRAL, CardSets.TEST_CARDS])
@@ -509,7 +508,6 @@ def test_return_to_hand():
   assert wisp.parent == wisp.owner.hand
   assert wisp.temp_attack == 0
   assert wisp.get_attack() == 1
-
 
 def test_random_card_game():
   card_pool = build_pool([CardSets.RANDOM_CARDS])

@@ -16,6 +16,9 @@ class Board():
 
   def __contains__(self, key):
     return key in self.board
+  
+  def index_of(self, key):
+    return self.board.index(key)
 
   def __str__(self):
     return str((self.name, self.parent.name))

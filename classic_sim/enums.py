@@ -64,6 +64,7 @@ class Methods(Enum):
   TARGETED = 0
   RANDOMLY = 1
   ALL = 2
+  ADJACENT = 3
 
 
 class CardSets(Enum):
