@@ -58,7 +58,7 @@ def get_classic_cards():
   loot_hoarder = Card(name="Loot Hoarder", card_type=CardTypes.MINION, mana=2, attack=2, health=1,\
                       effect=DrawCards(value=1, method=Methods.ALL, owner_filter=OwnerFilters.FRIENDLY, trigger=Triggers.DEATHRATTLE))
   mad_bomber = Card(name="Mad Bomber", card_type=CardTypes.MINION, mana=2, attack=3, health=2,\
-                    effect=DealDamage(value=3, method = Methods.RANDOMLY, target=Targets.MINIONS_OR_HEROES,\
+                    effect=DealDamage(value=1, random_count=3, method = Methods.RANDOMLY, target=Targets.MINIONS_OR_HEROES,\
                     owner_filter=OwnerFilters.ALL, trigger=Triggers.BATTLECRY))
   youthful_brewmaster = Card(name="Youthful Brewmaster", card_type=CardTypes.MINION, mana=2, attack=3, health=2,\
                           effect=ReturnToHand(method=Methods.TARGETED, target=Targets.MINIONS, owner_filter=OwnerFilters.FRIENDLY, trigger=Triggers.BATTLECRY))
