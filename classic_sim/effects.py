@@ -9,9 +9,10 @@ class GainMana():
   available_type_filters = []
   available_durations = [Durations.TURN, Durations.PERMANENTLY]
   available_triggers = [Triggers.BATTLECRY, Triggers.DEATHRATTLE]
-  def __init__(self, method, value, duration, target, owner_filter, trigger=None, type_filter=None):
+  def __init__(self, method, value, duration, target, owner_filter, random_count=1, trigger=None, type_filter=None):
     self.method = method
     self.value = value
+    self.random_count = random_count
     self.target = target
     self.owner_filter = owner_filter
     self.duration = duration
@@ -36,9 +37,10 @@ class DealDamage():
   available_durations = []
   available_triggers = [Triggers.BATTLECRY, Triggers.DEATHRATTLE]
 
-  def __init__(self, method, value, target, owner_filter, trigger=None, type_filter=None, duration=None):
+  def __init__(self, method, value, target, owner_filter, random_count=1, trigger=None, type_filter=None, duration=None):
     self.method = method
     self.value = value
+    self.random_count = random_count
     self.target = target
     self.owner_filter = owner_filter
     self.type_filter = type_filter
@@ -65,9 +67,10 @@ class ChangeStats():
   available_type_filters = [c for c in CreatureTypes]
   available_durations = [d for d in Durations]
   available_triggers = [t for t in Triggers]
-  def __init__(self, value, method=None, target=None, owner_filter=None, duration=None, trigger=None, type_filter=None):
+  def __init__(self, value, method, target, owner_filter, random_count=1, duration=None, trigger=None, type_filter=None):
     self.method = method
     self.attack_value, self.health_value = value
+    self.random_count = random_count
     self.target = target
     self.owner_filter = owner_filter
     self.type_filter = type_filter
@@ -93,9 +96,10 @@ class GainWeaponAttack():
   available_type_filters = []
   available_durations = [Durations.TURN, Durations.PERMANENTLY]
   available_triggers = [Triggers.BATTLECRY]
-  def __init__(self, method, owner_filter, duration, value=None, target=Targets.WEAPONS, trigger=Triggers.BATTLECRY, type_filter=None):
+  def __init__(self, method, owner_filter, duration, random_count=1, value=None, target=Targets.WEAPONS, trigger=Triggers.BATTLECRY, type_filter=None):
     self.method = method
     self.value = value
+    self.random_count = random_count
     self.target = target
     self.owner_filter = owner_filter
     self.type_filter = type_filter
@@ -111,8 +115,6 @@ class GainWeaponAttack():
         action.source.perm_attack += target.get_attack()
 
 
-
-
 class DrawCards():
   available_methods = [Methods.TARGETED, Methods.RANDOMLY, Methods.ALL]
   param_type = ParamTypes.X
@@ -122,9 +124,10 @@ class DrawCards():
   available_durations = []
   available_triggers = [Triggers.BATTLECRY, Triggers.DEATHRATTLE]
 
-  def __init__(self, method, value, owner_filter, target=Targets.HEROES, trigger=None, type_filter=None, duration=None):
+  def __init__(self, method, value, owner_filter, random_count=1, target=Targets.HEROES, trigger=None, type_filter=None, duration=None):
     self.method = method
     self.value = value
+    self.random_count = random_count
     self.target = target
     self.owner_filter = owner_filter
     self.type_filter = type_filter

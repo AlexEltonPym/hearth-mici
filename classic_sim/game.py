@@ -1,5 +1,6 @@
 from enums import *
 from random import choice
+from numpy.random import choice as npchoice
 from player import Player
 from card_sets import get_utility_card, get_hero_power
 from effects import *
@@ -82,8 +83,13 @@ class Game():
 
     while not turn_passed:
       turn_passed = self.current_player.strategy.choose_action(self)
+      if self.player.health <= 0:
+        return 0
+      elif self.enemy.health <= 0:
+        return 1
       if turn_passed:
         self.end_turn()
+    return -1
 
   def end_turn(self):
     self.current_player.temp_attack = 0
@@ -181,7 +187,7 @@ class Game():
           if card.effect.method == Methods.ALL:
             card.effect.resolve_action(self, Action(Actions.CAST_EFFECT, card, deathrattle_targets))
           elif card.effect.method == Methods.RANDOMLY or card.effect.method == Methods.TARGETED: #targeted deathrattle doesnt make sense so default to random
-            card.effect.resolve_action(self, Action(Actions.CAST_EFFECT, card, [choice(deathrattle_targets)]))
+            card.effect.resolve_action(self, Action(Actions.CAST_EFFECT, card, npchoice(deathrattle_targets, card.effect.random_count)))
 
   def get_available_targets(self, card):
     targets = []
@@ -215,7 +221,7 @@ class Game():
         for target in filter(lambda target: not (target.has_attribute(Attributes.STEALTH) or target.has_attribute(Attributes.HEXPROOF)), cast_targets):
           hero_power_actions.append(Action(Actions.CAST_HERO_POWER, player.hero_power, [target]))
       elif player.hero_power.effect.method == Methods.RANDOMLY:
-        hero_power_actions.append(Action(Actions.CAST_HERO_POWER, player.hero_power, [choice(cast_targets)]))
+        hero_power_actions.append(Action(Actions.CAST_HERO_POWER, player.hero_power, npchoice(cast_targets, player.hero_power.effect.random_count)))
       elif player.hero_power.effect.method == Methods.ALL:
         hero_power_actions.append(Action(Actions.CAST_HERO_POWER, player.hero_power, cast_targets))
 
@@ -333,7 +339,7 @@ class Game():
               for target in filter(lambda target: not target.has_attribute(Attributes.STEALTH),  battlecry_targets):
                 playable_minion_actions.append(Action(Actions.CAST_MINION, card, [target]))
             elif card.effect.method == Methods.RANDOMLY:
-              playable_minion_actions.append(Action(Actions.CAST_MINION, card, [choice(battlecry_targets)]))
+              playable_minion_actions.append(Action(Actions.CAST_MINION, card, npchoice(battlecry_targets, card.effect.random_count)))
             elif card.effect.method == Methods.ALL:
               playable_minion_actions.append(Action(Actions.CAST_MINION, card, battlecry_targets))
         else:
@@ -351,7 +357,7 @@ class Game():
               for target in filter(lambda target: not target.has_attribute(Attributes.STEALTH), battlecry_targets):
                 playable_weapon_actions.append(Action(Actions.CAST_WEAPON, card, [target]))
             elif card.effect.method == Methods.RANDOMLY:
-              playable_weapon_actions.append(Action(Actions.CAST_WEAPON, card, [choice(battlecry_targets)]))
+              playable_weapon_actions.append(Action(Actions.CAST_WEAPON, card, npchoice(battlecry_targets, card.effect.random_count)))
             elif card.effect.method == Methods.ALL:
               playable_weapon_actions.append(Action(Actions.CAST_WEAPON, card, battlecry_targets))
         else:
@@ -361,11 +367,9 @@ class Game():
   def simulate_game(self):
     self.start_game()
 
-    for _ in range(100):
+    game_status = -1
 
-      self.take_turn()
-
-      if(self.player.health <= 0):
-        return 0
-      elif(self.enemy.health <= 0):
-        return 1
+    while game_status == -1:
+      game_status = self.take_turn()
+      
+    return game_status

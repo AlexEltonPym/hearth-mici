@@ -551,15 +551,19 @@ def test_game():
   _enemy = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
   game = Game(_player, _enemy)
 
-  for i in range(100):
-    game.take_turn()
-    if(game.player.health <= 0):
+  game.untap()
+  turn_passed = False
+
+  while not turn_passed:
+    turn_passed = game.current_player.strategy.choose_action(game)
+    if game.player.health <= 0:
       assert True
-      return 0
-    elif(game.enemy.health <= 0):
+      break
+    elif game.enemy.health <= 0:
       assert True
-      return 1
-  assert False
+      break
+    if turn_passed:
+      game.end_turn()
 
 def test_simulate():
   hunter_pool = build_pool([CardSets.CLASSIC_HUNTER, CardSets.CLASSIC_NEUTRAL])
