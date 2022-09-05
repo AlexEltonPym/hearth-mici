@@ -147,9 +147,10 @@ class ReturnToHand():
   available_durations = []
   available_triggers = [Triggers.BATTLECRY, Triggers.DEATHRATTLE]
 
-  def __init__(self, method, owner_filter, target=Targets.MINIONS, value=None, trigger=None, type_filter=None, duration=None):
+  def __init__(self, method, owner_filter, random_count=1, target=Targets.MINIONS, value=None, trigger=None, type_filter=None, duration=None):
     self.method = method
     self.value = value
+    self.random_count = random_count
     self.target = target
     self.owner_filter = owner_filter
     self.type_filter = type_filter

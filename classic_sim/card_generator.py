@@ -1,5 +1,5 @@
 from utilities import get_classes, choice_with_none
-from random import randint, choice
+from numpy.random import randint, choice
 
 from enums import *
 import effects

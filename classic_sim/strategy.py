@@ -1,4 +1,4 @@
-from random import choice, random
+from numpy.random import choice, random
 from copy import deepcopy
 from enums import Actions
 import time

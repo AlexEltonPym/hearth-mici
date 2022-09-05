@@ -1,4 +1,4 @@
-from random import choice
+from numpy.random import choice
 import sys, inspect
 
 def choice_with_none(iterable):

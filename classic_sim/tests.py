@@ -1,4 +1,3 @@
-import random
 from card import Card
 from deck import Deck
 from player import Player
@@ -9,13 +8,13 @@ from strategy import GreedyAction, RandomAction, RandomNoEarlyPassing
 import numpy as np
 from action import Action
 from tqdm import tqdm
-
+from numpy.random import seed, randint
 
 def test_classic_pool():
   card_pool = build_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER])
 
 def test_coin():
-  random.seed(0)
+  seed(0)
   card_pool = build_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER])
   _player = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
   _enemy = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
@@ -37,7 +36,7 @@ def test_coin():
   assert game.current_player.current_mana == 1
 
 def test_abusive_sergeant():
-  random.seed(0)
+  seed(0)
   card_pool = build_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER])
   _player = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
   _enemy = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
@@ -59,7 +58,7 @@ def test_abusive_sergeant():
   assert new_wisp.temp_attack == 0
 
 def test_hunter_hero_power():
-  random.seed(0)
+  seed(0)
   card_pool = build_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER])
   _player = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
   _enemy = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
@@ -72,7 +71,7 @@ def test_hunter_hero_power():
   assert game.current_player.other_player.health == 28
 
 def test_argent_squire():
-  random.seed(0)
+  seed(0)
   card_pool = build_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER])
   _player = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
   _enemy = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
@@ -101,7 +100,7 @@ def test_argent_squire():
   assert new_squire.parent == game.current_player.other_player.graveyard
 
 def test_leper_gnome():
-  random.seed(0)
+  seed(0)
   card_pool = build_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER])
   _player = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
   _enemy = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
@@ -122,7 +121,7 @@ def test_leper_gnome():
   assert game.current_player.other_player.health == 28
   
 def test_shieldbearer():
-  random.seed(0)
+  seed(0)
   card_pool = build_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER])
   _player = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
   _enemy = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
@@ -137,7 +136,7 @@ def test_shieldbearer():
     assert action.action_type != Actions.ATTACK
 
 def test_southsea_deckhand():
-  random.seed(0)
+  seed(0)
   card_pool = build_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER, CardSets.TEST_CARDS])
   _player = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
   _enemy = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
@@ -159,7 +158,7 @@ def test_southsea_deckhand():
   assert len(list(filter(lambda action: action.action_type == Actions.ATTACK, game.get_available_actions(game.current_player)))) == 2 #attack with charge, attack with weapon
 
 def test_battlecry_weapon():
-  random.seed(0)
+  seed(0)
   card_pool = build_pool([CardSets.CLASSIC_NEUTRAL, CardSets.TEST_CARDS])
   _player = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
   _enemy = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
@@ -197,7 +196,7 @@ def test_battlecry_weapon():
   assert game.current_player.attacks_this_turn == 1
 
 def test_taunt():
-  random.seed(0)
+  seed(0)
   card_pool = build_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER])
   _player = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
   _enemy = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
@@ -216,7 +215,7 @@ def test_taunt():
     assert not (action.action_type == Actions.ATTACK and action.targets[0] == game.current_player.other_player)
 
 def test_stealth():
-  random.seed(0)
+  seed(0)
   card_pool = build_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER])
   _player = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
   _enemy = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
@@ -242,7 +241,7 @@ def test_stealth():
   assert len(list(filter(lambda action: action.action_type == Actions.ATTACK, game.get_available_actions(game.current_player.other_player)))) == 2
 
 def test_windfury():
-  random.seed(0)
+  seed(0)
   card_pool = build_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER])
   _player = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
   _enemy = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
@@ -266,7 +265,7 @@ def test_windfury():
   assert game.current_player.other_player.health == 28
 
 def test_enrage():
-  random.seed(0)
+  seed(0)
   card_pool = build_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER])
   _player = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
   _enemy = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
@@ -284,7 +283,7 @@ def test_enrage():
   assert game.current_player.other_player.health == 25
 
 def test_bloodsail():
-  random.seed(0)
+  seed(0)
   card_pool = build_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER, CardSets.TEST_CARDS])
   _player = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
   _enemy = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
@@ -309,7 +308,7 @@ def test_bloodsail():
   assert new_bloodsail.get_attack() == 5
 
 def test_direwolf():
-  random.seed(0)
+  seed(0)
   card_pool = build_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER, CardSets.TEST_CARDS])
   _player = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
   _enemy = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
@@ -347,7 +346,7 @@ def test_direwolf():
   assert third_wisp.get_attack() == 1
 
 def test_loot_hoarder():
-  random.seed(0)
+  seed(0)
   hunter_pool = build_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER])
   mage_pool = build_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_MAGE])
   _player = Player(Classes.HUNTER, Deck().generate_random(hunter_pool), GreedyAction)
@@ -365,7 +364,7 @@ def test_loot_hoarder():
   assert len(game.current_player.hand.get_all()) == 5
 
 def test_hexproof():
-  random.seed(0)
+  seed(0)
   hunter_pool = build_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER])
   mage_pool = build_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_MAGE])
   _player = Player(Classes.HUNTER, Deck().generate_random(hunter_pool), GreedyAction)
@@ -389,8 +388,7 @@ def test_hexproof():
   assert len(available_actions) == 4 #fireblast self and enemy, fireball self and enemy
 
 def test_mad_bomber():
-  random.seed(0)
-  np.random.seed(0)
+  seed(0)
   card_pool = build_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER])
   _player = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
   _enemy = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
@@ -409,10 +407,10 @@ def test_mad_bomber():
   cast_bomber = game.get_available_actions(game.current_player)[0]
   game.perform_action(cast_bomber)
 
-  assert new_wisp.parent == new_wisp.owner.graveyard and game.current_player.health == 28
+  assert new_wisp.parent == new_wisp.owner.graveyard and game.current_player.health == 29 and game.current_player.other_player.health == 29
 
 def test_windfury_weapon():
-  random.seed(0)
+  seed(0)
   card_pool = build_pool([CardSets.CLASSIC_NEUTRAL, CardSets.TEST_CARDS])
   _player = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
   _enemy = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
@@ -442,7 +440,7 @@ def test_windfury_weapon():
   assert game.current_player.attacks_this_turn == 2
 
 def test_damage_all():
-  random.seed(0)
+  seed(0)
   card_pool = build_pool([CardSets.CLASSIC_NEUTRAL, CardSets.TEST_CARDS])
   _player = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
   _enemy = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
@@ -465,7 +463,7 @@ def test_damage_all():
   assert wisp.parent == wisp.owner.graveyard
 
 def test_generic_weapon():
-  random.seed(0)
+  seed(0)
   card_pool = build_pool([CardSets.CLASSIC_NEUTRAL, CardSets.TEST_CARDS])
   _player = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
   _enemy = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
@@ -500,7 +498,7 @@ def test_generic_weapon():
   assert game.current_player.attacks_this_turn == 1
 
 def test_return_to_hand():
-  random.seed(0)
+  seed(0)
   card_pool = build_pool([CardSets.CLASSIC_NEUTRAL, CardSets.TEST_CARDS])
   _player = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
   _enemy = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
@@ -547,7 +545,7 @@ def test_random_card_game():
   assert game_results.mean() < 1 and game_results.mean() > 0
 
 def test_game():
-  random.seed(0)
+  seed(0)
   card_pool = build_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER])
   _player = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
   _enemy = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
@@ -594,9 +592,9 @@ def test_simulate():
 def test_big_random_cards():
 
   for k in tqdm(range(100)):
-    seed = random.randint(0, 1000)
-    print(f"seed was {seed}")
-    random.seed(seed)
+    rand_seed = randint(0, 1000)
+    print(f"seed was {rand_seed}")
+    seed(rand_seed)
     card_pool = build_pool([CardSets.RANDOM_CARDS])
     for j in range(100):
       mirror_deck = Deck().generate_random(card_pool)

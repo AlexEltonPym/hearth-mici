@@ -1,4 +1,4 @@
-import random
+from numpy.random import choice, shuffle
 import copy
 
 class Deck():
@@ -9,7 +9,7 @@ class Deck():
   def generate_random(self, available_cards):
     id = 0
     while len(self.__deck) < 30:
-      rand_card = copy.deepcopy(random.choice(available_cards))
+      rand_card = copy.deepcopy(choice(available_cards))
       rand_card.parent = self
       rand_card.id = id
       self.__deck.append(rand_card)
@@ -36,4 +36,4 @@ class Deck():
     return str(self.__deck)
 
   def shuffle(self):
-    random.shuffle(self.__deck)
+    shuffle(self.__deck)
