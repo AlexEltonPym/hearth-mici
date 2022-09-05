@@ -53,7 +53,7 @@ def get_classic_cards():
   amani_berserker = Card(name="Amani Berserker", card_type=CardTypes.MINION, mana=2, attack=2, health=3, condition=Condition(requirement=Condition.damaged, result={'temp_attack': 3}))
   bloodsail_raider = Card(name="Bloodsail Raider", card_type=CardTypes.MINION, mana=2, attack=2, health=3,\
                          effect=GainWeaponAttack(method=Methods.TARGETED, owner_filter=OwnerFilters.FRIENDLY, duration=Durations.PERMANENTLY))
-  dire_wolf_alpha = Card(name="Dire Wolf Alpha", card_type=CardTypes.MINION, mana=2, attack=2, health=2, effect=ChangeStats(value=(1,0), trigger=Triggers.AURA, method=Methods.ADJACENT, type_filter=CreatureTypes.ALL)) #gives all minions +1 including self, nerf attack by 1, mana by 1?
+  dire_wolf_alpha = Card(name="Dire Wolf Alpha", card_type=CardTypes.MINION, mana=2, attack=2, health=2, effect=ChangeStats(value=(1,0), trigger=Triggers.AURA, method=Methods.ADJACENT, owner_filter=OwnerFilters.FRIENDLY, type_filter=CreatureTypes.ALL)) #gives all minions +1 including self, nerf attack by 1, mana by 1?
   faerie_dragon = Card(name="Faerie Dragon", card_type=CardTypes.MINION, mana=2, attack=3, health=2, attributes=[Attributes.HEXPROOF])
   loot_hoarder = Card(name="Loot Hoarder", card_type=CardTypes.MINION, mana=2, attack=2, health=1,\
                       effect=DrawCards(value=1, method=Methods.ALL, owner_filter=OwnerFilters.FRIENDLY, trigger=Triggers.DEATHRATTLE))

@@ -42,37 +42,36 @@ class Card():
           and self.condition.requirement(self.owner.game, self))\
   
   def get_attack(self):
-    aura_attack = 0
-    my_index = self.parent.index_of(self)
-    board = self.owner.board.get_all()
-    board_len = len(board)
     
-    for index, card in enumerate(board):
-      if card.effect and card.effect.trigger == Triggers.AURA:
-        correct_target = self.card_type== (CardTypes.MINION and (card.effect.target == Targets.MINIONS or card.effect.target == Targets.MINIONS_OR_HEROES)) or (self.card_type == CardTypes.WEAPON and card.effect.target == Targets.WEAPONS)
-        correct_owner = card.effect.owner_filter == OwnerFilters.FRIENDLY or card.effect.owner_filter == OwnerFilters.ALL
-        correct_creature_type = card.effect.type_filter == None or card.effect.type_filter == CardTypes.ALL or card.effect.type_filter == self.creature_type
-        if correct_target and correct_owner and correct_creature_type\
-           and (card.method == Methods.ALL
-           or (card.method == Methods.ADJACENT\
-           and my_index == index-1 or my_index == index+1\
-           or (my_index == 0 and index == board_len)\
-           or (my_index == board_len and index == 0))):
-          if isinstance(card.effect, ChangeStats):
-            aura_attack += card.effect.attack_value
-      
-    for card in self.parent.parent.other_player.board:
-      if card.effect and card.effect.trigger == Triggers.AURA:
-        correct_target = self.card_type == (CardTypes.MINION and (card.effect.target == Targets.MINIONS or card.effect.target == Targets.MINIONS_OR_HEROES)) or (self.card_type == CardTypes.WEAPON and card.effect.target == Targets.WEAPONS)
-        correct_owner = card.effect.owner_filter == OwnerFilters.ENEMY or card.effect.owner_filter == OwnerFilters.ALL
-        correct_creature_type = card.effect.type_filter == None or card.effect.type_filter == CardTypes.ALL or card.effect.type_filter == self.creature_type
-        if correct_target and correct_owner and correct_creature_type and card.method == Methods.ALL:
-          if isinstance(card.effect, ChangeStats):
-            aura_attack += card.effect.attack_value
-
+    aura_attack = self.get_aura_attack()
     condition_attack = self.condition.result['temp_attack'] if self.condition and self.condition.requirement(self.owner.game, self) else 0
     return self.attack+self.perm_attack+self.temp_attack+condition_attack+aura_attack
     
+  def get_aura_attack(self):
+    aura_attack = 0
+    if self.card_type == CardTypes.MINION and self.parent == self.owner.board:
+      board = self.owner.board.get_all()
+      last_index = len(board)-1
+      for index, card in enumerate(board):
+        if card.effect and card.effect.trigger == Triggers.AURA:
+          correct_owner = card.effect.owner_filter == OwnerFilters.FRIENDLY or card.effect.owner_filter == OwnerFilters.ALL
+          correct_creature_type = card.effect.type_filter == None or card.effect.type_filter == CreatureTypes.ALL or card.effect.type_filter == self.creature_type
+          if correct_owner and correct_creature_type:
+            my_index = self.parent.index_of(self)
+            adjacent = card.effect.method == Methods.ADJACENT and (my_index == index-1 or my_index == index+1 or (my_index == 0 and index == last_index) or (my_index == last_index and index == 0))
+            if card.effect.method == Methods.ALL or adjacent:
+              if isinstance(card.effect, ChangeStats):
+                aura_attack += card.effect.attack_value
+        
+      for card in self.parent.parent.other_player.board.get_all():
+        if card.effect and card.effect.trigger == Triggers.AURA:
+          correct_owner = card.effect.owner_filter == OwnerFilters.ENEMY or card.effect.owner_filter == OwnerFilters.ALL
+          correct_creature_type = card.effect.type_filter == None or card.effect.type_filter == CreatureTypes.ALL or card.effect.type_filter == self.creature_type
+          if correct_owner and correct_creature_type and card.effect.method == Methods.ALL:
+            if isinstance(card.effect, ChangeStats):
+              aura_attack += card.effect.attack_value
+    return aura_attack
+
   def clear_buffs(self):
     self.attacks_this_turn = -1
     self.temp_attack = 0

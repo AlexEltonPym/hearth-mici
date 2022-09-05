@@ -318,12 +318,32 @@ def test_direwolf():
   new_wolf.set_owner(game.current_player)
   new_wolf.set_parent(game.current_player.board)
 
-  new_wisp = get_from_name(card_pool, 'Wisp')
-  new_wisp.set_owner(game.current_player)
-  new_wisp.set_parent(game.current_player.board)
+  first_wisp = get_from_name(card_pool, 'Wisp')
+  first_wisp.set_owner(game.current_player)
+  first_wisp.set_parent(game.current_player.board)
 
-  assert new_wisp.get_attack() == 2
-  assert new_wolf.get_attack() == 3
+  second_wisp = get_from_name(card_pool, 'Wisp')
+  second_wisp.set_owner(game.current_player)
+  second_wisp.set_parent(game.current_player.board)
+  
+  third_wisp = get_from_name(card_pool, 'Wisp')
+  third_wisp.set_owner(game.current_player)
+  third_wisp.set_parent(game.current_player.board)
+
+
+  assert first_wisp.get_attack() == 2
+  assert second_wisp.get_attack() == 1
+  assert third_wisp.get_attack() == 2
+  assert new_wolf.get_attack() == 2
+
+  first_wisp.change_parent(first_wisp.owner.graveyard)
+  assert first_wisp.get_attack() == 1
+  assert second_wisp.get_attack() == 2
+  assert third_wisp.get_attack() == 2
+
+  new_wolf.change_parent(new_wolf.owner.graveyard)
+  assert second_wisp.get_attack() == 1
+  assert third_wisp.get_attack() == 1
 
 def test_loot_hoarder():
   random.seed(0)
@@ -589,8 +609,8 @@ def test_big_random_cards():
       assert game_results.mean() < 1 and game_results.mean() > 0
 
 def main():
-  test_return_to_hand()
-  # test_simulate()
+  # test_return_to_hand()
+  test_direwolf()
 
 
 if __name__ == '__main__':

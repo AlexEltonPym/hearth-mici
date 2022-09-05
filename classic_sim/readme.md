@@ -20,6 +20,5 @@ To change the game-state, an action must be performed. Each action has a type, s
 
 # Card changes
 Not all cards can be implemented directly, so the following cards are implemented slighly differently:
-Fireblast: can target self
-Dire Wolf Alpha: effects all cards, suggest nerf attack and mana
+Fireblast: can target self, is this allowed?
 Mad Bomber: damage not split
