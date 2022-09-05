@@ -71,6 +71,9 @@ def get_classic_cards():
   harvest_golem = Card(name="Harvest Golem", card_type=CardTypes.MINION, creature_type=CreatureTypes.MECH, mana=3, attack=2, health=3,\
                         effect=SummonToken(value=Card(name="Damaged Golem", collectable=False, card_type=CardTypes.MINION, creature_type=CreatureTypes.MECH, mana=1, attack=2, health=1),\
                         method=Methods.TARGETED, owner_filter=OwnerFilters.FRIENDLY, trigger=Triggers.DEATHRATTLE))
+  ironbeak_owl = Card(name="Ironbeak Owl", card_type=CardTypes.MINION, mana=3, attack=2, health=1,\
+                      effect=Silence(method=Methods.TARGETED, owner_filter=OwnerFilters.ALL, target=Targets.MINION, trigger=Triggers.BATTLECRY))
+
 
   #Rare four drops
   defender_of_argus = Card(name="Defender of Argus", card_type=CardTypes.MINION, mana=4, attack=3, health=3,\
@@ -82,7 +85,7 @@ def get_classic_cards():
 
   common_one_drops = [wisp, abusive_sergeant, argent_squire, leper_gnome, shieldbearer, southsea_deckhand, worgen_infiltrator, young_dragonhawk]
   common_two_drops = [amani_berserker, bloodsail_raider, dire_wolf_alpha, faerie_dragon, loot_hoarder, mad_bomber, youthful_brewmaster]
-  common_three_drops = [earthen_ring_farseer, flesheating_ghoul, harvest_golem]
+  common_three_drops = [earthen_ring_farseer, flesheating_ghoul, harvest_golem, ironbeak_owl]
 
   rare_four_drops = [defender_of_argus]
   return common_one_drops + common_two_drops + common_three_drops + rare_four_drops
@@ -104,11 +107,11 @@ def get_test_cards():
   test_cards = [all_dam, generic_weapon, battlecry_weapon, windfury_weapon]
   return test_cards
 
-def get_random_cards():
-  rand_cards = [make_random_card(i) for i in range(100)]
+def get_random_cards(random_state):
+  rand_cards = [make_random_card(i,random_state) for i in range(100)]
   return rand_cards
 
-def build_pool(set_names):
+def build_pool(set_names, random_state):
   pool = []
   if CardSets.CLASSIC_NEUTRAL in set_names:
     pool.extend(get_classic_cards())
@@ -121,7 +124,7 @@ def build_pool(set_names):
   if CardSets.TEST_CARDS in set_names:
     pool.extend(get_test_cards())
   if CardSets.RANDOM_CARDS in set_names:
-    pool.extend(get_random_cards())
+    pool.extend(get_random_cards(random_state))
   return pool
 
 def get_from_name(pool, name):

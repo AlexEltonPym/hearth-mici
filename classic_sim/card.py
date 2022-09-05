@@ -14,6 +14,9 @@ class Card():
     self.mana = mana
     self.attributes = attributes
     self.effect = effect
+    self.original_attributes = deepcopy(attributes)
+    self.original_effect = deepcopy(effect)
+    self.original_condition = deepcopy(condition)
     self.condition = condition
     self.owner = None
     self.attacks_this_turn = -1
@@ -87,7 +90,7 @@ class Card():
 
     return aura_attack, aura_health
 
-  def clear_buffs(self):
+  def reset(self):
     self.attacks_this_turn = -1
     self.temp_attack = 0
     self.temp_health = 0
@@ -95,8 +98,10 @@ class Card():
     self.perm_health = 0 
     self.temp_attributes = []
     self.perm_attributes = []
-    self.health = self.original_health  
-    
+    self.health = self.original_health
+    self.effect = deepcopy(self.original_effect)
+    self.attributes = deepcopy(self.original_attributes)
+    self.condition = deepcopy(self.original_condition)
 
 
   def get_string(self):

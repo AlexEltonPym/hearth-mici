@@ -1,4 +1,3 @@
-from numpy.random import choice, random
 from copy import deepcopy
 from enums import Actions
 import time
@@ -34,7 +33,7 @@ class RandomAction():
     return card.mana < 3
   
   def choose_action(state):
-    chosen_action = choice(state.get_available_actions(state.current_player))
+    chosen_action = state.random_state.choice(state.get_available_actions(state.current_player))
     turn_passed = state.perform_action(chosen_action)
     return turn_passed
 
@@ -48,7 +47,7 @@ class RandomNoEarlyPassing():
     available_actions_without_ending = list(filter(lambda x: x.action_type != Actions.END_TURN, all_available_actions))
     
     if len(available_actions_without_ending) > 0:
-      chosen_action = choice(available_actions_without_ending)
+      chosen_action = state.random_state.choice(available_actions_without_ending)
     else:
       chosen_action = all_available_actions[0]
     # print(chosen_action)

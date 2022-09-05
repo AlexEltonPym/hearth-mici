@@ -9,13 +9,15 @@ import numpy as np
 from tqdm import tqdm
 from statistics import mean
 from joblib import Parallel, delayed
+from numpy.random import RandomState
 
 NUM_GAMES = 100
 
 def main():
-  hunter_pool = build_pool([CardSets.CLASSIC_HUNTER, CardSets.CLASSIC_NEUTRAL])
-  op_pool = build_pool([CardSets.OP_CARDS])
-  mirror_deck = Deck().generate_random(hunter_pool)
+  random_state = RandomState(0)
+  hunter_pool = build_pool([CardSets.CLASSIC_HUNTER, CardSets.CLASSIC_NEUTRAL], random_state)
+  op_pool = build_pool([CardSets.OP_CARDS], random_state)
+  mirror_deck = Deck(random_state).generate_random(hunter_pool)
   player = Player(Classes.HUNTER, mirror_deck, GreedyAction)
   enemy = Player(Classes.HUNTER, mirror_deck, GreedyAction)
 

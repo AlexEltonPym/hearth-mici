@@ -1,11 +1,10 @@
-from numpy.random import choice
 import sys, inspect
 
-def choice_with_none(iterable):
+def choice_with_none(iterable, random_state):
   if len(iterable) == 0:
     return None
   else:
-    return choice(iterable)
+    return random_state.choice(iterable)
 
 def get_classes(module):
   classes = []

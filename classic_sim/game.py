@@ -1,5 +1,4 @@
 from enums import *
-from numpy.random import choice
 from numpy import unique
 from player import Player
 from card_sets import get_utility_card, get_hero_power
@@ -8,7 +7,9 @@ import copy
 from action import Action
 
 class Game():
-  def __init__(self, _player, _enemy):
+  def __init__(self, _player, _enemy, random_state):
+    self.random_state = random_state
+
     self.player = copy.deepcopy(_player)
     self.enemy = copy.deepcopy(_enemy)
 
@@ -40,7 +41,7 @@ class Game():
     self.player.deck.shuffle()
     self.enemy.deck.shuffle()
     
-    self.current_player = choice([self.player, self.enemy])
+    self.current_player = self.random_state.choice([self.player, self.enemy])
 
     self.draw(self.current_player, 3)
     self.mulligan(self.current_player)
@@ -57,7 +58,7 @@ class Game():
         player.weapon = None
       for card in all_cards:
         if card.collectable:
-          card.clear_buffs()
+          card.reset()
           card.change_parent(card.owner.deck)
         else:
           card.parent.remove(card)
@@ -187,7 +188,7 @@ class Game():
           if card.effect.method == Methods.ALL:
             card.effect.resolve_action(self, Action(Actions.CAST_EFFECT, card, deathrattle_targets))
           elif card.effect.method == Methods.RANDOMLY:
-            card.effect.resolve_action(self, Action(Actions.CAST_EFFECT, card, choice(deathrattle_targets, card.effect.random_count)))
+            card.effect.resolve_action(self, Action(Actions.CAST_EFFECT, card, self.random_state.choice(deathrattle_targets, card.effect.random_count)))
           elif card.effect.method == Methods.TARGETED:
             card.effect.resolve_action(self, Action(Actions.CAST_EFFECT, card, [deathrattle_targets[0]]))
           elif card.effect.method == Methods.SELF:
@@ -200,7 +201,7 @@ class Game():
             if card.effect.method == Methods.ALL:
               card.effect.resolve_action(self, Action(Actions.CAST_EFFECT, card, death_trigger_targets))
             elif card.effect.method == Methods.RANDOMLY or card.effect.method == Methods.TARGETED: #targeted doesnt make sense so default to random
-              card.effect.resolve_action(self, Action(Actions.CAST_EFFECT, card, choice(death_trigger_targets, card.effect.random_count)))
+              card.effect.resolve_action(self, Action(Actions.CAST_EFFECT, card, self.random_state.choice(death_trigger_targets, card.effect.random_count)))
             elif card.effect.method == Methods.SELF:
               card.effect.resolve_action(self, Action(Actions.CAST_EFFECT, card, [card]))
 
@@ -223,7 +224,7 @@ class Game():
           for target in filter(lambda target: not (target.has_attribute(Attributes.STEALTH) or target.has_attribute(Attributes.HEXPROOF)), cast_targets):
             playable_spell_actions.append(Action(Actions.CAST_SPELL, card, [target]))
         elif card.effect.method == Methods.RANDOMLY:
-          playable_spell_actions.append(Action(Actions.CAST_SPELL, card, [choice(cast_targets)]))
+          playable_spell_actions.append(Action(Actions.CAST_SPELL, card, [self.random_state.choice(cast_targets)]))
         elif card.effect.method == Methods.ALL:
           playable_spell_actions.append(Action(Actions.CAST_SPELL, card, cast_targets))
     return playable_spell_actions
@@ -353,7 +354,7 @@ class Game():
               for target in filter(lambda target: not target.has_attribute(Attributes.STEALTH),  battlecry_targets):
                 playable_minion_actions.append(Action(Actions.CAST_MINION, card, [target]))
             elif card.effect.method == Methods.RANDOMLY:
-              playable_minion_actions.append(Action(Actions.CAST_MINION, card, choice(battlecry_targets, card.effect.random_count)))
+              playable_minion_actions.append(Action(Actions.CAST_MINION, card, self.random_state.choice(battlecry_targets, card.effect.random_count)))
             elif card.effect.method == Methods.ALL:
               playable_minion_actions.append(Action(Actions.CAST_MINION, card, battlecry_targets))
             elif card.effect.target == Targets.MINION and card.effect.method == Methods.ADJACENT:
@@ -376,7 +377,7 @@ class Game():
               for target in filter(lambda target: not target.has_attribute(Attributes.STEALTH), battlecry_targets):
                 playable_weapon_actions.append(Action(Actions.CAST_WEAPON, card, [target]))
             elif card.effect.method == Methods.RANDOMLY:
-              playable_weapon_actions.append(Action(Actions.CAST_WEAPON, card, choice(battlecry_targets, card.effect.random_count)))
+              playable_weapon_actions.append(Action(Actions.CAST_WEAPON, card, self.random_state.choice(battlecry_targets, card.effect.random_count)))
             elif card.effect.method == Methods.ALL:
               playable_weapon_actions.append(Action(Actions.CAST_WEAPON, card, battlecry_targets))
         else:

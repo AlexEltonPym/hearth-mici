@@ -160,7 +160,7 @@ class ReturnToHand():
   def resolve_action(self, game, action):
     for target in action.targets:
       target.change_parent(target.parent.parent.hand) #return to targets parent's player's hand (the parent of the board is the player)
-      target.clear_buffs()
+      target.reset()
 
 class RestoreHealth():
   available_methods = [Methods.TARGETED, Methods.RANDOMLY, Methods.ALL, Methods.SELF]
@@ -239,7 +239,37 @@ class SummonToken(): #summon minion for target player
       new_token.set_owner(target)
       new_token.set_parent(target.board)
       
+class Silence():
+  available_methods = [Methods.TARGETED, Methods.RANDOMLY, Methods.ALL]
+  param_type = ParamTypes.NONE
+  available_targets = [Targets.MINION, Targets.WEAPON]
+  available_owner_filters = [o for o in OwnerFilters]
+  available_type_filters = [t for t in CreatureTypes]
+  available_durations = []
+  available_triggers = [t for t in Triggers]
+  
+  def __init__(self, method, owner_filter, target, value=None, random_count=1, duration=None, trigger=None, type_filter=None):
+    self.method = method
+    self.value = value
+    self.random_count = random_count
+    self.target = target
+    self.owner_filter = owner_filter
+    self.type_filter = type_filter
+    self.trigger = trigger
+    self.duration = duration
 
+  def resolve_action(self, game, action):
+    for target in action.targets:
+      target.temp_attack = 0
+      target.temp_health = 0
+      target.temp_attributes = []
+      target.perm_attack = 0
+      target.perm_health = 0
+      target.perm_attributes = []
+      target.attributes = []
+      target.effect = None
+      target.condition = None
+      
 class DuelAction():
   def __init__(self, first_effect, second_effect):
     self.first_effect = first_effect
