@@ -597,6 +597,24 @@ def test_random_card_game():
   
   assert game_results.mean() < 1 and game_results.mean() > 0
 
+def test_fatigue():
+  seed(0)
+  card_pool = build_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER])
+  _player = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
+  _enemy = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
+  game = Game(_player, _enemy)
+
+  assert game.current_player.get_health() == 30
+  assert len(game.current_player.hand.get_all()) == 3
+  game.draw(game.current_player, 27)
+  assert game.current_player.get_health() == 30
+  game.draw(game.current_player, 1)
+  assert game.current_player.get_health() == 29
+  assert game.current_player.fatigue_damage == 2
+  game.draw(game.current_player, 2)
+  assert game.current_player.get_health() == 24
+  assert game.current_player.fatigue_damage == 4
+
 def test_game():
   seed(0)
   card_pool = build_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER])

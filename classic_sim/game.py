@@ -57,8 +57,6 @@ class Game():
         player.weapon = None
       for card in all_cards:
         if card.collectable:
-          card.attacks_this_turn = -1
-          card.health = card.original_health
           card.clear_buffs()
           card.change_parent(card.owner.deck)
         else:

@@ -95,7 +95,8 @@ class Card():
     self.perm_health = 0 
     self.temp_attributes = []
     self.perm_attributes = []
-    self.health = self.original_health    
+    self.health = self.original_health  
+    
 
 
   def get_string(self):

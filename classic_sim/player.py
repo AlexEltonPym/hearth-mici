@@ -50,6 +50,9 @@ class Player():
     self.health = 30
     self.armor = 0
     self.attack = 0
+    self.fatigue_damage = 1
+    self.current_mana = 0
+    self.max_mana = 0
 
 
   def remove(self, card):
