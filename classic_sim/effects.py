@@ -69,7 +69,7 @@ class ChangeStats():
   available_triggers = [t for t in Triggers]
   def __init__(self, value, method, target, owner_filter, random_count=1, duration=None, trigger=None, type_filter=None):
     self.method = method
-    self.attack_value, self.health_value = value
+    self.value = value
     self.random_count = random_count
     self.target = target
     self.owner_filter = owner_filter
@@ -80,11 +80,11 @@ class ChangeStats():
   def resolve_action(self, game, action):
     for target in action.targets:
       if self.duration == Durations.TURN:
-        target.temp_attack += self.attack_value
-        target.temp_health += self.health_value
+        target.temp_attack += self.value[0]
+        target.temp_health += self.value[1]
       elif self.duration == Durations.PERMANENTLY:
-        target.perm_attack += self.attack_value
-        target.perm_attack += self.health_value
+        target.perm_attack += self.value[0]
+        target.perm_health += self.value[1]
 
 
 
@@ -162,15 +162,72 @@ class ReturnToHand():
       target.change_parent(target.parent.parent.hand) #return to targets parent's player's hand (the parent of the board is the player)
       target.clear_buffs()
 
+class RestoreHealth():
+  available_methods = [Methods.TARGETED, Methods.RANDOMLY, Methods.ALL]
+  param_type = ParamTypes.X
+  available_targets = [t for t in Targets]
+  available_owner_filters = [f for f in OwnerFilters]
+  available_type_filters = [t for t in CreatureTypes]
+  available_durations = []
+  available_triggers = [Triggers.BATTLECRY, Triggers.DEATHRATTLE]
+ 
+  def __init__(self, method, owner_filter, target, value, random_count=1, trigger=None, type_filter=None, duration=None):
+    self.method = method
+    self.value = value
+    self.random_count = random_count
+    self.target = target
+    self.owner_filter = owner_filter
+    self.type_filter = type_filter
+    self.trigger = trigger
+    self.duration = duration
 
-# class DuelAction():
-#   def __init__(self, first_effect, second_effect):
-#     self.first_effect = first_effect
-#     self.second_effect = second_effect
-#     self.method = first_effect.method
-#     self.value = first_effect.value
+  def resolve_action(self, game, action):
+    for target in action.targets:
+      max_healing = target.get_max_health() - target.get_health()
+      healing = min(self.value, max_healing)
+      target.health += healing
+
+
+class GiveKeyword():
+  available_methods = [m for m in Methods]
+  param_type = ParamTypes.KEYWORD
+  available_targets = [t for t in Targets]
+  available_owner_filters = [f for f in OwnerFilters]
+  available_type_filters = [c for c in CreatureTypes]
+  available_durations = [d for d in Durations]
+  available_triggers = [t for t in Triggers]
+  def __init__(self, value, method, target, owner_filter, random_count=1, duration=None, trigger=None, type_filter=None):
+    self.method = method
+    self.value = value
+    self.random_count = random_count
+    self.target = target
+    self.owner_filter = owner_filter
+    self.type_filter = type_filter
+    self.trigger = trigger
+    self.duration = duration
+
+  def resolve_action(self, game, action):
+    for target in action.targets:
+      if self.duration == Durations.TURN:
+        target.temp_attributes.append(self.value)
+      elif self.duration == Durations.PERMANENTLY:
+        target.perm_attributes.append(self.value)
+
+
+class DuelAction():
+  def __init__(self, first_effect, second_effect):
+    self.first_effect = first_effect
+    self.second_effect = second_effect
+    self.method = first_effect.method
+    self.value = first_effect.value
+    self.param_type = first_effect.param_type
+    self.target = first_effect.target
+    self.owner_filter = first_effect.owner_filter
+    self.type_filter = first_effect.type_filter
+    self.duration = first_effect.duration
+    self.trigger = first_effect.trigger
   
-#   def resolve_action(self, game, action):
-#     self.first_effect.resolve_action(self, game, action)
-#     self.second_effect.resolve_action(self, game, action)
+  def resolve_action(self, game, action):
+    self.first_effect.resolve_action(game, action)
+    self.second_effect.resolve_action(game, action)
 

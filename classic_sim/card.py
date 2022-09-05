@@ -22,6 +22,8 @@ class Card():
     self.temp_health = 0
     self.perm_attack = 0
     self.perm_health = 0
+    self.temp_attributes = []
+    self.perm_attributes = []
     self.collectable = collectable
 
   def set_owner(self, owner):
@@ -37,18 +39,28 @@ class Card():
     self.parent.add(self)
 
   def has_attribute(self, attribute):
-    return attribute in self.attributes\
-          or (self.condition and attribute in self.condition.result['attributes']\
-          and self.condition.requirement(self.owner.game, self))\
+    return attribute in self.attributes or attribute in self.temp_attributes or attribute in self.perm_attributes\
+          or (self.condition and attribute in self.condition.result['attributes'] and self.condition.requirement(self.owner.game, self))
   
   def get_attack(self):
     
-    aura_attack = self.get_aura_attack()
+    aura_attack, _ = self.get_aura_stats()
     condition_attack = self.condition.result['temp_attack'] if self.condition and self.condition.requirement(self.owner.game, self) else 0
     return self.attack+self.perm_attack+self.temp_attack+condition_attack+aura_attack
+
+  def get_health(self):
+    _, aura_health = self.get_aura_stats()
+    condition_health = self.condition.result['temp_health'] if self.condition and self.condition.requirement(self.owner.game, self) else 0
+    return self.health+self.temp_health+self.perm_health+condition_health+aura_health
+
+  def get_max_health(self):
+    _, aura_health = self.get_aura_stats()
+    condition_health = self.condition.result['temp_health'] if self.condition and self.condition.requirement(self.owner.game, self) else 0
+    return self.max_health+self.temp_health+self.perm_health+condition_health+aura_health
     
-  def get_aura_attack(self):
+  def get_aura_stats(self):
     aura_attack = 0
+    aura_health = 0
     if self.card_type == CardTypes.MINION and self.parent == self.owner.board:
       board = self.owner.board.get_all()
       last_index = len(board)-1
@@ -61,7 +73,8 @@ class Card():
             adjacent = card.effect.method == Methods.ADJACENT and (my_index == index-1 or my_index == index+1 or (my_index == 0 and index == last_index) or (my_index == last_index and index == 0))
             if card.effect.method == Methods.ALL or adjacent:
               if isinstance(card.effect, ChangeStats):
-                aura_attack += card.effect.attack_value
+                aura_attack += card.effect.value[0]
+                aura_health += card.effect.value[1]
         
       for card in self.parent.parent.other_player.board.get_all():
         if card.effect and card.effect.trigger == Triggers.AURA:
@@ -69,8 +82,10 @@ class Card():
           correct_creature_type = card.effect.type_filter == None or card.effect.type_filter == CreatureTypes.ALL or card.effect.type_filter == self.creature_type
           if correct_owner and correct_creature_type and card.effect.method == Methods.ALL:
             if isinstance(card.effect, ChangeStats):
-              aura_attack += card.effect.attack_value
-    return aura_attack
+              aura_attack += card.effect.value[0]
+              aura_health += card.effect.value[1]
+
+    return aura_attack, aura_health
 
   def clear_buffs(self):
     self.attacks_this_turn = -1
@@ -78,6 +93,8 @@ class Card():
     self.temp_health = 0
     self.perm_attack = 0
     self.perm_health = 0 
+    self.temp_attributes = []
+    self.perm_attributes = []
     self.health = self.original_health    
 
 

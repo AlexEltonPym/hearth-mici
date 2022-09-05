@@ -1,5 +1,6 @@
 from enums import *
 from numpy.random import choice
+from numpy import unique
 from player import Player
 from card_sets import get_utility_card, get_hero_power
 from effects import *
@@ -41,10 +42,10 @@ class Game():
     
     self.current_player = choice([self.player, self.enemy])
 
-    self.draw(self.current_player, 4)
+    self.draw(self.current_player, 3)
     self.mulligan(self.current_player)
 
-    self.draw(self.current_player.other_player, 3)
+    self.draw(self.current_player.other_player, 4)
     self.mulligan(self.current_player.other_player)
     self.add_coin(self.current_player.other_player)
 
@@ -93,10 +94,12 @@ class Game():
   def end_turn(self):
     self.current_player.temp_attack = 0
     self.current_player.temp_health = 0
+    self.current_player.temp_attributes = []
   
     for minion in self.current_player.board.get_all():
       minion.temp_attack = 0
       minion.temp_health = 0
+      minion.temp_attributes = []
 
     self.current_player = self.current_player.other_player
 
@@ -178,7 +181,7 @@ class Game():
       self.check_dead(target)
 
   def check_dead(self, card):
-    if card.health <= 0 and not isinstance(card, Player):
+    if card.get_health() <= 0 and not isinstance(card, Player):
       card.change_parent(card.owner.graveyard)
       if card.effect and card.effect.trigger == Triggers.DEATHRATTLE:
         deathrattle_targets = self.get_available_effect_targets(card.owner, card)
@@ -330,7 +333,6 @@ class Game():
 
     if len(player.board.get_all()) < 7:
       for card in filter(lambda card: card.mana <= player.current_mana and card.card_type == CardTypes.MINION, player.hand.get_all()):
-
         if card.effect and card.effect.trigger == Triggers.BATTLECRY:
           battlecry_targets = self.get_available_effect_targets(player, card)
           if len(battlecry_targets) > 0:
@@ -341,6 +343,9 @@ class Game():
               playable_minion_actions.append(Action(Actions.CAST_MINION, card, choice(battlecry_targets, card.effect.random_count)))
             elif card.effect.method == Methods.ALL:
               playable_minion_actions.append(Action(Actions.CAST_MINION, card, battlecry_targets))
+            elif card.effect.target == Targets.MINIONS and card.effect.method == Methods.ADJACENT:
+              adjacent_minions = unique(list(filter(lambda target: target.parent.at_edge(target), battlecry_targets)))
+              playable_minion_actions.append(Action(Actions.CAST_MINION, card, adjacent_minions))
         else:
           playable_minion_actions.append(Action(Actions.CAST_MINION, card, [player.board]))
     return playable_minion_actions

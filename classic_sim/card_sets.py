@@ -32,7 +32,7 @@ def get_op_cards():
   return op_cards
 
 def get_classic_cards():
-  #One drops
+  #Common one drops
   wisp = Card(name="Wisp", card_type = CardTypes.MINION, mana = 0, attack = 1, health = 1)
   abusive_sergeant = Card(name="Abusive Sergeant", card_type=CardTypes.MINION, mana=1, attack=1, health=1,\
                           effect=ChangeStats(value=(2,0), method = Methods.TARGETED,\
@@ -49,7 +49,7 @@ def get_classic_cards():
   worgen_infiltrator = Card(name="Worgen Infiltrator", card_type=CardTypes.MINION, mana=1, attack=2, health=1, attributes=[Attributes.STEALTH])
   young_dragonhawk = Card(name="Young Dragonhawk", card_type=CardTypes.MINION, mana=1, attack=1, health=1, attributes=[Attributes.WINDFURY])
   
-  #Two drops
+  #Common two drops
   amani_berserker = Card(name="Amani Berserker", card_type=CardTypes.MINION, mana=2, attack=2, health=3, condition=Condition(requirement=Condition.damaged, result={'temp_attack': 3}))
   bloodsail_raider = Card(name="Bloodsail Raider", card_type=CardTypes.MINION, mana=2, attack=2, health=3,\
                          effect=GainWeaponAttack(method=Methods.TARGETED, owner_filter=OwnerFilters.FRIENDLY, duration=Durations.PERMANENTLY))
@@ -63,9 +63,23 @@ def get_classic_cards():
   youthful_brewmaster = Card(name="Youthful Brewmaster", card_type=CardTypes.MINION, mana=2, attack=3, health=2,\
                           effect=ReturnToHand(method=Methods.TARGETED, target=Targets.MINIONS, owner_filter=OwnerFilters.FRIENDLY, trigger=Triggers.BATTLECRY))
 
+  #Common three drops
+  earthen_ring_farseer = Card(name="Earthen Ring Farseer", card_type=CardTypes.MINION, mana=3, attack=3, health=3,\
+                              effect=RestoreHealth(value=3, method=Methods.TARGETED, target=Targets.MINIONS_OR_HEROES, owner_filter=OwnerFilters.ALL, trigger=Triggers.BATTLECRY))
+
+  #Rare four drops
+  defender_of_argus = Card(name="Defender of Argus", card_type=CardTypes.MINION, mana=4, attack=3, health=3,\
+                          effect=DuelAction(ChangeStats(value=(1,1), method=Methods.ADJACENT, target=Targets.MINIONS,\
+                          owner_filter=OwnerFilters.FRIENDLY, duration=Durations.PERMANENTLY, trigger=Triggers.BATTLECRY),
+                                            GiveKeyword(value=Attributes.TAUNT, method=Methods.ADJACENT, target=Targets.MINIONS,\
+                          owner_filter=OwnerFilters.FRIENDLY, duration=Durations.PERMANENTLY, trigger=Triggers.BATTLECRY)))
+
   common_one_drops = [wisp, abusive_sergeant, argent_squire, leper_gnome, shieldbearer, southsea_deckhand, worgen_infiltrator, young_dragonhawk]
   common_two_drops = [amani_berserker, bloodsail_raider, dire_wolf_alpha, faerie_dragon, loot_hoarder, mad_bomber, youthful_brewmaster]
-  return common_one_drops + common_two_drops
+  common_three_drops = [earthen_ring_farseer]
+
+  rare_four_drops = [defender_of_argus]
+  return common_one_drops + common_two_drops + common_three_drops + rare_four_drops
 
 def get_mage_cards():
   fireball = Card(name="Fireball", card_type=CardTypes.SPELL, mana=4, effect=DealDamage(value=6, method=Methods.TARGETED, target=Targets.MINIONS_OR_HEROES, owner_filter=OwnerFilters.ALL))

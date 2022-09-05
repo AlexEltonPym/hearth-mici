@@ -5,14 +5,18 @@ from enums import *
 import effects
 from card import Card
 from condition import Condition
+import numpy as np
+
 
 def make_random_card(id):
+  np.warnings.filterwarnings('ignore', category=np.VisibleDeprecationWarning) 
+
   _card_type = choice([CardTypes.MINION, CardTypes.SPELL, CardTypes.WEAPON]) #not creating random hero powers
   _mana = randint(0, 10)
   _attack = randint(0, 10)
   _health = randint(1, 10)
   _attributes = choice([[choice([a for a in Attributes])], []])
-  EffectType = choice([None] + get_classes(effects))
+  EffectType = choice([None] + list(filter(lambda effect_type: effect_type != effects.DuelAction, get_classes(effects))))
   requirement = choice(Condition.get_available_conditions())
   result = {'attributes': [choice([a for a in Attributes])], 'temp_attack': randint(0, 10), 'temp_health': randint(0, 10)}
   _condition = choice([Condition(requirement=requirement, result=result), None])
@@ -27,6 +31,8 @@ def make_random_card(id):
       _value = (randint(1, 10), randint(1, 10))
     elif EffectType.param_type == ParamTypes.NONE:
       _value = None
+    elif EffectType.param_type == ParamTypes.KEYWORD:
+      _value = choice([a for a in Attributes])
     _method = choice_with_none(EffectType.available_methods)
     _target = choice_with_none(EffectType.available_targets)
     _owner_filter = choice_with_none(EffectType.available_owner_filters)

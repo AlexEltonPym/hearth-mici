@@ -3,7 +3,6 @@ class Board():
     self.name = 'board'
     self.parent = parent
     self.board = []
-
     
   def remove(self, card):
     self.board.remove(card)
@@ -19,6 +18,10 @@ class Board():
   
   def index_of(self, key):
     return self.board.index(key)
+  
+  def at_edge(self, key):
+    key_index = self.board.index(key)
+    return key_index == 0 or key_index == len(self.board)
 
   def __str__(self):
     return str((self.name, self.parent.name))

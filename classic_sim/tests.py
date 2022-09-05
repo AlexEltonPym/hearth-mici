@@ -356,12 +356,12 @@ def test_loot_hoarder():
   new_hoarder = get_from_name(hunter_pool, 'Loot Hoarder')
   new_hoarder.set_owner(game.current_player)
   new_hoarder.set_parent(game.current_player.board)
-  assert len(game.current_player.hand.get_all()) == 4
+  assert len(game.current_player.hand.get_all()) == 3
 
   fireblast_action = Action(action_type=Actions.CAST_HERO_POWER, source=game.enemy.hero_power, targets=[new_hoarder])
   game.perform_action(fireblast_action)
   assert new_hoarder.parent == new_hoarder.owner.graveyard
-  assert len(game.current_player.hand.get_all()) == 5
+  assert len(game.current_player.hand.get_all()) == 4
 
 def test_hexproof():
   seed(0)
@@ -407,7 +407,60 @@ def test_mad_bomber():
   cast_bomber = game.get_available_actions(game.current_player)[0]
   game.perform_action(cast_bomber)
 
-  assert new_wisp.parent == new_wisp.owner.graveyard and game.current_player.health == 29 and game.current_player.other_player.health == 29
+  assert new_wisp.parent == new_wisp.owner.graveyard and new_wisp.get_health() == -1 and game.current_player.other_player.get_health() == 29 
+
+def test_farseer():
+  seed(0)
+  card_pool = build_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER])
+  _player = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
+  _enemy = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
+  game = Game(_player, _enemy)
+  game.current_player.hand.hand = []
+  game.current_player.current_mana = 10
+
+  new_wisp = get_from_name(card_pool, 'Wisp')
+  new_wisp.set_owner(game.current_player)
+  new_wisp.set_parent(game.current_player.board)
+  assert new_wisp.get_health() == 1
+  assert new_wisp.get_max_health() == 1
+  assert game.current_player.health == 30
+  assert game.current_player.max_health == 30
+  assert game.current_player.get_max_health() == 30
+
+  defender = get_from_name(card_pool, 'Defender of Argus')
+  defender.set_owner(game.current_player)
+  defender.set_parent(game.current_player.hand)
+  cast_defender = list(filter(lambda action: action.source == defender, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(cast_defender)
+
+  assert new_wisp.get_attack() == 2
+  assert new_wisp.get_health() == 2 
+  assert new_wisp.has_attribute(Attributes.TAUNT)
+
+  new_farseer = get_from_name(card_pool, 'Earthen Ring Farseer')
+  new_farseer.set_owner(game.current_player)
+  new_farseer.set_parent(game.current_player.hand)
+
+  cast_actions = list(filter(lambda action: action.action_type == Actions.CAST_MINION, game.get_available_actions(game.current_player)))
+  assert len(cast_actions) == 4 #heal wisp, defender, self and enemy
+  game.perform_action(cast_actions[0])
+  assert new_wisp.get_health() == 2
+  assert new_wisp.get_max_health() == 2
+
+  game.deal_damage(new_wisp, 1)
+  assert new_wisp.parent == new_wisp.owner.board
+  assert new_wisp.get_health() == 1
+  assert new_wisp.get_max_health() == 2
+  
+  second_farseer = get_from_name(card_pool, 'Earthen Ring Farseer')
+  second_farseer.set_owner(game.current_player)
+  second_farseer.set_parent(game.current_player.hand)
+
+  heal_wisp = list(filter(lambda action: action.source == second_farseer and action.targets[0] == new_wisp, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(heal_wisp)
+  assert new_wisp.get_health() == 2
+  assert new_wisp.get_max_health() == 2
+
 
 def test_windfury_weapon():
   seed(0)
@@ -613,8 +666,7 @@ def test_big_random_cards():
       assert game_results.mean() < 1 and game_results.mean() > 0
 
 def main():
-  # test_return_to_hand()
-  test_mad_bomber()
+  test_farseer()
 
 
 if __name__ == '__main__':

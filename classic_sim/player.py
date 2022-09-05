@@ -21,6 +21,8 @@ class Player():
     self.temp_health = 0
     self.perm_attack = 0
     self.perm_health = 0
+    self.temp_attributes = []
+    self.perm_attributes = []
 
     self.current_mana = 0
     self.max_mana = 0
@@ -43,6 +45,8 @@ class Player():
     self.temp_health = 0
     self.perm_attack = 0
     self.perm_health = 0
+    self.temp_attributes = []
+    self.perm_attributes = []
     self.health = 30
     self.armor = 0
     self.attack = 0
@@ -56,8 +60,16 @@ class Player():
     self.weapon = card
 
   def get_attack(self):
-    return self.attack+self.temp_attack+(self.condition.result['temp_attack'] if self.condition and self.condition.requirement(self.game, self) else 0)
+    conditional_attack = self.condition.result['temp_attack'] if self.condition and self.condition.requirement(self.game, self) else 0
+    return self.attack+self.temp_attack+self.perm_attack+conditional_attack
 
+  def get_health(self):
+    conditional_health = self.condition.result['temp_health'] if self.condition and self.condition.requirement(self.game, self) else 0
+    return self.health + self.temp_health + self.perm_health + conditional_health
+
+  def get_max_health(self):
+    conditional_health = self.condition.result['temp_health'] if self.condition and self.condition.requirement(self.game, self) else 0
+    return self.max_health+self.temp_health+self.perm_health+conditional_health
   
   def has_attribute(self, attribute):
     player_has = attribute in self.attributes\
@@ -66,7 +78,9 @@ class Player():
     weapon_has = self.weapon and (attribute in self.weapon.attributes\
           or (self.weapon.condition and attribute in self.weapon.condition.result['attributes']\
             and self.weapon.condition.requirement(self.game, self)))
-    return player_has or weapon_has
+    temp_attributes_has = attribute in self.temp_attributes
+    perm_attributes_has = attribute in self.perm_attributes
+    return player_has or weapon_has or temp_attributes_has or perm_attributes_has
 
   def __str__(self):
     return str((self.name, self.player_class, str(self.health)))
