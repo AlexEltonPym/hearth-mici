@@ -407,7 +407,9 @@ def test_mad_bomber():
   cast_bomber = game.get_available_actions(game.current_player)[0]
   game.perform_action(cast_bomber)
 
-  assert new_wisp.parent == new_wisp.owner.graveyard and new_wisp.get_health() == -1 and game.current_player.other_player.get_health() == 29 
+  assert new_wisp.parent == new_wisp.owner.graveyard 
+  assert new_wisp.get_health() == -1 
+  assert game.current_player.get_health() == 29 
 
 def test_farseer():
   seed(0)
@@ -460,6 +462,55 @@ def test_farseer():
   game.perform_action(heal_wisp)
   assert new_wisp.get_health() == 2
   assert new_wisp.get_max_health() == 2
+
+def test_ghoul():
+  seed(0)
+  card_pool = build_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER])
+  _player = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
+  _enemy = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
+  game = Game(_player, _enemy)
+  game.current_player.hand.hand = []
+  game.current_player.current_mana = 10
+
+  new_ghoul = get_from_name(card_pool, 'Flesheating Ghoul')
+  new_ghoul.set_owner(game.current_player)
+  new_ghoul.set_parent(game.current_player.board)
+
+  new_wisp = get_from_name(card_pool, 'Wisp')
+  new_wisp.set_owner(game.current_player)
+  new_wisp.set_parent(game.current_player.board)
+
+  enemy_wisp = get_from_name(card_pool, 'Wisp')
+  enemy_wisp.set_owner(game.current_player.other_player)
+  enemy_wisp.set_parent(game.current_player.other_player.board)
+
+  assert new_ghoul.get_attack() == 3
+  game.deal_damage(new_wisp, 1)
+  assert new_ghoul.get_attack() == 4
+  game.deal_damage(enemy_wisp, 1)
+  assert new_ghoul.get_attack() == 5
+  assert new_ghoul.get_health() == 3
+  game.deal_damage(new_ghoul, 3)
+  assert new_ghoul.parent == new_ghoul.owner.graveyard
+  assert new_ghoul.get_attack() == 5
+
+def test_golem():
+  seed(0)
+  card_pool = build_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER])
+  _player = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
+  _enemy = Player(Classes.HUNTER, Deck().generate_random(card_pool), GreedyAction)
+  game = Game(_player, _enemy)
+  game.current_player.hand.hand = []
+  game.current_player.current_mana = 10
+
+  new_golem = get_from_name(card_pool, 'Harvest Golem')
+  new_golem.set_owner(game.current_player)
+  new_golem.set_parent(game.current_player.board)
+
+  game.deal_damage(new_golem, 3)
+  assert new_golem.parent == new_golem.owner.graveyard
+  assert len(game.current_player.board.get_all()) == 1
+  assert game.current_player.board.get_all()[0].name == 'Damaged Golem'
 
 
 def test_windfury_weapon():
@@ -614,6 +665,7 @@ def test_fatigue():
   game.draw(game.current_player, 2)
   assert game.current_player.get_health() == 24
   assert game.current_player.fatigue_damage == 4
+  assert len(game.current_player.hand.get_all()) == 10
 
 def test_game():
   seed(0)

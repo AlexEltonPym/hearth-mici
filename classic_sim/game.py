@@ -186,8 +186,23 @@ class Game():
         if len(deathrattle_targets) > 0:
           if card.effect.method == Methods.ALL:
             card.effect.resolve_action(self, Action(Actions.CAST_EFFECT, card, deathrattle_targets))
-          elif card.effect.method == Methods.RANDOMLY or card.effect.method == Methods.TARGETED: #targeted deathrattle doesnt make sense so default to random
+          elif card.effect.method == Methods.RANDOMLY:
             card.effect.resolve_action(self, Action(Actions.CAST_EFFECT, card, choice(deathrattle_targets, card.effect.random_count)))
+          elif card.effect.method == Methods.TARGETED:
+            card.effect.resolve_action(self, Action(Actions.CAST_EFFECT, card, [deathrattle_targets[0]]))
+          elif card.effect.method == Methods.SELF:
+            card.effect.resolve_action(self, Action(Actions.CAST_EFFECT, card, [card]))
+
+      for card in card.owner.board.get_all() + card.owner.other_player.board.get_all():
+        if card.effect and card.effect.trigger == Triggers.MINION_DIES:
+          death_trigger_targets = self.get_available_effect_targets(card.owner, card)
+          if len(death_trigger_targets) > 0:
+            if card.effect.method == Methods.ALL:
+              card.effect.resolve_action(self, Action(Actions.CAST_EFFECT, card, death_trigger_targets))
+            elif card.effect.method == Methods.RANDOMLY or card.effect.method == Methods.TARGETED: #targeted doesnt make sense so default to random
+              card.effect.resolve_action(self, Action(Actions.CAST_EFFECT, card, choice(death_trigger_targets, card.effect.random_count)))
+            elif card.effect.method == Methods.SELF:
+              card.effect.resolve_action(self, Action(Actions.CAST_EFFECT, card, [card]))
 
   def get_available_targets(self, card):
     targets = []
@@ -278,24 +293,24 @@ class Game():
     target = card.effect.target
     
     if owner_filter == OwnerFilters.FRIENDLY or owner_filter == OwnerFilters.ALL:
-      if target == Targets.MINIONS or target == Targets.MINIONS_OR_HEROES:
+      if target == Targets.MINION or target == Targets.MINION_OR_HERO:
         for minion in player.board.get_all():
           if type_filter == None or type_filter == CreatureTypes.ALL or type_filter == minion.creature_type:
             available_targets.append(minion) 
-      if target == Targets.HEROES or target == Targets.MINIONS_OR_HEROES:
+      if target == Targets.HERO or target == Targets.MINION_OR_HERO:
         available_targets.append(player)
-      if target == Targets.WEAPONS and player.weapon:
+      if target == Targets.WEAPON and player.weapon:
         available_targets.append(player.weapon)
     if owner_filter == OwnerFilters.ENEMY or owner_filter == OwnerFilters.ALL:
-      if target == Targets.MINIONS or target == Targets.MINIONS_OR_HEROES:
+      if target == Targets.MINION or target == Targets.MINION_OR_HERO:
         for minion in player.other_player.board.get_all():
           if type_filter == None or type_filter == CreatureTypes.ALL or type_filter == minion.creature_type:
             available_targets.append(minion)
-      if target == Targets.HEROES or target == Targets.MINIONS_OR_HEROES:
+      if target == Targets.HERO or target == Targets.MINION_OR_HERO:
         available_targets.append(player.other_player)
-      if target == Targets.WEAPONS and player.other_player.weapon:
+      if target == Targets.WEAPON and player.other_player.weapon:
         available_targets.append(player.other_player.weapon)
-    if card in available_targets:
+    if card.effect.method != Methods.SELF and card in available_targets:
       available_targets.remove(card)
 
     return available_targets
@@ -341,9 +356,11 @@ class Game():
               playable_minion_actions.append(Action(Actions.CAST_MINION, card, choice(battlecry_targets, card.effect.random_count)))
             elif card.effect.method == Methods.ALL:
               playable_minion_actions.append(Action(Actions.CAST_MINION, card, battlecry_targets))
-            elif card.effect.target == Targets.MINIONS and card.effect.method == Methods.ADJACENT:
+            elif card.effect.target == Targets.MINION and card.effect.method == Methods.ADJACENT:
               adjacent_minions = unique(list(filter(lambda target: target.parent.at_edge(target), battlecry_targets)))
               playable_minion_actions.append(Action(Actions.CAST_MINION, card, adjacent_minions))
+            elif card.effect.target == Targets.SELF:
+              playable_minion_actions.append(Action(Actions.CAST_MINION, card, [card]))
         else:
           playable_minion_actions.append(Action(Actions.CAST_MINION, card, [player.board]))
     return playable_minion_actions

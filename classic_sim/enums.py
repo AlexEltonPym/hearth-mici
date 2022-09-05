@@ -15,15 +15,8 @@ class Triggers(Enum):
   BATTLECRY = 0
   DEATHRATTLE = 1
   AURA = 2 #an aura is permentant until the source disapears
+  MINION_DIES = 3
 
-
-class Events(Enum):
-  WEAPON_PLAYED = 3
-  WEAPON_DESTROYED = 4
-  MINION_DIES = 5
-  SPELL_CAST = 6
-  CHARACTER_HEALED = 7
-  MURLOC_SUMMONED = 8
 
 
 class Actions(Enum):
@@ -37,10 +30,10 @@ class Actions(Enum):
 
 
 class Targets(Enum):
-  MINIONS = 0
-  HEROES = 1
-  MINIONS_OR_HEROES = 2
-  WEAPONS = 3
+  MINION = 0
+  HERO = 1
+  MINION_OR_HERO = 2
+  WEAPON = 3
 
 class OwnerFilters(Enum):
   FRIENDLY = 0
@@ -50,10 +43,11 @@ class OwnerFilters(Enum):
 
 class CreatureTypes(Enum):
   ALL = 0
-  PIRATES = 1
-  BEASTS = 2
-  ELEMENTALS = 3
-  TOTEMS = 4
+  PIRATE = 1
+  BEAST = 2
+  ELEMENTAL = 3
+  TOTEM = 4
+  MECH = 5
 
 class Durations(Enum):
   TURN = 0
@@ -65,6 +59,7 @@ class Methods(Enum):
   RANDOMLY = 1
   ALL = 2
   ADJACENT = 3
+  SELF = 4
 
 
 class CardSets(Enum):
@@ -93,3 +88,4 @@ class ParamTypes(Enum):
   X = 2
   XY = 3
   NONE = 4
+  TOKEN = 5

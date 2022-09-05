@@ -1,14 +1,14 @@
 from enums import *
-
+from copy import deepcopy
 
 class GainMana():
   available_methods = [Methods.TARGETED, Methods.RANDOMLY, Methods.ALL]
   param_type = ParamTypes.X
-  available_targets = [Targets.HEROES]
+  available_targets = [Targets.HERO]
   available_owner_filters = [f for f in OwnerFilters]
   available_type_filters = []
   available_durations = [Durations.TURN, Durations.PERMANENTLY]
-  available_triggers = [Triggers.BATTLECRY, Triggers.DEATHRATTLE]
+  available_triggers = [Triggers.BATTLECRY, Triggers.DEATHRATTLE, Triggers.MINION_DIES]
   def __init__(self, method, value, duration, target, owner_filter, random_count=1, trigger=None, type_filter=None):
     self.method = method
     self.value = value
@@ -29,13 +29,13 @@ class GainMana():
 
 
 class DealDamage():
-  available_methods = [Methods.TARGETED, Methods.RANDOMLY, Methods.ALL]
+  available_methods = [Methods.TARGETED, Methods.RANDOMLY, Methods.ALL, Methods.SELF]
   param_type = ParamTypes.X
-  available_targets = [Targets.MINIONS, Targets.HEROES, Targets.MINIONS_OR_HEROES]
+  available_targets = [Targets.MINION, Targets.HERO, Targets.MINION_OR_HERO]
   available_owner_filters = [f for f in OwnerFilters]
   available_type_filters = [c for c in CreatureTypes]
   available_durations = []
-  available_triggers = [Triggers.BATTLECRY, Triggers.DEATHRATTLE]
+  available_triggers = [Triggers.BATTLECRY, Triggers.DEATHRATTLE, Triggers.MINION_DIES]
 
   def __init__(self, method, value, target, owner_filter, random_count=1, trigger=None, type_filter=None, duration=None):
     self.method = method
@@ -91,12 +91,12 @@ class ChangeStats():
 class GainWeaponAttack():
   available_methods = [Methods.TARGETED, Methods.RANDOMLY, Methods.ALL]
   param_type = ParamTypes.NONE
-  available_targets = [Targets.WEAPONS]
+  available_targets = [Targets.WEAPON]
   available_owner_filters = [f for f in OwnerFilters]
   available_type_filters = []
   available_durations = [Durations.TURN, Durations.PERMANENTLY]
-  available_triggers = [Triggers.BATTLECRY]
-  def __init__(self, method, owner_filter, duration, random_count=1, value=None, target=Targets.WEAPONS, trigger=Triggers.BATTLECRY, type_filter=None):
+  available_triggers = [Triggers.BATTLECRY, Triggers.MINION_DIES]
+  def __init__(self, method, owner_filter, duration, random_count=1, value=None, target=Targets.WEAPON, trigger=Triggers.BATTLECRY, type_filter=None):
     self.method = method
     self.value = value
     self.random_count = random_count
@@ -118,13 +118,13 @@ class GainWeaponAttack():
 class DrawCards():
   available_methods = [Methods.TARGETED, Methods.RANDOMLY, Methods.ALL]
   param_type = ParamTypes.X
-  available_targets = [Targets.HEROES]
+  available_targets = [Targets.HERO]
   available_owner_filters = [f for f in OwnerFilters]
   available_type_filters = []
   available_durations = []
-  available_triggers = [Triggers.BATTLECRY, Triggers.DEATHRATTLE]
+  available_triggers = [Triggers.BATTLECRY, Triggers.DEATHRATTLE, Triggers.MINION_DIES]
 
-  def __init__(self, method, value, owner_filter, random_count=1, target=Targets.HEROES, trigger=None, type_filter=None, duration=None):
+  def __init__(self, method, value, owner_filter, random_count=1, target=Targets.HERO, trigger=None, type_filter=None, duration=None):
     self.method = method
     self.value = value
     self.random_count = random_count
@@ -141,13 +141,13 @@ class DrawCards():
 class ReturnToHand():
   available_methods = [Methods.TARGETED, Methods.RANDOMLY, Methods.ALL]
   param_type = ParamTypes.NONE
-  available_targets = [Targets.MINIONS] #could theoreticaly do weapons too
+  available_targets = [Targets.MINION] #could theoreticaly do weapons too
   available_owner_filters = [f for f in OwnerFilters]
   available_type_filters = [t for t in CreatureTypes]
   available_durations = []
-  available_triggers = [Triggers.BATTLECRY, Triggers.DEATHRATTLE]
+  available_triggers = [Triggers.BATTLECRY, Triggers.DEATHRATTLE, Triggers.MINION_DIES]
 
-  def __init__(self, method, owner_filter, random_count=1, target=Targets.MINIONS, value=None, trigger=None, type_filter=None, duration=None):
+  def __init__(self, method, owner_filter, random_count=1, target=Targets.MINION, value=None, trigger=None, type_filter=None, duration=None):
     self.method = method
     self.value = value
     self.random_count = random_count
@@ -163,13 +163,13 @@ class ReturnToHand():
       target.clear_buffs()
 
 class RestoreHealth():
-  available_methods = [Methods.TARGETED, Methods.RANDOMLY, Methods.ALL]
+  available_methods = [Methods.TARGETED, Methods.RANDOMLY, Methods.ALL, Methods.SELF]
   param_type = ParamTypes.X
   available_targets = [t for t in Targets]
   available_owner_filters = [f for f in OwnerFilters]
   available_type_filters = [t for t in CreatureTypes]
   available_durations = []
-  available_triggers = [Triggers.BATTLECRY, Triggers.DEATHRATTLE]
+  available_triggers = [Triggers.BATTLECRY, Triggers.DEATHRATTLE, Triggers.MINION_DIES]
  
   def __init__(self, method, owner_filter, target, value, random_count=1, trigger=None, type_filter=None, duration=None):
     self.method = method
@@ -213,6 +213,32 @@ class GiveKeyword():
       elif self.duration == Durations.PERMANENTLY:
         target.perm_attributes.append(self.value)
 
+class SummonToken(): #summon minion for target player
+  available_methods = [Methods.TARGETED, Methods.RANDOMLY, Methods.ALL]
+  param_type = ParamTypes.TOKEN
+  available_targets = [Targets.HERO]
+  available_owner_filters = []
+  available_type_filters = []
+  available_durations = []
+  available_triggers = [t for t in Triggers]
+
+  def __init__(self, value, method, owner_filter, target=Targets.HERO, random_count=1, duration=None, trigger=None, type_filter=None):
+    self.method = method
+    self.value = value
+    self.random_count = random_count
+    self.target = target
+    self.owner_filter = owner_filter
+    self.type_filter = type_filter
+    self.trigger = trigger
+    self.duration = duration
+
+  def resolve_action(self, game, action):
+    for target in action.targets:
+      new_token = deepcopy(self.value)
+      #Doesn't trigger battlecry
+      new_token.set_owner(target)
+      new_token.set_parent(target.board)
+      
 
 class DuelAction():
   def __init__(self, first_effect, second_effect):
