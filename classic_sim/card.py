@@ -53,13 +53,11 @@ class Card():
 
   def get_health(self):
     _, aura_health = self.get_aura_stats()
-    condition_health = self.condition.result['temp_health'] if self.condition and self.condition.requirement(self.owner.game, self) else 0
-    return self.health+self.temp_health+self.perm_health+condition_health+aura_health
+    return self.health+self.temp_health+self.perm_health+aura_health
 
   def get_max_health(self):
     _, aura_health = self.get_aura_stats()
-    condition_health = self.condition.result['temp_health'] if self.condition and self.condition.requirement(self.owner.game, self) else 0
-    return self.max_health+self.temp_health+self.perm_health+condition_health+aura_health
+    return self.max_health+self.temp_health+self.perm_health+aura_health
     
   def get_aura_stats(self):
     aura_attack = 0

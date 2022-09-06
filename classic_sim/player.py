@@ -67,12 +67,10 @@ class Player():
     return self.attack+self.temp_attack+self.perm_attack+conditional_attack
 
   def get_health(self):
-    conditional_health = self.condition.result['temp_health'] if self.condition and self.condition.requirement(self.game, self) else 0
-    return self.health + self.temp_health + self.perm_health + conditional_health
+    return self.health + self.temp_health + self.perm_health
 
   def get_max_health(self):
-    conditional_health = self.condition.result['temp_health'] if self.condition and self.condition.requirement(self.game, self) else 0
-    return self.max_health+self.temp_health+self.perm_health+conditional_health
+    return self.max_health+self.temp_health+self.perm_health
   
   def has_attribute(self, attribute):
     player_has = attribute in self.attributes\

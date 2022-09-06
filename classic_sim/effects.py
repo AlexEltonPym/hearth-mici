@@ -8,7 +8,7 @@ class GainMana():
   available_owner_filters = [f for f in OwnerFilters]
   available_type_filters = []
   available_durations = [Durations.TURN, Durations.PERMANENTLY]
-  available_triggers = [Triggers.BATTLECRY, Triggers.DEATHRATTLE, Triggers.MINION_DIES]
+  available_triggers = list(filter(lambda t: t != Triggers.AURA, [t for t in Triggers]))
   def __init__(self, method, value, duration, target, owner_filter, random_count=1, trigger=None, type_filter=None):
     self.method = method
     self.value = value
@@ -35,7 +35,7 @@ class DealDamage():
   available_owner_filters = [f for f in OwnerFilters]
   available_type_filters = [c for c in CreatureTypes]
   available_durations = []
-  available_triggers = [Triggers.BATTLECRY, Triggers.DEATHRATTLE, Triggers.MINION_DIES]
+  available_triggers = list(filter(lambda t: t != Triggers.AURA, [t for t in Triggers]))
 
   def __init__(self, method, value, target, owner_filter, random_count=1, trigger=None, type_filter=None, duration=None):
     self.method = method
@@ -95,7 +95,7 @@ class GainWeaponAttack():
   available_owner_filters = [f for f in OwnerFilters]
   available_type_filters = []
   available_durations = [Durations.TURN, Durations.PERMANENTLY]
-  available_triggers = [Triggers.BATTLECRY, Triggers.MINION_DIES]
+  available_triggers = [Triggers.BATTLECRY, Triggers.ANY_MINION_DIES, Triggers.FRIENDLY_MINION_DIES, Triggers.ENEMY_MINION_DIES]
   def __init__(self, method, owner_filter, duration, random_count=1, value=None, target=Targets.WEAPON, trigger=Triggers.BATTLECRY, type_filter=None):
     self.method = method
     self.value = value
@@ -122,7 +122,7 @@ class DrawCards():
   available_owner_filters = [f for f in OwnerFilters]
   available_type_filters = []
   available_durations = []
-  available_triggers = [Triggers.BATTLECRY, Triggers.DEATHRATTLE, Triggers.MINION_DIES]
+  available_triggers = list(filter(lambda t: t != Triggers.AURA, [t for t in Triggers]))
 
   def __init__(self, method, value, owner_filter, random_count=1, target=Targets.HERO, trigger=None, type_filter=None, duration=None):
     self.method = method
@@ -145,7 +145,7 @@ class ReturnToHand():
   available_owner_filters = [f for f in OwnerFilters]
   available_type_filters = [t for t in CreatureTypes]
   available_durations = []
-  available_triggers = [Triggers.BATTLECRY, Triggers.DEATHRATTLE, Triggers.MINION_DIES]
+  available_triggers = list(filter(lambda t: t != Triggers.AURA, [t for t in Triggers]))
 
   def __init__(self, method, owner_filter, random_count=1, target=Targets.MINION, value=None, trigger=None, type_filter=None, duration=None):
     self.method = method
@@ -169,7 +169,7 @@ class RestoreHealth():
   available_owner_filters = [f for f in OwnerFilters]
   available_type_filters = [t for t in CreatureTypes]
   available_durations = []
-  available_triggers = [Triggers.BATTLECRY, Triggers.DEATHRATTLE, Triggers.MINION_DIES]
+  available_triggers = list(filter(lambda t: t != Triggers.AURA, [t for t in Triggers]))
  
   def __init__(self, method, owner_filter, target, value, random_count=1, trigger=None, type_filter=None, duration=None):
     self.method = method
@@ -220,7 +220,7 @@ class SummonToken(): #summon minion for target player
   available_owner_filters = []
   available_type_filters = []
   available_durations = []
-  available_triggers = [t for t in Triggers]
+  available_triggers = list(filter(lambda t: t != Triggers.AURA, [t for t in Triggers]))
 
   def __init__(self, value, method, owner_filter, target=Targets.HERO, random_count=1, duration=None, trigger=None, type_filter=None):
     self.method = method
@@ -246,7 +246,7 @@ class Silence():
   available_owner_filters = [o for o in OwnerFilters]
   available_type_filters = [t for t in CreatureTypes]
   available_durations = []
-  available_triggers = [t for t in Triggers]
+  available_triggers = list(filter(lambda t: t != Triggers.AURA, [t for t in Triggers]))
   
   def __init__(self, method, owner_filter, target, value=None, random_count=1, duration=None, trigger=None, type_filter=None):
     self.method = method

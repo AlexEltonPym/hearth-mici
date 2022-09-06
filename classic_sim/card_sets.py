@@ -67,13 +67,23 @@ def get_classic_cards():
   earthen_ring_farseer = Card(name="Earthen Ring Farseer", card_type=CardTypes.MINION, mana=3, attack=3, health=3,\
                               effect=RestoreHealth(value=3, method=Methods.TARGETED, target=Targets.MINION_OR_HERO, owner_filter=OwnerFilters.ALL, trigger=Triggers.BATTLECRY))
   flesheating_ghoul = Card(name="Flesheating Ghoul", card_type=CardTypes.MINION, mana=3, attack=3, health=3,\
-                                              effect=ChangeStats(value=(1,0), method=Methods.SELF, target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY, duration=Durations.PERMANENTLY, trigger=Triggers.MINION_DIES))
+                                              effect=ChangeStats(value=(1,0), method=Methods.SELF, target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY, duration=Durations.PERMANENTLY, trigger=Triggers.ANY_MINION_DIES))
   harvest_golem = Card(name="Harvest Golem", card_type=CardTypes.MINION, creature_type=CreatureTypes.MECH, mana=3, attack=2, health=3,\
                         effect=SummonToken(value=Card(name="Damaged Golem", collectable=False, card_type=CardTypes.MINION, creature_type=CreatureTypes.MECH, mana=1, attack=2, health=1),\
                         method=Methods.TARGETED, owner_filter=OwnerFilters.FRIENDLY, trigger=Triggers.DEATHRATTLE))
-  ironbeak_owl = Card(name="Ironbeak Owl", card_type=CardTypes.MINION, mana=3, attack=2, health=1,\
+  ironbeak_owl = Card(name="Ironbeak Owl", card_type=CardTypes.MINION, creature_type=CreatureTypes.BEAST, mana=3, attack=2, health=1,\
                       effect=Silence(method=Methods.TARGETED, owner_filter=OwnerFilters.ALL, target=Targets.MINION, trigger=Triggers.BATTLECRY))
+  jungle_panther = Card(name="Jungle Panther", card_type=CardTypes.MINION, creature_type=CreatureTypes.BEAST, mana=3, attack=4, health=2, attributes=[Attributes.STEALTH])
+  raging_worgen = Card(name="Raging Worgen", card_type=CardTypes.MINION, mana=3, attack=3, health=3, condition=Condition(requirement=Condition.damaged, result={'temp_attack': 1, 'attributes': [Attributes.WINDFURY]}))
+  scarlet_crusader = Card(name="Scarlet Crusader", card_type=CardTypes.MINION, mana=3, attack=3, health=1, attributes=[Attributes.DIVINE_SHIELD])
+  tauren_warrior = Card(name="Tauren Warrior", card_type=CardTypes.MINION, mana=3, attack=2, health=3, attributes=[Attributes.TAUNT], condition=Condition(requirement=Condition.damaged, result={'temp_attack': 3})) 
+  thrallmar_farseer = Card(name="Thrallmar Farseer", card_type=CardTypes.MINION, mana=3, attack=2, health=3, attributes=[Attributes.WINDFURY])
 
+  #Common four drops
+  ancient_brewmaster = Card(name="Ancient Brewmaster", card_type=CardTypes.MINION, mana=4, attack=5, health=4,\
+                          effect=ReturnToHand(method=Methods.TARGETED, target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY, trigger=Triggers.BATTLECRY))
+  cult_master = Card(name="Cult Master", card_type=CardTypes.MINION, mana=4,attack=4, health=2,\
+                                    effect=DrawCards(value=1, method=Methods.TARGETED, owner_filter=OwnerFilters.FRIENDLY, trigger=Triggers.FRIENDLY_MINION_DIES))
 
   #Rare four drops
   defender_of_argus = Card(name="Defender of Argus", card_type=CardTypes.MINION, mana=4, attack=3, health=3,\
@@ -81,14 +91,13 @@ def get_classic_cards():
                           owner_filter=OwnerFilters.FRIENDLY, duration=Durations.PERMANENTLY, trigger=Triggers.BATTLECRY),
                                             GiveKeyword(value=Attributes.TAUNT, method=Methods.ADJACENT, target=Targets.MINION,\
                           owner_filter=OwnerFilters.FRIENDLY, duration=Durations.PERMANENTLY, trigger=Triggers.BATTLECRY)))
-
-
+ 
   common_one_drops = [wisp, abusive_sergeant, argent_squire, leper_gnome, shieldbearer, southsea_deckhand, worgen_infiltrator, young_dragonhawk]
   common_two_drops = [amani_berserker, bloodsail_raider, dire_wolf_alpha, faerie_dragon, loot_hoarder, mad_bomber, youthful_brewmaster]
-  common_three_drops = [earthen_ring_farseer, flesheating_ghoul, harvest_golem, ironbeak_owl]
-
+  common_three_drops = [earthen_ring_farseer, flesheating_ghoul, harvest_golem, ironbeak_owl, jungle_panther, raging_worgen, scarlet_crusader, tauren_warrior, thrallmar_farseer]
+  common_four_drops = [ancient_brewmaster]
   rare_four_drops = [defender_of_argus]
-  return common_one_drops + common_two_drops + common_three_drops + rare_four_drops
+  return common_one_drops + common_two_drops + common_three_drops + common_four_drops + rare_four_drops
 
 def get_mage_cards():
   fireball = Card(name="Fireball", card_type=CardTypes.SPELL, mana=4, effect=DealDamage(value=6, method=Methods.TARGETED, target=Targets.MINION_OR_HERO, owner_filter=OwnerFilters.ALL))

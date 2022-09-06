@@ -6,8 +6,6 @@ class Condition():
       self.result['attributes'] = []
     if not 'temp_attack' in result:
       self.result['temp_attack'] = 0
-    if not 'temp_health' in result:
-      self.result['temp_health'] = 0
   
   def __srt__(self):
     return str((self.requirement, self.result))
@@ -22,4 +20,4 @@ class Condition():
 
   @staticmethod
   def damaged(game, card):
-    return card.health < card.max_health
+    return card.get_health() < card.get_max_health()

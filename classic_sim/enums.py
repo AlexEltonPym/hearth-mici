@@ -15,8 +15,9 @@ class Triggers(Enum):
   BATTLECRY = 0
   DEATHRATTLE = 1
   AURA = 2 #an aura is permentant until the source disapears
-  MINION_DIES = 3
-
+  ANY_MINION_DIES = 3
+  FRIENDLY_MINION_DIES = 4
+  ENEMY_MINION_DIES = 5
 
 
 class Actions(Enum):

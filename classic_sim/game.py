@@ -183,27 +183,28 @@ class Game():
     if card.get_health() <= 0 and not isinstance(card, Player):
       card.change_parent(card.owner.graveyard)
       if card.effect and card.effect.trigger == Triggers.DEATHRATTLE:
-        deathrattle_targets = self.get_available_effect_targets(card.owner, card)
-        if len(deathrattle_targets) > 0:
-          if card.effect.method == Methods.ALL:
-            card.effect.resolve_action(self, Action(Actions.CAST_EFFECT, card, deathrattle_targets))
-          elif card.effect.method == Methods.RANDOMLY:
-            card.effect.resolve_action(self, Action(Actions.CAST_EFFECT, card, self.random_state.choice(deathrattle_targets, card.effect.random_count)))
-          elif card.effect.method == Methods.TARGETED:
-            card.effect.resolve_action(self, Action(Actions.CAST_EFFECT, card, [deathrattle_targets[0]]))
-          elif card.effect.method == Methods.SELF:
-            card.effect.resolve_action(self, Action(Actions.CAST_EFFECT, card, [card]))
+        self.resolve_effect(card)
+        
+      for other_card in card.owner.board.get_all():
+        if other_card.effect and (other_card.effect.trigger == Triggers.ANY_MINION_DIES or other_card.effect.trigger == Triggers.FRIENDLY_MINION_DIES):
+          self.resolve_effect(other_card)
+      for other_card in card.owner.other_player.board.get_all():
+        if other_card.effect and (other_card.effect.trigger == Triggers.ANY_MINION_DIES or other_card.effect.trigger == Triggers.ENEMY_MINION_DIES):
+          self.resolve_effect(other_card)
+          
+  def resolve_effect(self, card):
+    targets = self.get_available_effect_targets(card)
+    if len(targets) > 0:
+      if card.effect.method == Methods.ALL:
+        card.effect.resolve_action(self, Action(Actions.CAST_EFFECT, card, targets))
+      elif card.effect.method == Methods.RANDOMLY:
+        card.effect.resolve_action(self, Action(Actions.CAST_EFFECT, card, self.random_state.choice(targets, card.effect.random_count)))
+      elif card.effect.method == Methods.TARGETED:
+        card.effect.resolve_action(self, Action(Actions.CAST_EFFECT, card, [targets[0]]))
+      elif card.effect.method == Methods.SELF:
+        card.effect.resolve_action(self, Action(Actions.CAST_EFFECT, card, [card]))
 
-      for card in card.owner.board.get_all() + card.owner.other_player.board.get_all():
-        if card.effect and card.effect.trigger == Triggers.MINION_DIES:
-          death_trigger_targets = self.get_available_effect_targets(card.owner, card)
-          if len(death_trigger_targets) > 0:
-            if card.effect.method == Methods.ALL:
-              card.effect.resolve_action(self, Action(Actions.CAST_EFFECT, card, death_trigger_targets))
-            elif card.effect.method == Methods.RANDOMLY or card.effect.method == Methods.TARGETED: #targeted doesnt make sense so default to random
-              card.effect.resolve_action(self, Action(Actions.CAST_EFFECT, card, self.random_state.choice(death_trigger_targets, card.effect.random_count)))
-            elif card.effect.method == Methods.SELF:
-              card.effect.resolve_action(self, Action(Actions.CAST_EFFECT, card, [card]))
+
 
   def get_available_targets(self, card):
     targets = []
@@ -218,7 +219,7 @@ class Game():
   def get_playable_spells_actions(self, player):
     playable_spell_actions = []
     for card in filter(lambda card: card.mana <= player.current_mana and card.card_type == CardTypes.SPELL, player.hand.get_all()):
-      cast_targets = self.get_available_effect_targets(player, card)
+      cast_targets = self.get_available_effect_targets(card)
       if card.effect and len(cast_targets) > 0:
         if card.effect.method == Methods.TARGETED:
           for target in filter(lambda target: not (target.has_attribute(Attributes.STEALTH) or target.has_attribute(Attributes.HEXPROOF)), cast_targets):
@@ -232,12 +233,12 @@ class Game():
   def get_hero_power_actions(self, player):
     hero_power_actions = []
     if player.current_mana >= 2 and not player.used_hero_power:
-      cast_targets = self.get_available_effect_targets(player, player.hero_power)
+      cast_targets = self.get_available_effect_targets(player.hero_power)
       if player.hero_power.effect.method == Methods.TARGETED:
         for target in filter(lambda target: not (target.has_attribute(Attributes.STEALTH) or target.has_attribute(Attributes.HEXPROOF)), cast_targets):
           hero_power_actions.append(Action(Actions.CAST_HERO_POWER, player.hero_power, [target]))
       elif player.hero_power.effect.method == Methods.RANDOMLY:
-        hero_power_actions.append(Action(Actions.CAST_HERO_POWER, player.hero_power, choice(cast_targets, player.hero_power.effect.random_count)))
+        hero_power_actions.append(Action(Actions.CAST_HERO_POWER, player.hero_power, self.random_state.choice(cast_targets, player.hero_power.effect.random_count)))
       elif player.hero_power.effect.method == Methods.ALL:
         hero_power_actions.append(Action(Actions.CAST_HERO_POWER, player.hero_power, cast_targets))
 
@@ -287,8 +288,9 @@ class Game():
     player.deck.shuffle()
     self.draw(player, mulligan_count)
 
-  def get_available_effect_targets(self, player, card):
+  def get_available_effect_targets(self, card):
     available_targets = []
+    player = card.owner
     owner_filter = card.effect.owner_filter
     type_filter = card.effect.type_filter
     target = card.effect.target
@@ -348,7 +350,7 @@ class Game():
     if len(player.board.get_all()) < 7:
       for card in filter(lambda card: card.mana <= player.current_mana and card.card_type == CardTypes.MINION, player.hand.get_all()):
         if card.effect and card.effect.trigger == Triggers.BATTLECRY:
-          battlecry_targets = self.get_available_effect_targets(player, card)
+          battlecry_targets = self.get_available_effect_targets(card)
           if len(battlecry_targets) > 0:
             if card.effect.method == Methods.TARGETED:
               for target in filter(lambda target: not target.has_attribute(Attributes.STEALTH),  battlecry_targets):
@@ -371,7 +373,7 @@ class Game():
     if not player.weapon:
       for card in filter(lambda card: card.mana <= player.current_mana and card.card_type == CardTypes.WEAPON, player.hand.get_all()):
         if card.effect and card.effect.trigger == Triggers.BATTLECRY:
-          battlecry_targets = self.get_available_effect_targets(player, card)
+          battlecry_targets = self.get_available_effect_targets(card)
           if len(battlecry_targets) > 0:
             if card.effect.method == Methods.TARGETED:
               for target in filter(lambda target: not target.has_attribute(Attributes.STEALTH), battlecry_targets):
