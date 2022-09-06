@@ -84,7 +84,8 @@ def get_classic_cards():
                           effect=ReturnToHand(method=Methods.TARGETED, target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY, trigger=Triggers.BATTLECRY))
   cult_master = Card(name="Cult Master", card_type=CardTypes.MINION, mana=4,attack=4, health=2,\
                                     effect=DrawCards(value=1, method=Methods.TARGETED, owner_filter=OwnerFilters.FRIENDLY, trigger=Triggers.FRIENDLY_MINION_DIES))
-
+  dark_iron_dwarf = Card(name="Dark Iron Dwarf", card_type=CardTypes.MINION, mana=4, attack=4, health=4,\
+                          effect=ChangeStats(value=(2,0), method=Methods.TARGETED, target=Targets.MINION, owner_filter=OwnerFilters.ALL,duration=Durations.TURN,trigger=Triggers.BATTLECRY))
   #Rare four drops
   defender_of_argus = Card(name="Defender of Argus", card_type=CardTypes.MINION, mana=4, attack=3, health=3,\
                           effect=DuelAction(ChangeStats(value=(1,1), method=Methods.ADJACENT, target=Targets.MINION,\
@@ -95,7 +96,7 @@ def get_classic_cards():
   common_one_drops = [wisp, abusive_sergeant, argent_squire, leper_gnome, shieldbearer, southsea_deckhand, worgen_infiltrator, young_dragonhawk]
   common_two_drops = [amani_berserker, bloodsail_raider, dire_wolf_alpha, faerie_dragon, loot_hoarder, mad_bomber, youthful_brewmaster]
   common_three_drops = [earthen_ring_farseer, flesheating_ghoul, harvest_golem, ironbeak_owl, jungle_panther, raging_worgen, scarlet_crusader, tauren_warrior, thrallmar_farseer]
-  common_four_drops = [ancient_brewmaster]
+  common_four_drops = [ancient_brewmaster, cult_master, dark_iron_dwarf]
   rare_four_drops = [defender_of_argus]
   return common_one_drops + common_two_drops + common_three_drops + common_four_drops + rare_four_drops
 

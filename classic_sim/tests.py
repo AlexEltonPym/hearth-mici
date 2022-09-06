@@ -427,10 +427,10 @@ def test_mad_bomber():
   cast_bomber = game.get_available_actions(game.current_player)[0]
   game.perform_action(cast_bomber)
 
-  # assert new_wisp.parent == new_wisp.owner.graveyard 
-  # assert new_wisp.get_health() == -1 
-  assert game.current_player.get_health() == 28
-  assert game.current_player.other_player.get_health() == 29
+  wisp_damage = new_wisp.get_max_health() - new_wisp.get_health()
+  player_damage = game.current_player.get_max_health()-game.current_player.get_health()
+  enemy_damage = game.current_player.other_player.get_max_health()-game.current_player.other_player.get_health()
+  assert wisp_damage + player_damage + enemy_damage == 3
 
 def test_farseer():
   random_state = RandomState(0)
@@ -650,6 +650,50 @@ def test_tauren_warrior():
 
   assert wisp.parent == wisp.owner.graveyard
   assert tauren_warrior.get_attack() == 5
+
+def test_cult_master():
+  random_state = RandomState(0)
+  card_pool = build_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER, CardSets.TEST_CARDS], random_state)
+  _player = Player(Classes.HUNTER, Deck(random_state).generate_random(card_pool), GreedyAction)
+  _enemy = Player(Classes.HUNTER, Deck(random_state).generate_random(card_pool), GreedyAction)
+  game = Game(_player, _enemy, random_state)
+  game.current_player.hand.hand = []
+  game.current_player.current_mana = 10
+  cult_master = get_from_name(card_pool, 'Cult Master')
+  cult_master.set_owner(game.current_player)
+  cult_master.set_parent(game.current_player.board)
+  assert len(game.current_player.hand.get_all()) == 0
+  wisp = get_from_name(card_pool, 'Wisp')
+  wisp.set_owner(game.current_player)
+  wisp.set_parent(game.current_player.board)
+  game.deal_damage(wisp, 1)
+  assert len(game.current_player.hand.get_all()) == 1
+
+def test_dark_iron_dwarf():
+  random_state = RandomState(0)
+  card_pool = build_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER, CardSets.TEST_CARDS], random_state)
+  _player = Player(Classes.HUNTER, Deck(random_state).generate_random(card_pool), GreedyAction)
+  _enemy = Player(Classes.HUNTER, Deck(random_state).generate_random(card_pool), GreedyAction)
+  game = Game(_player, _enemy, random_state)
+  game.current_player.hand.hand = []
+  game.current_player.current_mana = 10
+
+  dark_iron_dwarf = get_from_name(card_pool, 'Dark Iron Dwarf')
+  dark_iron_dwarf.set_owner(game.current_player)
+  dark_iron_dwarf.set_parent(game.current_player.hand)
+
+  wisp = get_from_name(card_pool, 'Wisp')
+  wisp.set_owner(game.current_player)
+  wisp.set_parent(game.current_player.board)
+
+  enemy_wisp = get_from_name(card_pool, 'Wisp')
+  enemy_wisp.set_owner(game.current_player.other_player)
+  enemy_wisp.set_parent(game.current_player.other_player.board)
+
+  cast_dwarf_actions = list(filter(lambda action: action.source == dark_iron_dwarf, game.get_available_actions(game.current_player)))
+  assert len(cast_dwarf_actions) == 2
+  game.perform_action(cast_dwarf_actions[0])
+  assert wisp.get_attack() == 3
 
 
 def test_windfury_weapon():

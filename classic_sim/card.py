@@ -41,6 +41,10 @@ class Card():
     self.parent = new_parent
     self.parent.add(self)
 
+  def get_mana(self):
+    manacost = self.mana
+    return manacost
+
   def has_attribute(self, attribute):
     return attribute in self.attributes or attribute in self.temp_attributes or attribute in self.perm_attributes\
           or (self.condition and attribute in self.condition.result['attributes'] and self.condition.requirement(self.owner.game, self))

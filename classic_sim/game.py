@@ -67,6 +67,7 @@ class Game():
 
   def untap(self):
     self.current_player.max_mana += 1
+    self.current_player.max_mana = min(self.current_player.max_mana, 10)
     self.current_player.current_mana = self.current_player.max_mana
     self.draw(self.current_player, 1)
     self.current_player.attacks_this_turn = 0
@@ -127,12 +128,12 @@ class Game():
 
   def cast_hero_power(self, action):
     self.current_player.used_hero_power = True
-    self.current_player.current_mana -= action.source.mana
+    self.current_player.current_mana -= action.source.get_mana()
     action.source.effect.resolve_action(self, action)
 
 
   def cast_minion(self, action):
-    self.current_player.current_mana -= action.source.mana
+    self.current_player.current_mana -= action.source.get_mana()
     action.source.change_parent(action.source.owner.board)
 
     if action.source.effect and action.source.effect.trigger == Triggers.BATTLECRY:
@@ -140,7 +141,7 @@ class Game():
 
 
   def cast_spell(self, action):
-    self.current_player.current_mana -= action.source.mana
+    self.current_player.current_mana -= action.source.get_mana()
     action.source.change_parent(action.source.owner.graveyard)
     action.source.effect.resolve_action(self, action)
 
@@ -148,7 +149,7 @@ class Game():
     action.source.effect.resolve_action(self, action)
 
   def cast_weapon(self, action):
-    self.current_player.current_mana -= action.source.mana
+    self.current_player.current_mana -= action.source.get_mana()
     action.source.change_parent(action.source.owner)
     if action.source.effect and action.source.effect.trigger == Triggers.BATTLECRY:
       action.source.effect.resolve_action(self, action)
@@ -218,7 +219,7 @@ class Game():
 
   def get_playable_spells_actions(self, player):
     playable_spell_actions = []
-    for card in filter(lambda card: card.mana <= player.current_mana and card.card_type == CardTypes.SPELL, player.hand.get_all()):
+    for card in filter(lambda card: card.get_mana() <= player.current_mana and card.card_type == CardTypes.SPELL, player.hand.get_all()):
       cast_targets = self.get_available_effect_targets(card)
       if card.effect and len(cast_targets) > 0:
         if card.effect.method == Methods.TARGETED:
@@ -348,7 +349,7 @@ class Game():
     playable_minion_actions = []
 
     if len(player.board.get_all()) < 7:
-      for card in filter(lambda card: card.mana <= player.current_mana and card.card_type == CardTypes.MINION, player.hand.get_all()):
+      for card in filter(lambda card: card.get_mana() <= player.current_mana and card.card_type == CardTypes.MINION, player.hand.get_all()):
         if card.effect and card.effect.trigger == Triggers.BATTLECRY:
           battlecry_targets = self.get_available_effect_targets(card)
           if len(battlecry_targets) > 0:
@@ -371,7 +372,7 @@ class Game():
   def get_playable_weapon_actions(self, player):
     playable_weapon_actions = []
     if not player.weapon:
-      for card in filter(lambda card: card.mana <= player.current_mana and card.card_type == CardTypes.WEAPON, player.hand.get_all()):
+      for card in filter(lambda card: card.get_mana() <= player.current_mana and card.card_type == CardTypes.WEAPON, player.hand.get_all()):
         if card.effect and card.effect.trigger == Triggers.BATTLECRY:
           battlecry_targets = self.get_available_effect_targets(card)
           if len(battlecry_targets) > 0:
