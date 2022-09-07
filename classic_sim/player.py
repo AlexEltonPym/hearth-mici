@@ -2,6 +2,7 @@ from hand import Hand
 from board import Board
 from graveyard import Graveyard
 from copy import deepcopy
+from enums import *
 
 class Player():
   def __init__(self, player_class, deck, strategy):
@@ -61,6 +62,17 @@ class Player():
 
   def add(self, card):
     self.weapon = card
+
+  def matches_card_requirements(self, card):
+    effect = card.effect
+    type_okay = effect.target == Targets.HERO or effect.target == Targets.MINION_OR_HERO
+
+    owner_okay = (self == card.owner and effect.owner_filter == OwnerFilters.FRIENDLY)\
+    or (self == card.owner.other_player and effect.owner_filter == OwnerFilters.ENEMY)\
+    or (effect.owner_filter == OwnerFilters.ALL)
+    
+    return type_okay and owner_okay
+
 
   def get_attack(self):
     conditional_attack = self.condition.result['temp_attack'] if self.condition and self.condition.requirement(self.game, self) else 0

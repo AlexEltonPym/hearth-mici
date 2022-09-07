@@ -4,6 +4,7 @@ from enums import *
 from effects import *
 from card_generator import make_random_card
 from copy import deepcopy
+from dynamics import *
 
 def get_utility_card(utility_card):
   the_coin = Card(name="The Coin", collectable=False, card_type=CardTypes.SPELL, mana=0, \
@@ -92,11 +93,14 @@ def get_classic_cards():
                           owner_filter=OwnerFilters.FRIENDLY, duration=Durations.PERMANENTLY, trigger=Triggers.BATTLECRY),
                                             GiveKeyword(value=Attributes.TAUNT, method=Methods.ADJACENT, target=Targets.MINION,\
                           owner_filter=OwnerFilters.FRIENDLY, duration=Durations.PERMANENTLY, trigger=Triggers.BATTLECRY)))
- 
+  dread_corsair = Card(name="Dread Corsair", card_type=CardTypes.MINION, mana=4, attack=3, health=3, creature_type=CreatureTypes.PIRATE,\
+                    effect=ChangeCost(value=Multiply(WeaponAttack(), Constant(-1)), method=Methods.SELF, target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY, trigger=Triggers.AURA))
+
+
   common_one_drops = [wisp, abusive_sergeant, argent_squire, leper_gnome, shieldbearer, southsea_deckhand, worgen_infiltrator, young_dragonhawk]
   common_two_drops = [amani_berserker, bloodsail_raider, dire_wolf_alpha, faerie_dragon, loot_hoarder, mad_bomber, youthful_brewmaster]
   common_three_drops = [earthen_ring_farseer, flesheating_ghoul, harvest_golem, ironbeak_owl, jungle_panther, raging_worgen, scarlet_crusader, tauren_warrior, thrallmar_farseer]
-  common_four_drops = [ancient_brewmaster, cult_master, dark_iron_dwarf]
+  common_four_drops = [ancient_brewmaster, cult_master, dark_iron_dwarf, dread_corsair]
   rare_four_drops = [defender_of_argus]
   return common_one_drops + common_two_drops + common_three_drops + common_four_drops + rare_four_drops
 

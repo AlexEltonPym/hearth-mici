@@ -18,6 +18,7 @@ class Triggers(Enum):
   ANY_MINION_DIES = 3
   FRIENDLY_MINION_DIES = 4
   ENEMY_MINION_DIES = 5
+  CAST = 6
 
 
 class Actions(Enum):
@@ -30,11 +31,13 @@ class Actions(Enum):
   CAST_EFFECT = 6
 
 
+
 class Targets(Enum):
   MINION = 0
   HERO = 1
   MINION_OR_HERO = 2
   WEAPON = 3
+  SPELL = 4
 
 class OwnerFilters(Enum):
   FRIENDLY = 0
@@ -90,3 +93,4 @@ class ParamTypes(Enum):
   XY = 3
   NONE = 4
   TOKEN = 5
+  DYNAMIC = 6

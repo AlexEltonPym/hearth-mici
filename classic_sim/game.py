@@ -292,28 +292,28 @@ class Game():
   def get_available_effect_targets(self, card):
     available_targets = []
     player = card.owner
-    owner_filter = card.effect.owner_filter
-    type_filter = card.effect.type_filter
-    target = card.effect.target
+
+
+
+    player_weapon = [player.weapon] if player.weapon else []
+    enemy_weapon = [player.other_player.weapon] if player.other_player.weapon else []
+    player_board = player.board.get_all()
+    enemy_board = player.other_player.board.get_all()
+    player_themselves = [player]
+    enemy_themselves = [player.other_player]
+    if card.effect.targets_hand:
+      player_hand = player.hand.get_all()
+      enemy_hand = player.other_player.hand.get_all()
+      possible_targets = player_hand + enemy_hand
+    else:
+      possible_targets = player_weapon + enemy_weapon + player_board + enemy_board + player_themselves + enemy_themselves
+
+    for possible_target in possible_targets:
+      if possible_target.matches_card_requirements(card):
+        available_targets.append(possible_target)
     
-    if owner_filter == OwnerFilters.FRIENDLY or owner_filter == OwnerFilters.ALL:
-      if target == Targets.MINION or target == Targets.MINION_OR_HERO:
-        for minion in player.board.get_all():
-          if type_filter == None or type_filter == CreatureTypes.ALL or type_filter == minion.creature_type:
-            available_targets.append(minion) 
-      if target == Targets.HERO or target == Targets.MINION_OR_HERO:
-        available_targets.append(player)
-      if target == Targets.WEAPON and player.weapon:
-        available_targets.append(player.weapon)
-    if owner_filter == OwnerFilters.ENEMY or owner_filter == OwnerFilters.ALL:
-      if target == Targets.MINION or target == Targets.MINION_OR_HERO:
-        for minion in player.other_player.board.get_all():
-          if type_filter == None or type_filter == CreatureTypes.ALL or type_filter == minion.creature_type:
-            available_targets.append(minion)
-      if target == Targets.HERO or target == Targets.MINION_OR_HERO:
-        available_targets.append(player.other_player)
-      if target == Targets.WEAPON and player.other_player.weapon:
-        available_targets.append(player.other_player.weapon)
+    
+
     if card.effect.method != Methods.SELF and card in available_targets:
       available_targets.remove(card)
 
@@ -324,7 +324,7 @@ class Game():
   def get_minion_attack_actions(self, player):
     minion_attack_options = []
     for minion in player.board.get_all():
-      if  (minion.attacks_this_turn == 0 \
+      if (minion.attacks_this_turn == 0 \
           or (minion.attacks_this_turn == -1 and minion.has_attribute(Attributes.CHARGE))\
           or (minion.attacks_this_turn == 1 and minion.has_attribute(Attributes.WINDFURY)))\
           and minion.get_attack() > 0:

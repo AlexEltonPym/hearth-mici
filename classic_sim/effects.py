@@ -10,6 +10,7 @@ class GainMana():
   available_durations = [Durations.TURN, Durations.PERMANENTLY]
   available_triggers = list(filter(lambda t: t != Triggers.AURA, [t for t in Triggers]))
   def __init__(self, method, value, duration, target, owner_filter, random_count=1, trigger=None, type_filter=None):
+    self.targets_hand = False
     self.method = method
     self.value = value
     self.random_count = random_count
@@ -38,6 +39,7 @@ class DealDamage():
   available_triggers = list(filter(lambda t: t != Triggers.AURA, [t for t in Triggers]))
 
   def __init__(self, method, value, target, owner_filter, random_count=1, trigger=None, type_filter=None, duration=None):
+    self.targets_hand = False
     self.method = method
     self.value = value
     self.random_count = random_count
@@ -68,6 +70,7 @@ class ChangeStats():
   available_durations = [d for d in Durations]
   available_triggers = [t for t in Triggers]
   def __init__(self, value, method, target, owner_filter, random_count=1, duration=None, trigger=None, type_filter=None):
+    self.targets_hand = False #this could be changeable
     self.method = method
     self.value = value
     self.random_count = random_count
@@ -97,6 +100,7 @@ class GainWeaponAttack():
   available_durations = [Durations.TURN, Durations.PERMANENTLY]
   available_triggers = [Triggers.BATTLECRY, Triggers.ANY_MINION_DIES, Triggers.FRIENDLY_MINION_DIES, Triggers.ENEMY_MINION_DIES]
   def __init__(self, method, owner_filter, duration, random_count=1, value=None, target=Targets.WEAPON, trigger=Triggers.BATTLECRY, type_filter=None):
+    self.targets_hand = False
     self.method = method
     self.value = value
     self.random_count = random_count
@@ -125,6 +129,7 @@ class DrawCards():
   available_triggers = list(filter(lambda t: t != Triggers.AURA, [t for t in Triggers]))
 
   def __init__(self, method, value, owner_filter, random_count=1, target=Targets.HERO, trigger=None, type_filter=None, duration=None):
+    self.targets_hand = False #draw cards targets a player
     self.method = method
     self.value = value
     self.random_count = random_count
@@ -148,6 +153,7 @@ class ReturnToHand():
   available_triggers = list(filter(lambda t: t != Triggers.AURA, [t for t in Triggers]))
 
   def __init__(self, method, owner_filter, random_count=1, target=Targets.MINION, value=None, trigger=None, type_filter=None, duration=None):
+    self.targets_hand = False #targets a card in play
     self.method = method
     self.value = value
     self.random_count = random_count
@@ -172,6 +178,7 @@ class RestoreHealth():
   available_triggers = list(filter(lambda t: t != Triggers.AURA, [t for t in Triggers]))
  
   def __init__(self, method, owner_filter, target, value, random_count=1, trigger=None, type_filter=None, duration=None):
+    self.targets_hand = False
     self.method = method
     self.value = value
     self.random_count = random_count
@@ -197,6 +204,7 @@ class GiveKeyword():
   available_durations = [d for d in Durations]
   available_triggers = [t for t in Triggers]
   def __init__(self, value, method, target, owner_filter, random_count=1, duration=None, trigger=None, type_filter=None):
+    self.targets_hand = False #could be changeable
     self.method = method
     self.value = value
     self.random_count = random_count
@@ -223,6 +231,7 @@ class SummonToken(): #summon minion for target player
   available_triggers = list(filter(lambda t: t != Triggers.AURA, [t for t in Triggers]))
 
   def __init__(self, value, method, owner_filter, target=Targets.HERO, random_count=1, duration=None, trigger=None, type_filter=None):
+    self.targets_hand = False #could be changed to make this add tokens to hand
     self.method = method
     self.value = value
     self.random_count = random_count
@@ -249,6 +258,7 @@ class Silence():
   available_triggers = list(filter(lambda t: t != Triggers.AURA, [t for t in Triggers]))
   
   def __init__(self, method, owner_filter, target, value=None, random_count=1, duration=None, trigger=None, type_filter=None):
+    self.targets_hand = False
     self.method = method
     self.value = value
     self.random_count = random_count
@@ -270,6 +280,31 @@ class Silence():
       target.effect = None
       target.condition = None
       
+class ChangeCost():
+  available_methods = [Methods.SELF, Methods.ALL, Methods.TARGETED]
+  param_type = ParamTypes.DYNAMIC
+  available_targets = [Targets.MINION, Targets.WEAPON]
+  available_owner_filters = [o for o in OwnerFilters]
+  available_type_filters = [t for t in CreatureTypes]
+  available_durations = []
+  available_triggers = [t for t in Triggers]
+  
+  def __init__(self, method, owner_filter, target, value, random_count=1, duration=None, trigger=None, type_filter=None):
+    self.targets_hand = True
+    self.method = method
+    self.value = value
+    self.random_count = random_count
+    self.target = target
+    self.owner_filter = owner_filter
+    self.type_filter = type_filter
+    self.trigger = trigger
+    self.duration = duration
+  
+  def resolve_action(self, game, action):
+    for target in action.targets:
+      target.mana += self.value()
+
+
 class DuelAction():
   def __init__(self, first_effect, second_effect):
     self.first_effect = first_effect
@@ -282,6 +317,7 @@ class DuelAction():
     self.type_filter = first_effect.type_filter
     self.duration = first_effect.duration
     self.trigger = first_effect.trigger
+    self.targets_hand = first_effect.targets_hand
   
   def resolve_action(self, game, action):
     self.first_effect.resolve_action(game, action)

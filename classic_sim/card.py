@@ -43,7 +43,30 @@ class Card():
 
   def get_mana(self):
     manacost = self.mana
+    if self.effect and isinstance(self.effect, ChangeCost) and self.effect.trigger == Triggers.AURA and self.effect.method == Methods.SELF:
+      manacost += self.effect.value(self)
+    
+    for card in self.owner.board.get_all():
+      if card.effect and isinstance(card.effect, ChangeCost) and card.effect.trigger == Triggers.AURA and card.effect.method == Methods.ALL:
+        if self.matches_card_requirements(card):
+          manacost += card.effect.value(card)
+
     return manacost
+
+  def matches_card_requirements(self, card):
+    effect = card.effect
+    type_okay = (self.card_type==CardTypes.MINION and (effect.target == Targets.MINION or effect.target == Targets.MINION_OR_HERO))\
+    or (self.card_type==CardTypes.WEAPON and (effect.target == Targets.WEAPON))\
+    or (self.card_type==CardTypes.SPELL and (effect.target == Targets.SPELL))
+
+    owner_okay = (self.owner == card.owner and effect.owner_filter == OwnerFilters.FRIENDLY)\
+    or (self.owner == card.owner.other_player and effect.owner_filter == OwnerFilters.ENEMY)\
+    or (effect.owner_filter == OwnerFilters.ALL)
+    
+    creature_type_okay = (effect.type_filter == None or effect.type_filter == CreatureTypes.ALL)\
+    or effect.type_filter == self.creature_type
+    
+    return type_okay and owner_okay and creature_type_okay
 
   def has_attribute(self, attribute):
     return attribute in self.attributes or attribute in self.temp_attributes or attribute in self.perm_attributes\

@@ -127,7 +127,7 @@ def test_leper_gnome():
   game.perform_action(attack_leper)
   assert new_leper.parent == new_leper.owner.graveyard
   assert new_wisp.parent == new_wisp.owner.graveyard
-  assert game.current_player.other_player.health == 28
+  assert game.current_player.other_player.get_health() == 28
   
 def test_shieldbearer():
   random_state = RandomState(0)
@@ -694,6 +694,28 @@ def test_dark_iron_dwarf():
   assert len(cast_dwarf_actions) == 2
   game.perform_action(cast_dwarf_actions[0])
   assert wisp.get_attack() == 3
+
+def test_dread_corsair():
+  random_state = RandomState(0)
+  card_pool = build_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER, CardSets.TEST_CARDS], random_state)
+  _player = Player(Classes.HUNTER, Deck(random_state).generate_random(card_pool), GreedyAction)
+  _enemy = Player(Classes.HUNTER, Deck(random_state).generate_random(card_pool), GreedyAction)
+  game = Game(_player, _enemy, random_state)
+  game.current_player.hand.hand = []
+  game.current_player.current_mana = 10
+
+  dread_corsair = get_from_name(card_pool, 'Dread Corsair')
+  dread_corsair.set_owner(game.current_player)
+  dread_corsair.set_parent(game.current_player.hand)
+  assert dread_corsair.get_mana() == 4
+
+  new_weapon = get_from_name(card_pool, 'Generic Weapon')
+  new_weapon.set_owner(game.current_player)
+  new_weapon.set_parent(game.current_player)
+  assert game.current_player.weapon
+  assert game.current_player.weapon.get_attack() == 3
+
+  assert dread_corsair.get_mana() == 1
 
 
 def test_windfury_weapon():
