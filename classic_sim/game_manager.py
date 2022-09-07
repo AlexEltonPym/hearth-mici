@@ -8,6 +8,8 @@ from tqdm import trange
 import multiprocessing
 from joblib import Parallel, delayed
 from numpy.random import RandomState
+import numpy as np
+from statistics import mean
 
 class GameManager():
   def __init__(self, random_state=RandomState(0)):
@@ -19,10 +21,16 @@ class GameManager():
     self.game = None
 
   def create_player_pool(self, sets):
-    self.player_pool = build_pool(sets, self.random_state)
+    self.player_pool_sets = sets
 
   def create_enemy_pool(self, sets):
-    self.enemy_pool = build_pool(sets, self.random_state)
+    self.enemy_pool_sets = sets
+
+  def get_player_pool(self):
+    return build_pool(self.player_pool_sets, self.random_state)
+
+  def get_enemy_pool(self):
+    return build_pool(self.enemy_pool_sets, self.random_state)
 
   def create_player(self, player_class, deck_constructor, strategy):
     self.player = Player("player", self, player_class, deck_constructor, strategy)
@@ -45,6 +53,7 @@ class GameManager():
 
   def create_game(self):
     self.game = Game(self)
+    self.game.setup_players()
     return self.game
 
   def create_test_game(self):
@@ -60,25 +69,32 @@ class GameManager():
     return self.game
 
   def simulate(self, num_games, silent=False, parralel=1):
-    game_results = empty(num_games)
-
-    num_games /= multiprocessing.cpu_count() if parralel == -1 else parralel
+    game_results = []
 
     if parralel == 1:
+      if not silent:
+        print(f"Running {num_games} on single core")
       game_results = self.run_games(num_games, silent)
     else:
-      parralel_game_results = Parallel(n_jobs=parralel, verbose=10)(delayed(self.run_games)(num_games, silent) for i in range(num_games))
-      for result in parralel_game_results:
-        game_results.append(result.mean())
+      num_processors = multiprocessing.cpu_count() if parralel == -1 else parralel
+      num_games_per_processor = num_games // num_processors
+      num_jobs_to_run = num_games // num_games_per_processor
+      if not silent:
+        print(f'Spliting {num_games} games across {num_processors} cores, {num_games_per_processor} games per core.')
+        print(f'{num_jobs_to_run} total jobs to run')
 
-    return game_results.mean()
+      parralel_game_results = Parallel(n_jobs=parralel, verbose=0 if silent else 100)(delayed(self.run_games)(num_games_per_processor, silent) for i in range(num_jobs_to_run))
+      for processors_result in parralel_game_results:
+        game_results.extend(processors_result)
+    print(game_results)
+    return mean(game_results)
 
   def run_games(self, num_games, silent):
-    game_results = empty(num_games)
+    game_results = []
     self.create_game()
 
     for i in trange(num_games, disable=silent):
-      game_results[i] = self.game.simulate_game()
+      game_results.append(self.game.play_game())
       self.game.reset_game()
       
-    return game_results.mean()
+    return game_results

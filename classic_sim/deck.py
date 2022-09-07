@@ -8,7 +8,7 @@ class Deck():
 
   def generate_random(player):
     new_deck = Deck(player.game_manager)
-    available_cards = player.game_manager.player_pool if player.name == "player" else player.game_manager.enemy_pool
+    available_cards = player.game_manager.get_player_pool() if player.name == "player" else player.game_manager.get_enemy_pool()
     
     id = 0
     while len(new_deck.__deck) < 30:

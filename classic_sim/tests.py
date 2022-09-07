@@ -631,7 +631,7 @@ def test_big_games():
   game = game_manager.create_game()
   game_results = empty(10)
 
-  for i in range(10):
+  for i in tqdm(range(10)):
     game_results[i] = game.play_game()
     game.reset_game()
     assert len(game.player.deck.get_all()) == 30
@@ -693,7 +693,7 @@ def test_xlbig_random_cards():
       assert game_results.mean() < 1 and game_results.mean() > 0
 
 def main():
-  test_farseer()
+  test_big_simulate()
 
 
 if __name__ == '__main__':

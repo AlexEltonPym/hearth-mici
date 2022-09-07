@@ -10,32 +10,19 @@ from tqdm import tqdm
 from statistics import mean
 from joblib import Parallel, delayed
 from numpy.random import RandomState
-
-NUM_GAMES = 100
+from game_manager import GameManager
+NUM_GAMES = 16
 
 def main():
-  random_state = RandomState(0)
-  hunter_pool = build_pool([CardSets.CLASSIC_HUNTER, CardSets.CLASSIC_NEUTRAL], random_state)
-  op_pool = build_pool([CardSets.OP_CARDS], random_state)
-  mirror_deck = Deck(random_state).generate_random(hunter_pool)
-  player = Player(Classes.HUNTER, mirror_deck, GreedyAction)
-  enemy = Player(Classes.HUNTER, mirror_deck, GreedyAction)
+  game_manager = GameManager()
+  game_manager.create_player_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER, CardSets.TEST_CARDS])
+  game_manager.create_enemy_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_MAGE, CardSets.TEST_CARDS])
+  game_manager.create_player(Classes.HUNTER, Deck.generate_random, GreedyAction)
+  game_manager.create_enemy(Classes.MAGE, Deck.generate_random, GreedyAction)
 
-  game_results = Parallel(n_jobs=-1, verbose=10)(delayed(run_games)(player, enemy) for i in range(8))
-  print(mean(game_results))
-
-  # game_results = run_games(player,enemy)
-  # print(game_results)
-
-def run_games(player, enemy):
-  games = np.empty(NUM_GAMES)
-  game = Game(player, enemy)
-
-  for i in tqdm(range(NUM_GAMES)):
-    games[i] = game.play_game()
-    game.reset_game()
-    
-  return games.mean()
+  result = game_manager.simulate(NUM_GAMES, parralel=-1)
+  assert result > 0 and result < 1
+  print(result)
 
 if __name__ == '__main__':
   main()

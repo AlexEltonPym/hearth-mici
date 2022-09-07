@@ -10,13 +10,16 @@ class Game():
   def __init__(self, game_manager):
     self.game_manager = game_manager
 
-    self.player = copy.deepcopy(game_manager.player)
-    self.enemy = copy.deepcopy(game_manager.enemy)
+  # def deepcopy(self):
+  #   duplicate = Game(self.game_manager)
 
-    self.setup_players()
-    self.start_game()
+
+  #   return duplicate
   
   def setup_players(self):
+    self.player = copy.deepcopy(self.game_manager.player)
+    self.enemy = copy.deepcopy(self.game_manager.enemy)
+
     self.player.game = self
     self.enemy.game = self
 
@@ -59,6 +62,9 @@ class Game():
           del card
       player.reset()
 
+
+
+
   def untap(self):
     self.current_player.max_mana += 1
     self.current_player.max_mana = min(self.current_player.max_mana, 10)
@@ -77,7 +83,7 @@ class Game():
 
     while not turn_passed:
       turn_passed = self.current_player.strategy.choose_action(self)
-      if self.player.health <= 0:
+      if self.player.health <= 0: #if we only check at turn end is faster?
         return 0
       elif self.enemy.health <= 0:
         return 1

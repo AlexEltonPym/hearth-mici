@@ -7,6 +7,7 @@ class GreedyAction():
   def mulligan_rule(card):
     return card.get_manacost() < 3
   
+  # @profile
   def choose_action(state):
     available_actions = state.get_available_actions(state.current_player)
     possible_actions = []
