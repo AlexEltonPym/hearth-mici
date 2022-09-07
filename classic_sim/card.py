@@ -2,7 +2,7 @@ from enums import *
 from effects import *
 
 class Card():
-  def __init__(self, name, card_type, mana, collectable=True, creature_type=None, attack=None, health=None, attributes=[], effect=None, condition=None):
+  def __init__(self, name, card_type, manacost, collectable=True, creature_type=None, attack=None, health=None, attributes=[], effect=None, condition=None):
     self.name = name
     self.card_type = card_type
     self.creature_type = creature_type
@@ -11,7 +11,8 @@ class Card():
     self.health = health #used during game as current health
     self.original_attack = attack
     self.attack = attack
-    self.mana = mana
+    self.original_manacost = manacost
+    self.manacost = manacost
     self.attributes = attributes
     self.effect = effect
     self.original_attributes = deepcopy(attributes)
@@ -41,8 +42,8 @@ class Card():
     self.parent = new_parent
     self.parent.add(self)
 
-  def get_mana(self):
-    manacost = self.mana
+  def get_manacost(self):
+    manacost = self.manacost
     if self.effect and isinstance(self.effect, ChangeCost) and self.effect.trigger == Triggers.AURA and self.effect.method == Methods.SELF:
       manacost += self.effect.value(self)
     
@@ -51,13 +52,13 @@ class Card():
         if self.matches_card_requirements(card):
           manacost += card.effect.value(card)
 
-    return manacost
+    return max(manacost, 0)
 
   def matches_card_requirements(self, card):
     effect = card.effect
-    type_okay = (self.card_type==CardTypes.MINION and (effect.target == Targets.MINION or effect.target == Targets.MINION_OR_HERO))\
+    type_okay = (self.card_type==CardTypes.MINION and (effect.target == Targets.MINION or effect.target == Targets.MINION_OR_HERO or effect.target==Targets.MINION_OR_SPELL))\
     or (self.card_type==CardTypes.WEAPON and (effect.target == Targets.WEAPON))\
-    or (self.card_type==CardTypes.SPELL and (effect.target == Targets.SPELL))
+    or (self.card_type==CardTypes.SPELL and (effect.target == Targets.SPELL or effect.target== Targets.MINION_OR_SPELL))
 
     owner_okay = (self.owner == card.owner and effect.owner_filter == OwnerFilters.FRIENDLY)\
     or (self.owner == card.owner.other_player and effect.owner_filter == OwnerFilters.ENEMY)\
@@ -127,13 +128,14 @@ class Card():
     self.effect = deepcopy(self.original_effect)
     self.attributes = deepcopy(self.original_attributes)
     self.condition = deepcopy(self.original_condition)
+    self.manacost = self.original_manacost
 
 
   def get_string(self):
     if(self.card_type == CardTypes.MINION):
-      return str((id(self), self.owner.name if self.owner else None, self.parent.name if self.parent else None, self.name, self.mana, self.effect, str(self.attack+self.temp_attack)+"/"+str(self.health+self.temp_health)))
+      return str((id(self), self.owner.name if self.owner else None, self.parent.name if self.parent else None, self.name, self.manacost, self.effect, str(self.attack+self.temp_attack)+"/"+str(self.health+self.temp_health)))
     else:
-      return str((id(self), self.owner.name if self.owner else None, self.parent.name if self.parent else None, self.name, self.mana, self.effect))
+      return str((id(self), self.owner.name if self.owner else None, self.parent.name if self.parent else None, self.name, self.manacost, self.effect))
 
   def __str__(self):
     return self.get_string()

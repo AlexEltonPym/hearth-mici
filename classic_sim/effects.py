@@ -302,7 +302,7 @@ class ChangeCost():
   
   def resolve_action(self, game, action):
     for target in action.targets:
-      target.mana += self.value()
+      target.manacost += self.value(action.source)
 
 
 class DuelAction():

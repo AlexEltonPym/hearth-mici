@@ -11,7 +11,7 @@ def make_random_card(id, random_state):
   np.warnings.filterwarnings('ignore', category=np.VisibleDeprecationWarning) 
 
   _card_type = random_state.choice([CardTypes.MINION, CardTypes.SPELL, CardTypes.WEAPON]) #not creating random hero powers
-  _mana = random_state.randint(0, 10)
+  _manacost = random_state.randint(0, 10)
   _attack = random_state.randint(0, 10)
   _health = random_state.randint(1, 10)
   _attributes = random_state.choice([[random_state.choice([a for a in Attributes])], []])
@@ -19,8 +19,8 @@ def make_random_card(id, random_state):
   requirement = random_state.choice(Condition.get_available_conditions())
   result = {'attributes': [random_state.choice([a for a in Attributes])], 'temp_attack': random_state.randint(0, 10), 'temp_health': random_state.randint(0, 10)}
   _condition = random_state.choice([Condition(requirement=requirement, result=result), None])
-  if EffectType == effects.ReturnToHand and _mana == 0: #prevent infintite loops
-    _mana=1
+  if EffectType == effects.ReturnToHand and _manacost == 0: #prevent infintite loops
+    _manacost=1
   if EffectType == effects.GainMana: #prevent infinite loops
     _card_type = CardTypes.SPELL
   if EffectType:
@@ -39,11 +39,11 @@ def make_random_card(id, random_state):
     _duration = choice_with_none(EffectType.available_durations)
     _trigger = choice_with_none(EffectType.available_triggers)
 
-    rand_card = Card(f"Random Card {id}", card_type=_card_type, mana=_mana, attack=_attack, health=_health, attributes=_attributes, condition=_condition,\
+    rand_card = Card(f"Random Card {id}", card_type=_card_type, mana=_manacost, attack=_attack, health=_health, attributes=_attributes, condition=_condition,\
       effect=EffectType(value=_value, method=_method, target=_target, owner_filter=_owner_filter, type_filter=_type_filter, duration=_duration, trigger=_trigger)
     )
   else:
-    rand_card = Card(f"Random Card {id}", card_type=CardTypes.MINION, mana=_mana, attack=_attack, health=_health, condition=_condition, attributes=_attributes)
+    rand_card = Card(f"Random Card {id}", card_type=CardTypes.MINION, mana=_manacost, attack=_attack, health=_health, condition=_condition, attributes=_attributes)
 
   return rand_card
 

@@ -14,6 +14,9 @@ class Hand():
   def get_all(self):
     return self.hand
 
+  def clear(self):
+    self.hand.clear()
+
   def __contains__(self, key):
     return key in self.hand
 

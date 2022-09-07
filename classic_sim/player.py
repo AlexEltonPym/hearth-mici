@@ -5,9 +5,11 @@ from copy import deepcopy
 from enums import *
 
 class Player():
-  def __init__(self, player_class, deck, strategy):
+  def __init__(self, name, game_manager, player_class, deck_constructor, strategy):
+    self.name = name
+    self.game_manager = game_manager
     self.player_class = player_class
-    self.deck = deepcopy(deck)
+    self.deck = deepcopy(deck_constructor(self))
     self.deck.update_owner(self)
     self.strategy = strategy
     self.hero_power = None
@@ -37,8 +39,10 @@ class Player():
     self.game = None
     self.fatigue_damage = 1
     self.owner = self
+    self.parent = self
     self.condition = None
 
+    self.pool = None
 
   def reset(self):
     self.attacks_this_turn = 0

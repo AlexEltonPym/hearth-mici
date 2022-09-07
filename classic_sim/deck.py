@@ -1,20 +1,23 @@
 import copy
 
 class Deck():
-  def __init__(self, random_state):
+  def __init__(self, game_manager):
     self.name = 'deck'
     self.__deck = []
-    self.random_state = random_state
+    self.game_manager = game_manager
 
-  def generate_random(self, available_cards):
+  def generate_random(player):
+    new_deck = Deck(player.game_manager)
+    available_cards = player.game_manager.player_pool if player.name == "player" else player.game_manager.enemy_pool
+    
     id = 0
-    while len(self.__deck) < 30:
-      rand_card = copy.deepcopy(self.random_state.choice(available_cards))
-      rand_card.parent = self
+    while len(new_deck.__deck) < 30:
+      rand_card = copy.deepcopy(new_deck.game_manager.random_state.choice(available_cards))
+      rand_card.parent = new_deck
       rand_card.id = id
-      self.__deck.append(rand_card)
+      new_deck.add(rand_card)
       id += 1
-    return self
+    return new_deck
     
   def update_owner(self, owner):
     for card in self.__deck:
@@ -36,4 +39,4 @@ class Deck():
     return str(self.__deck)
 
   def shuffle(self):
-    self.random_state.shuffle(self.__deck)
+    self.game_manager.random_state.shuffle(self.__deck)

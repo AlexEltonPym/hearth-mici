@@ -5,7 +5,7 @@ import _pickle as cPickle
 
 class GreedyAction():
   def mulligan_rule(card):
-    return card.get_mana() < 3
+    return card.get_manacost() < 3
   
   def choose_action(state):
     available_actions = state.get_available_actions(state.current_player)
@@ -30,16 +30,16 @@ class GreedyAction():
 
 class RandomAction():
   def mulligan_rule(card):
-    return card.get_mana() < 3
+    return card.get_manacost() < 3
   
   def choose_action(state):
-    chosen_action = state.random_state.choice(state.get_available_actions(state.current_player))
+    chosen_action = state.game_manager.random_state.choice(state.get_available_actions(state.current_player))
     turn_passed = state.perform_action(chosen_action)
     return turn_passed
 
 class RandomNoEarlyPassing():
   def mulligan_rule(card):
-    return card.get_mana() < 3
+    return card.get_manacost() < 3
   
   def choose_action(state):
     all_available_actions = state.get_available_actions(state.current_player)
@@ -47,7 +47,7 @@ class RandomNoEarlyPassing():
     available_actions_without_ending = list(filter(lambda x: x.action_type != Actions.END_TURN, all_available_actions))
     
     if len(available_actions_without_ending) > 0:
-      chosen_action = state.random_state.choice(available_actions_without_ending)
+      chosen_action = state.game_manager.random_state.choice(available_actions_without_ending)
     else:
       chosen_action = all_available_actions[0]
     # print(chosen_action)

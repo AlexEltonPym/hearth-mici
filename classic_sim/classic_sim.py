@@ -32,7 +32,7 @@ def run_games(player, enemy):
   game = Game(player, enemy)
 
   for i in tqdm(range(NUM_GAMES)):
-    games[i] = game.simulate_game()
+    games[i] = game.play_game()
     game.reset_game()
     
   return games.mean()

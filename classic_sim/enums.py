@@ -38,7 +38,8 @@ class Targets(Enum):
   MINION_OR_HERO = 2
   WEAPON = 3
   SPELL = 4
-
+  MINION_OR_SPELL = 5
+  
 class OwnerFilters(Enum):
   FRIENDLY = 0
   ENEMY = 1
