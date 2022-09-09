@@ -111,15 +111,22 @@ def get_classic_cards():
     silvermoon_guardian = Card(name="Silvermoon Guardian", card_type=CardTypes.MINION,
                                manacost=4, attack=3, health=3, attributes=[Attributes.DIVINE_SHIELD])
 
-    # Common 5+ drops
+    # Common five drops
     fen_creeper = Card(name="Fen Creeper", card_type=CardTypes.MINION,
                        manacost=5, attack=3, health=6, attributes=[Attributes.TAUNT])
     silver_hand_knight = Card(name="Silver Hand Knight", card_type=CardTypes.MINION, manacost=5, attack=4, health=4,
                               effect=SummonToken(value=Card(name="Squire", collectable=False, card_type=CardTypes.MINION, manacost=1, attack=2, health=2),
                                                  method=Methods.TARGETED, owner_filter=OwnerFilters.FRIENDLY, trigger=Triggers.BATTLECRY))
-
+    spiteful_smith = Card(name="Spiteful Smith", card_type=CardTypes.MINION, manacost=5, attack=4, health=6,
+                          effect=ChangeStats(value=(2, 0), trigger=Triggers.AURA, owner_filter=OwnerFilters.FRIENDLY, target=Targets.WEAPON, method=Methods.ALL))
+    stranglethorn_tiger = Card(name="Stranglethorn Tiger", card_type=CardTypes.MINION, creature_type=CreatureTypes.BEAST, manacost=5,attack=5, health=5, attributes=[Attributes.STEALTH])
+    
     venture_co_mercenary = Card(name="Venture Co. Mercenary", card_type=CardTypes.MINION, manacost=5, attack=7, health=6,
                                 effect=ChangeCost(value=Constant(3), target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY, method=Methods.ALL, trigger=Triggers.AURA))
+
+    #Common six drops
+    frost_elemental = Card(name="Frost Elemental", card_type=CardTypes.MINION, creature_type=CreatureTypes.ELEMENTAL, manacost=6, attack=5, health=5,\
+                        effect=GiveKeyword(value=Attributes.FROZEN, trigger=Triggers.BATTLECRY, method=Methods.TARGETED, target=Targets.MINION_OR_HERO, owner_filter=OwnerFilters.ALL, duration=Durations.PERMANENTLY))
 
     # Rare four drops
     defender_of_argus = Card(name="Defender of Argus", card_type=CardTypes.MINION, manacost=4, attack=3, health=3,
@@ -136,10 +143,10 @@ def get_classic_cards():
                           jungle_panther, raging_worgen, scarlet_crusader, tauren_warrior, thrallmar_farseer]
     common_four_drops = [ancient_brewmaster, cult_master, dark_iron_dwarf,
                          dread_corsair, mogushan_warden, silvermoon_guardian]
-    common_five_plus_drops = [fen_creeper,
-                              silver_hand_knight, venture_co_mercenary]
+    common_five_drops = [fen_creeper, silver_hand_knight, spiteful_smith, stranglethorn_tiger, venture_co_mercenary]
+    common_six_drops = [frost_elemental]
     rare_four_drops = [defender_of_argus]
-    return common_one_drops + common_two_drops + common_three_drops + common_four_drops + common_five_plus_drops + rare_four_drops
+    return common_one_drops + common_two_drops + common_three_drops + common_four_drops + common_five_drops + common_six_drops + rare_four_drops
 
 
 def get_mage_cards():
@@ -186,4 +193,3 @@ def build_pool(set_names, random_state):
     if CardSets.RANDOM_CARDS in set_names:
         pool.extend(get_random_cards(random_state))
     return pool
-

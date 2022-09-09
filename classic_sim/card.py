@@ -77,6 +77,7 @@ class Card():
     
     aura_attack, _ = self.get_aura_stats()
     condition_attack = self.condition.result['temp_attack'] if self.condition and self.condition.requirement(self.owner.game, self) else 0
+    print(aura_attack)
     return self.attack+self.perm_attack+self.temp_attack+condition_attack+aura_attack
 
   def get_health(self):
@@ -90,29 +91,25 @@ class Card():
   def get_aura_stats(self):
     aura_attack = 0
     aura_health = 0
-    if self.card_type == CardTypes.MINION and self.parent == self.owner.board:
-      board = self.owner.board.get_all()
-      last_index = len(board)-1
-      for index, card in enumerate(board):
-        if card.effect and card.effect.trigger == Triggers.AURA:
-          correct_owner = card.effect.owner_filter == OwnerFilters.FRIENDLY or card.effect.owner_filter == OwnerFilters.ALL
-          correct_creature_type = card.effect.type_filter == None or card.effect.type_filter == CreatureTypes.ALL or card.effect.type_filter == self.creature_type
-          if correct_owner and correct_creature_type:
-            my_index = self.parent.index_of(self)
-            adjacent = card.effect.method == Methods.ADJACENT and (my_index == index-1 or my_index == index+1 or (my_index == 0 and index == last_index) or (my_index == last_index and index == 0))
-            if card.effect.method == Methods.ALL or adjacent:
-              if isinstance(card.effect, ChangeStats):
-                aura_attack += card.effect.value[0]
-                aura_health += card.effect.value[1]
+    board = self.owner.board.get_all()
+    last_index = len(board)-1
+    for index, card in enumerate(board):
+      if card.effect and card.effect.trigger == Triggers.AURA and self.matches_card_requirements(card):
+        adjacent = False
+        if self.parent == self.owner.board:
+          my_index = self.parent.index_of(self)
+          adjacent = card.effect.method == Methods.ADJACENT and (my_index == index-1 or my_index == index+1 or (my_index == 0 and index == last_index) or (my_index == last_index and index == 0))
+        if card.effect.method == Methods.ALL or adjacent:
+          if isinstance(card.effect, ChangeStats):
+            aura_attack += card.effect.value[0]
+            aura_health += card.effect.value[1]
         
-      for card in self.parent.parent.other_player.board.get_all():
-        if card.effect and card.effect.trigger == Triggers.AURA:
-          correct_owner = card.effect.owner_filter == OwnerFilters.ENEMY or card.effect.owner_filter == OwnerFilters.ALL
-          correct_creature_type = card.effect.type_filter == None or card.effect.type_filter == CreatureTypes.ALL or card.effect.type_filter == self.creature_type
-          if correct_owner and correct_creature_type and card.effect.method == Methods.ALL:
-            if isinstance(card.effect, ChangeStats):
-              aura_attack += card.effect.value[0]
-              aura_health += card.effect.value[1]
+    for card in self.parent.parent.other_player.board.get_all():
+      if card.effect and card.effect.trigger == Triggers.AURA and self.matches_card_requirements(card):
+        if card.effect.method == Methods.ALL:
+          if isinstance(card.effect, ChangeStats):
+            aura_attack += card.effect.value[0]
+            aura_health += card.effect.value[1]
 
     return aura_attack, aura_health
 

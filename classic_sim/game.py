@@ -61,7 +61,7 @@ class Game():
           card.parent.remove(card)
           del card
       player.reset()
-
+    self.start_game()
 
 
 
@@ -95,11 +95,19 @@ class Game():
     self.current_player.temp_attack = 0
     self.current_player.temp_health = 0
     self.current_player.temp_attributes = []
+    if Attributes.FROZEN in self.current_player.attributes:
+      self.current_player.attributes.remove(Attributes.FROZEN)
+    if Attributes.FROZEN in self.current_player.perm_attributes:
+      self.current_player.perm_attributes.remove(Attributes.FROZEN)
   
     for minion in self.current_player.board.get_all():
       minion.temp_attack = 0
       minion.temp_health = 0
       minion.temp_attributes = []
+      if Attributes.FROZEN in minion.attributes:
+        minion.attributes.remove(Attributes.FROZEN)
+      if Attributes.FROZEN in minion.perm_attributes:
+        minion.perm_attributes.remove(Attributes.FROZEN)
 
     self.current_player = self.current_player.other_player
 
@@ -326,7 +334,7 @@ class Game():
       if (minion.attacks_this_turn == 0 \
           or (minion.attacks_this_turn == -1 and minion.has_attribute(Attributes.CHARGE))\
           or (minion.attacks_this_turn == 1 and minion.has_attribute(Attributes.WINDFURY)))\
-          and minion.get_attack() > 0:
+          and minion.get_attack() > 0 and not minion.has_attribute(Attributes.FROZEN):
         for target in self.get_available_targets(minion):
           minion_attack_options.append(Action(Actions.ATTACK, minion, [target]))
 
@@ -335,7 +343,7 @@ class Game():
 
   def get_hero_attack_actions(self, player):
     hero_attack_options = []
-    if (player.get_attack() > 0
+    if (player.get_attack() > 0 and not player.has_attribute(Attributes.FROZEN)\
         or (player.weapon and player.weapon.attack > 0))\
         and (player.attacks_this_turn == 0\
         or (player.attacks_this_turn == 1 and player.has_attribute(Attributes.WINDFURY))):
@@ -386,8 +394,6 @@ class Game():
     return playable_weapon_actions
 
   def play_game(self):
-    self.start_game()
-
     game_status = -1
 
     while game_status == -1:

@@ -14,8 +14,6 @@ from statistics import mean
 class GameManager():
   def __init__(self, random_state=RandomState(0)):
     self.random_state = random_state
-    self.player_pool = None
-    self.enemy_pool = None
     self.player = None
     self.enemy = None
     self.game = None
@@ -39,7 +37,7 @@ class GameManager():
     self.enemy = Player("enemy", self, player_class, deck_constructor, strategy)
 
   def find_card(self, name):
-    for card in self.player_pool + self.enemy_pool:
+    for card in self.get_player_pool() + self.get_enemy_pool():
       if card.name == name:
         return deepcopy(card)
 
@@ -54,6 +52,8 @@ class GameManager():
   def create_game(self):
     self.game = Game(self)
     self.game.setup_players()
+    self.game.start_game()
+
     return self.game
 
   def create_test_game(self):

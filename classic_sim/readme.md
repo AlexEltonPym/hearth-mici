@@ -20,5 +20,29 @@ To change the game-state, an action must be performed. Each action has a type, s
 
 # Card changes
 Not all cards can be implemented directly, so the following cards are implemented slighly differently:
-Fireblast: can target self, is this allowed?
-Mad Bomber: damage not split
+Fireblast: can target self. Is this allowed?
+Spiteful smith: always gives +2/0 to weapon, not when damaged. Add condition to auras?
+
+
+## Running the simulator
+Create a virtual environment, then install the requirements:
+
+python3 -m pip install -r requirements.txt
+
+For an example of running the simulator, see classic_sim.py
+
+
+## Profiling the code:
+First you will need to install kernprof/line_profiler https://github.com/rkern/line_profiler:
+
+You may be able to install it with pip:
+python3 -m pip install line_profiler
+
+To profile a part of the program do the following:
+
+1. Put a @profile decorator before the function to profile.
+2. Run the following:
+kernprof -l script_to_profile.py
+3. Interpret the created lprof file with:
+python3 -m line_profiler script_to_profile.py.lprof
+

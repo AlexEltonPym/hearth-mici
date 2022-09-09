@@ -476,6 +476,35 @@ def test_venture():
   venture_co_mercenary = game.game_manager.get_card('Venture Co. Mercenary', game.current_player.board)
   assert wisp.get_manacost() == 3
 
+def test_spiteful_smith():
+  game = GameManager().create_test_game()
+
+  spiteful_smith = game.game_manager.get_card('Spiteful Smith', game.current_player.board)
+  assert spiteful_smith.get_attack() == 4
+
+  generic_weapon = game.game_manager.get_card('Generic Weapon', game.current_player)
+  assert generic_weapon.get_attack() == 5
+
+  game.deal_damage(spiteful_smith, 6)
+
+  assert generic_weapon.get_attack() == 3
+
+def test_frost_elemental():
+  game = GameManager().create_test_game()
+  wisp = game.game_manager.get_card('Wisp', game.current_player.other_player.board)
+  frost_elemental = game.game_manager.get_card('Frost Elemental', game.current_player.hand)
+  cast_frost_elemental = list(filter(lambda action: action.source == frost_elemental and action.targets[0] == wisp, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(cast_frost_elemental)
+  assert wisp.has_attribute(Attributes.FROZEN)
+  game.end_turn()
+  game.untap()
+  assert wisp.has_attribute(Attributes.FROZEN)
+  assert wisp.attacks_this_turn == 0
+  assert len(list(filter(lambda action: action.action_type == Actions.ATTACK, game.get_available_actions(game.current_player)))) == 0
+  game.end_turn()
+  assert not wisp.has_attribute(Attributes.FROZEN)
+
+
 def test_battlecry_reduce_cost():
   game = GameManager().create_test_game()
 
@@ -667,7 +696,7 @@ def test_big_simulate_parralel():
   result = game_manager.simulate(10, silent=True, parralel=-1)
   assert result > 0 and result < 1
 
-def test_xlbig_random_cards():
+def test_xl_big_random_cards():
   random_state = RandomState(0)
   for k in tqdm(range(100)):
     rand_seed = random_state.randint(0, 1000)
