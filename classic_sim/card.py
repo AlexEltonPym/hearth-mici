@@ -77,7 +77,6 @@ class Card():
     
     aura_attack, _ = self.get_aura_stats()
     condition_attack = self.condition.result['temp_attack'] if self.condition and self.condition.requirement(self.owner.game, self) else 0
-    print(aura_attack)
     return self.attack+self.perm_attack+self.temp_attack+condition_attack+aura_attack
 
   def get_health(self):

@@ -13,10 +13,8 @@ from numpy.random import RandomState
 from game_manager import GameManager
 
 def test_classic_pool():
-  random_state = RandomState(0)
-  card_pool = build_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER, CardSets.CLASSIC_MAGE], random_state)
-  print(len(card_pool))
-  # assert False
+  commons = get_classic_common_cards()
+  assert len(commons) == 38
 
 def test_coin():
   game_manager = GameManager()
@@ -278,9 +276,10 @@ def test_hexproof():
 
   available_actions = game.get_available_actions(game.enemy)
   available_actions = list(filter(lambda action: action.action_type==Actions.CAST_SPELL or action.action_type==Actions.CAST_HERO_POWER, available_actions))
-  print(available_actions)
-
-  assert len(available_actions) == 5 #coin, fireblast self and enemy, fireball self and enemy
+  if game.current_player == game.player:
+    assert len(available_actions) == 5 #coin, fireblast self and enemy, fireball self and enemy
+  else:
+    assert len(available_actions) == 4 #no coin
 
 def test_mad_bomber():
   game = GameManager().create_test_game()
@@ -504,6 +503,15 @@ def test_frost_elemental():
   game.end_turn()
   assert not wisp.has_attribute(Attributes.FROZEN)
 
+def test_priestess_of_elune():
+  game = GameManager().create_test_game()
+  priestess_of_elune = game.game_manager.get_card('Priestess of Elune', game.current_player.hand)
+  game.deal_damage(game.current_player, 3)
+  assert game.current_player.get_health() == 27
+  cast_priestess = list(filter(lambda action: action.source == priestess_of_elune, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(cast_priestess)
+  assert game.current_player.get_health() == 30
+
 
 def test_battlecry_reduce_cost():
   game = GameManager().create_test_game()
@@ -649,7 +657,7 @@ def test_random_card_game():
     game_results[i] = game.play_game()
     game.reset_game()
   
-  assert game_results.mean() < 1 and game_results.mean() > 0
+  assert game_results.mean() <= 1 and game_results.mean() >= 0
 
 def test_big_games():
   game_manager = GameManager()
