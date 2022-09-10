@@ -124,14 +124,14 @@ def get_classic_common_cards():
   venture_co_mercenary = Card(name="Venture Co. Mercenary", card_type=CardTypes.MINION, manacost=5, attack=7, health=6,
                 effect=ChangeCost(value=Constant(3), target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY, method=Methods.ALL, trigger=Triggers.AURA))
 
-  #Common six drops
+  # Common six drops
   frost_elemental = Card(name="Frost Elemental", card_type=CardTypes.MINION, creature_type=CreatureTypes.ELEMENTAL, manacost=6, attack=5, health=5,\
             effect=GiveKeyword(value=Attributes.FROZEN, trigger=Triggers.BATTLECRY, method=Methods.TARGETED, target=Targets.MINION_OR_HERO, owner_filter=OwnerFilters.ALL, duration=Durations.PERMANENTLY))
   priestess_of_elune = Card(name="Priestess of Elune", card_type=CardTypes.MINION, manacost=6, attack=5, health=4,\
                   effect=RestoreHealth(value=4, trigger=Triggers.BATTLECRY, method=Methods.ALL, target=Targets.HERO, owner_filter=OwnerFilters.FRIENDLY))
   windfury_harpy = Card(name="Windfury Harpy", card_type=CardTypes.MINION, manacost=6, attack=4, health=5, attributes=[Attributes.WINDFURY])
 
-  #Combine
+  # Combine
   common_one_drops = [wisp, abusive_sergeant, argent_squire, leper_gnome,
             shieldbearer, southsea_deckhand, worgen_infiltrator, young_dragonhawk]
   common_two_drops = [amani_berserker, bloodsail_raider, dire_wolf_alpha,
@@ -145,17 +145,30 @@ def get_classic_common_cards():
   return common_one_drops + common_two_drops + common_three_drops + common_four_drops + common_five_drops + common_six_drops
 
 def get_classic_rare_cards():
+  # Rare one drops
+  angry_chicken = Card(name="Angry Chicken", card_type=CardTypes.MINION, manacost=1, attack=1, health=1, creature_type=CreatureTypes.BEAST,\
+                       condition=Condition(Condition.damaged, {'temp_attack': 5}))
+  
+  bloodsail_corsair = Card(name="Bloodsail Corsair", card_type=CardTypes.MINION, creature_type=CreatureTypes.PIRATE, manacost=1, attack=1, health=2,\
+                           effect=DealDamage(value=1, trigger=Triggers.BATTLECRY, method=Methods.TARGETED, target=Targets.WEAPON, owner_filter=OwnerFilters.ENEMY))
+  
+  lightwarden = Card(name="Lightwarden", card_type=CardTypes.MINION, manacost=1, attack=1, health=2,\
+                     effect=ChangeStats(value=(2,0), trigger=Triggers.ANY_HEALED, method=Methods.SELF, target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY, duration=Durations.PERMANENTLY))
 
+ 
+ 
   # Rare four drops
   defender_of_argus = Card(name="Defender of Argus", card_type=CardTypes.MINION, manacost=4, attack=3, health=3,
-              effect=DuelAction(ChangeStats(value=(1, 1), method=Methods.ADJACENT, target=Targets.MINION,
-                              owner_filter=OwnerFilters.FRIENDLY, duration=Durations.PERMANENTLY, trigger=Triggers.BATTLECRY),
-                        GiveKeyword(value=Attributes.TAUNT, method=Methods.ADJACENT, target=Targets.MINION,
-                              owner_filter=OwnerFilters.FRIENDLY, duration=Durations.PERMANENTLY, trigger=Triggers.BATTLECRY)))
+                          effect=DuelAction(ChangeStats(value=(1, 1), method=Methods.ADJACENT, target=Targets.MINION,
+                          owner_filter=OwnerFilters.FRIENDLY, duration=Durations.PERMANENTLY, trigger=Triggers.BATTLECRY),
+                          GiveKeyword(value=Attributes.TAUNT, method=Methods.ADJACENT, target=Targets.MINION,
+                          owner_filter=OwnerFilters.FRIENDLY, duration=Durations.PERMANENTLY, trigger=Triggers.BATTLECRY)))
 
+                    
+  rare_one_drops = [angry_chicken, bloodsail_corsair, lightwarden]
   rare_four_drops = [defender_of_argus]
 
-  return rare_four_drops
+  return rare_one_drops + rare_four_drops
 
 def get_mage_cards():
   fireball = Card(name="Fireball", card_type=CardTypes.SPELL, manacost=4, effect=DealDamage(

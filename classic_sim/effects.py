@@ -193,6 +193,10 @@ class RestoreHealth():
       max_healing = target.get_max_health() - target.get_health()
       healing = min(self.value, max_healing)
       target.health += healing
+      if healing > 0:
+        game.trigger(target, Triggers.ANY_HEALED)
+        game.trigger(target, Triggers.FRIENDLY_HEALED)
+        game.trigger(target, Triggers.ENEMY_HEALED)
 
 
 class GiveKeyword():

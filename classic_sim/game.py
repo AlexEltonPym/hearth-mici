@@ -193,13 +193,16 @@ class Game():
       card.change_parent(card.owner.graveyard)
       if card.effect and card.effect.trigger == Triggers.DEATHRATTLE:
         self.resolve_effect(card)
-        
-      for other_card in card.owner.board.get_all():
-        if other_card.effect and (other_card.effect.trigger == Triggers.ANY_MINION_DIES or other_card.effect.trigger == Triggers.FRIENDLY_MINION_DIES):
-          self.resolve_effect(other_card)
-      for other_card in card.owner.other_player.board.get_all():
-        if other_card.effect and (other_card.effect.trigger == Triggers.ANY_MINION_DIES or other_card.effect.trigger == Triggers.ENEMY_MINION_DIES):
-          self.resolve_effect(other_card)
+      
+      self.trigger(card, Triggers.ANY_MINION_DIES)
+      self.trigger(card, Triggers.FRIENDLY_MINION_DIES)
+      self.trigger(card, Triggers.ENEMY_MINION_DIES)
+      # for other_card in card.owner.board.get_all():
+      #   if other_card.effect and (other_card.effect.trigger == Triggers.ANY_MINION_DIES or other_card.effect.trigger == Triggers.FRIENDLY_MINION_DIES):
+      #     self.resolve_effect(other_card)
+      # for other_card in card.owner.other_player.board.get_all():
+      #   if other_card.effect and (other_card.effect.trigger == Triggers.ANY_MINION_DIES or other_card.effect.trigger == Triggers.ENEMY_MINION_DIES):
+      #     self.resolve_effect(other_card)
           
   def resolve_effect(self, card):
     targets = self.get_available_effect_targets(card)
@@ -213,7 +216,24 @@ class Game():
       elif card.effect.method == Methods.SELF:
         card.effect.resolve_action(self, Action(Actions.CAST_EFFECT, card, [card]))
 
-
+  def trigger(self, source, trigger_type):
+    for player in [self.player, self.enemy]:
+      player_weapon = [player.weapon] if player.weapon else []
+      player_board = player.board.get_all()
+      for card in player_weapon + player_board:
+        if card.effect and trigger_type == card.effect.trigger:
+          if trigger_type == Triggers.FRIENDLY_MINION_DIES and source.owner == card.owner:
+            self.resolve_effect(card)
+          elif trigger_type == Triggers.ENEMY_MINION_DIES and source.owner != card.owner:
+            self.resolve_effect(card)
+          elif trigger_type == Triggers.ANY_MINION_DIES:
+            self.resolve_effect(card)
+          elif trigger_type == Triggers.FRIENDLY_HEALED and source.owner == card.owner:
+            self.resolve_effect(card)
+          elif trigger_type == Triggers.ENEMY_HEALED and source.owner != card.owner:
+            self.resolve_effect(card)
+          elif trigger_type == Triggers.ANY_HEALED:
+            self.resolve_effect(card)
 
   def get_available_targets(self, card):
     targets = []

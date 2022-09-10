@@ -485,8 +485,38 @@ def test_spiteful_smith():
   assert generic_weapon.get_attack() == 5
 
   game.deal_damage(spiteful_smith, 6)
-
   assert generic_weapon.get_attack() == 3
+
+def test_angry_chicken():
+  game = GameManager().create_test_game()
+  chicken = game.game_manager.get_card('Angry Chicken', game.current_player.board)
+  defender = game.game_manager.get_card('Defender of Argus', game.current_player.hand)
+  assert chicken.get_max_health() == 1
+  assert chicken.get_health() == 1
+  assert chicken.get_attack() == 1
+  cast_defender = list(filter(lambda action: action.source == defender, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(cast_defender)
+  assert chicken.get_max_health() == 2
+  assert chicken.get_health() == 2
+  assert chicken.get_attack() == 2
+  game.deal_damage(chicken, 1)
+  assert chicken.get_max_health() == 2
+  assert chicken.get_health() == 1
+  assert chicken.get_attack() == 7
+
+
+def test_bloodsail_corsair():
+  game = GameManager().create_test_game()
+  bloodsail_corsair = game.game_manager.get_card('Bloodsail Corsair', game.current_player.hand)
+  generic_weapon = game.game_manager.get_card('Generic Weapon', game.current_player.other_player)
+  assert game.current_player.other_player.weapon
+  assert game.current_player.other_player.weapon.get_health() == 2
+  play_corsair = list(filter(lambda action: action.source == bloodsail_corsair, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(play_corsair)
+  assert game.current_player.other_player.weapon.get_health() == 1
+  assert game.current_player.other_player.weapon.get_max_health() == 2
+  game.deal_damage(generic_weapon, 1)
+  assert not game.current_player.other_player.weapon
 
 def test_frost_elemental():
   game = GameManager().create_test_game()
@@ -511,6 +541,28 @@ def test_priestess_of_elune():
   cast_priestess = list(filter(lambda action: action.source == priestess_of_elune, game.get_available_actions(game.current_player)))[0]
   game.perform_action(cast_priestess)
   assert game.current_player.get_health() == 30
+
+def test_lightwarden():
+  game = GameManager().create_test_game()
+  lightwarden = game.game_manager.get_card('Lightwarden', game.current_player.board)
+  assert lightwarden.get_attack() == 1
+  game.deal_damage(game.current_player, 1)
+  assert game.current_player.get_health() == 29
+
+  priestess_of_elune = game.game_manager.get_card('Priestess of Elune', game.current_player.hand)
+  cast_priestess = list(filter(lambda action: action.source == priestess_of_elune, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(cast_priestess)
+  assert game.current_player.get_health() == 30
+  assert lightwarden.get_attack() == 3
+
+  game.deal_damage(game.current_player, 1)
+  priestess_of_elune = game.game_manager.get_card('Priestess of Elune', game.current_player.hand)
+  game.current_player.current_mana = 10
+  cast_priestess = list(filter(lambda action: action.source == priestess_of_elune, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(cast_priestess)
+  assert lightwarden.get_attack() == 5
+
+
 
 
 def test_battlecry_reduce_cost():

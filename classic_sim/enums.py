@@ -20,6 +20,9 @@ class Triggers(Enum):
   FRIENDLY_MINION_DIES = 4
   ENEMY_MINION_DIES = 5
   CAST = 6
+  ANY_HEALED = 7
+  FRIENDLY_HEALED = 8
+  ENEMY_HEALED = 9
 
 
 class Actions(Enum):
