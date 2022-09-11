@@ -1,6 +1,5 @@
-from hand import Hand
-from board import Board
-from graveyard import Graveyard
+
+from zones import SecretsZone, Hand, Board, Graveyard
 from copy import deepcopy
 from enums import *
 
@@ -35,6 +34,7 @@ class Player():
     self.hand = Hand(self)
     self.board = Board(self)
     self.graveyard = Graveyard(self)
+    self.secret_zone = SecretsZone(self)
     self.other_player = None
     self.game = None
     self.fatigue_damage = 1

@@ -1,7 +1,7 @@
 from card_sets import *
 from player import Player
 from game import Game
-from deck import Deck
+from zones import Deck
 from strategy import GreedyAction
 from numpy import empty
 from tqdm import trange
@@ -86,7 +86,6 @@ class GameManager():
       parralel_game_results = Parallel(n_jobs=parralel, verbose=0 if silent else 100)(delayed(self.run_games)(num_games_per_processor, silent) for i in range(num_jobs_to_run))
       for processors_result in parralel_game_results:
         game_results.extend(processors_result)
-    print(game_results)
     return mean(game_results)
 
   def run_games(self, num_games, silent):

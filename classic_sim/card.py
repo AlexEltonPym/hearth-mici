@@ -47,7 +47,7 @@ class Card():
     if self.effect and isinstance(self.effect, ChangeCost) and self.effect.trigger == Triggers.AURA and self.effect.method == Methods.SELF:
       manacost += self.effect.value(self)
     
-    for card in self.owner.board.get_all():
+    for card in self.owner.board:
       if card.effect and isinstance(card.effect, ChangeCost) and card.effect.trigger == Triggers.AURA and card.effect.method == Methods.ALL:
         if self.matches_card_requirements(card):
           manacost += card.effect.value(card)
@@ -74,7 +74,6 @@ class Card():
           or (self.condition and attribute in self.condition.result['attributes'] and self.condition.requirement(self.owner.game, self))
   
   def get_attack(self):
-    
     aura_attack, _ = self.get_aura_stats()
     condition_attack = self.condition.result['temp_attack'] if self.condition and self.condition.requirement(self.owner.game, self) else 0
     return self.attack+self.perm_attack+self.temp_attack+condition_attack+aura_attack
@@ -90,7 +89,7 @@ class Card():
   def get_aura_stats(self):
     aura_attack = 0
     aura_health = 0
-    board = self.owner.board.get_all()
+    board = self.owner.board
     last_index = len(board)-1
     for index, card in enumerate(board):
       if card.effect and card.effect.trigger == Triggers.AURA and self.matches_card_requirements(card):
@@ -103,7 +102,7 @@ class Card():
             aura_attack += card.effect.value[0]
             aura_health += card.effect.value[1]
         
-    for card in self.parent.parent.other_player.board.get_all():
+    for card in self.parent.parent.other_player.board:
       if card.effect and card.effect.trigger == Triggers.AURA and self.matches_card_requirements(card):
         if card.effect.method == Methods.ALL:
           if isinstance(card.effect, ChangeStats):

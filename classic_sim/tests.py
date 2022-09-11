@@ -1,5 +1,5 @@
 from card import Card
-from deck import Deck
+from zones import Deck
 from player import Player
 from game import Game
 from enums import *
@@ -25,16 +25,16 @@ def test_coin():
   game = game_manager.create_game()
 
   coin_card = None
-  for card in game.current_player.other_player.hand.get_all():
+  for card in game.current_player.other_player.hand:
     if card.name == 'The Coin':
       coin_card = card
       break
 
   cast_coin = Action(Actions.CAST_SPELL, coin_card, [game.current_player.other_player])
   assert game.current_player.other_player.current_mana == 0
-  assert cast_coin.source in game.current_player.other_player.hand.get_all()
+  assert cast_coin.source in game.current_player.other_player.hand
   game.perform_action(cast_coin)
-  assert cast_coin.source not in game.current_player.other_player.hand.get_all()
+  assert cast_coin.source not in game.current_player.other_player.hand
   assert game.current_player.other_player.current_mana == 1
 
 def test_abusive_sergeant():
@@ -255,12 +255,12 @@ def test_loot_hoarder():
   game = game_manager.create_game()
 
   new_hoarder = game.game_manager.get_card('Loot Hoarder', game.current_player.board)
-  assert len(game.current_player.hand.get_all()) == 3
+  assert len(game.current_player.hand) == 3
 
   fireblast_action = Action(action_type=Actions.CAST_HERO_POWER, source=game.enemy.hero_power, targets=[new_hoarder])
   game.perform_action(fireblast_action)
   assert new_hoarder.parent == new_hoarder.owner.graveyard
-  assert len(game.current_player.hand.get_all()) == 4
+  assert len(game.current_player.hand) == 4
 
 def test_hexproof():
   game_manager = GameManager()
@@ -357,7 +357,7 @@ def test_golem():
 
   game.deal_damage(new_golem, 3)
   assert new_golem.parent == new_golem.owner.graveyard
-  assert len(game.current_player.board.get_all()) == 1
+  assert len(game.current_player.board) == 1
   assert game.current_player.board.get_all()[0].name == 'Damaged Golem'
 
 def test_ironbeak():
@@ -378,7 +378,7 @@ def test_ironbeak():
   assert new_hoarder.effect == None
 
   game.deal_damage(new_hoarder, 1)
-  assert len(game.current_player.hand.get_all()) == 0
+  assert len(game.current_player.hand) == 0
 
 def test_worgen():
   game = GameManager().create_test_game()
@@ -439,10 +439,10 @@ def test_cult_master():
   game = GameManager().create_test_game()
 
   cult_master = game.game_manager.get_card('Cult Master', game.current_player.board)
-  assert len(game.current_player.hand.get_all()) == 0
+  assert len(game.current_player.hand) == 0
   wisp = game.game_manager.get_card('Wisp', game.current_player.board)
   game.deal_damage(wisp, 1)
-  assert len(game.current_player.hand.get_all()) == 1
+  assert len(game.current_player.hand) == 1
 
 def test_dark_iron_dwarf():
   game = GameManager().create_test_game()
@@ -563,6 +563,31 @@ def test_lightwarden():
   assert lightwarden.get_attack() == 5
 
 
+def test_murloc_tidecaller():
+  game = GameManager().create_test_game()
+  tidecaller = game.game_manager.get_card('Murloc Tidecaller', game.current_player.board)
+  triggering_tidecaller = game.game_manager.get_card('Murloc Tidecaller', game.current_player.hand)
+  assert tidecaller.get_attack() == 1
+  play_tide = list(filter(lambda action: action.source == triggering_tidecaller, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(play_tide)
+  assert tidecaller.get_attack() == 2
+  assert triggering_tidecaller.get_attack() == 1
+  third_murloc = game.game_manager.get_card('Murloc Tidecaller', game.current_player.hand)
+  play_tide = list(filter(lambda action: action.source == third_murloc, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(play_tide)
+  assert tidecaller.get_attack() == 3
+  assert triggering_tidecaller.get_attack() == 2
+  assert third_murloc.get_attack() == 1
+
+def test_secretkeeper():
+  game = GameManager().create_test_game()
+  secretkeeper = game.game_manager.get_card('Secretkeeper', game.current_player.board)
+  assert secretkeeper.get_attack() == 1
+  assert secretkeeper.get_health() == 2
+  assert secretkeeper.get_max_health() == 2
+
+  print(game.current_player.secret_zone)
+  assert False
 
 
 def test_battlecry_reduce_cost():
@@ -684,7 +709,7 @@ def test_fatigue():
   game = game_manager.create_game()
 
   assert game.current_player.get_health() == 30
-  assert len(game.current_player.hand.get_all()) == 3
+  assert len(game.current_player.hand) == 3
   game.draw(game.current_player, 27)
   assert game.current_player.get_health() == 30
   game.draw(game.current_player, 1)
@@ -693,7 +718,7 @@ def test_fatigue():
   game.draw(game.current_player, 2)
   assert game.current_player.get_health() == 24
   assert game.current_player.fatigue_damage == 4
-  assert len(game.current_player.hand.get_all()) == 10
+  assert len(game.current_player.hand) == 10
 
 def test_random_card_game():
   game_manager = GameManager()
@@ -723,12 +748,12 @@ def test_big_games():
   for i in tqdm(range(10)):
     game_results[i] = game.play_game()
     game.reset_game()
-    assert len(game.player.deck.get_all()) == 30
-    assert len(game.enemy.deck.get_all()) == 30
-    assert len(game.player.hand.get_all()) == 0
-    assert len(game.enemy.hand.get_all()) == 0
-    assert len(game.player.graveyard.get_all()) == 0
-    assert len(game.enemy.graveyard.get_all()) == 0
+    assert len(game.player.deck) == 30
+    assert len(game.enemy.deck) == 30
+    assert len(game.player.hand) == 0
+    assert len(game.enemy.hand) == 0
+    assert len(game.player.graveyard) == 0
+    assert len(game.enemy.graveyard) == 0
     assert game.player.attack == 0
     assert game.player.health == 30
     assert game.enemy.attack == 0

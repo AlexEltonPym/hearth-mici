@@ -27,6 +27,9 @@ def get_hero_power(hero_class):
 
 
 def get_hunter_cards():
+  snipe = Card(name="Snipe", card_type=CardTypes.SECRET, manacost=2,\
+              effect=DealDamage(value=4, trigger=Triggers.ENEMY_MINION_SUMMONED, method=Methods.TRIGGERER, target=Targets.MINION, owner_filter=OwnerFilters.ENEMY))
+
   hunter_cards = []
 
   return hunter_cards
@@ -155,8 +158,12 @@ def get_classic_rare_cards():
   lightwarden = Card(name="Lightwarden", card_type=CardTypes.MINION, manacost=1, attack=1, health=2,\
                      effect=ChangeStats(value=(2,0), trigger=Triggers.ANY_HEALED, method=Methods.SELF, target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY, duration=Durations.PERMANENTLY))
 
+  murloc_tidecaller = Card(name="Murloc Tidecaller", card_type=CardTypes.MINION, creature_type=CreatureTypes.MURLOC, manacost=1, attack=1, health=2,\
+                           effect=ChangeStats(value=(1,0), method=Methods.SELF, trigger=Triggers.FRIENDLY_TYPE_SUMMONED, target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY, duration=Durations.PERMANENTLY))
  
- 
+  secretkeeper = Card(name="Secretkeeper", card_type=CardTypes.MINION, manacost=1, attack=1, health=2,\
+                      effect=ChangeStats(value=(1,1), trigger=Triggers.SECRET_CAST, method=Methods.SELF, target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY, duration=Durations.PERMANENTLY))
+
   # Rare four drops
   defender_of_argus = Card(name="Defender of Argus", card_type=CardTypes.MINION, manacost=4, attack=3, health=3,
                           effect=DuelAction(ChangeStats(value=(1, 1), method=Methods.ADJACENT, target=Targets.MINION,
@@ -165,7 +172,7 @@ def get_classic_rare_cards():
                           owner_filter=OwnerFilters.FRIENDLY, duration=Durations.PERMANENTLY, trigger=Triggers.BATTLECRY)))
 
                     
-  rare_one_drops = [angry_chicken, bloodsail_corsair, lightwarden]
+  rare_one_drops = [angry_chicken, bloodsail_corsair, lightwarden, murloc_tidecaller, secretkeeper]
   rare_four_drops = [defender_of_argus]
 
   return rare_one_drops + rare_four_drops

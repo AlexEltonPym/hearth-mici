@@ -72,7 +72,7 @@ class Game():
     self.draw(self.current_player, 1)
     self.current_player.attacks_this_turn = 0
     self.current_player.used_hero_power = False
-    for minion in self.current_player.board.get_all():
+    for minion in self.current_player.board:
       minion.attacks_this_turn = 0
 
 
@@ -147,6 +147,10 @@ class Game():
     if action.source.effect and action.source.effect.trigger == Triggers.BATTLECRY:
       action.source.effect.resolve_action(self, action)
 
+    self.trigger(action.source, Triggers.MINION_SUMMONED)
+    self.trigger(action.source, Triggers.TYPE_SUMMONED)
+    self.trigger(action.source, Triggers.FRIENDLY_MINION_SUMMONED)
+    self.trigger(action.source, Triggers.FRIENDLY_TYPE_SUMMONED)
 
   def cast_spell(self, action):
     self.current_player.current_mana -= action.source.get_manacost()
@@ -197,14 +201,9 @@ class Game():
       self.trigger(card, Triggers.ANY_MINION_DIES)
       self.trigger(card, Triggers.FRIENDLY_MINION_DIES)
       self.trigger(card, Triggers.ENEMY_MINION_DIES)
-      # for other_card in card.owner.board.get_all():
-      #   if other_card.effect and (other_card.effect.trigger == Triggers.ANY_MINION_DIES or other_card.effect.trigger == Triggers.FRIENDLY_MINION_DIES):
-      #     self.resolve_effect(other_card)
-      # for other_card in card.owner.other_player.board.get_all():
-      #   if other_card.effect and (other_card.effect.trigger == Triggers.ANY_MINION_DIES or other_card.effect.trigger == Triggers.ENEMY_MINION_DIES):
-      #     self.resolve_effect(other_card)
+
           
-  def resolve_effect(self, card):
+  def resolve_effect(self, card, triggerer=None):
     targets = self.get_available_effect_targets(card)
     if len(targets) > 0:
       if card.effect.method == Methods.ALL:
@@ -215,39 +214,71 @@ class Game():
         card.effect.resolve_action(self, Action(Actions.CAST_EFFECT, card, [targets[0]]))
       elif card.effect.method == Methods.SELF:
         card.effect.resolve_action(self, Action(Actions.CAST_EFFECT, card, [card]))
+      elif card.effect.method == Methods.TRIGGERER:
+        card.effect.resolve_action(self, Action(Actions.CAST_EFFECT, card, [triggerer]))
 
   def trigger(self, source, trigger_type):
     for player in [self.player, self.enemy]:
       player_weapon = [player.weapon] if player.weapon else []
       player_board = player.board.get_all()
       for card in player_weapon + player_board:
-        if card.effect and trigger_type == card.effect.trigger:
-          if trigger_type == Triggers.FRIENDLY_MINION_DIES and source.owner == card.owner:
-            self.resolve_effect(card)
-          elif trigger_type == Triggers.ENEMY_MINION_DIES and source.owner != card.owner:
-            self.resolve_effect(card)
-          elif trigger_type == Triggers.ANY_MINION_DIES:
-            self.resolve_effect(card)
-          elif trigger_type == Triggers.FRIENDLY_HEALED and source.owner == card.owner:
-            self.resolve_effect(card)
-          elif trigger_type == Triggers.ENEMY_HEALED and source.owner != card.owner:
-            self.resolve_effect(card)
-          elif trigger_type == Triggers.ANY_HEALED:
-            self.resolve_effect(card)
+        if card.effect and trigger_type == card.effect.trigger and source != card:
+          if "FRIENDLY" in trigger_type.name and source.owner == card.owner:
+            if trigger_type == Triggers.FRIENDLY_MINION_DIES:
+              self.resolve_effect(card, source)
+            elif trigger_type == Triggers.FRIENDLY_HEALED:
+              self.resolve_effect(card, source)
+            elif trigger_type == Triggers.FRIENDLY_MINION_SUMMONED:
+              self.resolve_effect(card, source)
+            elif trigger_type == Triggers.FRIENDLY_TYPE_SUMMONED\
+               and source.creature_type and card.creature_type\
+               and (source.creature_type == CreatureTypes.ALL\
+               or card.creature_type == CreatureTypes.ALL\
+               or source.creature_type == card.creature_type):
+              self.resolve_effect(card)
+
+          elif "ENEMY" in trigger_type.name and source.owner != card.owner:
+            if trigger_type == Triggers.ENEMY_MINION_DIES:
+              self.resolve_effect(card, source)
+            elif trigger_type == Triggers.ENEMY_HEALED:
+              self.resolve_effect(card, source)
+            elif trigger_type == Triggers.ENEMY_MINION_SUMMONED:
+              self.resolve_effect(card, source)
+            elif trigger_type == Triggers.ENEMY_TYPE_SUMMONED\
+               and source.creature_type and card.creature_type\
+               and (source.creature_type == CreatureTypes.ALL\
+               or card.creature_type == CreatureTypes.ALL\
+               or source.creature_type == card.creature_type):
+              self.resolve_effect(card)
+          else:
+            if trigger_type == Triggers.ANY_MINION_DIES:
+              self.resolve_effect(card, source)
+            elif trigger_type == Triggers.ANY_HEALED:
+              self.resolve_effect(card, source)
+            elif trigger_type == Triggers.MINION_SUMMONED:
+              self.resolve_effect(card, source)
+            elif trigger_type == Triggers.TYPE_SUMMONED\
+                and source.creature_type and card.creature_type\
+                and (source.creature_type == CreatureTypes.ALL\
+                or card.creature_type == CreatureTypes.ALL\
+                or source.creature_type == card.creature_type):
+              self.resolve_effect(card, source)
+
+
 
   def get_available_targets(self, card):
     targets = []
-    taunt_targets = list(filter(lambda target: target.has_attribute(Attributes.TAUNT), card.owner.other_player.board.get_all()))
+    taunt_targets = list(filter(lambda target: target.has_attribute(Attributes.TAUNT), card.owner.other_player.board))
     if len(taunt_targets) > 0:
       targets = taunt_targets
     else:
       targets = [card.owner.other_player]
-      targets.extend(list(filter(lambda card: not card.has_attribute(Attributes.STEALTH), card.owner.other_player.board.get_all())))
+      targets.extend(list(filter(lambda card: not card.has_attribute(Attributes.STEALTH), card.owner.other_player.board)))
     return targets
 
   def get_playable_spells_actions(self, player):
     playable_spell_actions = []
-    for card in filter(lambda card: card.get_manacost() <= player.current_mana and card.card_type == CardTypes.SPELL, player.hand.get_all()):
+    for card in filter(lambda card: card.get_manacost() <= player.current_mana and card.card_type == CardTypes.SPELL, player.hand):
       cast_targets = self.get_available_effect_targets(card)
       if card.effect and len(cast_targets) > 0:
         if card.effect.method == Methods.TARGETED:
@@ -258,6 +289,10 @@ class Game():
         elif card.effect.method == Methods.ALL:
           playable_spell_actions.append(Action(Actions.CAST_SPELL, card, cast_targets))
     return playable_spell_actions
+
+  # def get_playable_secret_actions(self, player):
+  #   playable_secret_actions = []
+  #   for card in filter(lambda card: card.get_manacost() <= player.current_mana and card.card_type == CardTypes.SECRET, player.hand)
 
   def get_hero_power_actions(self, player):
     hero_power_actions = []
@@ -298,8 +333,8 @@ class Game():
 
   def draw(self, player, num_to_draw):
     for i in range(num_to_draw):
-      if(len(player.deck.get_all()) > 0):
-        if(len(player.hand.get_all()) < 10):
+      if(len(player.deck) > 0):
+        if(len(player.hand) < player.hand.max_entries):
           self.deck_to_hand(player)
         else:
           self.deck_to_graveyard(player)
@@ -350,7 +385,7 @@ class Game():
 
   def get_minion_attack_actions(self, player):
     minion_attack_options = []
-    for minion in player.board.get_all():
+    for minion in player.board:
       if (minion.attacks_this_turn == 0 \
           or (minion.attacks_this_turn == -1 and minion.has_attribute(Attributes.CHARGE))\
           or (minion.attacks_this_turn == 1 and minion.has_attribute(Attributes.WINDFURY)))\
@@ -374,8 +409,8 @@ class Game():
 
   def get_playable_minion_actions(self, player):
     playable_minion_actions = []
-    if len(player.board.get_all()) < 7:
-      for card in filter(lambda card: card.get_manacost() <= player.current_mana and card.card_type == CardTypes.MINION, player.hand.get_all()):
+    if len(player.board) < player.board.max_entries:
+      for card in filter(lambda card: card.get_manacost() <= player.current_mana and card.card_type == CardTypes.MINION, player.hand):
         if card.effect and card.effect.trigger == Triggers.BATTLECRY:
           battlecry_targets = self.get_available_effect_targets(card)
           if len(battlecry_targets) > 0:
@@ -398,7 +433,7 @@ class Game():
   def get_playable_weapon_actions(self, player):
     playable_weapon_actions = []
     if not player.weapon:
-      for card in filter(lambda card: card.get_manacost() <= player.current_mana and card.card_type == CardTypes.WEAPON, player.hand.get_all()):
+      for card in filter(lambda card: card.get_manacost() <= player.current_mana and card.card_type == CardTypes.WEAPON, player.hand):
         if card.effect and card.effect.trigger == Triggers.BATTLECRY:
           battlecry_targets = self.get_available_effect_targets(card)
           if len(battlecry_targets) > 0:

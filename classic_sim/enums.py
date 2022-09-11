@@ -1,6 +1,5 @@
 from enum import Enum
 
-
 class Attributes(Enum):
   TAUNT = 0
   LIFESTEAL = 1
@@ -23,6 +22,13 @@ class Triggers(Enum):
   ANY_HEALED = 7
   FRIENDLY_HEALED = 8
   ENEMY_HEALED = 9
+  MINION_SUMMONED = 10
+  TYPE_SUMMONED = 11
+  FRIENDLY_MINION_SUMMONED = 12
+  FRIENDLY_TYPE_SUMMONED = 13
+  ENEMY_MINION_SUMMONED = 14
+  ENEMY_TYPE_SUMMONED = 15
+  SECRET_CAST = 16
 
 
 class Actions(Enum):
@@ -33,6 +39,7 @@ class Actions(Enum):
   CAST_WEAPON = 4
   END_TURN = 5
   CAST_EFFECT = 6
+  CAST_SECRET = 7
 
 
 
@@ -57,6 +64,7 @@ class CreatureTypes(Enum):
   ELEMENTAL = 3
   TOTEM = 4
   MECH = 5
+  MURLOC = 6
 
 class Durations(Enum):
   TURN = 0
@@ -69,6 +77,7 @@ class Methods(Enum):
   ALL = 2
   ADJACENT = 3
   SELF = 4
+  TRIGGERER = 5
 
 
 class CardSets(Enum):
@@ -89,6 +98,7 @@ class CardTypes(Enum):
   SPELL = 1
   WEAPON = 2
   HERO_POWER = 3
+  SECRET = 4
 
 
 class ParamTypes(Enum):
