@@ -126,6 +126,8 @@ class Game():
       self.cast_effect(action)
     elif action.action_type == Actions.CAST_WEAPON:
       self.cast_weapon(action)
+    elif action.action_type == Actions.CAST_SECRET:
+      self.cast_secret(action)
     elif action.action_type == Actions.ATTACK:
       self.handle_attack(action)
     elif action.action_type == Actions.CAST_HERO_POWER:
@@ -151,11 +153,17 @@ class Game():
     self.trigger(action.source, Triggers.TYPE_SUMMONED)
     self.trigger(action.source, Triggers.FRIENDLY_MINION_SUMMONED)
     self.trigger(action.source, Triggers.FRIENDLY_TYPE_SUMMONED)
+    self.trigger(action.source, Triggers.ENEMY_MINION_SUMMONED)
+    self.trigger(action.source, Triggers.ENEMY_TYPE_SUMMONED)
 
   def cast_spell(self, action):
     self.current_player.current_mana -= action.source.get_manacost()
     action.source.change_parent(action.source.owner.graveyard)
     action.source.effect.resolve_action(self, action)
+
+  def cast_secret(self, action):
+    self.current_player.current_mana -= action.source.get_manacost()
+    action.source.change_parent(action.source.owner.secrets_zone)
 
   def cast_effect(self, action):
     action.source.effect.resolve_action(self, action)
@@ -220,8 +228,7 @@ class Game():
   def trigger(self, source, trigger_type):
     for player in [self.player, self.enemy]:
       player_weapon = [player.weapon] if player.weapon else []
-      player_board = player.board.get_all()
-      for card in player_weapon + player_board:
+      for card in player_weapon + player.board.get_all() + player.secrets_zone.get_all():
         if card.effect and trigger_type == card.effect.trigger and source != card:
           if "FRIENDLY" in trigger_type.name and source.owner == card.owner:
             if trigger_type == Triggers.FRIENDLY_MINION_DIES:
@@ -236,7 +243,6 @@ class Game():
                or card.creature_type == CreatureTypes.ALL\
                or source.creature_type == card.creature_type):
               self.resolve_effect(card)
-
           elif "ENEMY" in trigger_type.name and source.owner != card.owner:
             if trigger_type == Triggers.ENEMY_MINION_DIES:
               self.resolve_effect(card, source)
@@ -264,7 +270,8 @@ class Game():
                 or source.creature_type == card.creature_type):
               self.resolve_effect(card, source)
 
-
+          if card.card_type == CardTypes.SECRET:
+            card.change_parent(card.owner.graveyard)
 
   def get_available_targets(self, card):
     targets = []
@@ -290,9 +297,12 @@ class Game():
           playable_spell_actions.append(Action(Actions.CAST_SPELL, card, cast_targets))
     return playable_spell_actions
 
-  # def get_playable_secret_actions(self, player):
-  #   playable_secret_actions = []
-  #   for card in filter(lambda card: card.get_manacost() <= player.current_mana and card.card_type == CardTypes.SECRET, player.hand)
+  def get_playable_secret_actions(self, player):
+    playable_secret_actions = []
+    if len(player.secrets_zone) < player.secrets_zone.max_entries:
+      for card in filter(lambda card: card.get_manacost() <= player.current_mana and card.card_type == CardTypes.SECRET, player.hand):
+        playable_secret_actions.append(Action(Actions.CAST_SECRET, card, [player.secrets_zone]))
+    return playable_secret_actions
 
   def get_hero_power_actions(self, player):
     hero_power_actions = []
@@ -317,8 +327,9 @@ class Game():
     available_actions.extend(self.get_playable_minion_actions(player))
     available_actions.extend(self.get_playable_spells_actions(player))
     available_actions.extend(self.get_playable_weapon_actions(player))
+    available_actions.extend(self.get_playable_secret_actions(player))
     available_actions.extend(self.get_hero_power_actions(player))
-    available_actions.append(Action(Actions.END_TURN, player, [player.board]))
+    available_actions.append(Action(Actions.END_TURN, player, [player]))
     return available_actions
 
   def deck_to_hand(self, player):

@@ -34,7 +34,7 @@ class Player():
     self.hand = Hand(self)
     self.board = Board(self)
     self.graveyard = Graveyard(self)
-    self.secret_zone = SecretsZone(self)
+    self.secrets_zone = SecretsZone(self)
     self.other_player = None
     self.game = None
     self.fatigue_damage = 1

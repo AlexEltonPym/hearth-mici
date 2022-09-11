@@ -269,17 +269,17 @@ def test_hexproof():
   game_manager.create_player(Classes.HUNTER, Deck.generate_random, GreedyAction)
   game_manager.create_enemy(Classes.MAGE, Deck.generate_random, GreedyAction)
   game = game_manager.create_game()
+  game.player.hand.clear()
+  game.enemy.hand.clear()
   game.enemy.current_mana = 10
 
   new_faerie = game.game_manager.get_card('Faerie Dragon', game.player.board)
   new_fireball = game.game_manager.get_card('Fireball', game.enemy.hand)
 
   available_actions = game.get_available_actions(game.enemy)
-  available_actions = list(filter(lambda action: action.action_type==Actions.CAST_SPELL or action.action_type==Actions.CAST_HERO_POWER, available_actions))
-  if game.current_player == game.player:
-    assert len(available_actions) == 5 #coin, fireblast self and enemy, fireball self and enemy
-  else:
-    assert len(available_actions) == 4 #no coin
+  available_actions = list(filter(lambda action: (action.action_type==Actions.CAST_SPELL or action.action_type==Actions.CAST_HERO_POWER) and action.targets[0] == new_faerie, available_actions))
+  assert len(available_actions) == 0
+
 
 def test_mad_bomber():
   game = GameManager().create_test_game()
@@ -585,9 +585,17 @@ def test_secretkeeper():
   assert secretkeeper.get_attack() == 1
   assert secretkeeper.get_health() == 2
   assert secretkeeper.get_max_health() == 2
-
-  print(game.current_player.secret_zone)
-  assert False
+  snipe = game.game_manager.get_card('Snipe', game.current_player.hand)
+  assert snipe.card_type == CardTypes.SECRET
+  secret_actions = list(filter(lambda action: action.action_type == Actions.CAST_SECRET, game.get_available_actions(game.current_player)))
+  assert len(secret_actions) == 1
+  game.perform_action(secret_actions[0])
+  assert len(game.current_player.secrets_zone) == 1
+  wisp = game.game_manager.get_card('Wisp', game.current_player.other_player.hand)
+  play_wisp = list(filter(lambda action: action.source == wisp, game.get_available_actions(game.current_player.other_player)))[0]
+  game.perform_action(play_wisp)
+  assert wisp.get_health() == -3
+  assert wisp.parent == wisp.owner.graveyard
 
 
 def test_battlecry_reduce_cost():

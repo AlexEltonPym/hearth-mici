@@ -27,10 +27,12 @@ def get_hero_power(hero_class):
 
 
 def get_hunter_cards():
+  #todo: seperate cast and summon
+  #todo: secrets on enemy turn only?
   snipe = Card(name="Snipe", card_type=CardTypes.SECRET, manacost=2,\
               effect=DealDamage(value=4, trigger=Triggers.ENEMY_MINION_SUMMONED, method=Methods.TRIGGERER, target=Targets.MINION, owner_filter=OwnerFilters.ENEMY))
 
-  hunter_cards = []
+  hunter_cards = [snipe]
 
   return hunter_cards
 
