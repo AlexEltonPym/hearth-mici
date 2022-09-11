@@ -596,7 +596,8 @@ def test_secretkeeper():
   game.perform_action(play_wisp)
   assert wisp.get_health() == -3
   assert wisp.parent == wisp.owner.graveyard
-
+  assert snipe.parent == snipe.owner.graveyard
+  assert len(game.current_player.secrets_zone) == 0
 
 def test_battlecry_reduce_cost():
   game = GameManager().create_test_game()
