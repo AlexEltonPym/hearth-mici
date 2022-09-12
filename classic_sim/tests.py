@@ -13,7 +13,12 @@ from numpy.random import RandomState
 from game_manager import GameManager
 
 def test_classic_pool():
-  commons = get_classic_common_cards()
+  basics = get_basic_cards()
+  commons = get_common_cards()
+  rares = get_rare_cards()
+  mage = get_mage_cards()
+  hunter = get_hunter_cards()
+
   assert len(commons) == 38
 
 def test_coin():
@@ -131,6 +136,28 @@ def test_novice_engineer():
   play_engineer = list(filter(lambda action: action.source == engineer, game.get_available_actions(game.current_player)))[0]
   game.perform_action(play_engineer)
   assert len(game.current_player.hand) == 1
+
+def test_raid_leader():
+  game = GameManager().create_test_game()
+  raid_leader = game.game_manager.get_card('Raid Leader', game.current_player.board)
+  ironfur_grizzly = game.game_manager.get_card('Ironfur Grizzly', game.current_player.board)
+  assert raid_leader.get_attack() == 2
+  assert ironfur_grizzly.get_attack() == 4
+
+def test_shattered_sun_cleric():
+  game = GameManager().create_test_game()
+  dalaran_mage = game.game_manager.get_card('Dalaran Mage', game.current_player.board)
+  assert game.current_player.get_spell_damage() == 1
+  assert dalaran_mage.get_attack() == 1
+  assert dalaran_mage.get_health() == 4
+  assert dalaran_mage.get_max_health() == 4
+  shattered_sun_cleric = game.game_manager.get_card('Shattered Sun Cleric', game.current_player.hand)
+  buff_mage = list(filter(lambda action: action.source == shattered_sun_cleric, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(buff_mage)
+  assert dalaran_mage.get_attack() == 2
+  assert dalaran_mage.get_health() == 5
+  assert dalaran_mage.get_max_health() == 5
+
 
 def test_argent_squire():
   game = GameManager().create_test_game()
@@ -918,10 +945,8 @@ def test_big_games():
   for i in tqdm(range(10)):
     game_results[i] = game.play_game()
     game.reset_game()
-    assert len(game.player.deck) == 30
-    assert len(game.enemy.deck) == 30
-    assert len(game.player.hand) == 0
-    assert len(game.enemy.hand) == 0
+    assert len(game.current_player.deck) + len(game.current_player.hand) == 30
+    assert len(game.current_player.other_player.deck) + len(game.current_player.other_player.hand) == 31
     assert len(game.player.graveyard) == 0
     assert len(game.enemy.graveyard) == 0
     assert game.player.attack == 0

@@ -40,7 +40,7 @@ def get_op_cards():
   op_cards = []
   return op_cards
 
-def get_classic_basic_cards():
+def get_basic_cards():
   # Basic one drops
   elven_archer = Card(name="Elven Archer", card_type=CardTypes.MINION, manacost=1, attack=1, health=1,\
                       effect=DealDamage(value=1, trigger=Triggers.BATTLECRY, method=Methods.TARGETED, owner_filter=OwnerFilters.ALL, target=Targets.MINION_OR_HERO))
@@ -65,13 +65,44 @@ def get_classic_basic_cards():
                          effect=DrawCards(value=1, trigger=Triggers.BATTLECRY, method=Methods.ALL, owner_filter=OwnerFilters.FRIENDLY))
   river_crocolisk = Card(name="River Crocolisk", card_type=CardTypes.MINION, manacost=2, attack=2, health=3, creature_type=CreatureTypes.BEAST)
 
+  # Basic three drops
+  dalaran_mage = Card(name="Dalaran Mage", card_type=CardTypes.MINION, manacost=3, attack=1, health=4, attributes=[Attributes.SPELL_DAMAGE])
+  ironforge_rifleman = Card(name="Ironforge Rifleman", card_type=CardTypes.MINION, manacost=3, attack=2, health=2,\
+                      effect=DealDamage(value=1, trigger=Triggers.BATTLECRY, method=Methods.TARGETED, owner_filter=OwnerFilters.ALL, target=Targets.MINION_OR_HERO))
+  ironfur_grizzly = Card(name="Ironfur Grizzly", card_type=CardTypes.MINION, manacost=3, attack=3, health=3, creature_type=CreatureTypes.BEAST, attributes=[Attributes.TAUNT])
+  magma_rager = Card(name="Magma Rager", card_type=CardTypes.MINION, manacost=3, attack=5, health=1)
+  raid_leader = Card(name="Raid Leader", card_type=CardTypes.MINION, manacost=3, attack=2, health=2,\
+                     effect=ChangeStats(value=(1,0), trigger=Triggers.AURA, method=Methods.ALL, target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY))
+  razorfen_hunter = Card(name="Razorfen Hunter", card_type=CardTypes.MINION, manacost=3, attack=2, health=3,\
+                           effect=SummonToken(trigger=Triggers.BATTLECRY, method=Methods.ALL, owner_filter=OwnerFilters.FRIENDLY,\
+                           value=Card(name="Boar", collectable=False, card_type=CardTypes.MINION, manacost=1, attack=1, health=1, creature_type=CreatureTypes.BEAST)))
+  shattered_sun_cleric = Card(name="Shattered Sun Cleric", card_type=CardTypes.MINION, manacost=3, attack=3, health=2,\
+                              effect=ChangeStats(value=(1,1), trigger=Triggers.BATTLECRY, method=Methods.TARGETED, target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY, duration=Durations.PERMANENTLY))
+  silverback_patriarch = Card(name="Silverback Patriarch", card_type=CardTypes.MINION, manacost=3, attack=1, health=4, creature_type=CreatureTypes.BEAST, attributes=[Attributes.TAUNT])
+  wolfrider = Card(name="Wolfrider", card_type=CardTypes.MINION, manacost=3, attack=3, health=1, attributes=[Attributes.CHARGE])
+
+  # Basic four drops
+  chillwind_yeti = Card(name="Chillwind Yeti", card_type=CardTypes.MINION, manacost=4, attack=4, health=5)
+  dragonling_mechanic = Card(name="Dragonling Mechanic", card_type=CardTypes.MINION, manacost=4, attack=2, health=4,\
+                             effect=SummonToken(trigger=Triggers.BATTLECRY, method=Methods.ALL, owner_filter=OwnerFilters.FRIENDLY,\
+                             value=Card(name="Mechanical Dragonling", collectable=False, card_type=CardTypes.MINION, manacost=1, attack=2, health=1, creature_type=CreatureTypes.MECH)))
+  gnomish_inventor = Card(name="Gnomish Inventor", card_type=CardTypes.MINION, manacost=4, attack=2, health=4,\
+                         effect=DrawCards(value=1, trigger=Triggers.BATTLECRY, method=Methods.ALL, owner_filter=OwnerFilters.FRIENDLY))
+  oasis_snapjaw = Card(name="Oasis Snapjaw", card_type=CardTypes.MINION, manacost=4, attack=2, health=7, creature_type=CreatureTypes.BEAST)
+  ogre_magi = Card(name="Ogre Magi", card_type=CardTypes.MINION, manacost=4, attack=4, health=4, attributes=[Attributes.SPELL_DAMAGE])
+  senjin_shieldmasta = Card(name="Sen'jin Shieldmasta", card_type=CardTypes.MINION, manacost=4, attack=3, health=5, attributes=[Attributes.TAUNT])
+  stormwind_knight = Card(name="Stormwind Knight", card_type=CardTypes.MINION, manacost=4, attack=2, health=5, attributes=[Attributes.CHARGE])
+
+  
+
+
   basic_one_drops = [elven_archer, goldshire_footman, grimscale_oracle, murloc_raider, stonetusk_boar, voodoo_doctor]
   basic_two_drops = [acidic_swamp_ooze, bloodfen_raptor, bluegill_warrior, frostwolf_grunt, kobold_geomancer, murloc_tidehunter, novice_engineer, river_crocolisk]
-  basic_three_drops = []
-  basic_four_drops = []
+  basic_three_drops = [dalaran_mage, ironforge_rifleman, ironfur_grizzly, magma_rager, raid_leader, razorfen_hunter, shattered_sun_cleric, silverback_patriarch, wolfrider]
+  basic_four_drops = [chillwind_yeti, dragonling_mechanic, gnomish_inventor, oasis_snapjaw, ogre_magi, senjin_shieldmasta, stormwind_knight]
   return basic_one_drops + basic_two_drops + basic_three_drops + basic_four_drops
 
-def get_classic_common_cards():
+def get_common_cards():
   # Common one drops
   wisp = Card(name="Wisp", card_type=CardTypes.MINION,
         manacost=0, attack=1, health=1)
@@ -178,7 +209,7 @@ def get_classic_common_cards():
   common_six_drops = [frost_elemental, priestess_of_elune, windfury_harpy]
   return common_one_drops + common_two_drops + common_three_drops + common_four_drops + common_five_drops + common_six_drops
 
-def get_classic_rare_cards():
+def get_rare_cards():
   # Rare one drops
   angry_chicken = Card(name="Angry Chicken", card_type=CardTypes.MINION, manacost=1, attack=1, health=1, creature_type=CreatureTypes.BEAST,\
                        condition=Condition(Condition.damaged, {'temp_attack': 5}))
@@ -248,9 +279,9 @@ def get_random_cards(random_state):
 def build_pool(set_names, random_state):
   pool = []
   if CardSets.CLASSIC_NEUTRAL in set_names:
-    pool.extend(get_classic_basic_cards())
-    pool.extend(get_classic_common_cards())
-    pool.extend(get_classic_rare_cards())
+    pool.extend(get_basic_cards())
+    pool.extend(get_common_cards())
+    pool.extend(get_rare_cards())
   if CardSets.CLASSIC_HUNTER in set_names:
     pool.extend(get_hunter_cards())
   if CardSets.CLASSIC_MAGE in set_names:

@@ -9,12 +9,6 @@ from action import Action
 class Game():
   def __init__(self, game_manager):
     self.game_manager = game_manager
-
-  # def deepcopy(self):
-  #   duplicate = Game(self.game_manager)
-
-
-  #   return duplicate
   
   def setup_players(self):
     self.player = copy.deepcopy(self.game_manager.player)
@@ -49,7 +43,7 @@ class Game():
 
   def reset_game(self):
     for player in [self.player, self.enemy]:
-      all_cards = player.graveyard.get_all() + player.board.get_all() + player.hand.get_all()
+      all_cards = player.secrets_zone.get_all() + player.graveyard.get_all() + player.board.get_all() + player.hand.get_all()
       if player.weapon:
         all_cards.append(player.weapon)
         player.weapon = None
