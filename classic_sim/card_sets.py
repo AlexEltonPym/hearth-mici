@@ -40,6 +40,17 @@ def get_op_cards():
   op_cards = []
   return op_cards
 
+def get_classic_basic_cards():
+  # Baisc one drops
+  elven_archer = Card(name="Elven Archer", card_type=CardTypes.MINION, manacost=1, attack=1, health=1,\
+                      effect=DealDamage(value=1, trigger=Triggers.BATTLECRY, method=Methods.TARGETED, owner_filter=OwnerFilters.ALL, target=Targets.MINION_OR_HERO))
+
+
+  basic_one_drops = [elven_archer]
+  basic_two_drops = []
+  basic_three_drops = []
+  basic_four_drops = []
+  return basic_one_drops + basic_two_drops + basic_three_drops + basic_four_drops
 
 def get_classic_common_cards():
   # Common one drops
@@ -218,6 +229,7 @@ def get_random_cards(random_state):
 def build_pool(set_names, random_state):
   pool = []
   if CardSets.CLASSIC_NEUTRAL in set_names:
+    pool.extend(get_classic_basic_cards())
     pool.extend(get_classic_common_cards())
     pool.extend(get_classic_rare_cards())
   if CardSets.CLASSIC_HUNTER in set_names:

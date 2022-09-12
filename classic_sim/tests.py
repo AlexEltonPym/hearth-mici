@@ -57,6 +57,21 @@ def test_hunter_hero_power():
   game.perform_action(use_hero_power)
   assert game.current_player.other_player.health == 28
 
+def test_elven_archer():
+  game = GameManager().create_test_game()
+  elven_archer = game.game_manager.get_card('Elven Archer', game.current_player.hand)
+  friendly_wisp = game.game_manager.get_card('Wisp', game.current_player.board)
+  enemy_wisp = game.game_manager.get_card('Wisp', game.current_player.other_player.board)
+  cast_elven_archer_actions = list(filter(lambda action: action.source==elven_archer, game.get_available_actions(game.current_player)))
+  assert len(cast_elven_archer_actions) == 4 #self and enemy, both wisps
+  kill_enemy_wisp = list(filter(lambda action: action.source==elven_archer and action.targets[0] == enemy_wisp, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(kill_enemy_wisp)
+  assert enemy_wisp.get_health() == 0
+  assert enemy_wisp.parent == enemy_wisp.owner.graveyard
+  assert friendly_wisp.get_health() == 1
+  assert game.player.get_health() == 30
+  assert game.enemy.get_health() == 30
+
 def test_argent_squire():
   game = GameManager().create_test_game()
   new_squire = game.game_manager.get_card('Argent Squire', game.current_player.other_player.board)
