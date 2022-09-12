@@ -61,6 +61,30 @@ class DealDamage():
     return str((self.method, self.value, self.target, self.owner_filter, self.type_filter, self.trigger))
     
 
+class Destroy():
+  available_methods = [Methods.TARGETED, Methods.RANDOMLY, Methods.ALL, Methods.SELF]
+  param_type = ParamTypes.NONE
+  available_targets = [Targets.MINION, Targets.HERO, Targets.MINION_OR_HERO]
+  available_owner_filters = [f for f in OwnerFilters]
+  available_type_filters = [c for c in CreatureTypes]
+  available_durations = []
+  available_triggers = list(filter(lambda t: t != Triggers.AURA, [t for t in Triggers]))
+
+  def __init__(self, method, target, owner_filter, value=None, random_count=1, trigger=None, type_filter=None, duration=None):
+    self.targets_hand = False
+    self.method = method
+    self.value = value
+    self.random_count = random_count
+    self.target = target
+    self.owner_filter = owner_filter
+    self.type_filter = type_filter
+    self.trigger = trigger
+    self.duration = duration
+
+  def resolve_action(self, game, action):
+    for target in action.targets:
+      game.handle_death(target)
+
 class ChangeStats():
   available_methods = [m for m in Methods]
   param_type = ParamTypes.XY

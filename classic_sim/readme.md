@@ -55,3 +55,6 @@ secrets on enemy turn only?
 frozen skips next attack, does not unfreeze on end turn necessarily
 check dead on swap, set and change stats
 silence should unswap stats that have been swapped
+do some auras need to effect themselves?
+dynamic change stats to replace gain weapon attack
+dynamic set stats to replace swap stats

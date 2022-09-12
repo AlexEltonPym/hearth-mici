@@ -72,6 +72,43 @@ def test_elven_archer():
   assert game.player.get_health() == 30
   assert game.enemy.get_health() == 30
 
+def test_grimscale_oracle():
+  game = GameManager().create_test_game()
+  murloc_tidecaller = game.game_manager.get_card('Murloc Tidecaller', game.current_player.board)
+  assert murloc_tidecaller.get_attack() == 1
+  grimscale_oracle = game.game_manager.get_card('Grimscale Oracle', game.current_player.hand)
+  play_oracle = list(filter(lambda action: action.source == grimscale_oracle, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(play_oracle)
+  assert murloc_tidecaller.get_attack() == 3
+  assert grimscale_oracle.get_attack() == 1
+  murloc_raider = game.game_manager.get_card("Murloc Raider", game.current_player.board)
+  assert murloc_tidecaller.get_attack() == 3 #setting new card to .board does not trigger minion casts
+  assert murloc_raider.get_attack() == 3
+
+def test_stonetusk_boar():
+  game = GameManager().create_test_game()
+  stonetusk_boar = game.game_manager.get_card('Stonetusk Boar', game.current_player.board)
+  assert stonetusk_boar.has_attribute(Attributes.CHARGE)
+  attack_with_boar = list(filter(lambda action: action.source == stonetusk_boar, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(attack_with_boar)
+  assert game.current_player.other_player.get_health() == 29
+  voodoo_doctor = game.game_manager.get_card('Voodoo Doctor', game.current_player.hand)
+  heal_enemy = list(filter(lambda action: action.targets[0] == game.current_player.other_player, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(heal_enemy)
+  assert voodoo_doctor.parent == voodoo_doctor.owner.board
+  assert game.current_player.other_player.get_health() == 30
+
+def test_acidic_swamp_ooze():
+  game = GameManager().create_test_game()
+  acidic_swamp_ooze = game.game_manager.get_card('Acidic Swamp Ooze', game.current_player.hand)
+  generic_weapon = game.game_manager.get_card('Generic Weapon', game.current_player.other_player)
+  assert game.current_player.other_player.weapon
+  play_ooze = list(filter(lambda action: action.source == acidic_swamp_ooze, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(play_ooze)
+  assert not game.current_player.other_player.weapon
+  assert generic_weapon.parent == generic_weapon.owner.graveyard
+
+
 def test_argent_squire():
   game = GameManager().create_test_game()
   new_squire = game.game_manager.get_card('Argent Squire', game.current_player.other_player.board)

@@ -207,14 +207,16 @@ class Game():
 
   def check_dead(self, card):
     if card.get_health() <= 0 and not isinstance(card, Player):
-      card.change_parent(card.owner.graveyard)
-      if card.effect and card.effect.trigger == Triggers.DEATHRATTLE:
-        self.resolve_effect(card)
+      self.handle_death(card)
       
-      self.trigger(card, Triggers.ANY_MINION_DIES)
-      self.trigger(card, Triggers.FRIENDLY_MINION_DIES)
-      self.trigger(card, Triggers.ENEMY_MINION_DIES)
-
+  def handle_death(self, card):
+    card.change_parent(card.owner.graveyard)
+    if card.effect and card.effect.trigger == Triggers.DEATHRATTLE:
+      self.resolve_effect(card)
+    
+    self.trigger(card, Triggers.ANY_MINION_DIES)
+    self.trigger(card, Triggers.FRIENDLY_MINION_DIES)
+    self.trigger(card, Triggers.ENEMY_MINION_DIES)
           
   def resolve_effect(self, card, triggerer=None):
     targets = self.get_available_effect_targets(card)

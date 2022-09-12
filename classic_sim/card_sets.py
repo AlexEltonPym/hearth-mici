@@ -41,13 +41,24 @@ def get_op_cards():
   return op_cards
 
 def get_classic_basic_cards():
-  # Baisc one drops
+  # Basic one drops
   elven_archer = Card(name="Elven Archer", card_type=CardTypes.MINION, manacost=1, attack=1, health=1,\
                       effect=DealDamage(value=1, trigger=Triggers.BATTLECRY, method=Methods.TARGETED, owner_filter=OwnerFilters.ALL, target=Targets.MINION_OR_HERO))
+  goldshire_footman = Card(name="Goldshire Footman", card_type=CardTypes.MINION, manacost=1, attack=1, health=2, attributes=[Attributes.TAUNT])
+  grimscale_oracle = Card(name="Grimscale Oracle", card_type=CardTypes.MINION, creature_type=CreatureTypes.MURLOC, manacost=1, attack=1, health=1,\
+                          effect=ChangeStats(value=(1,0), method=Methods.ALL, trigger=Triggers.AURA, owner_filter=OwnerFilters.ALL, target=Targets.MINION, type_filter=CreatureTypes.MURLOC))
+  murloc_raider = Card(name="Murloc Raider", card_type=CardTypes.MINION, manacost=1, attack=2, health=1, creature_type=CreatureTypes.MURLOC)
+  stonetusk_boar = Card(name="Stonetusk Boar", card_type=CardTypes.MINION, manacost=1, attack=1, health=1, creature_type=CreatureTypes.BEAST, attributes=[Attributes.CHARGE])
+  voodoo_doctor = Card(name="Voodoo Doctor", card_type=CardTypes.MINION, manacost=1, attack=2, health=1,\
+                       effect=RestoreHealth(value=2,trigger=Triggers.BATTLECRY, method=Methods.TARGETED, owner_filter=OwnerFilters.ALL, target=Targets.MINION_OR_HERO))
+  # Basic two drops
+  acidic_swamp_ooze = Card(name="Acidic Swamp Ooze", card_type=CardTypes.MINION, manacost=2, attack=3, health=2,\
+                           effect=Destroy(trigger=Triggers.BATTLECRY, method=Methods.ALL, target=Targets.WEAPON, owner_filter=OwnerFilters.ENEMY))
 
 
-  basic_one_drops = [elven_archer]
-  basic_two_drops = []
+
+  basic_one_drops = [elven_archer, goldshire_footman, grimscale_oracle, murloc_raider, stonetusk_boar, voodoo_doctor]
+  basic_two_drops = [acidic_swamp_ooze]
   basic_three_drops = []
   basic_four_drops = []
   return basic_one_drops + basic_two_drops + basic_three_drops + basic_four_drops

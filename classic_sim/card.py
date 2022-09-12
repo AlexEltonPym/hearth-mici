@@ -92,7 +92,7 @@ class Card():
     board = self.owner.board
     last_index = len(board)-1
     for index, card in enumerate(board):
-      if card.effect and card.effect.trigger == Triggers.AURA and self.matches_card_requirements(card):
+      if card != self and card.effect and card.effect.trigger == Triggers.AURA and self.matches_card_requirements(card):
         adjacent = False
         if self.parent == self.owner.board:
           my_index = self.parent.index_of(self)
