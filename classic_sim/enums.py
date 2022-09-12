@@ -29,6 +29,9 @@ class Triggers(Enum):
   ENEMY_MINION_SUMMONED = 14
   ENEMY_TYPE_SUMMONED = 15
   SECRET_CAST = 16
+  FRIENDLY_END_TURN = 17
+  ENEMY_END_TURN = 18
+  ANY_END_TURN = 19
 
 
 class Actions(Enum):

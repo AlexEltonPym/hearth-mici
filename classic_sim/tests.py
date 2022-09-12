@@ -591,6 +591,9 @@ def test_secretkeeper():
   assert len(secret_actions) == 1
   game.perform_action(secret_actions[0])
   assert len(game.current_player.secrets_zone) == 1
+  assert secretkeeper.get_attack() == 2
+  assert secretkeeper.get_health() == 3
+  assert secretkeeper.get_max_health() == 3
   wisp = game.game_manager.get_card('Wisp', game.current_player.other_player.hand)
   play_wisp = list(filter(lambda action: action.source == wisp, game.get_available_actions(game.current_player.other_player)))[0]
   game.perform_action(play_wisp)
@@ -598,6 +601,48 @@ def test_secretkeeper():
   assert wisp.parent == wisp.owner.graveyard
   assert snipe.parent == snipe.owner.graveyard
   assert len(game.current_player.secrets_zone) == 0
+  assert secretkeeper.get_attack() == 2
+  assert secretkeeper.get_health() == 3
+  assert secretkeeper.get_max_health() == 3
+
+
+def test_young_priestess():
+  game = GameManager().create_test_game()
+  young_priestess = game.game_manager.get_card("Young Priestess", game.current_player.board)
+  assert young_priestess.get_attack() == 2
+  assert young_priestess.get_health() == 1
+  assert young_priestess.get_max_health() == 1
+  game.end_turn()
+  assert young_priestess.get_attack() == 2
+  assert young_priestess.get_health() == 1
+  assert young_priestess.get_max_health() == 1
+  game.untap()
+  game.end_turn()
+  assert young_priestess.get_attack() == 2
+  assert young_priestess.get_health() == 1
+  assert young_priestess.get_max_health() == 1
+  game.untap()
+  wisp = game.game_manager.get_card("Wisp", game.current_player.board)
+  assert wisp.get_attack() == 1
+  assert wisp.get_health() == 1
+  assert wisp.get_max_health() == 1
+  game.end_turn()
+  assert wisp.get_attack() == 1
+  assert wisp.get_health() == 2
+  assert wisp.get_max_health() == 2
+  assert young_priestess.get_attack() == 2
+  assert young_priestess.get_health() == 1
+  assert young_priestess.get_max_health() == 1
+  game.untap()
+  game.end_turn()
+  game.untap()
+  game.end_turn()
+  assert wisp.get_attack() == 1
+  assert wisp.get_health() == 3
+  assert wisp.get_max_health() == 3
+  assert young_priestess.get_attack() == 2
+  assert young_priestess.get_health() == 1
+  assert young_priestess.get_max_health() == 1
 
 def test_battlecry_reduce_cost():
   game = GameManager().create_test_game()

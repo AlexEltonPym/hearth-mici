@@ -92,6 +92,10 @@ class Game():
     return -1
 
   def end_turn(self):
+    self.trigger(self.current_player, Triggers.ANY_END_TURN)
+    self.trigger(self.current_player, Triggers.FRIENDLY_END_TURN)
+    self.trigger(self.current_player, Triggers.ENEMY_END_TURN)
+
     self.current_player.temp_attack = 0
     self.current_player.temp_health = 0
     self.current_player.temp_attributes = []
@@ -164,6 +168,7 @@ class Game():
   def cast_secret(self, action):
     self.current_player.current_mana -= action.source.get_manacost()
     action.source.change_parent(action.source.owner.secrets_zone)
+    self.trigger(action.source, Triggers.SECRET_CAST)
 
   def cast_effect(self, action):
     action.source.effect.resolve_action(self, action)
@@ -243,6 +248,8 @@ class Game():
                or card.creature_type == CreatureTypes.ALL\
                or source.creature_type == card.creature_type):
               self.resolve_effect(card)
+            elif trigger_type == Triggers.FRIENDLY_END_TURN:
+              self.resolve_effect(card, source)
           elif "ENEMY" in trigger_type.name and source.owner != card.owner:
             if trigger_type == Triggers.ENEMY_MINION_DIES:
               self.resolve_effect(card, source)
@@ -256,6 +263,8 @@ class Game():
                or card.creature_type == CreatureTypes.ALL\
                or source.creature_type == card.creature_type):
               self.resolve_effect(card)
+            elif trigger_type == Triggers.ENEMY_END_TURN:
+              self.resolve_effect(card, source)
           else:
             if trigger_type == Triggers.ANY_MINION_DIES:
               self.resolve_effect(card, source)
@@ -268,6 +277,10 @@ class Game():
                 and (source.creature_type == CreatureTypes.ALL\
                 or card.creature_type == CreatureTypes.ALL\
                 or source.creature_type == card.creature_type):
+              self.resolve_effect(card, source)
+            elif trigger_type == Triggers.SECRET_CAST:
+              self.resolve_effect(card,source)
+            elif trigger_type == Triggers.ANY_END_TURN:
               self.resolve_effect(card, source)
 
           if card.card_type == CardTypes.SECRET:
@@ -366,8 +379,6 @@ class Game():
   def get_available_effect_targets(self, card):
     available_targets = []
     player = card.owner
-
-
     player_weapon = [player.weapon] if player.weapon else []
     enemy_weapon = [player.other_player.weapon] if player.other_player.weapon else []
     player_board = player.board.get_all()
@@ -385,8 +396,6 @@ class Game():
       if possible_target.matches_card_requirements(card):
         available_targets.append(possible_target)
     
-    
-
     if card.effect.method != Methods.SELF and card in available_targets:
       available_targets.remove(card)
 

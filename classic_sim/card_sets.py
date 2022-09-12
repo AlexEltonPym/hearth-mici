@@ -27,8 +27,7 @@ def get_hero_power(hero_class):
 
 
 def get_hunter_cards():
-  #todo: seperate cast and summon
-  #todo: secrets on enemy turn only?
+
   snipe = Card(name="Snipe", card_type=CardTypes.SECRET, manacost=2,\
               effect=DealDamage(value=4, trigger=Triggers.ENEMY_MINION_SUMMONED, method=Methods.TRIGGERER, target=Targets.MINION, owner_filter=OwnerFilters.ENEMY))
 
@@ -165,6 +164,8 @@ def get_classic_rare_cards():
  
   secretkeeper = Card(name="Secretkeeper", card_type=CardTypes.MINION, manacost=1, attack=1, health=2,\
                       effect=ChangeStats(value=(1,1), trigger=Triggers.SECRET_CAST, method=Methods.SELF, target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY, duration=Durations.PERMANENTLY))
+  young_priestess = Card(name="Young Priestess", card_type=CardTypes.MINION, manacost=1, attack=2, health=1,\
+                         effect=ChangeStats(value=(0,1), trigger=Triggers.FRIENDLY_END_TURN, method=Methods.RANDOMLY, owner_filter=OwnerFilters.FRIENDLY, target=Targets.MINION, duration=Durations.PERMANENTLY))
 
   # Rare four drops
   defender_of_argus = Card(name="Defender of Argus", card_type=CardTypes.MINION, manacost=4, attack=3, health=3,
@@ -174,7 +175,7 @@ def get_classic_rare_cards():
                           owner_filter=OwnerFilters.FRIENDLY, duration=Durations.PERMANENTLY, trigger=Triggers.BATTLECRY)))
 
                     
-  rare_one_drops = [angry_chicken, bloodsail_corsair, lightwarden, murloc_tidecaller, secretkeeper]
+  rare_one_drops = [angry_chicken, bloodsail_corsair, lightwarden, murloc_tidecaller, secretkeeper, young_priestess]
   rare_four_drops = [defender_of_argus]
 
   return rare_one_drops + rare_four_drops

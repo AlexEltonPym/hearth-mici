@@ -46,3 +46,10 @@ kernprof -l script_to_profile.py
 3. Interpret the created lprof file with:
 python3 -m line_profiler script_to_profile.py.lprof
 
+
+
+#todo:
+
+seperate cast and summon
+secrets on enemy turn only?
+frozen skips next attack, does not unfreeze on end turn necessarily
