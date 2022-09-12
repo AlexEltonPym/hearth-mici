@@ -9,6 +9,7 @@ class Attributes(Enum):
   WINDFURY = 5
   HEXPROOF = 6
   FROZEN = 7
+  DEFENDER = 8
 
 
 class Triggers(Enum):

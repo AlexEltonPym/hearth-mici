@@ -89,6 +89,31 @@ class ChangeStats():
         target.perm_attack += self.value[0]
         target.perm_health += self.value[1]
 
+class SwapStats():
+  available_methods = [m for m in Methods]
+  param_type = ParamTypes.NONE
+  available_targets = [t for t in Targets]
+  available_owner_filters = [f for f in OwnerFilters]
+  available_type_filters = [c for c in CreatureTypes]
+  available_durations = [Durations.PERMANENTLY]
+  available_triggers = [t for t in Triggers]
+  def __init__(self, method, target, owner_filter, value=None, random_count=1, duration=None, trigger=None, type_filter=None):
+    self.targets_hand = False #this could be changeable
+    self.method = method
+    self.value = value
+    self.random_count = random_count
+    self.target = target
+    self.owner_filter = owner_filter
+    self.type_filter = type_filter
+    self.trigger = trigger
+    self.duration = duration
+
+  def resolve_action(self, game, action):
+    for target in action.targets:
+      temp = target.get_attack()
+      target.attack = target.get_health()
+      target.health = temp
+      target.max_health = temp
 
 
 class GainWeaponAttack():

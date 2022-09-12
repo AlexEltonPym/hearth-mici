@@ -409,7 +409,7 @@ class Game():
       if (minion.attacks_this_turn == 0 \
           or (minion.attacks_this_turn == -1 and minion.has_attribute(Attributes.CHARGE))\
           or (minion.attacks_this_turn == 1 and minion.has_attribute(Attributes.WINDFURY)))\
-          and minion.get_attack() > 0 and not minion.has_attribute(Attributes.FROZEN):
+          and minion.get_attack() > 0 and not (minion.has_attribute(Attributes.FROZEN) or minion.has_attribute(Attributes.DEFENDER)):
         for target in self.get_available_targets(minion):
           minion_attack_options.append(Action(Actions.ATTACK, minion, [target]))
 
@@ -418,7 +418,7 @@ class Game():
 
   def get_hero_attack_actions(self, player):
     hero_attack_options = []
-    if (player.get_attack() > 0 and not player.has_attribute(Attributes.FROZEN)\
+    if (player.get_attack() > 0 and not (player.has_attribute(Attributes.FROZEN) or player.has_attribute(Attributes.DEFENDER))\
         or (player.weapon and player.weapon.attack > 0))\
         and (player.attacks_this_turn == 0\
         or (player.attacks_this_turn == 1 and player.has_attribute(Attributes.WINDFURY))):

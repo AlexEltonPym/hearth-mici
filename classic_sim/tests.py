@@ -644,6 +644,47 @@ def test_young_priestess():
   assert young_priestess.get_health() == 1
   assert young_priestess.get_max_health() == 1
 
+def test_ancient_watcher():
+  game = GameManager().create_test_game()
+  ancient_watcher = game.game_manager.get_card("Ancient Watcher", game.current_player.board)
+  assert ancient_watcher.attacks_this_turn == -1
+  assert ancient_watcher.has_attribute(Attributes.DEFENDER)
+  ancient_watcher.attacks_this_turn = 0
+  attack_actions = list(filter(lambda action: action.action_type == Actions.ATTACK, game.get_available_actions(game.current_player)))
+  assert len(attack_actions) == 0
+  new_owl = game.game_manager.get_card('Ironbeak Owl', game.current_player.hand)
+  play_owl = list(filter(lambda action: action.source == new_owl, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(play_owl)
+  assert not ancient_watcher.has_attribute(Attributes.DEFENDER)
+  attack_actions = list(filter(lambda action: action.action_type == Actions.ATTACK, game.get_available_actions(game.current_player)))
+  assert len(attack_actions) == 1
+
+  
+def test_crazed_alchemist():
+  game = GameManager().create_test_game()
+  crazed_alchemist = game.game_manager.get_card("Crazed Alchemist", game.current_player.hand)
+  ancient_watcher = game.game_manager.get_card("Ancient Watcher", game.current_player.board)
+  assert ancient_watcher.has_attribute(Attributes.DEFENDER)
+  assert ancient_watcher.get_attack() == 4
+  assert ancient_watcher.get_health() == 5
+  assert ancient_watcher.get_max_health() == 5
+  game.deal_damage(ancient_watcher, 3)
+  assert ancient_watcher.get_health() == 2
+  assert ancient_watcher.get_max_health() == 5
+  play_alch = list(filter(lambda action: action.source == crazed_alchemist, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(play_alch)
+  assert ancient_watcher.get_attack() == 2
+  assert ancient_watcher.get_health() == 4
+  assert ancient_watcher.get_max_health() == 4
+  new_owl = game.game_manager.get_card('Ironbeak Owl', game.current_player.hand)
+  play_owl = list(filter(lambda action: action.source == new_owl and action.targets[0] == ancient_watcher, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(play_owl)
+  assert not ancient_watcher.has_attribute(Attributes.DEFENDER)
+  assert ancient_watcher.get_attack() == 2
+  assert ancient_watcher.get_health() == 4
+  assert ancient_watcher.get_max_health() == 4
+
+
 def test_battlecry_reduce_cost():
   game = GameManager().create_test_game()
 

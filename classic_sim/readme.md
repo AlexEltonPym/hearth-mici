@@ -53,3 +53,5 @@ python3 -m line_profiler script_to_profile.py.lprof
 seperate cast and summon
 secrets on enemy turn only?
 frozen skips next attack, does not unfreeze on end turn necessarily
+check dead on swap, set and change stats
+silence should unswap stats that have been swapped

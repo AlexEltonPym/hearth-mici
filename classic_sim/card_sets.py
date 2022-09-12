@@ -167,6 +167,11 @@ def get_classic_rare_cards():
   young_priestess = Card(name="Young Priestess", card_type=CardTypes.MINION, manacost=1, attack=2, health=1,\
                          effect=ChangeStats(value=(0,1), trigger=Triggers.FRIENDLY_END_TURN, method=Methods.RANDOMLY, owner_filter=OwnerFilters.FRIENDLY, target=Targets.MINION, duration=Durations.PERMANENTLY))
 
+  # Rare two drops
+  ancient_watcher = Card(name="Ancient Watcher", card_type=CardTypes.MINION, manacost=2, attack=4, health=5, attributes=[Attributes.DEFENDER])
+  crazed_alchemist = Card(name="Crazed Alchemist", card_type=CardTypes.MINION, manacost=2, attack=2, health=2,\
+                          effect=SwapStats(trigger=Triggers.BATTLECRY, method=Methods.TARGETED, owner_filter=OwnerFilters.ALL, target=Targets.MINION))
+
   # Rare four drops
   defender_of_argus = Card(name="Defender of Argus", card_type=CardTypes.MINION, manacost=4, attack=3, health=3,
                           effect=DuelAction(ChangeStats(value=(1, 1), method=Methods.ADJACENT, target=Targets.MINION,
@@ -176,9 +181,12 @@ def get_classic_rare_cards():
 
                     
   rare_one_drops = [angry_chicken, bloodsail_corsair, lightwarden, murloc_tidecaller, secretkeeper, young_priestess]
+  rare_two_drops = [ancient_watcher, crazed_alchemist]
+  rare_three_drops = []
   rare_four_drops = [defender_of_argus]
+  rare_five_drops = []
 
-  return rare_one_drops + rare_four_drops
+  return rare_one_drops + rare_two_drops + rare_three_drops + rare_four_drops + rare_five_drops
 
 def get_mage_cards():
   fireball = Card(name="Fireball", card_type=CardTypes.SPELL, manacost=4, effect=DealDamage(
