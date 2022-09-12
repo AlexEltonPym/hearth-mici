@@ -99,6 +99,15 @@ class Player():
     perm_attributes_has = attribute in self.perm_attributes
     return player_has or weapon_has or temp_attributes_has or perm_attributes_has
 
+  def get_spell_damage(self):
+    spell_damage_bonus = 0
+    for card in self.board:
+      if card.has_attribute(Attributes.SPELL_DAMAGE):
+        spell_damage_bonus += 1
+    if self.has_attribute(Attributes.SPELL_DAMAGE):
+      spell_damage_bonus += 1
+    return spell_damage_bonus
+
   def __str__(self):
     return str((self.name, self.player_class, str(self.health)))
 

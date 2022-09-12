@@ -28,7 +28,6 @@ class GainMana():
         target.current_mana += self.value
         target.max_mana += self.value
 
-
 class DealDamage():
   available_methods = [Methods.TARGETED, Methods.RANDOMLY, Methods.ALL, Methods.SELF]
   param_type = ParamTypes.X
@@ -50,16 +49,9 @@ class DealDamage():
     self.duration = duration
 
   def resolve_action(self, game, action):
+    damage_amount = self.value + (action.source.owner.get_spell_damage() if action.source.card_type == CardTypes.SPELL else 0)
     for target in action.targets:
-      game.deal_damage(target, self.value)
-
-  def __str__(self):
-    return str((self.method, self.value, self.target, self.owner_filter, self.type_filter, self.trigger))
-    
-  
-  def __repr__(self):
-    return str((self.method, self.value, self.target, self.owner_filter, self.type_filter, self.trigger))
-    
+      game.deal_damage(target, damage_amount)
 
 class Destroy():
   available_methods = [Methods.TARGETED, Methods.RANDOMLY, Methods.ALL, Methods.SELF]
@@ -139,7 +131,6 @@ class SwapStats():
       target.health = temp
       target.max_health = temp
 
-
 class GainWeaponAttack():
   available_methods = [Methods.TARGETED, Methods.RANDOMLY, Methods.ALL]
   param_type = ParamTypes.NONE
@@ -166,7 +157,6 @@ class GainWeaponAttack():
     elif self.duration == Durations.PERMANENTLY:
       for target in action.targets:
         action.source.perm_attack += target.get_attack()
-
 
 class DrawCards():
   available_methods = [Methods.TARGETED, Methods.RANDOMLY, Methods.ALL]
@@ -247,7 +237,6 @@ class RestoreHealth():
         game.trigger(target, Triggers.FRIENDLY_HEALED)
         game.trigger(target, Triggers.ENEMY_HEALED)
 
-
 class GiveKeyword():
   available_methods = [m for m in Methods]
   param_type = ParamTypes.KEYWORD
@@ -298,8 +287,9 @@ class SummonToken(): #summon minion for target player
     for target in action.targets:
       new_token = deepcopy(self.value)
       #Doesn't trigger battlecry
-      new_token.set_owner(target)
-      new_token.set_parent(target.board)
+      if len(target.board) < target.board.max_entries:
+        new_token.set_owner(target)
+        new_token.set_parent(target.board)
       
 class Silence():
   available_methods = [Methods.TARGETED, Methods.RANDOMLY, Methods.ALL]
@@ -356,7 +346,6 @@ class ChangeCost():
   def resolve_action(self, game, action):
     for target in action.targets:
       target.manacost += self.value(action.source)
-
 
 class DuelAction():
   def __init__(self, first_effect, second_effect):

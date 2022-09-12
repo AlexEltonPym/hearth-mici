@@ -52,10 +52,10 @@ def test_hunter_hero_power():
   game = GameManager().create_test_game()
 
   assert game.current_player.hero_power.name == get_hero_power(Classes.HUNTER).name
-  assert game.current_player.other_player.health == 30
+  assert game.current_player.other_player.get_health() == 30
   use_hero_power = Action(Actions.CAST_HERO_POWER, game.current_player.hero_power, [game.current_player.other_player])
   game.perform_action(use_hero_power)
-  assert game.current_player.other_player.health == 28
+  assert game.current_player.other_player.get_health() == 28
 
 def test_elven_archer():
   game = GameManager().create_test_game()
@@ -108,6 +108,29 @@ def test_acidic_swamp_ooze():
   assert not game.current_player.other_player.weapon
   assert generic_weapon.parent == generic_weapon.owner.graveyard
 
+def test_kobold_geomancer():
+  game = GameManager().create_test_game()
+  kobold_geomancer = game.game_manager.get_card('Kobold Geomancer', game.current_player.board)
+  fireball = game.game_manager.get_card('Fireball', game.current_player.hand)
+  cast_fireball = list(filter(lambda action: action.source == fireball and action.targets[0] == game.current_player.other_player, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(cast_fireball)
+  assert game.current_player.other_player.get_health() == 23
+
+def test_murloc_tidehunter():
+  game = GameManager().create_test_game()
+  murloc_tidehunter = game.game_manager.get_card('Murloc Tidehunter', game.current_player.hand)
+  play_tidehunter = list(filter(lambda action: action.source == murloc_tidehunter, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(play_tidehunter)
+  assert murloc_tidehunter.parent == murloc_tidehunter.owner.board
+  assert len(game.current_player.board) == 2
+
+def test_novice_engineer():
+  game = GameManager().create_test_game()
+  engineer = game.game_manager.get_card('Novice Engineer', game.current_player.hand)
+  assert len(game.current_player.hand) == 1
+  play_engineer = list(filter(lambda action: action.source == engineer, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(play_engineer)
+  assert len(game.current_player.hand) == 1
 
 def test_argent_squire():
   game = GameManager().create_test_game()

@@ -54,11 +54,19 @@ def get_classic_basic_cards():
   # Basic two drops
   acidic_swamp_ooze = Card(name="Acidic Swamp Ooze", card_type=CardTypes.MINION, manacost=2, attack=3, health=2,\
                            effect=Destroy(trigger=Triggers.BATTLECRY, method=Methods.ALL, target=Targets.WEAPON, owner_filter=OwnerFilters.ENEMY))
-
-
+  bloodfen_raptor = Card(name="Bloodfen Raptor", card_type=CardTypes.MINION, manacost=2, attack=3, health=2, creature_type=CreatureTypes.BEAST)
+  bluegill_warrior = Card(name="Bluegill Warrior", card_type=CardTypes.MINION, manacost=2, attack=2, health=1, creature_type=CreatureTypes.MURLOC, attributes=[Attributes.CHARGE])
+  frostwolf_grunt = Card(name="Frostwolf Grunt", card_type=CardTypes.MINION, manacost=2, attack=2, health=2, attributes=[Attributes.TAUNT])
+  kobold_geomancer = Card(name="Kobold Geomancer", card_type=CardTypes.MINION, manacost=2, attack=2, health=2, attributes=[Attributes.SPELL_DAMAGE])
+  murloc_tidehunter = Card(name="Murloc Tidehunter", card_type=CardTypes.MINION, manacost=2, attack=2, health=1, creature_type=CreatureTypes.MURLOC,\
+                           effect=SummonToken(trigger=Triggers.BATTLECRY, method=Methods.ALL, owner_filter=OwnerFilters.FRIENDLY,\
+                           value=Card(name="Murloc Scout", collectable=False, card_type=CardTypes.MINION, manacost=0, attack=1, health=1, creature_type=CreatureTypes.MURLOC)))
+  novice_engineer = Card(name="Novice Engineer", card_type=CardTypes.MINION, manacost=2, attack=1, health=1,\
+                         effect=DrawCards(value=1, trigger=Triggers.BATTLECRY, method=Methods.ALL, owner_filter=OwnerFilters.FRIENDLY))
+  river_crocolisk = Card(name="River Crocolisk", card_type=CardTypes.MINION, manacost=2, attack=2, health=3, creature_type=CreatureTypes.BEAST)
 
   basic_one_drops = [elven_archer, goldshire_footman, grimscale_oracle, murloc_raider, stonetusk_boar, voodoo_doctor]
-  basic_two_drops = [acidic_swamp_ooze]
+  basic_two_drops = [acidic_swamp_ooze, bloodfen_raptor, bluegill_warrior, frostwolf_grunt, kobold_geomancer, murloc_tidehunter, novice_engineer, river_crocolisk]
   basic_three_drops = []
   basic_four_drops = []
   return basic_one_drops + basic_two_drops + basic_three_drops + basic_four_drops

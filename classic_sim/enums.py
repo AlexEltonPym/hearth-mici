@@ -10,6 +10,7 @@ class Attributes(Enum):
   HEXPROOF = 6
   FROZEN = 7
   DEFENDER = 8
+  SPELL_DAMAGE = 9
 
 
 class Triggers(Enum):
