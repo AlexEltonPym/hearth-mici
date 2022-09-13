@@ -99,11 +99,11 @@ class ChangeStats():
   def resolve_action(self, game, action):
     for target in action.targets:
       if self.duration == Durations.TURN:
-        target.temp_attack += self.value[0]
-        target.temp_health += self.value[1]
+        target.temp_attack += self.value[0](action.source)
+        target.temp_health += self.value[1](action.source)
       elif self.duration == Durations.PERMANENTLY:
-        target.perm_attack += self.value[0]
-        target.perm_health += self.value[1]
+        target.perm_attack += self.value[0](action.source)
+        target.perm_health += self.value[1](action.source)
 
 class SwapStats():
   available_methods = [m for m in Methods]
@@ -130,33 +130,6 @@ class SwapStats():
       target.attack = target.get_health()
       target.health = temp
       target.max_health = temp
-
-class GainWeaponAttack():
-  available_methods = [Methods.TARGETED, Methods.RANDOMLY, Methods.ALL]
-  param_type = ParamTypes.NONE
-  available_targets = [Targets.WEAPON]
-  available_owner_filters = [f for f in OwnerFilters]
-  available_type_filters = []
-  available_durations = [Durations.TURN, Durations.PERMANENTLY]
-  available_triggers = [Triggers.BATTLECRY, Triggers.ANY_MINION_DIES, Triggers.FRIENDLY_MINION_DIES, Triggers.ENEMY_MINION_DIES]
-  def __init__(self, method, owner_filter, duration, random_count=1, value=None, target=Targets.WEAPON, trigger=Triggers.BATTLECRY, type_filter=None):
-    self.targets_hand = False
-    self.method = method
-    self.value = value
-    self.random_count = random_count
-    self.target = target
-    self.owner_filter = owner_filter
-    self.type_filter = type_filter
-    self.trigger = trigger
-    self.duration = duration
-
-  def resolve_action(self, game, action):
-    if self.duration == Durations.TURN:
-      for target in action.targets:
-        action.source.temp_attack += target.get_attack()
-    elif self.duration == Durations.PERMANENTLY:
-      for target in action.targets:
-        action.source.perm_attack += target.get_attack()
 
 class DrawCards():
   available_methods = [Methods.TARGETED, Methods.RANDOMLY, Methods.ALL]

@@ -18,8 +18,9 @@ def test_classic_pool():
   rares = get_rare_cards()
   mage = get_mage_cards()
   hunter = get_hunter_cards()
-
+  print(len(basics + commons + rares + mage + hunter))
   assert len(commons) == 38
+  # assert False
 
 def test_coin():
   game_manager = GameManager()
@@ -157,6 +158,24 @@ def test_shattered_sun_cleric():
   assert dalaran_mage.get_attack() == 2
   assert dalaran_mage.get_health() == 5
   assert dalaran_mage.get_max_health() == 5
+
+def test_darkscale_healer():
+  game = GameManager().create_test_game()
+  darkscale_healer = game.game_manager.get_card('Darkscale Healer', game.current_player.hand)
+  dalaran_mage = game.game_manager.get_card('Dalaran Mage', game.current_player.board)
+  assert dalaran_mage.get_attack() == 1
+  assert dalaran_mage.get_health() == 4
+  assert dalaran_mage.get_max_health() == 4
+  game.deal_damage(dalaran_mage, 1)
+  game.deal_damage(game.current_player, 10)
+  assert dalaran_mage.get_health() == 3
+  assert dalaran_mage.get_max_health() == 4
+  assert game.current_player.get_health() == 20
+  play_healer = list(filter(lambda action: action.source == darkscale_healer, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(play_healer)
+  assert dalaran_mage.get_health() == 4
+  assert dalaran_mage.get_max_health() == 4
+  assert game.current_player.get_health() == 22
 
 
 def test_argent_squire():
@@ -320,7 +339,6 @@ def test_bloodsail():
   cast_weap = list(filter(lambda action: action.action_type == Actions.CAST_WEAPON and action.source == new_weapon, game.get_available_actions(game.current_player)))[0]
   game.perform_action(cast_weap)
   assert game.current_player.weapon == new_weapon
-
   cast_bloodsail = list(filter(lambda action: action.source == new_bloodsail, game.get_available_actions(game.current_player)))[0]
   game.perform_action(cast_bloodsail)
   assert new_bloodsail.parent == new_bloodsail.owner.board

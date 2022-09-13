@@ -394,7 +394,10 @@ class Game():
     
     if card.effect.method != Methods.SELF and card in available_targets:
       available_targets.remove(card)
-
+    
+    if card.effect.method == Methods.SELF:
+      available_targets.append(card)
+    
     return available_targets
 
 
@@ -440,7 +443,7 @@ class Game():
             elif card.effect.target == Targets.MINION and card.effect.method == Methods.ADJACENT:
               adjacent_minions = unique(list(filter(lambda target: target.parent.at_edge(target), battlecry_targets)))
               playable_minion_actions.append(Action(Actions.CAST_MINION, card, adjacent_minions))
-            elif card.effect.target == Methods.SELF:
+            elif card.effect.method == Methods.SELF:
               playable_minion_actions.append(Action(Actions.CAST_MINION, card, [card]))
         else:
           playable_minion_actions.append(Action(Actions.CAST_MINION, card, [player.board]))

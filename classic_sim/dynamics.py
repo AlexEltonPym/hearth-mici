@@ -19,3 +19,15 @@ class Multiply(object):
     self.B = B
   def __call__(self, card):
     return self.A(card) * self.B(card)
+
+class NumFriendlyMinions(object):
+  def __init__(self):
+    pass
+  def __call__(self, card):
+    return len(card.owner.board)
+
+class FriendlyWeaponAttack(object):
+  def __init__(self):
+    pass
+  def __call__(self, card):
+    return card.owner.weapon.get_attack() if card.owner.weapon else 0

@@ -99,15 +99,15 @@ class Card():
           adjacent = card.effect.method == Methods.ADJACENT and (my_index == index-1 or my_index == index+1 or (my_index == 0 and index == last_index) or (my_index == last_index and index == 0))
         if card.effect.method == Methods.ALL or adjacent:
           if isinstance(card.effect, ChangeStats):
-            aura_attack += card.effect.value[0]
-            aura_health += card.effect.value[1]
+            aura_attack += card.effect.value[0](card)
+            aura_health += card.effect.value[1](card)
         
     for card in self.parent.parent.other_player.board:
       if card.effect and card.effect.trigger == Triggers.AURA and self.matches_card_requirements(card):
         if card.effect.method == Methods.ALL:
           if isinstance(card.effect, ChangeStats):
-            aura_attack += card.effect.value[0]
-            aura_health += card.effect.value[1]
+            aura_attack += card.effect.value[0](card)
+            aura_health += card.effect.value[1](card)
 
     return aura_attack, aura_health
 
