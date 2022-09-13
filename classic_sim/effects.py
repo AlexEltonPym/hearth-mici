@@ -23,10 +23,10 @@ class GainMana():
   def resolve_action(self, game, action):
     for target in action.targets:
       if self.duration == Durations.TURN:
-        target.current_mana += self.value
+        target.current_mana += self.value(action.source)
       elif self.duration == Durations.PERMANENTLY:
-        target.current_mana += self.value
-        target.max_mana += self.value
+        target.current_mana += self.value(action.source)
+        target.max_mana += self.value(action.source)
 
 class DealDamage():
   available_methods = [Methods.TARGETED, Methods.RANDOMLY, Methods.ALL, Methods.SELF]
@@ -49,7 +49,7 @@ class DealDamage():
     self.duration = duration
 
   def resolve_action(self, game, action):
-    damage_amount = self.value + (action.source.owner.get_spell_damage() if action.source.card_type == CardTypes.SPELL else 0)
+    damage_amount = self.value(action.source) + (action.source.owner.get_spell_damage() if action.source.card_type == CardTypes.SPELL else 0)
     for target in action.targets:
       game.deal_damage(target, damage_amount)
 
@@ -153,7 +153,7 @@ class DrawCards():
 
   def resolve_action(self, game, action):
     for target in action.targets:
-      game.draw(target, self.value)
+      game.draw(target, self.value(action.source))
 
 class ReturnToHand():
   available_methods = [Methods.TARGETED, Methods.RANDOMLY, Methods.ALL]
@@ -203,7 +203,7 @@ class RestoreHealth():
   def resolve_action(self, game, action):
     for target in action.targets:
       max_healing = target.get_max_health() - target.get_health()
-      healing = min(self.value, max_healing)
+      healing = min(self.value(action.source), max_healing)
       target.health += healing
       if healing > 0:
         game.trigger(target, Triggers.ANY_HEALED)

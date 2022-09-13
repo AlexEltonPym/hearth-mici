@@ -344,6 +344,57 @@ def test_bloodsail():
   assert new_bloodsail.parent == new_bloodsail.owner.board
   assert new_bloodsail.get_attack() == 5
 
+def test_frostwolf_warlord():
+  game = GameManager().create_test_game()
+
+  frostwolf_warlord = game.game_manager.get_card('Frostwolf Warlord', game.current_player.hand)
+  wisp_1 = game.game_manager.get_card('Wisp', game.current_player.board)
+  wisp_2 = game.game_manager.get_card('Wisp', game.current_player.board)
+  wisp_3 = game.game_manager.get_card('Wisp', game.current_player.board)
+  enemy_wisp = game.game_manager.get_card('Wisp', game.current_player.other_player.board)
+
+  play_frostwolf = list(filter(lambda action: action.source == frostwolf_warlord, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(play_frostwolf)
+  assert frostwolf_warlord.get_attack() == 7
+  assert frostwolf_warlord.get_health() == 7
+  assert frostwolf_warlord.get_max_health() == 7
+
+def test_gurubashi_berserker():
+  game = GameManager().create_test_game()
+  gurubashi_berserker = game.game_manager.get_card('Gurubashi Berserker', game.current_player.board)
+  assert gurubashi_berserker.get_attack() == 2
+  assert gurubashi_berserker.get_health() == 7
+  assert gurubashi_berserker.get_max_health() == 7
+  game.deal_damage(gurubashi_berserker, 1)
+  assert gurubashi_berserker.get_attack() == 5
+  assert gurubashi_berserker.get_health() == 6
+  assert gurubashi_berserker.get_max_health() == 7
+  game.deal_damage(game.current_player, 1)
+  assert gurubashi_berserker.get_attack() == 5
+  assert gurubashi_berserker.get_health() == 6
+  assert gurubashi_berserker.get_max_health() == 7
+  game.deal_damage(gurubashi_berserker, 2)
+  assert gurubashi_berserker.get_attack() == 8
+  assert gurubashi_berserker.get_health() == 4
+  assert gurubashi_berserker.get_max_health() == 7
+
+def test_nightblade():
+  game = GameManager().create_test_game()
+
+  nightblade = game.game_manager.get_card('Nightblade',game.current_player.hand)
+  assert game.current_player.other_player.get_health() == 30
+  play_nightblade = list(filter(lambda action: action.source == nightblade, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(play_nightblade)
+  assert game.current_player.other_player.get_health() == 27
+
+def test_stormpike_commando():
+  game = GameManager().create_test_game()
+  stormpike_commando = game.game_manager.get_card('Stormpike Commando',game.current_player.hand)
+  friendly_wisp = game.game_manager.get_card('Wisp',game.current_player.board)
+  enemy_wisp = game.game_manager.get_card('Wisp',game.current_player.other_player.board)
+  cast_commando_actions = list(filter(lambda action: action.source == stormpike_commando, game.get_available_actions(game.current_player)))
+  assert len(cast_commando_actions) == 4
+
 def test_direwolf():
   game = GameManager().create_test_game()
 

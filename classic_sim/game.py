@@ -195,9 +195,10 @@ class Game():
   def deal_damage(self, target, amount):
     if Attributes.DIVINE_SHIELD in target.attributes:
       target.attributes.remove(Attributes.DIVINE_SHIELD)
-    else:
+    elif amount > 0:
       target.health -= amount
       self.check_dead(target)
+      self.trigger(target, Triggers.SELF_DAMAGE_TAKEN)
 
   def check_dead(self, card):
     if card.get_health() <= 0 and not isinstance(card, Player):
@@ -227,9 +228,14 @@ class Game():
         card.effect.resolve_action(self, Action(Actions.CAST_EFFECT, card, [triggerer]))
 
   def trigger(self, source, trigger_type):
+    print(f"{source=}")
+    print(f"{trigger_type=}")
+
     for player in [self.player, self.enemy]:
       player_weapon = [player.weapon] if player.weapon else []
       for card in player_weapon + player.board.get_all() + player.secrets_zone.get_all():
+        print(f"{card=}")
+        print(source==card)
         if card.effect and trigger_type == card.effect.trigger and source != card:
           if "FRIENDLY" in trigger_type.name and source.owner == card.owner:
             if trigger_type == Triggers.FRIENDLY_MINION_DIES:
@@ -278,9 +284,12 @@ class Game():
               self.resolve_effect(card,source)
             elif trigger_type == Triggers.ANY_END_TURN:
               self.resolve_effect(card, source)
-
           if card.card_type == CardTypes.SECRET:
             card.change_parent(card.owner.graveyard)
+        elif card.effect and trigger_type == card.effect.trigger and source == card:
+          if trigger_type == Triggers.SELF_DAMAGE_TAKEN:
+            self.resolve_effect(card, source)
+
 
   def get_available_targets(self, card):
     targets = []

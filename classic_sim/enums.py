@@ -34,7 +34,7 @@ class Triggers(Enum):
   FRIENDLY_END_TURN = 17
   ENEMY_END_TURN = 18
   ANY_END_TURN = 19
-
+  SELF_DAMAGE_TAKEN = 20
 
 class Actions(Enum):
   ATTACK = 0

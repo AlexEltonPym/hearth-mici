@@ -60,3 +60,5 @@ dynamic change stats to replace gain weapon attack
 dynamic set stats to replace swap stats
 spell damage from weapon and player?
 use all instead of targeted to prevent stealth/hexproof issues
+test self targeting secrets?
+expand dynamics
