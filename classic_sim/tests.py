@@ -19,8 +19,10 @@ def test_classic_pool():
   mage = get_mage_cards()
   hunter = get_hunter_cards()
   print(len(basics + commons + rares + mage + hunter))
-  assert len(commons) == 38
-  # assert False
+  assert len(basics) == 43
+  assert len(commons) == 40
+
+  assert True
 
 def test_coin():
   game_manager = GameManager()
@@ -395,6 +397,22 @@ def test_stormpike_commando():
   cast_commando_actions = list(filter(lambda action: action.source == stormpike_commando, game.get_available_actions(game.current_player)))
   assert len(cast_commando_actions) == 4
 
+def test_stormwind_champion():
+  game = GameManager().create_test_game()
+  stormwind_champion = game.game_manager.get_card('Stormwind Champion',game.current_player.board)
+  friendly_wisp = game.game_manager.get_card('Wisp',game.current_player.board)
+  enemy_wisp = game.game_manager.get_card('Wisp',game.current_player.other_player.board)
+
+  assert stormwind_champion.get_attack() == 6
+  assert stormwind_champion.get_health() == 6
+  assert stormwind_champion.get_max_health() == 6
+  assert friendly_wisp.get_attack() == 2
+  assert friendly_wisp.get_health() == 2
+  assert friendly_wisp.get_max_health() == 2 
+  assert enemy_wisp.get_attack() == 1
+  assert enemy_wisp.get_health() == 1
+  assert enemy_wisp.get_max_health() == 1
+
 def test_direwolf():
   game = GameManager().create_test_game()
 
@@ -466,6 +484,18 @@ def test_mad_bomber():
   enemy_damage = game.current_player.other_player.get_max_health()-game.current_player.other_player.get_health()
   assert wisp_damage + player_damage + enemy_damage == 3
 
+def test_acolyte_of_pain():
+  game = GameManager().create_test_game()
+  acolyte_of_pain = game.game_manager.get_card('Acolyte of Pain', game.current_player.board)
+  assert len(game.current_player.hand) == 0
+  game.deal_damage(acolyte_of_pain, 1)
+  assert len(game.current_player.hand) == 1
+  game.deal_damage(acolyte_of_pain, 1)
+  assert len(game.current_player.hand) == 2
+  game.deal_damage(acolyte_of_pain, 1)
+  assert len(game.current_player.hand) == 3
+  assert acolyte_of_pain.parent == acolyte_of_pain.owner.graveyard
+
 def test_farseer():
   game = GameManager().create_test_game()
 
@@ -511,15 +541,15 @@ def test_ghoul():
   new_wisp = game.game_manager.get_card('Wisp', game.current_player.board)
   enemy_wisp = game.game_manager.get_card('Wisp', game.current_player.other_player.board)
 
-  assert new_ghoul.get_attack() == 3
+  assert new_ghoul.get_attack() == 2
   game.deal_damage(new_wisp, 1)
-  assert new_ghoul.get_attack() == 4
+  assert new_ghoul.get_attack() == 3
   game.deal_damage(enemy_wisp, 1)
-  assert new_ghoul.get_attack() == 5
+  assert new_ghoul.get_attack() == 4
   assert new_ghoul.get_health() == 3
   game.deal_damage(new_ghoul, 3)
   assert new_ghoul.parent == new_ghoul.owner.graveyard
-  assert new_ghoul.get_attack() == 5
+  assert new_ghoul.get_attack() == 4
 
 def test_golem():
   game = GameManager().create_test_game()
@@ -667,6 +697,8 @@ def test_angry_chicken():
   assert chicken.get_attack() == 1
   cast_defender = list(filter(lambda action: action.source == defender, game.get_available_actions(game.current_player)))[0]
   game.perform_action(cast_defender)
+  assert defender.get_attack() == 2
+  assert defender.get_health() == 3
   assert chicken.get_max_health() == 2
   assert chicken.get_health() == 2
   assert chicken.get_attack() == 2

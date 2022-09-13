@@ -70,6 +70,7 @@ class CreatureTypes(Enum):
   TOTEM = 4
   MECH = 5
   MURLOC = 6
+  DRAGON = 7
 
 class Durations(Enum):
   TURN = 0

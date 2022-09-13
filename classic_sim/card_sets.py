@@ -106,6 +106,17 @@ def get_basic_cards():
   stormpike_commando = Card(name="Stormpike Commando", card_type=CardTypes.MINION, manacost=5, attack=4, health=2,\
                             effect=DealDamage(value=Constant(2), trigger=Triggers.BATTLECRY, method=Methods.TARGETED, target=Targets.MINION_OR_HERO, owner_filter=OwnerFilters.ALL))
 
+  # Basic six drops
+  archmage = Card(name="Archmage", card_type=CardTypes.MINION, manacost=6, attack=4, health=7, attributes=[Attributes.SPELL_DAMAGE])
+  boulderfist_ogre = Card(name="Boulderfist Ogre", card_type=CardTypes.MINION, manacost=6, attack=6, health=7)
+  lord_of_the_arena = Card(name="Lord of the Arena", card_type=CardTypes.MINION, manacost=6, attack=6, health=5, attributes=[Attributes.TAUNT])
+  reckless_rocketeer = Card(name="Reckless Rocketeer", card_type=CardTypes.MINION, manacost=6, attack=5, health=2, attributes=[Attributes.CHARGE])
+
+  #Basic seven drops
+  core_hound = Card(name="Core Hound", card_type=CardTypes.MINION, creature_type=CreatureTypes.BEAST, manacost=7, attack=9, health=5)
+  stormwind_champion = Card(name="Stormwind Champion", card_type=CardTypes.MINION, manacost=7, attack=6, health=6,\
+                            effect=ChangeStats(value=(Constant(1), Constant(1)), trigger=Triggers.AURA, method=Methods.ALL, target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY))
+  war_golem = Card(name="War Golem", card_type=CardTypes.MINION, manacost=7, attack=7, health=7)
 
 
   basic_one_drops = [elven_archer, goldshire_footman, grimscale_oracle, murloc_raider, stonetusk_boar, voodoo_doctor]
@@ -113,7 +124,9 @@ def get_basic_cards():
   basic_three_drops = [dalaran_mage, ironforge_rifleman, ironfur_grizzly, magma_rager, raid_leader, razorfen_hunter, shattered_sun_cleric, silverback_patriarch, wolfrider]
   basic_four_drops = [chillwind_yeti, dragonling_mechanic, gnomish_inventor, oasis_snapjaw, ogre_magi, senjin_shieldmasta, stormwind_knight]
   basic_five_drops = [booty_bay_bodyguard, darkscale_healer, frostwolf_warlord, gurubashi_berserker, nightblade, stormpike_commando]
-  return basic_one_drops + basic_two_drops + basic_three_drops + basic_four_drops + basic_five_drops
+  basic_six_drops = [archmage, boulderfist_ogre, lord_of_the_arena, reckless_rocketeer]
+  basic_seven_drops = [core_hound, stormwind_champion, war_golem]
+  return basic_one_drops + basic_two_drops + basic_three_drops + basic_four_drops + basic_five_drops + basic_six_drops + basic_seven_drops
 
 def get_common_cards():
   # Common one drops
@@ -145,8 +158,10 @@ def get_common_cards():
       
   dire_wolf_alpha = Card(name="Dire Wolf Alpha", card_type=CardTypes.MINION, manacost=2, attack=2, health=2, effect=ChangeStats(value=(Constant(1), Constant(0)), trigger=Triggers.AURA, method=Methods.ADJACENT,
                target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY, type_filter=CreatureTypes.ALL))  # gives all minions +1 including self, nerf attack by 1, mana by 1?
-  faerie_dragon = Card(name="Faerie Dragon", card_type=CardTypes.MINION,
+  faerie_dragon = Card(name="Faerie Dragon", card_type=CardTypes.MINION, creature_type=CreatureTypes.DRAGON,\
              manacost=2, attack=3, health=2, attributes=[Attributes.HEXPROOF])
+  ironbeak_owl = Card(name="Ironbeak Owl", card_type=CardTypes.MINION, creature_type=CreatureTypes.BEAST, manacost=2, attack=2, health=1,
+            effect=Silence(method=Methods.TARGETED, owner_filter=OwnerFilters.ALL, target=Targets.MINION, trigger=Triggers.BATTLECRY))
   loot_hoarder = Card(name="Loot Hoarder", card_type=CardTypes.MINION, manacost=2, attack=2, health=1,
             effect=DrawCards(value=Constant(1), method=Methods.ALL, owner_filter=OwnerFilters.FRIENDLY, trigger=Triggers.DEATHRATTLE))
   mad_bomber = Card(name="Mad Bomber", card_type=CardTypes.MINION, manacost=2, attack=3, health=2,
@@ -156,15 +171,15 @@ def get_common_cards():
                  effect=ReturnToHand(method=Methods.TARGETED, target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY, trigger=Triggers.BATTLECRY))
 
   # Common three drops
+  acolyte_of_pain = Card(name="Acolyte of Pain", card_type=CardTypes.MINION, manacost=3, attack=1, health=3,\
+                             effect=DrawCards(value=Constant(1), trigger=Triggers.SELF_DAMAGE_TAKEN, method=Methods.ALL, owner_filter=OwnerFilters.FRIENDLY))
   earthen_ring_farseer = Card(name="Earthen Ring Farseer", card_type=CardTypes.MINION, manacost=3, attack=3, health=3,
                 effect=RestoreHealth(value=Constant(3), method=Methods.TARGETED, target=Targets.MINION_OR_HERO, owner_filter=OwnerFilters.ALL, trigger=Triggers.BATTLECRY))
-  flesheating_ghoul = Card(name="Flesheating Ghoul", card_type=CardTypes.MINION, manacost=3, attack=3, health=3,
+  flesheating_ghoul = Card(name="Flesheating Ghoul", card_type=CardTypes.MINION, manacost=3, attack=2, health=3,
                effect=ChangeStats(value=(Constant(1), Constant(0)), method=Methods.SELF, target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY, duration=Durations.PERMANENTLY, trigger=Triggers.ANY_MINION_DIES))
   harvest_golem = Card(name="Harvest Golem", card_type=CardTypes.MINION, creature_type=CreatureTypes.MECH, manacost=3, attack=2, health=3,
              effect=SummonToken(value=Card(name="Damaged Golem", collectable=False, card_type=CardTypes.MINION, creature_type=CreatureTypes.MECH, manacost=1, attack=2, health=1),
                       method=Methods.TARGETED, owner_filter=OwnerFilters.FRIENDLY, trigger=Triggers.DEATHRATTLE))
-  ironbeak_owl = Card(name="Ironbeak Owl", card_type=CardTypes.MINION, creature_type=CreatureTypes.BEAST, manacost=3, attack=2, health=1,
-            effect=Silence(method=Methods.TARGETED, owner_filter=OwnerFilters.ALL, target=Targets.MINION, trigger=Triggers.BATTLECRY))
   jungle_panther = Card(name="Jungle Panther", card_type=CardTypes.MINION,
               creature_type=CreatureTypes.BEAST, manacost=3, attack=4, health=2, attributes=[Attributes.STEALTH])
   raging_worgen = Card(name="Raging Worgen", card_type=CardTypes.MINION, manacost=3, attack=3, health=3, condition=Condition(
@@ -189,7 +204,9 @@ def get_common_cards():
                manacost=4, attack=1, health=7, attributes=[Attributes.TAUNT])
   silvermoon_guardian = Card(name="Silvermoon Guardian", card_type=CardTypes.MINION,
                  manacost=4, attack=3, health=3, attributes=[Attributes.DIVINE_SHIELD])
-
+  spellbreaker = Card(name="Spellbreaker", card_type=CardTypes.MINION, manacost=4, attack=4, health=3,
+            effect=Silence(method=Methods.TARGETED, owner_filter=OwnerFilters.ALL, target=Targets.MINION, trigger=Triggers.BATTLECRY))
+  
   # Common five drops
   fen_creeper = Card(name="Fen Creeper", card_type=CardTypes.MINION,
              manacost=5, attack=3, health=6, attributes=[Attributes.TAUNT])
@@ -214,11 +231,11 @@ def get_common_cards():
   common_one_drops = [wisp, abusive_sergeant, argent_squire, leper_gnome,
             shieldbearer, southsea_deckhand, worgen_infiltrator, young_dragonhawk]
   common_two_drops = [amani_berserker, bloodsail_raider, dire_wolf_alpha,
-            faerie_dragon, loot_hoarder, mad_bomber, youthful_brewmaster]
-  common_three_drops = [earthen_ring_farseer, flesheating_ghoul, harvest_golem, ironbeak_owl,
+            faerie_dragon, ironbeak_owl, loot_hoarder, mad_bomber, youthful_brewmaster]
+  common_three_drops = [acolyte_of_pain, earthen_ring_farseer, flesheating_ghoul, harvest_golem,
               jungle_panther, raging_worgen, scarlet_crusader, tauren_warrior, thrallmar_farseer]
   common_four_drops = [ancient_brewmaster, cult_master, dark_iron_dwarf,
-             dread_corsair, mogushan_warden, silvermoon_guardian]
+             dread_corsair, mogushan_warden, silvermoon_guardian, spellbreaker]
   common_five_drops = [fen_creeper, silver_hand_knight, spiteful_smith, stranglethorn_tiger, venture_co_mercenary]
   common_six_drops = [frost_elemental, priestess_of_elune, windfury_harpy]
   return common_one_drops + common_two_drops + common_three_drops + common_four_drops + common_five_drops + common_six_drops
@@ -248,7 +265,7 @@ def get_rare_cards():
                           effect=SwapStats(trigger=Triggers.BATTLECRY, method=Methods.TARGETED, owner_filter=OwnerFilters.ALL, target=Targets.MINION))
 
   # Rare four drops
-  defender_of_argus = Card(name="Defender of Argus", card_type=CardTypes.MINION, manacost=4, attack=3, health=3,
+  defender_of_argus = Card(name="Defender of Argus", card_type=CardTypes.MINION, manacost=4, attack=2, health=3,
                           effect=DuelAction(ChangeStats(value=(Constant(1),Constant(1)), method=Methods.ADJACENT, target=Targets.MINION,
                           owner_filter=OwnerFilters.FRIENDLY, duration=Durations.PERMANENTLY, trigger=Triggers.BATTLECRY),
                           GiveKeyword(value=Attributes.TAUNT, method=Methods.ADJACENT, target=Targets.MINION,
