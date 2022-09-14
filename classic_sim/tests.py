@@ -1103,6 +1103,36 @@ def test_questing_adventurer():
   assert questing_adventurer.get_health() == 4
   assert questing_adventurer.get_max_health() == 4
 
+def test_ancient_mage():
+  game = GameManager().create_test_game()
+  ancient_mage = game.game_manager.get_card("Ancient Mage", game.current_player.hand)
+  wisp = game.game_manager.get_card('Wisp', game.current_player.board)
+  second_wisp = game.game_manager.get_card('Wisp', game.current_player.board)
+  third_wisp = game.game_manager.get_card('Wisp', game.current_player.board)
+  play_mage = list(filter(lambda action: action.source == ancient_mage, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(play_mage)
+  assert game.current_player.get_spell_damage() == 2
+
+def test_twilight_drake():
+  game = GameManager().create_test_game()
+  twilight_drake = game.game_manager.get_card("Twilight Drake", game.current_player.hand)
+  for i in range(5):
+    game.game_manager.get_card("Wisp", game.current_player.hand)
+  assert len(game.current_player.hand) == 6
+  play_drake = list(filter(lambda action: action.source == twilight_drake, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(play_drake)
+  assert twilight_drake.get_health() == 6
+  assert twilight_drake.get_max_health() == 6
+
+def test_violet_teacher():
+  game = GameManager().create_test_game()
+  violet_teacher = game.game_manager.get_card("Violet Teacher", game.current_player.board)
+  assert len(game.current_player.board) == 1
+  fireball = game.game_manager.get_card('Fireball', game.current_player.hand)
+  cast_fireball = list(filter(lambda action: action.source == fireball and action.targets[0] == game.current_player.other_player, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(cast_fireball)
+  assert len(game.current_player.board) == 2
+  
 
 def test_battlecry_reduce_cost():
   game = GameManager().create_test_game()

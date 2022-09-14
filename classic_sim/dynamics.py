@@ -1,4 +1,4 @@
-
+## Operators
 
 class Constant(object):
   def __init__(self, constant):
@@ -31,6 +31,9 @@ class Equals(object):
   def __call__(self, card):
     return self.A(card) == self.B(card)
 
+
+## Dynamic values
+
 class NumOtherFriendlyMinions(object):
   def __init__(self):
     pass
@@ -43,9 +46,14 @@ class FriendlyWeaponAttack(object):
   def __call__(self, card):
     return card.owner.weapon.get_attack() if card.owner.weapon else 0
 
-
 class MinionsPlayed(object):
   def __init__(self):
     pass
   def __call__(self, card):
     return card.owner.minions_played_this_turn
+
+class NumCardsInHand(object):
+  def __init__(self):
+    pass
+  def __call__(self, card):
+    return len(card.owner.hand)

@@ -303,17 +303,23 @@ def get_rare_cards():
                              effect=ChangeStats(value=(Constant(1), Constant(1)), trigger=Triggers.FRIENDLY_CARD_PLAYED, method=Methods.SELF, target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY, duration=Durations.PERMANENTLY))
 
   # Rare four drops
+  ancient_mage = Card(name="Ancient Mage", card_type=CardTypes.MINION, manacost=4, attack=2, health=5,\
+                      effect=GiveKeyword(value=Attributes.SPELL_DAMAGE, method=Methods.ADJACENT, trigger=Triggers.BATTLECRY, target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY, duration=Durations.PERMANENTLY))
   defender_of_argus = Card(name="Defender of Argus", card_type=CardTypes.MINION, manacost=4, attack=2, health=3,
                           effect=DuelAction(ChangeStats(value=(Constant(1),Constant(1)), method=Methods.ADJACENT, target=Targets.MINION,
                           owner_filter=OwnerFilters.FRIENDLY, duration=Durations.PERMANENTLY, trigger=Triggers.BATTLECRY),
                           GiveKeyword(value=Attributes.TAUNT, method=Methods.ADJACENT, target=Targets.MINION,
                           owner_filter=OwnerFilters.FRIENDLY, duration=Durations.PERMANENTLY, trigger=Triggers.BATTLECRY)))
+  twilight_drake = Card(name="Twilight Drake", card_type=CardTypes.MINION, manacost=4, attack=4, health=1, creature_type=CreatureTypes.DRAGON,\
+                        effect=ChangeStats(value=(Constant(0), NumCardsInHand()), method=Methods.SELF, trigger=Triggers.BATTLECRY, target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY, duration=Durations.PERMANENTLY))
+  violet_teacher = Card(name="Violet Teacher", card_type=CardTypes.MINION, manacost=4, attack=3, health=5,\
+                       effect=SummonToken(value=Card(name="Violet Apprentice", collectable=False, card_type=CardTypes.MINION, manacost=0, attack=1, health=1),\
+                                          trigger=Triggers.FRIENDLY_SPELL_CAST, method=Methods.ALL, owner_filter=OwnerFilters.FRIENDLY))
 
-                    
   rare_one_drops = [angry_chicken, bloodsail_corsair, lightwarden, murloc_tidecaller, secretkeeper, young_priestess]
   rare_two_drops = [ancient_watcher, crazed_alchemist, knife_juggler, mana_addict, mana_wraith, master_swordsmith, pint_sized_summoner, sunfury_protector, wild_pyromancer]
   rare_three_drops = [alarm_o_bot, arcane_golem, coldlight_oracle, coldlight_seer, demolisher, emperor_cobra, imp_master, injured_blademaster, mind_control_tech, questing_adventurer]
-  rare_four_drops = [defender_of_argus]
+  rare_four_drops = [ancient_mage, defender_of_argus, twilight_drake, violet_teacher]
   rare_five_drops = []
 
   return rare_one_drops + rare_two_drops + rare_three_drops + rare_four_drops + rare_five_drops

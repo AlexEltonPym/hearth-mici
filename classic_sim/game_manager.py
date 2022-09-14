@@ -73,7 +73,7 @@ class GameManager():
 
     if parralel == 1:
       if not silent:
-        print(f"Running {num_games} on single core")
+        print(f"Running {num_games} games on single core")
       game_results = self.run_games(num_games, silent)
     else:
       num_processors = multiprocessing.cpu_count() if parralel == -1 else parralel

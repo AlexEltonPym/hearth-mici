@@ -61,8 +61,6 @@ class Player():
     self.max_mana = 0
     self.minions_played_this_turn = 0
 
-
-
   def remove(self, card):
     if self.weapon == card:
       self.weapon = None

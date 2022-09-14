@@ -11,7 +11,7 @@ def main():
   game_manager.create_player(Classes.HUNTER, Deck.generate_random, GreedyAction)
   game_manager.create_enemy(Classes.MAGE, Deck.generate_random, GreedyAction)
 
-  result = game_manager.simulate(NUM_GAMES, parralel=-1)
+  result = game_manager.simulate(NUM_GAMES, parralel=1)
   assert result > 0 and result < 1
   print(result)
 
