@@ -1133,6 +1133,14 @@ def test_violet_teacher():
   game.perform_action(cast_fireball)
   assert len(game.current_player.board) == 2
   
+def test_abomination():
+  game = GameManager().create_test_game()
+  abomination = game.game_manager.get_card("Abomination", game.current_player.board)
+  assert abomination.has_attribute(Attributes.TAUNT)
+  assert abomination.get_health() == 4
+  game.deal_damage(abomination, 4)
+  assert game.current_player.get_health() == 28
+  assert game.current_player.other_player.get_health() == 28
 
 def test_battlecry_reduce_cost():
   game = GameManager().create_test_game()
