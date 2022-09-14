@@ -199,7 +199,7 @@ def get_common_cards():
   dark_iron_dwarf = Card(name="Dark Iron Dwarf", card_type=CardTypes.MINION, manacost=4, attack=4, health=4,
                effect=ChangeStats(value=(Constant(2), Constant(0)), method=Methods.TARGETED, target=Targets.MINION, owner_filter=OwnerFilters.ALL, duration=Durations.TURN, trigger=Triggers.BATTLECRY))
   dread_corsair = Card(name="Dread Corsair", card_type=CardTypes.MINION, manacost=4, attack=3, health=3, creature_type=CreatureTypes.PIRATE,
-             effect=ChangeCost(value=Multiply(WeaponAttack(), Constant(-1)), method=Methods.SELF, target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY, trigger=Triggers.AURA))
+             effect=ChangeCost(value=Multiply(FriendlyWeaponAttack(), Constant(-1)), method=Methods.SELF, target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY, trigger=Triggers.AURA))
   mogushan_warden = Card(name="Mogushan Warden", card_type=CardTypes.MINION,
                manacost=4, attack=1, health=7, attributes=[Attributes.TAUNT])
   silvermoon_guardian = Card(name="Silvermoon Guardian", card_type=CardTypes.MINION,
@@ -252,10 +252,10 @@ def get_rare_cards():
                      effect=ChangeStats(value=(Constant(2),Constant(0)), trigger=Triggers.ANY_HEALED, method=Methods.SELF, target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY, duration=Durations.PERMANENTLY))
 
   murloc_tidecaller = Card(name="Murloc Tidecaller", card_type=CardTypes.MINION, creature_type=CreatureTypes.MURLOC, manacost=1, attack=1, health=2,\
-                           effect=ChangeStats(value=(Constant(1),Constant(0)), method=Methods.SELF, trigger=Triggers.FRIENDLY_TYPE_SUMMONED, target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY, duration=Durations.PERMANENTLY))
+                           effect=ChangeStats(value=(Constant(1),Constant(0)), method=Methods.SELF, trigger=Triggers.FRIENDLY_SAME_TYPE_SUMMONED, target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY, duration=Durations.PERMANENTLY))
  
   secretkeeper = Card(name="Secretkeeper", card_type=CardTypes.MINION, manacost=1, attack=1, health=2,\
-                      effect=ChangeStats(value=(Constant(1),Constant(1)), trigger=Triggers.SECRET_CAST, method=Methods.SELF, target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY, duration=Durations.PERMANENTLY))
+                      effect=ChangeStats(value=(Constant(1),Constant(1)), trigger=Triggers.ANY_SECRET_CAST, method=Methods.SELF, target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY, duration=Durations.PERMANENTLY))
   young_priestess = Card(name="Young Priestess", card_type=CardTypes.MINION, manacost=1, attack=2, health=1,\
                          effect=ChangeStats(value=(Constant(0),Constant(1)), trigger=Triggers.FRIENDLY_END_TURN, method=Methods.RANDOMLY, owner_filter=OwnerFilters.FRIENDLY, target=Targets.MINION, duration=Durations.PERMANENTLY))
 
@@ -263,7 +263,28 @@ def get_rare_cards():
   ancient_watcher = Card(name="Ancient Watcher", card_type=CardTypes.MINION, manacost=2, attack=4, health=5, attributes=[Attributes.DEFENDER])
   crazed_alchemist = Card(name="Crazed Alchemist", card_type=CardTypes.MINION, manacost=2, attack=2, health=2,\
                           effect=SwapStats(trigger=Triggers.BATTLECRY, method=Methods.TARGETED, owner_filter=OwnerFilters.ALL, target=Targets.MINION))
+  knife_juggler = Card(name="Knife Juggler", card_type=CardTypes.MINION, manacost=2, attack=3, health=2,\
+                       effect=DealDamage(value=Constant(1), trigger=Triggers.FRIENDLY_MINION_SUMMONED, method=Methods.RANDOMLY, target=Targets.MINION_OR_HERO, owner_filter=OwnerFilters.ENEMY))
+  mana_addict = Card(name="Mana Addict", card_type=CardTypes.MINION, manacost=2, attack=1, health=3,\
+                     effect=ChangeStats(value=(Constant(2), Constant(0)), trigger=Triggers.FRIENDLY_SPELL_CAST, method=Methods.SELF, target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY, duration=Durations.TURN))
+  mana_wraith = Card(name="Mana Wraith", card_type=CardTypes.MINION, manacost=2, attack=2, health=2,
+                effect=ChangeCost(value=Constant(1), target=Targets.MINION, owner_filter=OwnerFilters.ALL, method=Methods.ALL, trigger=Triggers.AURA))
+  master_swordsmith = Card(name="Master Swordsmith", card_type=CardTypes.MINION, manacost=2, attack=1, health=3,\
+                           effect=ChangeStats(value=(Constant(1), Constant(0)), trigger=Triggers.FRIENDLY_END_TURN, method=Methods.RANDOMLY, target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY, duration=Durations.PERMANENTLY))
+  pint_sized_summoner = Card(name="Pint-Sized Summoner", card_type=CardTypes.MINION, manacost=2, attack=2, health=2,\
+                             effect=ChangeCost(value=If(Equals(MinionsPlayed(), Constant(0)), Constant(-1), Constant(0)), trigger=Triggers.AURA, method=Methods.ALL, target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY))
+  sunfury_protector = Card(name="Sunfury Protector", card_type=CardTypes.MINION, manacost=2, attack=2, health=2,\
+                          effect=GiveKeyword(value=Attributes.TAUNT, method=Methods.ADJACENT, target=Targets.MINION,
+                          owner_filter=OwnerFilters.FRIENDLY, duration=Durations.PERMANENTLY, trigger=Triggers.BATTLECRY))
+  wild_pyromancer = Card(name="Wild Pyromancer", card_type=CardTypes.MINION, manacost=2, attack=3, health=2,\
+                        effect=DuelActionSelf(DealDamage(trigger=Triggers.FRIENDLY_SPELL_CAST, method=Methods.ALL, value=Constant(1), target=Targets.MINION, owner_filter=OwnerFilters.ALL),\
+                                              DealDamage(trigger=Triggers.FRIENDLY_SPELL_CAST, method=Methods.SELF, value=Constant(1), target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY)))
 
+  # Rare three drops
+  alarm_o_bot = Card(name="Alarm-o-Bot", card_type=CardTypes.MINION, manacost=3, attack=0, health=3, creature_type=CreatureTypes.MECH,\
+                     effect=SwapWithMinion(trigger=Triggers.FRIENDLY_UNTAP, method=Methods.RANDOMLY, target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY))
+  
+  
   # Rare four drops
   defender_of_argus = Card(name="Defender of Argus", card_type=CardTypes.MINION, manacost=4, attack=2, health=3,
                           effect=DuelAction(ChangeStats(value=(Constant(1),Constant(1)), method=Methods.ADJACENT, target=Targets.MINION,
@@ -273,8 +294,8 @@ def get_rare_cards():
 
                     
   rare_one_drops = [angry_chicken, bloodsail_corsair, lightwarden, murloc_tidecaller, secretkeeper, young_priestess]
-  rare_two_drops = [ancient_watcher, crazed_alchemist]
-  rare_three_drops = []
+  rare_two_drops = [ancient_watcher, crazed_alchemist, knife_juggler, mana_addict, mana_wraith, master_swordsmith, pint_sized_summoner, sunfury_protector, wild_pyromancer]
+  rare_three_drops = [alarm_o_bot]
   rare_four_drops = [defender_of_argus]
   rare_five_drops = []
 

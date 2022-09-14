@@ -1,5 +1,6 @@
 from enums import *
 from copy import deepcopy
+from action import Action
 
 class GainMana():
   available_methods = [Methods.TARGETED, Methods.RANDOMLY, Methods.ALL]
@@ -231,6 +232,7 @@ class GiveKeyword():
 
   def resolve_action(self, game, action):
     for target in action.targets:
+      print(f"{target=}")
       if self.duration == Durations.TURN:
         target.temp_attributes.append(self.value)
       elif self.duration == Durations.PERMANENTLY:
@@ -320,6 +322,32 @@ class ChangeCost():
     for target in action.targets:
       target.manacost += self.value(action.source)
 
+class SwapWithMinion():
+  available_methods = [Methods.RANDOMLY, Methods.ALL]
+  param_type = ParamTypes.NONE
+  available_targets = [Targets.MINION, Targets.WEAPON, Targets.SPELL, Targets.SECRET, Targets.MINION_OR_SPELL]
+  available_owner_filters = [o for o in OwnerFilters]
+  available_type_filters = [t for t in CreatureTypes]
+  available_durations = []
+  available_triggers = [t for t in Triggers]
+  
+  def __init__(self, method, owner_filter, target, value=None, random_count=1, duration=None, trigger=None, type_filter=None):
+    self.targets_hand = True
+    self.method = method
+    self.value = value
+    self.random_count = random_count
+    self.target = target
+    self.owner_filter = owner_filter
+    self.type_filter = type_filter
+    self.trigger = trigger
+    self.duration = duration
+
+  def resolve_action(self, game, action):
+    for target in action.targets:
+      print(target)
+      target.change_parent(target.owner.board)
+      action.source.change_parent(action.source.owner.hand)
+
 class DuelAction():
   def __init__(self, first_effect, second_effect):
     self.first_effect = first_effect
@@ -337,4 +365,22 @@ class DuelAction():
   def resolve_action(self, game, action):
     self.first_effect.resolve_action(game, action)
     self.second_effect.resolve_action(game, action)
+
+class DuelActionSelf():
+  def __init__(self, first_effect, second_effect):
+    self.first_effect = first_effect
+    self.second_effect = second_effect
+    self.method = first_effect.method
+    self.value = first_effect.value
+    self.param_type = first_effect.param_type
+    self.target = first_effect.target
+    self.owner_filter = first_effect.owner_filter
+    self.type_filter = first_effect.type_filter
+    self.duration = first_effect.duration
+    self.trigger = first_effect.trigger
+    self.targets_hand = first_effect.targets_hand
+  
+  def resolve_action(self, game, action):
+    self.first_effect.resolve_action(game, action)
+    self.second_effect.resolve_action(game, Action(action_type=Actions.CAST_EFFECT, source=action.source, targets=[action.source]))
 

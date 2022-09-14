@@ -887,6 +887,114 @@ def test_crazed_alchemist():
   assert ancient_watcher.get_health() == 4
   assert ancient_watcher.get_max_health() == 4
 
+def test_knife_juggler():
+  game = GameManager().create_test_game()
+  knife_juggler = game.game_manager.get_card("Knife Juggler", game.current_player.board)
+  wisp = game.game_manager.get_card("Wisp", game.current_player.hand)
+  play_wisp = list(filter(lambda action: action.source==wisp, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(play_wisp)
+  assert game.current_player.other_player.get_health() == 29
+
+def test_mana_addict():
+  game = GameManager().create_test_game()
+  mana_addict = game.game_manager.get_card("Mana Addict", game.current_player.board)
+  fireball = game.game_manager.get_card("Fireball", game.current_player.hand)
+  play_fireball = list(filter(lambda action: action.source==fireball and action.targets[0] == game.current_player.other_player, game.get_available_actions(game.current_player)))[0]
+  assert mana_addict.get_attack() == 1
+  game.perform_action(play_fireball)
+  assert mana_addict.get_attack() == 3
+  game.end_turn()
+  assert mana_addict.get_attack() == 1
+
+def test_mana_wraith():
+  game = GameManager().create_test_game()
+  mana_wraith = game.game_manager.get_card("Mana Wraith", game.current_player.board)
+  wisp = game.game_manager.get_card("Wisp", game.current_player.hand)
+  assert wisp.get_manacost() == 1
+  fireball = game.game_manager.get_card("Fireball", game.current_player.hand)
+  assert fireball.get_manacost() == 4
+  enemy_wisp = game.game_manager.get_card("Wisp", game.current_player.other_player.hand)
+  assert enemy_wisp.get_manacost() == 1
+
+def test_master_swordsmith():
+  game = GameManager().create_test_game()
+  master_swordsmith = game.game_manager.get_card("Master Swordsmith", game.current_player.board)
+  assert master_swordsmith.get_attack() == 1
+  game.end_turn()
+  game.untap()
+  game.end_turn()
+  game.untap()
+
+  assert master_swordsmith.get_attack() == 1
+  wisp = game.game_manager.get_card("Wisp", game.current_player.board)
+  game.end_turn()
+  game.untap()
+  assert wisp.get_attack() == 2
+  game.end_turn()
+  game.untap()
+  game.end_turn()
+  game.untap()
+  assert wisp.get_attack() == 3
+
+def test_pint_sized_summoner():
+  game = GameManager().create_test_game()
+  pint_sized_summoner = game.game_manager.get_card("Pint-Sized Summoner", game.current_player.board)
+  assert game.current_player.minions_played_this_turn == 0
+  ancient_watcher = game.game_manager.get_card("Ancient Watcher", game.current_player.hand)
+  assert ancient_watcher.get_manacost() == 1
+  play_watcher = list(filter(lambda action: action.source == ancient_watcher, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(play_watcher)
+  angry_chicken = game.game_manager.get_card("Angry Chicken", game.current_player.hand)
+  assert angry_chicken.get_manacost() == 1
+  game.end_turn()
+  game.untap()
+  game.end_turn()
+  game.untap()
+  assert angry_chicken.get_manacost() == 0
+
+def test_sunfury_protector():
+  game = GameManager().create_test_game()
+  sunfury_protector = game.game_manager.get_card("Sunfury Protector", game.current_player.hand)
+  wisp1 = game.game_manager.get_card("Wisp", game.current_player.board)
+  wisp2 = game.game_manager.get_card("Wisp", game.current_player.board)
+
+  play_sunfury = list(filter(lambda action: action.source == sunfury_protector, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(play_sunfury)
+  assert len(game.current_player.board) == 3
+  assert wisp1.has_attribute(Attributes.TAUNT)
+  assert wisp2.has_attribute(Attributes.TAUNT)
+  assert not sunfury_protector.has_attribute(Attributes.TAUNT)
+
+def test_wild_pyromancer():
+  game = GameManager().create_test_game()
+  wild_pyromancer = game.game_manager.get_card("Wild Pyromancer", game.current_player.board)
+  ancient_watcher = game.game_manager.get_card("Ancient Watcher", game.current_player.board)
+  fireball = game.game_manager.get_card("Fireball", game.current_player.hand)
+  assert wild_pyromancer.get_health() == 2
+  assert ancient_watcher.get_health() == 5
+  cast_fireball = list(filter(lambda action: action.source == fireball and action.targets[0] == game.current_player.other_player, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(cast_fireball)
+  assert wild_pyromancer.get_health() == 1
+  assert ancient_watcher.get_health() == 4
+  second_fireball = game.game_manager.get_card("Fireball", game.current_player.hand)
+  cast_fireball = list(filter(lambda action: action.source == second_fireball and action.targets[0] == game.current_player.other_player, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(cast_fireball)
+  assert wild_pyromancer.get_health() == 0
+  assert ancient_watcher.get_health() == 3
+
+def test_alarm_o_bot():
+  game = GameManager().create_test_game()
+  alarm_o_bot = game.game_manager.get_card("Alarm-o-Bot", game.current_player.board)
+  ancient_watcher = game.game_manager.get_card("Ancient Watcher", game.current_player.hand)
+  game.end_turn()
+  game.untap()
+  assert alarm_o_bot.parent == alarm_o_bot.owner.board
+  assert ancient_watcher.parent == ancient_watcher.owner.hand
+  game.end_turn()
+  game.untap()
+  assert alarm_o_bot.parent == alarm_o_bot.owner.hand
+  assert len(game.current_player.board) == 1 #could draw a creature and have that be swapped
+  
 
 def test_battlecry_reduce_cost():
   game = GameManager().create_test_game()

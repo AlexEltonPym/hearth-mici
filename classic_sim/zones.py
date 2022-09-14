@@ -24,8 +24,8 @@ class Zone(object):
     self.zone.remove(card)
 
   def add(self, card):
-    if len(self.zone) == self.max_entries:
-      raise Exception(f"Tried to add more than {self.max_entries} cards to {self.name}")
+    # if len(self.zone) == self.max_entries:
+    #   raise Exception(f"Tried to add more than {self.max_entries} cards to {self.name}")
     self.zone.append(card)
 
   def pop(self):
@@ -42,7 +42,7 @@ class Zone(object):
   
   def at_edge(self, key):
     key_index = self.zone.index(key)
-    return key_index == 0 or key_index == len(self.zone)
+    return key_index == 0 or key_index == len(self.zone)-1
 
   def __len__(self):
     return len(self.zone)

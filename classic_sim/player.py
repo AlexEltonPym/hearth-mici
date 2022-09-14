@@ -43,6 +43,7 @@ class Player():
     self.condition = None
 
     self.pool = None
+    self.minions_played_this_turn = 0
 
   def reset(self):
     self.attacks_this_turn = 0
@@ -58,6 +59,8 @@ class Player():
     self.fatigue_damage = 1
     self.current_mana = 0
     self.max_mana = 0
+    self.minions_played_this_turn = 0
+
 
 
   def remove(self, card):

@@ -1,5 +1,4 @@
 from enums import *
-from numpy import unique
 from player import Player
 from card_sets import get_utility_card, get_hero_power
 from effects import *
@@ -68,6 +67,9 @@ class Game():
     self.current_player.used_hero_power = False
     for minion in self.current_player.board:
       minion.attacks_this_turn = 0
+    self.trigger(self.current_player, Triggers.FRIENDLY_UNTAP)
+    self.trigger(self.current_player, Triggers.ENEMY_UNTAP)
+    self.trigger(self.current_player, Triggers.ANY_UNTAP)
 
 
 
@@ -106,6 +108,8 @@ class Game():
         minion.attributes.remove(Attributes.FROZEN)
       if Attributes.FROZEN in minion.perm_attributes:
         minion.perm_attributes.remove(Attributes.FROZEN)
+    
+    self.current_player.minions_played_this_turn = 0
 
     self.current_player = self.current_player.other_player
 
@@ -147,22 +151,31 @@ class Game():
     if action.source.effect and action.source.effect.trigger == Triggers.BATTLECRY:
       action.source.effect.resolve_action(self, action)
 
-    self.trigger(action.source, Triggers.MINION_SUMMONED)
-    self.trigger(action.source, Triggers.TYPE_SUMMONED)
+    self.current_player.minions_played_this_turn += 1
+
+    self.trigger(action.source, Triggers.ANY_MINION_SUMMONED)
+    self.trigger(action.source, Triggers.ANY_SAME_TYPE_SUMMONED)
     self.trigger(action.source, Triggers.FRIENDLY_MINION_SUMMONED)
-    self.trigger(action.source, Triggers.FRIENDLY_TYPE_SUMMONED)
+    self.trigger(action.source, Triggers.FRIENDLY_SAME_TYPE_SUMMONED)
     self.trigger(action.source, Triggers.ENEMY_MINION_SUMMONED)
-    self.trigger(action.source, Triggers.ENEMY_TYPE_SUMMONED)
+    self.trigger(action.source, Triggers.ENEMY_SAME_TYPE_SUMMONED)
 
   def cast_spell(self, action):
     self.current_player.current_mana -= action.source.get_manacost()
     action.source.change_parent(action.source.owner.graveyard)
     action.source.effect.resolve_action(self, action)
+    self.trigger(action.source, Triggers.ANY_SPELL_CAST)
+    self.trigger(action.source, Triggers.FRIENDLY_SPELL_CAST)
+    self.trigger(action.source, Triggers.ENEMY_SPELL_CAST)
+    
 
   def cast_secret(self, action):
     self.current_player.current_mana -= action.source.get_manacost()
     action.source.change_parent(action.source.owner.secrets_zone)
-    self.trigger(action.source, Triggers.SECRET_CAST)
+    self.trigger(action.source, Triggers.ANY_SECRET_CAST)
+    self.trigger(action.source, Triggers.FRIENDLY_SECRET_CAST)
+    self.trigger(action.source, Triggers.ENEMY_SECRET_CAST)
+
 
   def cast_effect(self, action):
     action.source.effect.resolve_action(self, action)
@@ -228,11 +241,11 @@ class Game():
         card.effect.resolve_action(self, Action(Actions.CAST_EFFECT, card, [triggerer]))
 
   def trigger(self, source, trigger_type):
-
+    # print(f"{source=}")
+    # print(f"{trigger_type=}")
     for player in [self.player, self.enemy]:
       player_weapon = [player.weapon] if player.weapon else []
       for card in player_weapon + player.board.get_all() + player.secrets_zone.get_all():
-
         if card.effect and trigger_type == card.effect.trigger and source != card:
           if "FRIENDLY" in trigger_type.name and source.owner == card.owner:
             if trigger_type == Triggers.FRIENDLY_MINION_DIES:
@@ -241,13 +254,19 @@ class Game():
               self.resolve_effect(card, source)
             elif trigger_type == Triggers.FRIENDLY_MINION_SUMMONED:
               self.resolve_effect(card, source)
-            elif trigger_type == Triggers.FRIENDLY_TYPE_SUMMONED\
+            elif trigger_type == Triggers.FRIENDLY_SAME_TYPE_SUMMONED\
                and source.creature_type and card.creature_type\
                and (source.creature_type == CreatureTypes.ALL\
                or card.creature_type == CreatureTypes.ALL\
                or source.creature_type == card.creature_type):
               self.resolve_effect(card)
             elif trigger_type == Triggers.FRIENDLY_END_TURN:
+              self.resolve_effect(card, source)
+            elif trigger_type == Triggers.FRIENDLY_SPELL_CAST:
+              self.resolve_effect(card, source)
+            elif trigger_type == Triggers.FRIENDLY_SECRET_CAST:
+              self.resolve_effect(card, source)
+            elif trigger_type == Triggers.FRIENDLY_UNTAP:
               self.resolve_effect(card, source)
           elif "ENEMY" in trigger_type.name and source.owner != card.owner:
             if trigger_type == Triggers.ENEMY_MINION_DIES:
@@ -256,7 +275,7 @@ class Game():
               self.resolve_effect(card, source)
             elif trigger_type == Triggers.ENEMY_MINION_SUMMONED:
               self.resolve_effect(card, source)
-            elif trigger_type == Triggers.ENEMY_TYPE_SUMMONED\
+            elif trigger_type == Triggers.ENEMY_SAME_TYPE_SUMMONED\
                and source.creature_type and card.creature_type\
                and (source.creature_type == CreatureTypes.ALL\
                or card.creature_type == CreatureTypes.ALL\
@@ -264,25 +283,39 @@ class Game():
               self.resolve_effect(card)
             elif trigger_type == Triggers.ENEMY_END_TURN:
               self.resolve_effect(card, source)
+            elif trigger_type == Triggers.ENEMY_SPELL_CAST:
+              self.resolve_effect(card, source)
+            elif trigger_type == Triggers.ENEMY_SECRET_CAST:
+              self.resolve_effect(card, source)
+            elif trigger_type == Triggers.ENEMY_UNTAP:
+              self.resolve_effect(card, source)
           else:
             if trigger_type == Triggers.ANY_MINION_DIES:
               self.resolve_effect(card, source)
             elif trigger_type == Triggers.ANY_HEALED:
               self.resolve_effect(card, source)
-            elif trigger_type == Triggers.MINION_SUMMONED:
+            elif trigger_type == Triggers.ANY_MINION_SUMMONED:
               self.resolve_effect(card, source)
-            elif trigger_type == Triggers.TYPE_SUMMONED\
+            elif trigger_type == Triggers.ANY_SAME_TYPE_SUMMONED\
                 and source.creature_type and card.creature_type\
                 and (source.creature_type == CreatureTypes.ALL\
                 or card.creature_type == CreatureTypes.ALL\
                 or source.creature_type == card.creature_type):
               self.resolve_effect(card, source)
-            elif trigger_type == Triggers.SECRET_CAST:
+            elif trigger_type == Triggers.ANY_SECRET_CAST:
               self.resolve_effect(card,source)
             elif trigger_type == Triggers.ANY_END_TURN:
               self.resolve_effect(card, source)
+            elif trigger_type == Triggers.ANY_SPELL_CAST:
+              self.resolve_effect(card, source)
+            elif trigger_type == Triggers.ANY_SECRET_CAST:
+              self.resolve_effect(card, source)
+            elif trigger_type == Triggers.ANY_UNTAP:
+              self.resolve_effect(card, source)
+
           if card.card_type == CardTypes.SECRET:
             card.change_parent(card.owner.graveyard)
+
         elif card.effect and trigger_type == card.effect.trigger and source == card:
           if trigger_type == Triggers.SELF_DAMAGE_TAKEN:
             self.resolve_effect(card, source)
@@ -447,7 +480,7 @@ class Game():
             elif card.effect.method == Methods.ALL:
               playable_minion_actions.append(Action(Actions.CAST_MINION, card, battlecry_targets))
             elif card.effect.target == Targets.MINION and card.effect.method == Methods.ADJACENT:
-              adjacent_minions = unique(list(filter(lambda target: target.parent.at_edge(target), battlecry_targets)))
+              adjacent_minions = list(set(filter(lambda target: target.parent.at_edge(target), battlecry_targets)))
               playable_minion_actions.append(Action(Actions.CAST_MINION, card, adjacent_minions))
             elif card.effect.method == Methods.SELF:
               playable_minion_actions.append(Action(Actions.CAST_MINION, card, [card]))
