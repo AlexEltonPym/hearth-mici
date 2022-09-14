@@ -995,6 +995,114 @@ def test_alarm_o_bot():
   assert alarm_o_bot.parent == alarm_o_bot.owner.hand
   assert len(game.current_player.board) == 1 #could draw a creature and have that be swapped
   
+def test_arcane_golem():
+  game_manager = GameManager()
+  game_manager.create_player_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER, CardSets.TEST_CARDS])
+  game_manager.create_enemy_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_MAGE, CardSets.TEST_CARDS])
+  game_manager.create_player(Classes.HUNTER, Deck.generate_random, RandomNoEarlyPassing)
+  game_manager.create_enemy(Classes.MAGE, Deck.generate_random, RandomNoEarlyPassing)
+  game = game_manager.create_game()
+  game.current_player.current_mana = 3
+  assert game.current_player.other_player.max_mana == 0
+  assert game.current_player.other_player.current_mana == 0
+  arcane_golem = game.game_manager.get_card("Arcane Golem", game.current_player.hand)
+  cast_golem = list(filter(lambda action: action.source == arcane_golem, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(cast_golem)
+  assert arcane_golem.has_attribute(Attributes.CHARGE)
+  assert game.current_player.other_player.max_mana == 1
+  assert game.current_player.other_player.current_mana == 1
+
+def test_coldlight_oracle():
+  game = GameManager().create_test_game()
+  assert len(game.current_player.hand) == 0
+  assert len(game.current_player.other_player.hand) == 0
+  coldlight_oracle = game.game_manager.get_card("Coldlight Oracle", game.current_player.hand)
+  play_oracle = list(filter(lambda action: action.source == coldlight_oracle, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(play_oracle)
+  assert len(game.current_player.hand) == 2
+  assert len(game.current_player.other_player.hand) == 2
+
+def test_coldlight_seer():
+  game = GameManager().create_test_game()
+  coldlight_oracle = game.game_manager.get_card("Coldlight Oracle", game.current_player.board)
+  coldlight_seer = game.game_manager.get_card("Coldlight Seer", game.current_player.hand)
+  play_seer = list(filter(lambda action: action.source == coldlight_seer, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(play_seer)
+  assert coldlight_oracle.get_health() == 4
+  assert coldlight_oracle.get_max_health() == 4
+  assert coldlight_seer.get_health() == 3
+
+def test_demolisher():
+  game = GameManager().create_test_game()
+  ancient_watcher = game.game_manager.get_card("Ancient Watcher", game.current_player.other_player.board)
+  demolisher = game.game_manager.get_card("Demolisher", game.current_player.board)
+  assert ancient_watcher.get_health() == 5
+  game.end_turn()
+  game.untap()
+  game.end_turn()
+  game.untap()
+  assert ancient_watcher.get_health() == 3
+
+def test_emperor_cobra():
+  game = GameManager().create_test_game()
+  emperor_cobra = game.game_manager.get_card("Emperor Cobra", game.current_player.board)
+  enemy_cobra = game.game_manager.get_card("Emperor Cobra", game.current_player.other_player.board)
+  emperor_cobra.attacks_this_turn = 0
+  attack_enemy_cobra = list(filter(lambda action: action.source==emperor_cobra and action.targets[0]==enemy_cobra, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(attack_enemy_cobra)
+  assert emperor_cobra.get_health() == 1
+  assert enemy_cobra.get_health() == 1
+  assert emperor_cobra.parent == emperor_cobra.owner.graveyard
+  assert enemy_cobra.parent == enemy_cobra.owner.graveyard
+
+def test_imp_master():
+  game = GameManager().create_test_game()
+  imp_master = game.game_manager.get_card("Imp Master", game.current_player.board)
+  assert len(game.current_player.board) == 1
+  assert imp_master.get_health() == 5
+  assert imp_master.get_max_health() == 5
+  game.end_turn()
+  game.untap()
+  game.end_turn()
+  game.untap()
+  assert len(game.current_player.board) == 2
+  assert imp_master.get_health() == 4
+  assert imp_master.get_max_health() == 5
+  game.end_turn()
+  game.untap()
+  game.end_turn()
+  game.untap()
+  assert len(game.current_player.board) == 3
+  assert imp_master.get_health() == 3
+  assert imp_master.get_max_health() == 5
+
+def test_injured_blademaster():
+  game = GameManager().create_test_game()
+  blademaster = game.game_manager.get_card("Injured Blademaster", game.current_player.hand)
+  play_blademaster = list(filter(lambda action: action.source==blademaster, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(play_blademaster)
+  assert blademaster.get_health() == 3
+  assert blademaster.get_max_health() == 7
+
+def test_questing_adventurer():
+  game = GameManager().create_test_game()
+  questing_adventurer = game.game_manager.get_card("Questing Adventurer", game.current_player.board)
+  wisp = game.game_manager.get_card('Wisp', game.current_player.hand)
+  play_wisp = list(filter(lambda action: action.source == wisp, game.get_available_actions(game.current_player)))[0]
+  assert questing_adventurer.get_attack() == 2
+  assert questing_adventurer.get_health() == 2
+  assert questing_adventurer.get_max_health() == 2
+  game.perform_action(play_wisp)
+  assert questing_adventurer.get_attack() == 3
+  assert questing_adventurer.get_health() == 3
+  assert questing_adventurer.get_max_health() == 3
+  fireball = game.game_manager.get_card('Fireball', game.current_player.hand)
+  play_fireball = list(filter(lambda action: action.source == fireball and action.targets[0] == game.current_player.other_player, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(play_fireball)
+  assert questing_adventurer.get_attack() == 4
+  assert questing_adventurer.get_health() == 4
+  assert questing_adventurer.get_max_health() == 4
+
 
 def test_battlecry_reduce_cost():
   game = GameManager().create_test_game()

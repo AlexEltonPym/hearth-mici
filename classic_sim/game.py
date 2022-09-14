@@ -159,6 +159,10 @@ class Game():
     self.trigger(action.source, Triggers.FRIENDLY_SAME_TYPE_SUMMONED)
     self.trigger(action.source, Triggers.ENEMY_MINION_SUMMONED)
     self.trigger(action.source, Triggers.ENEMY_SAME_TYPE_SUMMONED)
+    self.trigger(action.source, Triggers.ANY_CARD_PLAYED)
+    self.trigger(action.source, Triggers.FRIENDLY_CARD_PLAYED)
+    self.trigger(action.source, Triggers.ENEMY_CARD_PLAYED)
+
 
   def cast_spell(self, action):
     self.current_player.current_mana -= action.source.get_manacost()
@@ -167,7 +171,9 @@ class Game():
     self.trigger(action.source, Triggers.ANY_SPELL_CAST)
     self.trigger(action.source, Triggers.FRIENDLY_SPELL_CAST)
     self.trigger(action.source, Triggers.ENEMY_SPELL_CAST)
-    
+    self.trigger(action.source, Triggers.ANY_CARD_PLAYED)
+    self.trigger(action.source, Triggers.FRIENDLY_CARD_PLAYED)
+    self.trigger(action.source, Triggers.ENEMY_CARD_PLAYED)
 
   def cast_secret(self, action):
     self.current_player.current_mana -= action.source.get_manacost()
@@ -175,7 +181,9 @@ class Game():
     self.trigger(action.source, Triggers.ANY_SECRET_CAST)
     self.trigger(action.source, Triggers.FRIENDLY_SECRET_CAST)
     self.trigger(action.source, Triggers.ENEMY_SECRET_CAST)
-
+    self.trigger(action.source, Triggers.ANY_CARD_PLAYED)
+    self.trigger(action.source, Triggers.FRIENDLY_CARD_PLAYED)
+    self.trigger(action.source, Triggers.ENEMY_CARD_PLAYED)
 
   def cast_effect(self, action):
     action.source.effect.resolve_action(self, action)
@@ -186,6 +194,13 @@ class Game():
     if action.source.effect and action.source.effect.trigger == Triggers.BATTLECRY:
       action.source.effect.resolve_action(self, action)
 
+    self.trigger(action.source, Triggers.ANY_WEAPON_PLAYED)
+    self.trigger(action.source, Triggers.FRIENDLY_WEAPON_PLAYED)
+    self.trigger(action.source, Triggers.ENEMY_WEAPON_PLAYED)
+    self.trigger(action.source, Triggers.ANY_CARD_PLAYED)
+    self.trigger(action.source, Triggers.FRIENDLY_CARD_PLAYED)
+    self.trigger(action.source, Triggers.ENEMY_CARD_PLAYED)
+
   def handle_attack(self, action):
     if isinstance(action.source, Player) and action.source.weapon:
       damage = action.source.get_attack() + action.source.weapon.attack
@@ -195,8 +210,8 @@ class Game():
     else:
       damage = action.source.get_attack()
       other_damage = action.targets[0].get_attack()
-    self.deal_damage(action.targets[0], damage)
-    self.deal_damage(action.source, other_damage)
+    self.deal_damage(action.targets[0], damage, poisonous=action.source.has_attribute(Attributes.POISONOUS))
+    self.deal_damage(action.source, other_damage, poisonous=action.targets[0].has_attribute(Attributes.POISONOUS))
     if action.source.attacks_this_turn == -1: #used charge to attack
       action.source.attacks_this_turn += 2
     else:
@@ -205,16 +220,16 @@ class Game():
       action.source.attributes.remove(Attributes.STEALTH)
 
 
-  def deal_damage(self, target, amount):
+  def deal_damage(self, target, amount, poisonous=False):
     if Attributes.DIVINE_SHIELD in target.attributes:
       target.attributes.remove(Attributes.DIVINE_SHIELD)
     elif amount > 0:
       target.health -= amount
       self.trigger(target, Triggers.SELF_DAMAGE_TAKEN)
-      self.check_dead(target)
+      self.check_dead(target, poisonous=poisonous)
 
-  def check_dead(self, card):
-    if card.get_health() <= 0 and not isinstance(card, Player):
+  def check_dead(self, card, poisonous=False):
+    if (poisonous or card.get_health() <= 0) and not isinstance(card, Player):
       self.handle_death(card)
       
   def handle_death(self, card):
@@ -268,6 +283,10 @@ class Game():
               self.resolve_effect(card, source)
             elif trigger_type == Triggers.FRIENDLY_UNTAP:
               self.resolve_effect(card, source)
+            elif trigger_type == Triggers.FRIENDLY_WEAPON_PLAYED:
+              self.resolve_effect(card, source)
+            elif trigger_type == Triggers.FRIENDLY_CARD_PLAYED:
+              self.resolve_effect(card, source)
           elif "ENEMY" in trigger_type.name and source.owner != card.owner:
             if trigger_type == Triggers.ENEMY_MINION_DIES:
               self.resolve_effect(card, source)
@@ -288,6 +307,10 @@ class Game():
             elif trigger_type == Triggers.ENEMY_SECRET_CAST:
               self.resolve_effect(card, source)
             elif trigger_type == Triggers.ENEMY_UNTAP:
+              self.resolve_effect(card, source)
+            elif trigger_type == Triggers.ENEMY_WEAPON_PLAYED:
+              self.resolve_effect(card, source)
+            elif trigger_type == Triggers.ENEMY_CARD_PLAYED:
               self.resolve_effect(card, source)
           else:
             if trigger_type == Triggers.ANY_MINION_DIES:
@@ -312,7 +335,10 @@ class Game():
               self.resolve_effect(card, source)
             elif trigger_type == Triggers.ANY_UNTAP:
               self.resolve_effect(card, source)
-
+            elif trigger_type == Triggers.ANY_WEAPON_PLAYED:
+              self.resolve_effect(card, source)
+            elif trigger_type == Triggers.ANY_CARD_PLAYED:
+              self.resolve_effect(card, source)
           if card.card_type == CardTypes.SECRET:
             card.change_parent(card.owner.graveyard)
 

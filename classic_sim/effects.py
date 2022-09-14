@@ -10,7 +10,7 @@ class GainMana():
   available_type_filters = []
   available_durations = [Durations.TURN, Durations.PERMANENTLY]
   available_triggers = list(filter(lambda t: t != Triggers.AURA, [t for t in Triggers]))
-  def __init__(self, method, value, duration, target, owner_filter, random_count=1, trigger=None, type_filter=None):
+  def __init__(self, method, value, duration, owner_filter, target=Targets.HERO, random_count=1, trigger=None, type_filter=None):
     self.targets_hand = False
     self.method = method
     self.value = value

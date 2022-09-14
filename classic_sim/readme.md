@@ -62,3 +62,4 @@ spell damage from weapon and player?
 use all instead of targeted to prevent stealth/hexproof issues
 test self targeting secrets?
 expand dynamics
+mind control tech

@@ -283,8 +283,25 @@ def get_rare_cards():
   # Rare three drops
   alarm_o_bot = Card(name="Alarm-o-Bot", card_type=CardTypes.MINION, manacost=3, attack=0, health=3, creature_type=CreatureTypes.MECH,\
                      effect=SwapWithMinion(trigger=Triggers.FRIENDLY_UNTAP, method=Methods.RANDOMLY, target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY))
-  
-  
+  arcane_golem = Card(name="Arcane Golem", card_type=CardTypes.MINION, manacost=3, attack=4, health=2, attributes=[Attributes.CHARGE],\
+                       effect=GainMana(value=Constant(1), method=Methods.ALL, trigger=Triggers.BATTLECRY, owner_filter=OwnerFilters.ENEMY, duration=Durations.PERMANENTLY))
+  coldlight_oracle = Card(name="Coldlight Oracle", card_type=CardTypes.MINION, manacost=3, attack=2, health=2, creature_type=CreatureTypes.MURLOC,\
+                          effect=DrawCards(value=Constant(2), trigger=Triggers.BATTLECRY, method=Methods.ALL, owner_filter=OwnerFilters.ALL))
+  coldlight_seer = Card(name="Coldlight Seer", card_type=CardTypes.MINION, manacost=3, attack=2, health=3, creature_type=CreatureTypes.MURLOC,\
+                        effect=ChangeStats(value=(Constant(0), Constant(2)), trigger=Triggers.BATTLECRY, method=Methods.ALL,\
+                                           target=Targets.MINION, owner_filter=OwnerFilters.ALL, type_filter=CreatureTypes.MURLOC, duration=Durations.PERMANENTLY))
+  demolisher = Card(name="Demolisher", card_type=CardTypes.MINION, manacost=3, attack=1, health=3, creature_type=CreatureTypes.MECH,\
+                    effect=DealDamage(value=Constant(2), method=Methods.RANDOMLY, trigger=Triggers.FRIENDLY_UNTAP, target=Targets.MINION, owner_filter=OwnerFilters.ENEMY))
+  emperor_cobra = Card(name="Emperor Cobra", card_type=CardTypes.MINION, manacost=3, attack=2, health=3, creature_type=CreatureTypes.BEAST, attributes=[Attributes.POISONOUS])
+  imp_master = Card(name="Imp Master", card_type=CardTypes.MINION, manacost=3, attack=1, health=5,\
+                    effect=DuelActionSelf(SummonToken(value=Card(name="Imp", card_type=CardTypes.MINION, collectable=False, manacost=1, attack=1, health=1, creature_type=CreatureTypes.DEMON), trigger=Triggers.FRIENDLY_END_TURN, method=Methods.ALL, owner_filter=OwnerFilters.FRIENDLY),\
+                                          DealDamage(value=Constant(1),method=Methods.SELF, trigger=Triggers.FRIENDLY_END_TURN, target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY)))
+  injured_blademaster = Card(name="Injured Blademaster", card_type=CardTypes.MINION, manacost=3, attack=4, health=7,\
+                             effect=DealDamage(value=Constant(4), trigger=Triggers.BATTLECRY, method=Methods.SELF, target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY))
+  mind_control_tech = Card(name="Mind Control Tech", card_type=CardTypes.MINION, manacost=3, attack=3, health=3) #not implementing stealing
+  questing_adventurer = Card(name="Questing Adventurer", card_type=CardTypes.MINION, manacost=3, attack=2, health=2,\
+                             effect=ChangeStats(value=(Constant(1), Constant(1)), trigger=Triggers.FRIENDLY_CARD_PLAYED, method=Methods.SELF, target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY, duration=Durations.PERMANENTLY))
+
   # Rare four drops
   defender_of_argus = Card(name="Defender of Argus", card_type=CardTypes.MINION, manacost=4, attack=2, health=3,
                           effect=DuelAction(ChangeStats(value=(Constant(1),Constant(1)), method=Methods.ADJACENT, target=Targets.MINION,
@@ -295,7 +312,7 @@ def get_rare_cards():
                     
   rare_one_drops = [angry_chicken, bloodsail_corsair, lightwarden, murloc_tidecaller, secretkeeper, young_priestess]
   rare_two_drops = [ancient_watcher, crazed_alchemist, knife_juggler, mana_addict, mana_wraith, master_swordsmith, pint_sized_summoner, sunfury_protector, wild_pyromancer]
-  rare_three_drops = [alarm_o_bot]
+  rare_three_drops = [alarm_o_bot, arcane_golem, coldlight_oracle, coldlight_seer, demolisher, emperor_cobra, imp_master, injured_blademaster, mind_control_tech, questing_adventurer]
   rare_four_drops = [defender_of_argus]
   rare_five_drops = []
 

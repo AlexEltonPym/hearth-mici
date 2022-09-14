@@ -11,6 +11,7 @@ class Attributes(Enum):
   FROZEN = 7
   DEFENDER = 8
   SPELL_DAMAGE = 9
+  POISONOUS = 10
 
 
 class Triggers(Enum):
@@ -51,6 +52,15 @@ class Triggers(Enum):
   ENEMY_UNTAP = 26
   ANY_UNTAP = 27
 
+  FRIENDLY_WEAPON_PLAYED = 28
+  ENEMY_WEAPON_PLAYED = 29
+  ANY_WEAPON_PLAYED = 30
+
+  FRIENDLY_CARD_PLAYED = 31
+  ENEMY_CARD_PLAYED = 32
+  ANY_CARD_PLAYED = 33
+
+
 class Actions(Enum):
   ATTACK = 0
   CAST_MINION = 1
@@ -87,6 +97,7 @@ class CreatureTypes(Enum):
   MECH = 5
   MURLOC = 6
   DRAGON = 7
+  DEMON = 8
 
 class Durations(Enum):
   TURN = 0
