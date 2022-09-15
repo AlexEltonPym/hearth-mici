@@ -148,7 +148,7 @@ class Game():
     self.current_player.current_mana -= action.source.get_manacost()
     action.source.change_parent(action.source.owner.board)
 
-    if action.source.effect and action.source.effect.trigger == Triggers.BATTLECRY:
+    if action.source.effect and action.source.effect.trigger == Triggers.BATTLECRY and len(action.targets) > 0:
       action.source.effect.resolve_action(self, action)
 
     self.current_player.minions_played_this_turn += 1
@@ -513,8 +513,10 @@ class Game():
               playable_minion_actions.append(Action(Actions.CAST_MINION, card, adjacent_minions))
             elif card.effect.method == Methods.SELF:
               playable_minion_actions.append(Action(Actions.CAST_MINION, card, [card]))
+          else:
+            playable_minion_actions.append(Action(Actions.CAST_MINION, card, [])) #if no battlecry targets you can play without picking a target
         else:
-          playable_minion_actions.append(Action(Actions.CAST_MINION, card, [player.board]))
+          playable_minion_actions.append(Action(Actions.CAST_MINION, card, [])) #normal minion
     return playable_minion_actions
 
   def get_playable_weapon_actions(self, player):
@@ -531,8 +533,10 @@ class Game():
               playable_weapon_actions.append(Action(Actions.CAST_WEAPON, card, self.game_manager.random_state.choice(battlecry_targets, card.effect.random_count)))
             elif card.effect.method == Methods.ALL:
               playable_weapon_actions.append(Action(Actions.CAST_WEAPON, card, battlecry_targets))
+          else:
+            playable_weapon_actions.append(Action(Actions.CAST_WEAPON, card, []))
         else:
-          playable_weapon_actions.append(Action(Actions.CAST_WEAPON, card, [player]))
+          playable_weapon_actions.append(Action(Actions.CAST_WEAPON, card, []))
     return playable_weapon_actions
 
   def play_game(self):

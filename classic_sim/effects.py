@@ -63,7 +63,7 @@ class Destroy():
   available_durations = []
   available_triggers = list(filter(lambda t: t != Triggers.AURA, [t for t in Triggers]))
 
-  def __init__(self, method, target, owner_filter, value=None, random_count=1, trigger=None, type_filter=None, duration=None):
+  def __init__(self, method, target, owner_filter, value=None, random_count=1, trigger=None, type_filter=None, duration=None, dynamic_filter=None):
     self.targets_hand = False
     self.method = method
     self.value = value
@@ -73,6 +73,7 @@ class Destroy():
     self.type_filter = type_filter
     self.trigger = trigger
     self.duration = duration
+    self.dynamic_filter = dynamic_filter
 
   def resolve_action(self, game, action):
     for target in action.targets:

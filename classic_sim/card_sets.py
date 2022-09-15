@@ -323,13 +323,14 @@ def get_rare_cards():
                     effect=DrawCards(value=Constant(1), trigger=Triggers.BATTLECRY, method=Methods.ALL, owner_filter=OwnerFilters.FRIENDLY))
   gadgetzan_auctioneer = Card(name="Gadgetzan Auctioneer", card_type=CardTypes.MINION, manacost=5, attack=4, health=4,\
                               effect=DrawCards(value=Constant(1), trigger=Triggers.FRIENDLY_SPELL_CAST, owner_filter=OwnerFilters.FRIENDLY, method=Methods.ALL))
-
+  stampeding_kodo = Card(name="Stampeding Kodo", card_type=CardTypes.MINION, manacost=5, attack=3, health=5, creature_type=CreatureTypes.BEAST,\
+                          effect=Destroy(dynamic_filter=LessThan(AttackValue(), Constant(3)),method=Methods.RANDOMLY, target=Targets.MINION, trigger=Triggers.BATTLECRY, owner_filter=OwnerFilters.ENEMY))
 
   rare_one_drops = [angry_chicken, bloodsail_corsair, lightwarden, murloc_tidecaller, secretkeeper, young_priestess]
   rare_two_drops = [ancient_watcher, crazed_alchemist, knife_juggler, mana_addict, mana_wraith, master_swordsmith, pint_sized_summoner, sunfury_protector, wild_pyromancer]
   rare_three_drops = [alarm_o_bot, arcane_golem, coldlight_oracle, coldlight_seer, demolisher, emperor_cobra, imp_master, injured_blademaster, mind_control_tech, questing_adventurer]
   rare_four_drops = [ancient_mage, defender_of_argus, twilight_drake, violet_teacher]
-  rare_five_drops = [abomination, azure_drake, gadgetzan_auctioneer]
+  rare_five_drops = [abomination, azure_drake, gadgetzan_auctioneer, stampeding_kodo]
 
   return rare_one_drops + rare_two_drops + rare_three_drops + rare_four_drops + rare_five_drops
 

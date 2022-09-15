@@ -13,6 +13,34 @@ class Multiply(object):
   def __call__(self, card):
     return self.A(card) * self.B(card)
 
+class Add(object):
+  def __init__(self, A, B):
+    self.A = A
+    self.B = B
+  def __call__(self, card):
+    return self.A(card) + self.B(card)
+
+class Equals(object):
+  def __init__(self, A, B):
+    self.A = A
+    self.B = B
+  def __call__(self, card):
+    return self.A(card) == self.B(card)
+
+class LessThan(object):
+  def __init__(self, A, B):
+    self.A = A
+    self.B = B
+  def __call__(self, card):
+    return self.A(card) < self.B(card)
+
+class GreaterThan(object):
+  def __init__(self, A, B):
+    self.A = A
+    self.B = B
+  def __call__(self, card):
+    return self.A(card) > self.B(card)
+
 class If(object):
   def __init__(self, condition, result, alternative):
     self.condition = condition
@@ -23,14 +51,6 @@ class If(object):
       return self.result(card)
     else: 
       return self.alternative(card)
-
-class Equals(object):
-  def __init__(self, A, B):
-    self.A = A
-    self.B = B
-  def __call__(self, card):
-    return self.A(card) == self.B(card)
-
 
 ## Dynamic values
 
@@ -57,3 +77,9 @@ class NumCardsInHand(object):
     pass
   def __call__(self, card):
     return len(card.owner.hand)
+
+class AttackValue(object):
+  def __init__(self):
+    pass
+  def __call__(self, card):
+    return card.get_attack()

@@ -69,7 +69,7 @@ class Card():
     or effect.type_filter == self.creature_type
     
     try:
-      dynamics_okay = effect.dynamic_filter(self)
+      dynamics_okay = effect.dynamic_filter == None or effect.dynamic_filter(self)
     except AttributeError:
       dynamics_okay = True
     

@@ -1173,6 +1173,18 @@ def test_gadgetzan_auctioneer():
   assert len(game.current_player.hand) == 2
   assert len(game.current_player.other_player.hand) == 0
 
+def test_stampeding_kodo():
+  game = GameManager().create_test_game()
+  kodo = game.game_manager.get_card("Stampeding Kodo", game.current_player.hand)
+  enemy_watcher = game.game_manager.get_card("Ancient Watcher", game.current_player.other_player.board)
+  play_kodo = list(filter(lambda action: action.source == kodo, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(play_kodo)
+  assert enemy_watcher.parent == enemy_watcher.owner.board
+  second_kodo = game.game_manager.get_card("Stampeding Kodo", game.current_player.hand)
+  enemy_wisp = game.game_manager.get_card("Wisp", game.current_player.other_player.board)
+  play_second_kodo = list(filter(lambda action: action.source == second_kodo, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(play_second_kodo)
+  assert enemy_wisp.parent == enemy_wisp.owner.graveyard
 
 
 
