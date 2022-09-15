@@ -333,7 +333,7 @@ def get_rare_cards():
   # Rare seven drops
   ravenholdt_assassin = Card(name="Ravenholdt Assassin", card_type=CardTypes.MINION, manacost=7, attack=7, health=5, attributes=[Attributes.STEALTH])
 
-
+  # Combine
   rare_one_drops = [angry_chicken, bloodsail_corsair, lightwarden, murloc_tidecaller, secretkeeper, young_priestess]
   rare_two_drops = [ancient_watcher, crazed_alchemist, knife_juggler, mana_addict, mana_wraith, master_swordsmith, pint_sized_summoner, sunfury_protector, wild_pyromancer]
   rare_three_drops = [alarm_o_bot, arcane_golem, coldlight_oracle, coldlight_seer, demolisher, emperor_cobra, imp_master, injured_blademaster, mind_control_tech, questing_adventurer]
@@ -343,6 +343,26 @@ def get_rare_cards():
   rare_seven_drops = [ravenholdt_assassin]
 
   return rare_one_drops + rare_two_drops + rare_three_drops + rare_four_drops + rare_five_drops + rare_six_drops + rare_seven_drops
+
+def get_epic_cards():
+  # Epic one drops
+  hungry_crab = Card(name="Hungry Crab", card_type=CardTypes.MINION, manacost=1, attack=1, health=2, creature_type=CreatureTypes.BEAST,\
+                     effect=DuelActionSelf(Destroy(trigger=Triggers.BATTLECRY, target=Targets.MINION, owner_filter=OwnerFilters.ALL, type_filter=CreatureTypes.MURLOC, method=Methods.TARGETED),\
+                                           ChangeStats(value=(Constant(2), Constant(2)),trigger=Triggers.BATTLECRY, target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY, method=Methods.SELF, duration=Durations.PERMANENTLY)))
+  
+  # Epic two dops
+  captains_parrot = Card(name="Captain's Parrot", card_type=CardTypes.MINION, manacost=2, attack=1, health=1, creature_type=CreatureTypes.BEAST,\
+                          effect=Tutor(trigger=Triggers.BATTLECRY, method=Methods.RANDOMLY, target=Targets.MINION, type_filter=CreatureTypes.PIRATE, owner_filter=OwnerFilters.FRIENDLY))
+  
+
+  # Combine
+  epic_one_drops = [hungry_crab]
+  epic_two_drops = [captains_parrot]
+  epic_three_drops = []
+  epic_five_drops = []
+  epic_ten_plus_drops = []
+
+  return epic_one_drops + epic_two_drops + epic_three_drops + epic_five_drops + epic_ten_plus_drops
 
 def get_mage_cards():
   fireball = Card(name="Fireball", card_type=CardTypes.SPELL, manacost=4, effect=DealDamage(
@@ -377,6 +397,7 @@ def build_pool(set_names, random_state):
     pool.extend(get_basic_cards())
     pool.extend(get_common_cards())
     pool.extend(get_rare_cards())
+    pool.extend(get_epic_cards())
   if CardSets.CLASSIC_HUNTER in set_names:
     pool.extend(get_hunter_cards())
   if CardSets.CLASSIC_MAGE in set_names:

@@ -110,7 +110,7 @@ class Player():
     return spell_damage_bonus
 
   def __str__(self):
-    return str((self.name, self.player_class, str(self.health)))
+    return str((self.name, self.player_class))
 
   def __repr__(self):
-    return str((self.name, self.player_class, str(self.health)))
+    return str((self.name, self.player_class))

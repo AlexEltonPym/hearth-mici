@@ -142,3 +142,8 @@ class ParamTypes(Enum):
   NONE = 4
   TOKEN = 5
   DYNAMIC = 6
+
+class Zones(Enum):
+  BOARD = 0
+  HAND = 1
+  DECK = 2

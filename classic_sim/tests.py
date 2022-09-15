@@ -1214,8 +1214,6 @@ def test_ravenholdt_assassin():
   game.perform_action(silence_actions[0])
   assert not commander.has_attribute(Attributes.DIVINE_SHIELD)
   assert not commander.has_attribute(Attributes.CHARGE)
-
-
   attack_with_commander_actions = list(filter(lambda action: action.source == commander, game.get_available_actions(game.current_player)))
   assert len(attack_with_commander_actions) == 0
   game.end_turn()
@@ -1234,6 +1232,38 @@ def test_ravenholdt_assassin():
   cast_fireball_actions = list(filter(lambda action: action.source == fireball, game.get_available_actions(game.current_player)))
   assert len(cast_fireball_actions) == 4
 
+#Epic cards
+def test_hungry_crab_no_target():
+  game = GameManager().create_test_game()
+  hungry_crab = game.game_manager.get_card("Hungry Crab", game.current_player.hand)
+  play_crab_no_valid_target = list(filter(lambda action: action.source == hungry_crab, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(play_crab_no_valid_target)
+  assert hungry_crab.get_attack() == 1
+  assert hungry_crab.get_health() == 2
+  
+def test_hungry_crab():
+  game = GameManager().create_test_game()
+  hungry_crab = game.game_manager.get_card("Hungry Crab", game.current_player.hand)
+  murloc = game.game_manager.get_card("Murloc Tidecaller", game.current_player.other_player.board)
+  play_crab = list(filter(lambda action: action.source == hungry_crab, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(play_crab)
+  assert hungry_crab.get_attack() == 3
+  assert hungry_crab.get_health() == 4
+  assert murloc.parent == murloc.owner.graveyard
+
+def test_captains_parrot():
+  game = GameManager().create_test_game()
+  captains_parrot = game.game_manager.get_card("Captain's Parrot", game.current_player.hand)
+  southsea_deckhand = game.game_manager.get_card("Southsea Deckhand", game.current_player.hand)
+  southsea_deckhand.change_parent(southsea_deckhand.owner.deck) #when initally setting to deck, has different owners for some reason?
+
+  play_parrot = list(filter(lambda action: action.source == captains_parrot, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(play_parrot)
+
+  assert len(game.current_player.board) == 1
+  assert captains_parrot.parent == captains_parrot.owner.board
+  assert len(game.current_player.hand) == 1
+  assert game.current_player.hand.get_all()[0].creature_type == CreatureTypes.PIRATE
 
 
 def test_battlecry_reduce_cost():

@@ -443,20 +443,30 @@ class Game():
   def get_available_effect_targets(self, card):
     available_targets = []
     player = card.owner
-    player_weapon = [player.weapon] if player.weapon else []
-    enemy_weapon = [player.other_player.weapon] if player.other_player.weapon else []
-    player_board = player.board.get_all()
-    enemy_board = player.other_player.board.get_all()
-    player_themselves = [player]
-    enemy_themselves = [player.other_player]
-    if card.effect.targets_hand:
-      player_hand = player.hand.get_all()
-      enemy_hand = player.other_player.hand.get_all()
-      possible_targets = player_hand + enemy_hand
-    else:
+    if card.effect.zone_filter == Zones.BOARD:
+      player_weapon = [player.weapon] if player.weapon else []
+      enemy_weapon = [player.other_player.weapon] if player.other_player.weapon else []
+      player_board = player.board.get_all()
+      enemy_board = player.other_player.board.get_all()
+      player_themselves = [player]
+      enemy_themselves = [player.other_player]
       possible_targets = player_weapon + enemy_weapon + player_board + enemy_board + player_themselves + enemy_themselves
+    elif card.effect.zone_filter == Zones.HAND:
+      possible_targets = player.hand.get_all() + player.other_player.hand.get_all()
 
+    elif card.effect.zone_filter == Zones.DECK:
+
+      possible_targets = player.deck.get_all() + player.other_player.deck.get_all()
+      # [print(possible_target) for possible_target in possible_targets]
+      # print('g[etting effect')
+      # [print(card) for card in player.deck.get_all()]]
+    # [print(possible_target) for possible_target in possible_targets]
+   
     for possible_target in possible_targets:
+      # print(f"{possible_target=}")
+      # # print(possible_target.matches_card_requirements(card))
+      # print(possible_target.owner)
+      # print(card.owner)
       if possible_target.matches_card_requirements(card):
         available_targets.append(possible_target)
     

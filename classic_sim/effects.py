@@ -11,7 +11,7 @@ class GainMana():
   available_durations = [Durations.TURN, Durations.PERMANENTLY]
   available_triggers = list(filter(lambda t: t != Triggers.AURA, [t for t in Triggers]))
   def __init__(self, method, value, duration, owner_filter, target=Targets.HERO, random_count=1, trigger=None, type_filter=None):
-    self.targets_hand = False
+    self.zone_filter = Zones.BOARD
     self.method = method
     self.value = value
     self.random_count = random_count
@@ -39,7 +39,7 @@ class DealDamage():
   available_triggers = list(filter(lambda t: t != Triggers.AURA, [t for t in Triggers]))
 
   def __init__(self, method, value, target, owner_filter, random_count=1, trigger=None, type_filter=None, duration=None):
-    self.targets_hand = False
+    self.zone_filter = Zones.BOARD
     self.method = method
     self.value = value
     self.random_count = random_count
@@ -64,7 +64,7 @@ class Destroy():
   available_triggers = list(filter(lambda t: t != Triggers.AURA, [t for t in Triggers]))
 
   def __init__(self, method, target, owner_filter, value=None, random_count=1, trigger=None, type_filter=None, duration=None, dynamic_filter=None):
-    self.targets_hand = False
+    self.zone_filter = Zones.BOARD
     self.method = method
     self.value = value
     self.random_count = random_count
@@ -88,7 +88,7 @@ class ChangeStats():
   available_durations = [d for d in Durations]
   available_triggers = [t for t in Triggers]
   def __init__(self, value, method, target, owner_filter, random_count=1, duration=None, trigger=None, type_filter=None):
-    self.targets_hand = False #this could be changeable
+    self.zone_filter = Zones.BOARD #this could be changeable
     self.method = method
     self.value = value
     self.random_count = random_count
@@ -116,7 +116,7 @@ class SwapStats():
   available_durations = [Durations.PERMANENTLY]
   available_triggers = [t for t in Triggers]
   def __init__(self, method, target, owner_filter, value=None, random_count=1, duration=None, trigger=None, type_filter=None):
-    self.targets_hand = False #this could be changeable
+    self.zone_filter = Zones.BOARD #this could be changeable
     self.method = method
     self.value = value
     self.random_count = random_count
@@ -143,7 +143,7 @@ class DrawCards():
   available_triggers = list(filter(lambda t: t != Triggers.AURA, [t for t in Triggers]))
 
   def __init__(self, method, value, owner_filter, random_count=1, target=Targets.HERO, trigger=None, type_filter=None, duration=None):
-    self.targets_hand = False #draw cards targets a player
+    self.zone_filter = Zones.BOARD #draw cards targets a player
     self.method = method
     self.value = value
     self.random_count = random_count
@@ -157,6 +157,33 @@ class DrawCards():
     for target in action.targets:
       game.draw(target, self.value(action.source))
 
+class Tutor():
+  available_methods = [Methods.RANDOMLY, Methods.ALL]
+  param_type = ParamTypes.NONE
+  available_targets = [Targets.MINION, Targets.SPELL, Targets.MINION_OR_SPELL, Targets.SECRET, Targets.WEAPON]
+  available_owner_filters = [OwnerFilters.FRIENDLY]
+  available_type_filters = [t for t in CreatureTypes]
+  available_durations = []
+  available_triggers = list(filter(lambda t: t != Triggers.AURA, [t for t in Triggers]))
+
+  def __init__(self, method, owner_filter, value=None, random_count=1, target=Targets.HERO, trigger=None, type_filter=None, duration=None):
+    self.zone_filter = Zones.DECK
+    self.method = method
+    self.value = value
+    self.random_count = random_count
+    self.target = target
+    self.owner_filter = owner_filter
+    self.type_filter = type_filter
+    self.trigger = trigger
+    self.duration = duration
+
+  def resolve_action(self, game, action):
+    for target in action.targets:
+      if len(action.source.owner.hand) < action.source.owner.hand.max_entries:
+        target.change_parent(action.source.owner.hand)
+      else:
+        target.change_parent(action.source.owner.graveyard) #mill if hand is full, need to playtest this
+
 class ReturnToHand():
   available_methods = [Methods.TARGETED, Methods.RANDOMLY, Methods.ALL]
   param_type = ParamTypes.NONE
@@ -167,7 +194,7 @@ class ReturnToHand():
   available_triggers = list(filter(lambda t: t != Triggers.AURA, [t for t in Triggers]))
 
   def __init__(self, method, owner_filter, random_count=1, target=Targets.MINION, value=None, trigger=None, type_filter=None, duration=None):
-    self.targets_hand = False #targets a card in play
+    self.zone_filter = Zones.BOARD #targets a card in play
     self.method = method
     self.value = value
     self.random_count = random_count
@@ -192,7 +219,7 @@ class RestoreHealth():
   available_triggers = list(filter(lambda t: t != Triggers.AURA, [t for t in Triggers]))
  
   def __init__(self, method, owner_filter, target, value, random_count=1, trigger=None, type_filter=None, duration=None):
-    self.targets_hand = False
+    self.zone_filter = Zones.BOARD
     self.method = method
     self.value = value
     self.random_count = random_count
@@ -221,7 +248,7 @@ class GiveKeyword():
   available_durations = [d for d in Durations]
   available_triggers = [t for t in Triggers]
   def __init__(self, value, method, target, owner_filter, random_count=1, duration=None, trigger=None, type_filter=None):
-    self.targets_hand = False #could be changeable
+    self.zone_filter = Zones.BOARD #could be changeable
     self.method = method
     self.value = value
     self.random_count = random_count
@@ -233,7 +260,6 @@ class GiveKeyword():
 
   def resolve_action(self, game, action):
     for target in action.targets:
-      print(f"{target=}")
       if self.duration == Durations.TURN:
         target.temp_attributes.append(self.value)
       elif self.duration == Durations.PERMANENTLY:
@@ -249,7 +275,7 @@ class SummonToken(): #summon minion for target player
   available_triggers = list(filter(lambda t: t != Triggers.AURA, [t for t in Triggers]))
 
   def __init__(self, value, method, owner_filter, target=Targets.HERO, random_count=1, duration=None, trigger=None, type_filter=None):
-    self.targets_hand = False #could be changed to make this add tokens to hand
+    self.zone_filter = Zones.BOARD #could be changed to make this add tokens to hand
     self.method = method
     self.value = value
     self.random_count = random_count
@@ -277,7 +303,7 @@ class Silence():
   available_triggers = list(filter(lambda t: t != Triggers.AURA, [t for t in Triggers]))
   
   def __init__(self, method, owner_filter, target, value=None, random_count=1, duration=None, trigger=None, type_filter=None):
-    self.targets_hand = False
+    self.zone_filter = Zones.BOARD
     self.method = method
     self.value = value
     self.random_count = random_count
@@ -309,7 +335,7 @@ class ChangeCost():
   available_triggers = [t for t in Triggers]
   
   def __init__(self, method, owner_filter, target, value, random_count=1, duration=None, trigger=None, type_filter=None):
-    self.targets_hand = True
+    self.zone_filter = Zones.HAND
     self.method = method
     self.value = value
     self.random_count = random_count
@@ -333,7 +359,7 @@ class SwapWithMinion():
   available_triggers = [t for t in Triggers]
   
   def __init__(self, method, owner_filter, target, value=None, random_count=1, duration=None, trigger=None, type_filter=None):
-    self.targets_hand = True
+    self.zone_filter = Zones.HAND
     self.method = method
     self.value = value
     self.random_count = random_count
@@ -345,7 +371,6 @@ class SwapWithMinion():
 
   def resolve_action(self, game, action):
     for target in action.targets:
-      print(target)
       target.change_parent(target.owner.board)
       action.source.change_parent(action.source.owner.hand)
 
@@ -361,7 +386,7 @@ class DuelAction():
     self.type_filter = first_effect.type_filter
     self.duration = first_effect.duration
     self.trigger = first_effect.trigger
-    self.targets_hand = first_effect.targets_hand
+    self.zone_filter = first_effect.zone_filter
   
   def resolve_action(self, game, action):
     self.first_effect.resolve_action(game, action)
@@ -379,7 +404,7 @@ class DuelActionSelf():
     self.type_filter = first_effect.type_filter
     self.duration = first_effect.duration
     self.trigger = first_effect.trigger
-    self.targets_hand = first_effect.targets_hand
+    self.zone_filter = first_effect.zone_filter
   
   def resolve_action(self, game, action):
     self.first_effect.resolve_action(game, action)

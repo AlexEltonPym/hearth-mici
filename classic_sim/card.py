@@ -61,18 +61,29 @@ class Card():
     or (self.card_type==CardTypes.SPELL and (effect.target == Targets.SPELL or effect.target== Targets.MINION_OR_SPELL))\
     or (self.card_type==CardTypes.SECRET and (effect.target == Targets.SECRET or effect.target==Targets.SPELL or effect.target==Targets.MINION_OR_SPELL))
 
+    # print(effect.owner_filter)
+    # print(id(self.owner))
+    # print(id(card.owner))
+    # print(self.owner == card.owner)
+
     owner_okay = (self.owner == card.owner and effect.owner_filter == OwnerFilters.FRIENDLY)\
     or (self.owner == card.owner.other_player and effect.owner_filter == OwnerFilters.ENEMY)\
     or (effect.owner_filter == OwnerFilters.ALL)
     
     creature_type_okay = (effect.type_filter == None or effect.type_filter == CreatureTypes.ALL)\
     or effect.type_filter == self.creature_type
-    
+
+
     try:
       dynamics_okay = effect.dynamic_filter == None or effect.dynamic_filter(self)
     except AttributeError:
       dynamics_okay = True
-    
+        
+    # print(f"{type_okay=}")
+    # print(f"{owner_okay=}")
+    # print(f"{creature_type_okay=}")
+    # print(f"{dynamics_okay=}")
+
     return type_okay and owner_okay and creature_type_okay and dynamics_okay
 
   def has_attribute(self, attribute):
