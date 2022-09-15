@@ -326,13 +326,23 @@ def get_rare_cards():
   stampeding_kodo = Card(name="Stampeding Kodo", card_type=CardTypes.MINION, manacost=5, attack=3, health=5, creature_type=CreatureTypes.BEAST,\
                           effect=Destroy(dynamic_filter=LessThan(AttackValue(), Constant(3)),method=Methods.RANDOMLY, target=Targets.MINION, trigger=Triggers.BATTLECRY, owner_filter=OwnerFilters.ENEMY))
 
+  # Rare six drops
+  argent_commander = Card(name="Argent Commander", card_type=CardTypes.MINION, manacost=6, attack=4, health=2, attributes=[Attributes.CHARGE, Attributes.DIVINE_SHIELD])
+  sunwalker = Card(name="Sunwalker", card_type=CardTypes.MINION, manacost=6, attack=4, health=5, attributes=[Attributes.TAUNT, Attributes.DIVINE_SHIELD])
+
+  # Rare seven drops
+  ravenholdt_assassin = Card(name="Ravenholdt Assassin", card_type=CardTypes.MINION, manacost=7, attack=7, health=5, attributes=[Attributes.STEALTH])
+
+
   rare_one_drops = [angry_chicken, bloodsail_corsair, lightwarden, murloc_tidecaller, secretkeeper, young_priestess]
   rare_two_drops = [ancient_watcher, crazed_alchemist, knife_juggler, mana_addict, mana_wraith, master_swordsmith, pint_sized_summoner, sunfury_protector, wild_pyromancer]
   rare_three_drops = [alarm_o_bot, arcane_golem, coldlight_oracle, coldlight_seer, demolisher, emperor_cobra, imp_master, injured_blademaster, mind_control_tech, questing_adventurer]
   rare_four_drops = [ancient_mage, defender_of_argus, twilight_drake, violet_teacher]
   rare_five_drops = [abomination, azure_drake, gadgetzan_auctioneer, stampeding_kodo]
+  rare_six_drops = [argent_commander, sunwalker]
+  rare_seven_drops = [ravenholdt_assassin]
 
-  return rare_one_drops + rare_two_drops + rare_three_drops + rare_four_drops + rare_five_drops
+  return rare_one_drops + rare_two_drops + rare_three_drops + rare_four_drops + rare_five_drops + rare_six_drops + rare_seven_drops
 
 def get_mage_cards():
   fireball = Card(name="Fireball", card_type=CardTypes.SPELL, manacost=4, effect=DealDamage(

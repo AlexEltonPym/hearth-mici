@@ -1186,6 +1186,54 @@ def test_stampeding_kodo():
   game.perform_action(play_second_kodo)
   assert enemy_wisp.parent == enemy_wisp.owner.graveyard
 
+def test_argent_commander():
+  game = GameManager().create_test_game()
+  commander = game.game_manager.get_card("Argent Commander", game.current_player.board)
+  wisp = game.game_manager.get_card("Wisp", game.current_player.other_player.board)
+  assert commander.attacks_this_turn == -1
+  assert commander.has_attribute(Attributes.DIVINE_SHIELD)
+  assert commander.get_health() == 2
+  assert commander.get_max_health() == 2
+  attack_with_commander = list(filter(lambda action: action.source == commander and action.targets[0] == wisp, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(attack_with_commander)
+  assert commander.attacks_this_turn == 1
+  assert not commander.has_attribute(Attributes.DIVINE_SHIELD)
+  assert commander.get_health() == 2
+  assert commander.get_max_health() == 2
+
+def test_ravenholdt_assassin():
+  game = GameManager().create_test_game()
+  ravenholdt_assassin = game.game_manager.get_card("Ravenholdt Assassin", game.current_player.other_player.board)
+  assert ravenholdt_assassin.has_attribute(Attributes.STEALTH)
+  commander = game.game_manager.get_card("Argent Commander", game.current_player.board)
+  attack_with_commander_actions = list(filter(lambda action: action.source == commander, game.get_available_actions(game.current_player)))
+  assert len(attack_with_commander_actions) == 1
+  new_owl = game.game_manager.get_card('Ironbeak Owl', game.current_player.hand)
+  silence_actions = list(filter(lambda action: action.source==new_owl, game.get_available_actions(game.current_player)))
+  assert len(silence_actions) == 1 #silence your own commander
+  game.perform_action(silence_actions[0])
+  assert not commander.has_attribute(Attributes.DIVINE_SHIELD)
+  assert not commander.has_attribute(Attributes.CHARGE)
+
+
+  attack_with_commander_actions = list(filter(lambda action: action.source == commander, game.get_available_actions(game.current_player)))
+  assert len(attack_with_commander_actions) == 0
+  game.end_turn()
+  game.untap()
+  attack_with_assassin_actions = list(filter(lambda action: action.source == ravenholdt_assassin, game.get_available_actions(game.current_player)))
+  assert len(attack_with_assassin_actions) == 3
+  attack_commander = list(filter(lambda action: action.targets[0] == commander, attack_with_assassin_actions))[0]
+  game.perform_action(attack_commander)
+  assert not commander.has_attribute(Attributes.DIVINE_SHIELD)
+  assert not ravenholdt_assassin.has_attribute(Attributes.STEALTH)
+  assert ravenholdt_assassin.get_health() == 1
+  game.end_turn()
+  game.untap()
+  fireball = game.game_manager.get_card('Fireball', game.current_player.hand)
+  game.current_player.current_mana = 4
+  cast_fireball_actions = list(filter(lambda action: action.source == fireball, game.get_available_actions(game.current_player)))
+  assert len(cast_fireball_actions) == 4
+
 
 
 def test_battlecry_reduce_cost():
