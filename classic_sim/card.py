@@ -68,7 +68,12 @@ class Card():
     creature_type_okay = (effect.type_filter == None or effect.type_filter == CreatureTypes.ALL)\
     or effect.type_filter == self.creature_type
     
-    return type_okay and owner_okay and creature_type_okay
+    try:
+      dynamics_okay = effect.dynamic_filter(self)
+    except AttributeError:
+      dynamics_okay = True
+    
+    return type_okay and owner_okay and creature_type_okay and dynamics_okay
 
   def has_attribute(self, attribute):
     return attribute in self.attributes or attribute in self.temp_attributes or attribute in self.perm_attributes\

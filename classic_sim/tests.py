@@ -1142,6 +1142,40 @@ def test_abomination():
   assert game.current_player.get_health() == 28
   assert game.current_player.other_player.get_health() == 28
 
+def test_azure_drake():
+  game = GameManager().create_test_game()
+  azure_drake = game.game_manager.get_card("Azure Drake", game.current_player.hand)  
+  assert len(game.current_player.hand) == 1
+  play_drake = list(filter(lambda action: action.source==azure_drake, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(play_drake)
+
+  assert azure_drake.has_attribute(Attributes.SPELL_DAMAGE)
+  assert azure_drake.creature_type == CreatureTypes.DRAGON
+  assert game.current_player.get_spell_damage() == 1
+  assert len(game.current_player.hand) == 1
+
+def test_gadgetzan_auctioneer():
+  game = GameManager().create_test_game()
+  auctioneer = game.game_manager.get_card("Gadgetzan Auctioneer", game.current_player.board)  
+  assert len(game.current_player.hand) == 0
+  fireball1 = game.game_manager.get_card("Fireball", game.current_player.hand)  
+  fireball2 = game.game_manager.get_card("Fireball", game.current_player.hand)  
+  assert len(game.current_player.hand) == 2
+  cast_fireball1 = list(filter(lambda action: action.source == fireball1 and action.targets[0] == game.current_player.other_player, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(cast_fireball1)
+  assert len(game.current_player.hand) == 2
+  cast_fireball2 = list(filter(lambda action: action.source == fireball2 and action.targets[0] == game.current_player.other_player, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(cast_fireball2)
+  assert len(game.current_player.hand) == 2
+  enemy_fireball = game.game_manager.get_card("Fireball", game.current_player.other_player.hand)  
+  cast_enemy_fireball = list(filter(lambda action: action.source == enemy_fireball and action.targets[0] == game.current_player, game.get_available_actions(game.current_player.other_player)))[0]
+  game.perform_action(cast_enemy_fireball)
+  assert len(game.current_player.hand) == 2
+  assert len(game.current_player.other_player.hand) == 0
+
+
+
+
 def test_battlecry_reduce_cost():
   game = GameManager().create_test_game()
 
