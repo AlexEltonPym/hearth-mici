@@ -1265,6 +1265,100 @@ def test_captains_parrot():
   assert len(game.current_player.hand) == 1
   assert game.current_player.hand.get_all()[0].creature_type == CreatureTypes.PIRATE
 
+def test_doomsayer():
+  game = GameManager().create_test_game()
+  doomsayer = game.game_manager.get_card("Doomsayer", game.current_player.board)
+  southsea_deckhand = game.game_manager.get_card("Southsea Deckhand", game.current_player.board)
+  wisp = game.game_manager.get_card("Wisp", game.current_player.other_player.board)
+  game.end_turn()
+  assert doomsayer.parent == doomsayer.owner.graveyard
+  assert southsea_deckhand.parent == southsea_deckhand.owner.graveyard
+  assert wisp.parent == wisp.owner.graveyard
+
+def test_game_hunter():
+  game = GameManager().create_test_game()
+  venture_co_mercenary = game.game_manager.get_card("Venture Co. Mercenary", game.current_player.other_player.board)
+  wisp = game.game_manager.get_card("Wisp", game.current_player.other_player.board)
+  big_game_hunter = game.game_manager.get_card("Big Game Hunter", game.current_player.hand)
+  assert big_game_hunter.get_manacost() == 3
+  play_big_game_hunter_actions = list(filter(lambda action: action.source == big_game_hunter, game.get_available_actions(game.current_player)))
+  assert len(play_big_game_hunter_actions) == 1
+  game.perform_action(play_big_game_hunter_actions[0])
+  assert venture_co_mercenary.parent == venture_co_mercenary.owner.graveyard
+
+def test_blood_knight():
+  game = GameManager().create_test_game()
+  sunwalker = game.game_manager.get_card("Sunwalker", game.current_player.other_player.board)
+  argent_commander = game.game_manager.get_card("Argent Commander", game.current_player.other_player.board)
+  argent_squire = game.game_manager.get_card("Argent Squire", game.current_player.board)
+  blood_knight = game.game_manager.get_card("Blood Knight", game.current_player.hand)
+  assert sunwalker.has_attribute(Attributes.DIVINE_SHIELD)
+  assert argent_commander.has_attribute(Attributes.DIVINE_SHIELD)
+  assert argent_squire.has_attribute(Attributes.DIVINE_SHIELD)
+  play_blood_knight = list(filter(lambda action: action.source == blood_knight, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(play_blood_knight)
+  assert blood_knight.get_attack() == 12
+  assert blood_knight.get_health() == 12
+  assert not sunwalker.has_attribute(Attributes.DIVINE_SHIELD)
+  assert not argent_commander.has_attribute(Attributes.DIVINE_SHIELD)
+  assert not argent_squire.has_attribute(Attributes.DIVINE_SHIELD)
+
+def test_murloc_warleader():
+  game = GameManager().create_test_game()
+  murloc_warleader = game.game_manager.get_card("Murloc Warleader", game.current_player.board)
+  murloc_tidehunter1 = game.game_manager.get_card("Murloc Tidehunter", game.current_player.other_player.board)
+  murloc_tidehunter2 = game.game_manager.get_card("Murloc Tidehunter", game.current_player.board)
+  assert murloc_warleader.get_attack() == 3
+  assert murloc_warleader.get_health() == 3
+  assert murloc_warleader.get_max_health() == 3
+  assert murloc_tidehunter1.get_attack() == 4
+  assert murloc_tidehunter1.get_health() == 2
+  assert murloc_tidehunter1.get_max_health() == 2
+  assert murloc_tidehunter2.get_attack() == 4
+  assert murloc_tidehunter2.get_health() == 2
+  assert murloc_tidehunter2.get_max_health() == 2
+
+def test_southsea_captain():
+  game = GameManager().create_test_game()
+  southsea_captain = game.game_manager.get_card("Southsea Captain", game.current_player.board)
+  southsea_deckhand = game.game_manager.get_card("Southsea Deckhand", game.current_player.board)
+  enemy_deckhand = game.game_manager.get_card("Southsea Deckhand", game.current_player.other_player.board)
+  assert southsea_captain.creature_type == CreatureTypes.PIRATE
+  assert southsea_captain.get_attack() == 3
+  assert southsea_captain.get_health() == 3
+  assert southsea_captain.get_max_health() == 3
+  assert southsea_deckhand.get_attack() == 3
+  assert southsea_deckhand.get_health() == 2
+  assert southsea_deckhand.get_max_health() == 2
+  assert enemy_deckhand.get_attack() == 2
+  assert enemy_deckhand.get_health() == 1
+  assert enemy_deckhand.get_max_health() == 1
+
+def test_faceless_manipulator():
+  game = GameManager().create_test_game()
+  argent_commander = game.game_manager.get_card("Argent Commander", game.current_player.board)
+  faceless_manipulator = game.game_manager.get_card("Faceless Manipulator", game.current_player.hand)
+  play_faceless = list(filter(lambda action: action.source == faceless_manipulator, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(play_faceless)
+  assert faceless_manipulator.has_attribute(Attributes.DIVINE_SHIELD)
+  assert faceless_manipulator.has_attribute(Attributes.CHARGE)
+  assert faceless_manipulator.get_attack() == 4
+  assert faceless_manipulator.get_health() == 2
+  assert faceless_manipulator.get_max_health() == 2
+  attack_actions = list(filter(lambda action: action.action_type==Actions.ATTACK, game.get_available_actions(game.current_player)))
+  assert len(attack_actions) == 2
+  ironbeak = game.game_manager.get_card('Ironbeak Owl', game.current_player.hand)
+  silence_manipulator =  list(filter(lambda action: action.source==ironbeak and action.targets[0]==faceless_manipulator, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(silence_manipulator)
+  assert not faceless_manipulator.has_attribute(Attributes.DIVINE_SHIELD)
+  assert not faceless_manipulator.has_attribute(Attributes.CHARGE)
+  assert faceless_manipulator.get_attack() == 4
+  assert faceless_manipulator.get_health() == 2
+  assert faceless_manipulator.get_max_health() == 2
+
+
+  
+
 
 def test_battlecry_reduce_cost():
   game = GameManager().create_test_game()
@@ -1395,6 +1489,17 @@ def test_fatigue():
   assert game.current_player.get_health() == 24
   assert game.current_player.fatigue_damage == 4
   assert len(game.current_player.hand) == 10
+
+def test_excess_mana():
+  game = GameManager().create_test_game()
+  game.current_player.max_mana = 10
+  gain_perm_mana = game.game_manager.get_card('Gain Perm Mana', game.current_player.hand)
+  play_mana = list(filter(lambda action: action.source == gain_perm_mana, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(play_mana)
+  assert len(game.current_player.hand) == 1
+  assert game.current_player.max_mana == 10
+  assert game.current_player.current_mana == 10
+
 
 def test_random_card_game():
   game_manager = GameManager()

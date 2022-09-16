@@ -2,6 +2,7 @@ from enums import *
 from copy import deepcopy
 from action import Action
 
+
 class GainMana():
   available_methods = [Methods.TARGETED, Methods.RANDOMLY, Methods.ALL]
   param_type = ParamTypes.X
@@ -22,12 +23,20 @@ class GainMana():
     self.trigger = trigger
 
   def resolve_action(self, game, action):
+    from card_sets import get_utility_card
     for target in action.targets:
       if self.duration == Durations.TURN:
         target.current_mana += self.value(action.source)
+        target.current_mana = min(target.current_mana, 10)
       elif self.duration == Durations.PERMANENTLY:
-        target.current_mana += self.value(action.source)
         target.max_mana += self.value(action.source)
+        if target.max_mana > 10:
+          excess_mana = get_utility_card('Excess Mana')
+          excess_mana.set_owner(target)
+          excess_mana.set_parent(target.hand)
+          target.max_mana = 10
+        target.current_mana += self.value(action.source)
+        target.current_mana = min(target.current_mana, 10)
 
 class DealDamage():
   available_methods = [Methods.TARGETED, Methods.RANDOMLY, Methods.ALL, Methods.SELF]
@@ -239,7 +248,7 @@ class RestoreHealth():
         game.trigger(target, Triggers.FRIENDLY_HEALED)
         game.trigger(target, Triggers.ENEMY_HEALED)
 
-class GiveKeyword():
+class GiveAttribute():
   available_methods = [m for m in Methods]
   param_type = ParamTypes.KEYWORD
   available_targets = [t for t in Targets]
@@ -264,6 +273,32 @@ class GiveKeyword():
         target.temp_attributes.append(self.value)
       elif self.duration == Durations.PERMANENTLY:
         target.perm_attributes.append(self.value)
+
+class RemoveAttribute():
+  available_methods = [m for m in Methods]
+  param_type = ParamTypes.KEYWORD
+  available_targets = [t for t in Targets]
+  available_owner_filters = [f for f in OwnerFilters]
+  available_type_filters = [c for c in CreatureTypes]
+  available_durations = []
+  available_triggers = [t for t in Triggers]
+  def __init__(self, value, method, target, owner_filter, random_count=1, duration=None, trigger=None, type_filter=None):
+    self.zone_filter = Zones.BOARD #could be changeable
+    self.method = method
+    self.value = value
+    self.random_count = random_count
+    self.target = target
+    self.owner_filter = owner_filter
+    self.type_filter = type_filter
+    self.trigger = trigger
+    self.duration = duration
+
+  def resolve_action(self, game, action):
+    for target in action.targets:
+      if self.value in target.temp_attributes: target.temp_attributes.remove(self.value)
+      if self.value in target.perm_attributes: target.perm_attributes.remove(self.value)
+      if self.value in target.attributes: target.attributes.remove(self.value)
+
 
 class SummonToken(): #summon minion for target player
   available_methods = [Methods.TARGETED, Methods.RANDOMLY, Methods.ALL]
@@ -374,6 +409,44 @@ class SwapWithMinion():
       target.change_parent(target.owner.board)
       action.source.change_parent(action.source.owner.hand)
 
+class CopyMinion():
+  available_methods = [Methods.RANDOMLY, Methods.TARGETED]
+  param_type = ParamTypes.NONE
+  available_targets = [Targets.MINION]
+  available_owner_filters = [o for o in OwnerFilters]
+  available_type_filters = [t for t in CreatureTypes]
+  available_durations = []
+  available_triggers = [t for t in Triggers]
+  
+  def __init__(self, method, owner_filter, target=Targets.MINION, value=None, random_count=1, duration=None, trigger=None, type_filter=None):
+    self.zone_filter = Zones.BOARD
+    self.method = method
+    self.value = value
+    self.random_count = random_count
+    self.target = target
+    self.owner_filter = owner_filter
+    self.type_filter = type_filter
+    self.trigger = trigger
+    self.duration = duration
+
+  def resolve_action(self, game, action):
+    for target in action.targets:
+      action.source.manacost = target.manacost
+      action.source.attack = target.attack
+      action.source.health = target.health
+      action.source.creature_type = target.creature_type
+      action.source.max_health = target.max_health
+      action.source.temp_attack = target.temp_attack
+      action.source.temp_health = target.temp_health
+      action.source.perm_attack = target.perm_attack
+      action.source.perm_health = target.perm_health
+      action.source.effect = deepcopy(target.effect)
+      action.source.condition = deepcopy(target.condition)
+      action.source.attributes = deepcopy(target.attributes)
+      action.source.temp_attributes = deepcopy(target.temp_attributes)
+      action.source.perm_attributes = deepcopy(target.perm_attributes)
+
+
 class DuelAction():
   def __init__(self, first_effect, second_effect):
     self.first_effect = first_effect
@@ -393,9 +466,10 @@ class DuelAction():
     self.second_effect.resolve_action(game, action)
 
 class DuelActionSelf():
-  def __init__(self, first_effect, second_effect):
+  def __init__(self, first_effect, second_effect, first_effect_first=True):
     self.first_effect = first_effect
     self.second_effect = second_effect
+    self.first_effect_first = first_effect_first
     self.method = first_effect.method
     self.value = first_effect.value
     self.param_type = first_effect.param_type
@@ -407,6 +481,9 @@ class DuelActionSelf():
     self.zone_filter = first_effect.zone_filter
   
   def resolve_action(self, game, action):
-    self.first_effect.resolve_action(game, action)
-    self.second_effect.resolve_action(game, Action(action_type=Actions.CAST_EFFECT, source=action.source, targets=[action.source]))
-
+    if self.first_effect_first:
+      self.first_effect.resolve_action(game, action)
+      self.second_effect.resolve_action(game, Action(action_type=Actions.CAST_EFFECT, source=action.source, targets=[action.source]))
+    else:
+      self.second_effect.resolve_action(game, Action(action_type=Actions.CAST_EFFECT, source=action.source, targets=[action.source]))
+      self.first_effect.resolve_action(game, action)

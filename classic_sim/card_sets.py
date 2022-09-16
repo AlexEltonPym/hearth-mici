@@ -11,7 +11,9 @@ def get_utility_card(utility_card):
   the_coin = Card(name="The Coin", collectable=False, card_type=CardTypes.SPELL, manacost=0,
           effect=GainMana(value=Constant(1), method=Methods.TARGETED,
                   duration=Durations.TURN, target=Targets.HERO, owner_filter=OwnerFilters.FRIENDLY))
-  utility_cards = {"Coin": the_coin}
+  excess_mana = Card(name="Excess Mana", collectable=False, card_type=CardTypes.SPELL, manacost=0,
+          effect=DrawCards(value=Constant(1), method=Methods.ALL, owner_filter=OwnerFilters.FRIENDLY))
+  utility_cards = {"Coin": the_coin, "Excess Mana": excess_mana}
   return utility_cards[utility_card]
 
 
@@ -222,7 +224,7 @@ def get_common_cards():
 
   # Common six drops
   frost_elemental = Card(name="Frost Elemental", card_type=CardTypes.MINION, creature_type=CreatureTypes.ELEMENTAL, manacost=6, attack=5, health=5,\
-            effect=GiveKeyword(value=Attributes.FROZEN, trigger=Triggers.BATTLECRY, method=Methods.TARGETED, target=Targets.MINION_OR_HERO, owner_filter=OwnerFilters.ALL, duration=Durations.PERMANENTLY))
+            effect=GiveAttribute(value=Attributes.FROZEN, trigger=Triggers.BATTLECRY, method=Methods.TARGETED, target=Targets.MINION_OR_HERO, owner_filter=OwnerFilters.ALL, duration=Durations.PERMANENTLY))
   priestess_of_elune = Card(name="Priestess of Elune", card_type=CardTypes.MINION, manacost=6, attack=5, health=4,\
                   effect=RestoreHealth(value=Constant(4), trigger=Triggers.BATTLECRY, method=Methods.ALL, target=Targets.HERO, owner_filter=OwnerFilters.FRIENDLY))
   windfury_harpy = Card(name="Windfury Harpy", card_type=CardTypes.MINION, manacost=6, attack=4, health=5, attributes=[Attributes.WINDFURY])
@@ -274,7 +276,7 @@ def get_rare_cards():
   pint_sized_summoner = Card(name="Pint-Sized Summoner", card_type=CardTypes.MINION, manacost=2, attack=2, health=2,\
                              effect=ChangeCost(value=If(Equals(MinionsPlayed(), Constant(0)), Constant(-1), Constant(0)), trigger=Triggers.AURA, method=Methods.ALL, target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY))
   sunfury_protector = Card(name="Sunfury Protector", card_type=CardTypes.MINION, manacost=2, attack=2, health=2,\
-                          effect=GiveKeyword(value=Attributes.TAUNT, method=Methods.ADJACENT, target=Targets.MINION,
+                          effect=GiveAttribute(value=Attributes.TAUNT, method=Methods.ADJACENT, target=Targets.MINION,
                           owner_filter=OwnerFilters.FRIENDLY, duration=Durations.PERMANENTLY, trigger=Triggers.BATTLECRY))
   wild_pyromancer = Card(name="Wild Pyromancer", card_type=CardTypes.MINION, manacost=2, attack=3, health=2,\
                         effect=DuelActionSelf(DealDamage(trigger=Triggers.FRIENDLY_SPELL_CAST, method=Methods.ALL, value=Constant(1), target=Targets.MINION, owner_filter=OwnerFilters.ALL),\
@@ -304,11 +306,11 @@ def get_rare_cards():
 
   # Rare four drops
   ancient_mage = Card(name="Ancient Mage", card_type=CardTypes.MINION, manacost=4, attack=2, health=5,\
-                      effect=GiveKeyword(value=Attributes.SPELL_DAMAGE, method=Methods.ADJACENT, trigger=Triggers.BATTLECRY, target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY, duration=Durations.PERMANENTLY))
+                      effect=GiveAttribute(value=Attributes.SPELL_DAMAGE, method=Methods.ADJACENT, trigger=Triggers.BATTLECRY, target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY, duration=Durations.PERMANENTLY))
   defender_of_argus = Card(name="Defender of Argus", card_type=CardTypes.MINION, manacost=4, attack=2, health=3,
                           effect=DuelAction(ChangeStats(value=(Constant(1),Constant(1)), method=Methods.ADJACENT, target=Targets.MINION,
                           owner_filter=OwnerFilters.FRIENDLY, duration=Durations.PERMANENTLY, trigger=Triggers.BATTLECRY),
-                          GiveKeyword(value=Attributes.TAUNT, method=Methods.ADJACENT, target=Targets.MINION,
+                          GiveAttribute(value=Attributes.TAUNT, method=Methods.ADJACENT, target=Targets.MINION,
                           owner_filter=OwnerFilters.FRIENDLY, duration=Durations.PERMANENTLY, trigger=Triggers.BATTLECRY)))
   twilight_drake = Card(name="Twilight Drake", card_type=CardTypes.MINION, manacost=4, attack=4, health=1, creature_type=CreatureTypes.DRAGON,\
                         effect=ChangeStats(value=(Constant(0), NumCardsInHand()), method=Methods.SELF, trigger=Triggers.BATTLECRY, target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY, duration=Durations.PERMANENTLY))
@@ -350,16 +352,36 @@ def get_epic_cards():
                      effect=DuelActionSelf(Destroy(trigger=Triggers.BATTLECRY, target=Targets.MINION, owner_filter=OwnerFilters.ALL, type_filter=CreatureTypes.MURLOC, method=Methods.TARGETED),\
                                            ChangeStats(value=(Constant(2), Constant(2)),trigger=Triggers.BATTLECRY, target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY, method=Methods.SELF, duration=Durations.PERMANENTLY)))
   
-  # Epic two dops
+  # Epic two drops
   captains_parrot = Card(name="Captain's Parrot", card_type=CardTypes.MINION, manacost=2, attack=1, health=1, creature_type=CreatureTypes.BEAST,\
                           effect=Tutor(trigger=Triggers.BATTLECRY, method=Methods.RANDOMLY, target=Targets.MINION, type_filter=CreatureTypes.PIRATE, owner_filter=OwnerFilters.FRIENDLY))
-  
+  doomsayer = Card(name="Doomsayer", card_type=CardTypes.MINION, manacost=2, attack=0, health=7,\
+                        effect=DuelActionSelf(Destroy(trigger=Triggers.FRIENDLY_END_TURN, owner_filter=OwnerFilters.ALL, target=Targets.MINION, method=Methods.ALL),\
+                                              Destroy(trigger=Triggers.FRIENDLY_END_TURN, owner_filter=OwnerFilters.FRIENDLY, target=Targets.MINION, method=Methods.SELF)))
+
+  # Epic three drops
+  big_game_hunter = Card(name="Big Game Hunter", card_type=CardTypes.MINION, manacost=3, attack=4, health=2,\
+                          effect=Destroy(dynamic_filter=GreaterThan(AttackValue(), Constant(6)),method=Methods.TARGETED, target=Targets.MINION, trigger=Triggers.BATTLECRY, owner_filter=OwnerFilters.ALL))
+  blood_knight = Card(name="Blood Knight", card_type=CardTypes.MINION, manacost=3, attack=3, health=3,\
+                      effect=DuelActionSelf(RemoveAttribute(value=Attributes.DIVINE_SHIELD, method=Methods.ALL, trigger=Triggers.BATTLECRY, owner_filter=OwnerFilters.ALL, target=Targets.MINION),\
+                                            ChangeStats(value=(Multiply(NumWithAttribute(Attributes.DIVINE_SHIELD, OwnerFilters.ALL), Constant(3)), Multiply(NumWithAttribute(Attributes.DIVINE_SHIELD, OwnerFilters.ALL), Constant(3))),\
+                                                        trigger=Triggers.BATTLECRY, method=Methods.SELF, target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY, duration=Durations.PERMANENTLY),\
+                                            first_effect_first=False))
+  murloc_warleader = Card(name="Murloc Warleader", card_type=CardTypes.MINION, manacost=3, attack=3, health=3, creature_type=CreatureTypes.MURLOC,\
+                          effect=ChangeStats(value=(Constant(2), Constant(1)), method=Methods.ALL, trigger=Triggers.AURA, target=Targets.MINION, owner_filter=OwnerFilters.ALL, type_filter=CreatureTypes.MURLOC))
+  southsea_captain = Card(name="Southsea Captain", card_type=CardTypes.MINION, manacost=3, attack=3, health=3, creature_type=CreatureTypes.PIRATE,\
+                          effect=ChangeStats(value=(Constant(1), Constant(1)), trigger=Triggers.AURA, method=Methods.ALL, target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY, type_filter=CreatureTypes.PIRATE))
+
+  # Epic five drops
+  faceless_manipulator = Card(name="Faceless Manipulator", card_type=CardTypes.MINION, manacost=5, attack=3, health=3,\
+                              effect=CopyMinion(method=Methods.TARGETED, trigger=Triggers.BATTLECRY, owner_filter=OwnerFilters.ALL))
+
 
   # Combine
   epic_one_drops = [hungry_crab]
-  epic_two_drops = [captains_parrot]
-  epic_three_drops = []
-  epic_five_drops = []
+  epic_two_drops = [captains_parrot, doomsayer]
+  epic_three_drops = [big_game_hunter, blood_knight, murloc_warleader, southsea_captain]
+  epic_five_drops = [faceless_manipulator]
   epic_ten_plus_drops = []
 
   return epic_one_drops + epic_two_drops + epic_three_drops + epic_five_drops + epic_ten_plus_drops
@@ -383,8 +405,11 @@ def get_test_cards():
                manacost=0, attack=2, health=2, attributes=[Attributes.WINDFURY])
   battlecry_reduce_cost = Card("Battlecry Reduce Cost", card_type=CardTypes.MINION, manacost=0, attack=0, health=1,
                  effect=ChangeCost(value=Constant(1), target=Targets.MINION_OR_SPELL, method=Methods.ALL, owner_filter=OwnerFilters.ENEMY, trigger=Triggers.BATTLECRY))
+  gain_perm_mana = Card("Gain Perm Mana", card_type=CardTypes.SPELL, manacost=0,\
+                        effect=GainMana(value=Constant(1), owner_filter=OwnerFilters.FRIENDLY, method=Methods.ALL, duration=Durations.PERMANENTLY))
+
   test_cards = [all_dam, generic_weapon, battlecry_weapon,
-          windfury_weapon, battlecry_reduce_cost]
+          windfury_weapon, battlecry_reduce_cost, gain_perm_mana]
   return test_cards
 
 def get_random_cards(random_state):
