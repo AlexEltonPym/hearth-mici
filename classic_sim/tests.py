@@ -1392,6 +1392,87 @@ def test_molten_giant():
   assert game.current_player.get_health() == 5
   assert molten_giant.get_manacost() == 0
 
+# Test hunter cards
+
+def test_hunters_mark():
+  game = GameManager().create_test_game()
+  molten_giant =  game.game_manager.get_card("Molten Giant", game.current_player.other_player.board)
+  hunters_mark =  game.game_manager.get_card("Hunter's Mark", game.current_player.hand)
+  game.deal_damage(molten_giant, 1)
+  assert molten_giant.get_attack() == 8
+  assert molten_giant.get_health() == 7
+  assert molten_giant.get_max_health() == 8
+  play_hunters_mark = list(filter(lambda action: action.source==hunters_mark, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(play_hunters_mark)
+  assert molten_giant.get_attack() == 8
+  assert molten_giant.get_health() == 1
+  assert molten_giant.get_max_health() == 1
+
+def test_arcane_shot():
+  game = GameManager().create_test_game()
+  arcane_shot =  game.game_manager.get_card("Arcane Shot", game.current_player.hand)
+  watcher = game.game_manager.get_card("Ancient Watcher", game.current_player.other_player.board)
+  play_arcane_shot = list(filter(lambda action: action.source==arcane_shot and action.targets[0] == watcher, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(play_arcane_shot)
+  assert watcher.get_health() == 3
+  assert watcher.get_max_health() == 5
+
+def test_timber_wolf():
+  game = GameManager().create_test_game()
+  emperor_cobra = game.game_manager.get_card("Emperor Cobra", game.current_player.board)
+  wisp = game.game_manager.get_card("Wisp", game.current_player.board)
+  assert emperor_cobra.get_attack() == 2
+  assert emperor_cobra.get_health() == 3
+  assert wisp.get_attack() == 1
+  assert wisp.get_health() == 1
+  timber_wolf =  game.game_manager.get_card("Timber Wolf", game.current_player.board)
+  assert timber_wolf.get_attack() == 1
+  assert timber_wolf.get_health() == 1
+  assert emperor_cobra.get_attack() == 3
+  assert emperor_cobra.get_health() == 3
+  assert wisp.get_attack() == 1
+  assert wisp.get_health() == 1
+
+
+def test_tracking(): #tracking now tutors a beast instead of loot 3
+  game = GameManager().create_test_game()
+  tracking = game.game_manager.get_card("Tracking", game.current_player.hand)
+
+  captains_parrot = game.game_manager.get_card("Captain's Parrot", game.current_player.hand)
+  captains_parrot.change_parent(captains_parrot.owner.deck) #when initally setting to deck, has different owners for some reason?
+
+  play_tracking = list(filter(lambda action: action.source == tracking, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(play_tracking)
+
+  assert len(game.current_player.hand) == 1
+  assert game.current_player.hand.get_all()[0].creature_type == CreatureTypes.BEAST
+
+def test_starving_buzzard():
+  game = GameManager().create_test_game()
+  starving_buzzard = game.game_manager.get_card("Starving Buzzard", game.current_player.board)
+  angry_chicken = game.game_manager.get_card("Angry Chicken", game.current_player.hand)
+  play_chicken = list(filter(lambda action: action.source == angry_chicken, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(play_chicken)
+  assert len(game.current_player.hand) == 1
+  angry_chicken2 = game.game_manager.get_card("Angry Chicken", game.current_player.hand)
+  play_chicken2 = list(filter(lambda action: action.source == angry_chicken2, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(play_chicken2)
+  assert len(game.current_player.hand) == 2
+  assert starving_buzzard.creature_type == CreatureTypes.BEAST
+  assert starving_buzzard.get_attack() == 2
+  assert starving_buzzard.get_health() == 1
+
+def test_animal_companion():
+  game = GameManager(RandomState(1)).create_test_game()
+  animal_companion = game.game_manager.get_card("Animal Companion", game.current_player.hand)
+  play_companion = list(filter(lambda action: action.source == animal_companion, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(play_companion)
+  assert game.current_player.board.get_all()[0].name == "Leokk"
+  wisp = game.game_manager.get_card("Wisp", game.current_player.board)
+  assert wisp.get_attack() == 2
+  assert wisp.get_health() == 1
+  
+ 
 
 
 def test_battlecry_reduce_cost():

@@ -28,14 +28,6 @@ def get_hero_power(hero_class):
   return hero_powers[hero_class]
 
 
-def get_hunter_cards():
-
-  snipe = Card(name="Snipe", card_type=CardTypes.SECRET, manacost=2,\
-              effect=DealDamage(value=Constant(4), trigger=Triggers.ENEMY_MINION_SUMMONED, method=Methods.TRIGGERER, target=Targets.MINION, owner_filter=OwnerFilters.ENEMY))
-
-  hunter_cards = [snipe]
-
-  return hunter_cards
 
 
 def get_op_cards():
@@ -392,6 +384,30 @@ def get_epic_cards():
   epic_ten_plus_drops = [sea_giant, mountain_giant, molten_giant]
 
   return epic_one_drops + epic_two_drops + epic_three_drops + epic_five_drops + epic_ten_plus_drops
+
+def get_hunter_cards():
+  hunters_mark = Card(name="Hunter's Mark", card_type=CardTypes.SPELL, manacost=0,\
+                      effect=SetStats(value=(None, Constant(1)), method=Methods.TARGETED, target=Targets.MINION, owner_filter=OwnerFilters.ALL))
+  arcane_shot = Card(name="Arcane Shot", card_type=CardTypes.SPELL, manacost=1,\
+                    effect=DealDamage(value=Constant(2), target=Targets.MINION_OR_HERO, method=Methods.TARGETED, owner_filter=OwnerFilters.ALL))
+  timber_wolf = Card(name="Timber Wolf", card_type=CardTypes.MINION, manacost=1, attack=1, health=1, creature_type=CreatureTypes.BEAST,\
+                      effect=ChangeStats(value=(Constant(1), Constant(0)), method=Methods.ALL, trigger=Triggers.AURA, target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY, type_filter=CreatureTypes.BEAST))
+  tracking = Card(name="Tracking", card_type=CardTypes.SPELL, manacost=1,\
+                     effect=Tutor(method=Methods.RANDOMLY, target=Targets.MINION, type_filter=CreatureTypes.BEAST, owner_filter=OwnerFilters.FRIENDLY)) #this is modified from the real tracking
+  starving_buzzard = Card(name="Starving Buzzard", card_type=CardTypes.MINION, manacost=2, attack=2, health=1, creature_type=CreatureTypes.BEAST,\
+                          effect=DrawCards(value=Constant(1), trigger=Triggers.FRIENDLY_SAME_TYPE_SUMMONED, method=Methods.ALL, owner_filter=OwnerFilters.FRIENDLY)) 
+  animal_companion = Card(name="Animal Companion", card_type=CardTypes.SPELL, manacost=3,\
+                          effect=MultiEffectRandom([SummonToken(method=Methods.ALL, owner_filter=OwnerFilters.FRIENDLY, value=Card(name="Huffer", collectable=False, card_type=CardTypes.MINION, manacost=3, attack=4, health=2, creature_type=CreatureTypes.BEAST, attributes=[Attributes.CHARGE])),\
+                                                    SummonToken(method=Methods.ALL, owner_filter=OwnerFilters.FRIENDLY, value=Card(name="Leokk", collectable=False, card_type=CardTypes.MINION, manacost=3, attack=2, health=4, creature_type=CreatureTypes.BEAST,\
+                                                                           effect=ChangeStats(value=(Constant(1), Constant(0)), trigger=Triggers.AURA, target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY, method=Methods.ALL))),\
+                                                    SummonToken(method=Methods.ALL, owner_filter=OwnerFilters.FRIENDLY, value=Card(name="Misha", collectable=False, card_type=CardTypes.MINION, manacost=3, attack=4, health=4, creature_type=CreatureTypes.BEAST, attributes=[Attributes.TAUNT]))]))
+
+  snipe = Card(name="Snipe", card_type=CardTypes.SECRET, manacost=2,\
+              effect=DealDamage(value=Constant(4), trigger=Triggers.ENEMY_MINION_SUMMONED, method=Methods.TRIGGERER, target=Targets.MINION, owner_filter=OwnerFilters.ENEMY))
+
+  hunter_cards = [hunters_mark, arcane_shot, timber_wolf, tracking, starving_buzzard, animal_companion, snipe]
+
+  return hunter_cards
 
 def get_mage_cards():
   fireball = Card(name="Fireball", card_type=CardTypes.SPELL, manacost=4, effect=DealDamage(

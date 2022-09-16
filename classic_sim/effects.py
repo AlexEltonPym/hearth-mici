@@ -116,6 +116,38 @@ class ChangeStats():
         target.perm_attack += self.value[0](action.source)
         target.perm_health += self.value[1](action.source)
 
+class SetStats():
+  available_methods = [m for m in Methods]
+  param_type = ParamTypes.XY
+  available_targets = [t for t in Targets]
+  available_owner_filters = [f for f in OwnerFilters]
+  available_type_filters = [c for c in CreatureTypes]
+  available_durations = []
+  available_triggers = [t for t in Triggers]
+  def __init__(self, value, method, target, owner_filter, random_count=1, duration=None, trigger=None, type_filter=None):
+    self.zone_filter = Zones.BOARD #this could be changeable
+    self.method = method
+    self.value = value
+    self.random_count = random_count
+    self.target = target
+    self.owner_filter = owner_filter
+    self.type_filter = type_filter
+    self.trigger = trigger
+    self.duration = duration
+
+  def resolve_action(self, game, action):
+    for target in action.targets:
+      if self.value[0] != None:
+        target.temp_attack = 0
+        target.perm_attack = 0
+        target.attack = self.value[0](action.source)
+      if self.value[1] != None:
+        target.temp_health = 0
+        target.perm_health = 0
+        target.health = self.value[1](action.source)
+        target.max_health = target.health
+
+
 class SwapStats():
   available_methods = [m for m in Methods]
   param_type = ParamTypes.NONE
@@ -487,3 +519,19 @@ class DuelActionSelf():
     else:
       self.second_effect.resolve_action(game, Action(action_type=Actions.CAST_EFFECT, source=action.source, targets=[action.source]))
       self.first_effect.resolve_action(game, action)
+
+class MultiEffectRandom():
+  def __init__(self, effects):
+    self.effects = effects
+    self.method = effects[0].method
+    self.value = effects[0].value
+    self.param_type = effects[0].param_type
+    self.target = effects[0].target
+    self.owner_filter = effects[0].owner_filter
+    self.type_filter = effects[0].type_filter
+    self.duration = effects[0].duration
+    self.trigger = effects[0].trigger
+    self.zone_filter = effects[0].zone_filter
+  def resolve_action(self, game, action):
+    chosen_effect = game.game_manager.random_state.choice(self.effects)
+    chosen_effect.resolve_action(game, action)
