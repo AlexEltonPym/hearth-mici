@@ -55,11 +55,38 @@ class If(object):
 
 ## Dynamic values
 
-class NumOtherFriendlyMinions(object):
-  def __init__(self):
-    pass
+class NumOtherMinions(object):
+  def __init__(self, owner_filter):
+    self.owner_filter = owner_filter
   def __call__(self, card):
-    return len(card.owner.board) - 1
+    count = 0
+    if self.owner_filter == OwnerFilters.FRIENDLY or self.owner_filter == OwnerFilters.ALL:
+      count += len(card.owner.board) - 1
+    if self.owner_filter == OwnerFilters.ENEMY or self.owner_filter == OwnerFilters.ALL:
+      count += len(card.owner.other_player.board)
+    return count
+
+class CardsInHand(object):
+  def __init__(self, owner_filter):
+    self.owner_filter = owner_filter
+  def __call__(self, card):
+    count = 0
+    if self.owner_filter == OwnerFilters.FRIENDLY or self.owner_filter == OwnerFilters.ALL:
+      count += len(card.owner.hand)
+    if self.owner_filter == OwnerFilters.ENEMY or self.owner_filter == OwnerFilters.ALL:
+      count += len(card.owner.other_player.hand)
+    return count
+
+class DamageTaken(object):
+  def __init__(self, owner_filter):
+    self.owner_filter = owner_filter
+  def __call__(self, card):
+    count = 0
+    if self.owner_filter == OwnerFilters.FRIENDLY or self.owner_filter == OwnerFilters.ALL:
+      count += 30 - card.owner.get_health()
+    if self.owner_filter == OwnerFilters.ENEMY or self.owner_filter == OwnerFilters.ALL:
+      count += 30 - card.owner.other_player.get_health()
+    return count
 
 class FriendlyWeaponAttack(object):
   def __init__(self):

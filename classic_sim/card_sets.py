@@ -100,7 +100,7 @@ def get_basic_cards():
   darkscale_healer = Card(name="Darkscale Healer", card_type=CardTypes.MINION, manacost=5, attack=4, health=5,\
                           effect=RestoreHealth(value=Constant(2), trigger=Triggers.BATTLECRY, method=Methods.ALL, target=Targets.MINION_OR_HERO, owner_filter=OwnerFilters.FRIENDLY))
   frostwolf_warlord = Card(name="Frostwolf Warlord", card_type=CardTypes.MINION, manacost=5, attack=4, health=4,\
-                           effect=ChangeStats(value=(NumOtherFriendlyMinions(), NumOtherFriendlyMinions()), trigger=Triggers.BATTLECRY, method=Methods.SELF, target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY, duration=Durations.PERMANENTLY))
+                           effect=ChangeStats(value=(NumOtherMinions(OwnerFilters.FRIENDLY), NumOtherMinions(OwnerFilters.FRIENDLY)), trigger=Triggers.BATTLECRY, method=Methods.SELF, target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY, duration=Durations.PERMANENTLY))
   gurubashi_berserker = Card(name="Gurubashi Berserker", card_type=CardTypes.MINION, manacost=5, attack=2, health=7,\
                              effect=ChangeStats(value=(Constant(3), Constant(0)), trigger=Triggers.SELF_DAMAGE_TAKEN, method=Methods.SELF, target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY, duration=Durations.PERMANENTLY))
   nightblade = Card(name="Nightblade", card_type=CardTypes.MINION, manacost=5, attack=4, health=4,\
@@ -376,13 +376,20 @@ def get_epic_cards():
   faceless_manipulator = Card(name="Faceless Manipulator", card_type=CardTypes.MINION, manacost=5, attack=3, health=3,\
                               effect=CopyMinion(method=Methods.TARGETED, trigger=Triggers.BATTLECRY, owner_filter=OwnerFilters.ALL))
 
+  # Epic ten_plus_drops
+  sea_giant = Card(name="Sea Giant", card_type=CardTypes.MINION, manacost=10, attack=8, health=8,\
+                  effect=ChangeCost(value=Multiply(Add(NumOtherMinions(OwnerFilters.ALL), Constant(1)), Constant(-1)), method=Methods.SELF, trigger=Triggers.AURA, owner_filter=OwnerFilters.FRIENDLY, target=Targets.MINION))
+  mountain_giant = Card(name="Mountain Giant", card_type=CardTypes.MINION, manacost=12, attack=8, health=8,\
+                  effect=ChangeCost(value=Multiply(Add(CardsInHand(OwnerFilters.FRIENDLY), Constant(-1)), Constant(-1)), method=Methods.SELF, trigger=Triggers.AURA, owner_filter=OwnerFilters.FRIENDLY, target=Targets.MINION))
+  molten_giant = Card(name="Molten Giant", card_type=CardTypes.MINION, manacost=20, attack=8, health=8,\
+                  effect=ChangeCost(value=Multiply(DamageTaken(OwnerFilters.FRIENDLY), Constant(-1)), method=Methods.SELF, trigger=Triggers.AURA, owner_filter=OwnerFilters.FRIENDLY, target=Targets.MINION))
 
   # Combine
   epic_one_drops = [hungry_crab]
   epic_two_drops = [captains_parrot, doomsayer]
   epic_three_drops = [big_game_hunter, blood_knight, murloc_warleader, southsea_captain]
   epic_five_drops = [faceless_manipulator]
-  epic_ten_plus_drops = []
+  epic_ten_plus_drops = [sea_giant, mountain_giant, molten_giant]
 
   return epic_one_drops + epic_two_drops + epic_three_drops + epic_five_drops + epic_ten_plus_drops
 

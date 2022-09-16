@@ -1356,8 +1356,42 @@ def test_faceless_manipulator():
   assert faceless_manipulator.get_health() == 2
   assert faceless_manipulator.get_max_health() == 2
 
+def test_sea_giant():
+  game = GameManager().create_test_game()
+  argent_commander = game.game_manager.get_card("Argent Commander", game.current_player.board)
+  enemy_wisp = game.game_manager.get_card("Wisp", game.current_player.other_player.board)
+  sea_giant =  game.game_manager.get_card("Sea Giant", game.current_player.hand)
+  assert sea_giant.get_manacost() == 8
+  wisp = game.game_manager.get_card("Wisp", game.current_player.board)
+  assert sea_giant.get_manacost() == 7
 
-  
+def test_sea_giant_empty_board():
+  game = GameManager().create_test_game()
+  sea_giant =  game.game_manager.get_card("Sea Giant", game.current_player.hand)
+  assert sea_giant.get_manacost() == 10
+
+def test_mountain_giant():
+  game = GameManager().create_test_game()
+  mountain_giant =  game.game_manager.get_card("Mountain Giant", game.current_player.hand)
+  assert mountain_giant.get_manacost() == 12
+  wisp = game.game_manager.get_card("Wisp", game.current_player.hand)
+  assert mountain_giant.get_manacost() == 11
+  argent_commander = game.game_manager.get_card("Argent Commander", game.current_player.hand)
+  assert mountain_giant.get_manacost() == 10
+  for i in range(20):
+    game.game_manager.get_card("Wisp", game.current_player.hand)
+  assert mountain_giant.get_manacost() == 0
+ 
+def test_molten_giant():
+  game = GameManager().create_test_game()
+  molten_giant =  game.game_manager.get_card("Molten Giant", game.current_player.hand)
+  assert molten_giant.get_manacost() == 20
+  game.deal_damage(game.current_player, 5)
+  assert molten_giant.get_manacost() == 15
+  game.deal_damage(game.current_player, 20)
+  assert game.current_player.get_health() == 5
+  assert molten_giant.get_manacost() == 0
+
 
 
 def test_battlecry_reduce_cost():
