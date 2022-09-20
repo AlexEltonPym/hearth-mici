@@ -410,13 +410,14 @@ def get_hunter_cards():
                                       GiveAttribute(value=Attributes.TAUNT, method=Methods.TARGETED, trigger=Triggers.BATTLECRY, target=Targets.MINION, type_filter=CreatureTypes.BEAST, owner_filter=OwnerFilters.FRIENDLY, duration=Durations.PERMANENTLY)))
   multishot = Card(name="Multi-Shot", card_type=CardTypes.SPELL, manacost=4,\
                   effect=DealDamage(value=Constant(3), method=Methods.RANDOMLY, random_count=2, random_replace=False, target=Targets.MINION, owner_filter=OwnerFilters.ENEMY))
-
+  tundra_rhino = Card(name="Tundra Rhino", card_type=CardTypes.MINION, manacost=5, attack=2, health=5, creature_type=CreatureTypes.BEAST, attributes=[Attributes.CHARGE],\
+                      effect=GiveAttribute(value=Attributes.CHARGE, trigger=Triggers.AURA, method=Methods.ALL, target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY, type_filter=CreatureTypes.BEAST))
 
   #Hunter common cards
   snipe = Card(name="Snipe", card_type=CardTypes.SECRET, manacost=2,\
               effect=DealDamage(value=Constant(4), trigger=Triggers.ENEMY_MINION_SUMMONED, method=Methods.TRIGGERER, target=Targets.MINION, owner_filter=OwnerFilters.ENEMY))
 
-  basic_hunter_cards = [hunters_mark, arcane_shot, timber_wolf, tracking, starving_buzzard, animal_companion, kill_command, houndmaster, multishot]
+  basic_hunter_cards = [hunters_mark, arcane_shot, timber_wolf, tracking, starving_buzzard, animal_companion, kill_command, houndmaster, multishot, tundra_rhino]
   common_hunter_cards = [snipe]
 
   return basic_hunter_cards + common_hunter_cards

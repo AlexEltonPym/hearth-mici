@@ -1463,38 +1463,17 @@ def test_starving_buzzard():
   assert starving_buzzard.get_health() == 1
 
 def test_animal_companion():
-  game = GameManager(RandomState(3)).create_test_game()
+  game = GameManager(RandomState()).create_test_game()
   animal_companion = game.game_manager.get_card("Animal Companion", game.current_player.hand)
   play_companion = list(filter(lambda action: action.source == animal_companion, game.get_available_actions(game.current_player)))[0]
   game.perform_action(play_companion)
-  assert game.current_player.board.get_all()[0].name == "Leokk"
-  wisp = game.game_manager.get_card("Wisp", game.current_player.board)
-  assert wisp.get_attack() == 2
-  assert wisp.get_health() == 1
-  
- 
+  if game.current_player.board.get_all()[0].name == "Leokk":
+    wisp = game.game_manager.get_card("Wisp", game.current_player.board)
+    assert wisp.get_attack() == 2
+    assert wisp.get_health() == 1
+  else:
+    assert game.current_player.board.get_all()[0].name in ["Misha", "Huffer"]
 
-
-def test_battlecry_reduce_cost():
-  game = GameManager().create_test_game()
-
-  battlecry_reduce_cost = game.game_manager.get_card("Battlecry Reduce Cost", game.current_player.hand)
-  enemy_wisp = game.game_manager.get_card("Wisp", game.current_player.other_player.hand)
-  fireball = game.game_manager.get_card('Fireball', game.current_player.other_player.hand)
-  friendly_wisp = game.game_manager.get_card('Wisp', game.current_player.hand)
-
-  assert enemy_wisp.get_manacost() == 0
-  assert battlecry_reduce_cost.get_manacost() == 0
-  assert fireball.get_manacost() == 4
-  assert friendly_wisp.get_manacost() == 0
-
-  play_battlecry = list(filter(lambda action: action.source == battlecry_reduce_cost, game.get_available_actions(game.current_player)))[0]
-  game.perform_action(play_battlecry)
-
-  assert enemy_wisp.get_manacost() == 1
-  assert battlecry_reduce_cost.get_manacost() == 0
-  assert fireball.get_manacost() == 5
-  assert friendly_wisp.get_manacost() == 0
 
 def test_kill_command():
   game = GameManager().create_test_game()
@@ -1543,6 +1522,40 @@ def test_multishot():
   game.perform_action(play_multishot)
   assert mountain_giant.get_health() == 5
   assert sea_giant.get_health() == 5
+
+
+  
+def test_tundra_rhino():
+  game = GameManager().create_test_game()
+  tundra_rhino = game.game_manager.get_card('Tundra Rhino', game.current_player.board)
+  river_crok = game.game_manager.get_card('River Crocolisk', game.current_player.board)
+
+  assert tundra_rhino.has_attribute(Attributes.CHARGE)
+  assert river_crok.has_attribute(Attributes.CHARGE)
+  assert len(list(filter(lambda action: action.action_type== Actions.ATTACK, game.get_available_actions(game.current_player)))) == 2
+
+  
+
+def test_battlecry_reduce_cost():
+  game = GameManager().create_test_game()
+
+  battlecry_reduce_cost = game.game_manager.get_card("Battlecry Reduce Cost", game.current_player.hand)
+  enemy_wisp = game.game_manager.get_card("Wisp", game.current_player.other_player.hand)
+  fireball = game.game_manager.get_card('Fireball', game.current_player.other_player.hand)
+  friendly_wisp = game.game_manager.get_card('Wisp', game.current_player.hand)
+
+  assert enemy_wisp.get_manacost() == 0
+  assert battlecry_reduce_cost.get_manacost() == 0
+  assert fireball.get_manacost() == 4
+  assert friendly_wisp.get_manacost() == 0
+
+  play_battlecry = list(filter(lambda action: action.source == battlecry_reduce_cost, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(play_battlecry)
+
+  assert enemy_wisp.get_manacost() == 1
+  assert battlecry_reduce_cost.get_manacost() == 0
+  assert fireball.get_manacost() == 5
+  assert friendly_wisp.get_manacost() == 0
 
 def test_windfury_weapon():
   game = GameManager().create_test_game()

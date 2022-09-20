@@ -88,7 +88,8 @@ class Card():
 
   def has_attribute(self, attribute):
     return attribute in self.attributes or attribute in self.temp_attributes or attribute in self.perm_attributes\
-          or (self.condition and attribute in self.condition.result['attributes'] and self.condition.requirement(self.owner.game, self))
+          or (self.condition and attribute in self.condition.result['attributes'] and self.condition.requirement(self.owner.game, self))\
+          or attribute in self.get_aura_attributes()
   
   def get_attack(self):
     aura_attack, _ = self.get_aura_stats()
@@ -103,6 +104,28 @@ class Card():
     _, aura_health = self.get_aura_stats()
     return self.max_health+self.temp_health+self.perm_health+aura_health
     
+  def get_aura_attributes(self):
+    aura_attributes = []
+    board = self.owner.board
+    last_index = len(board)-1
+    for index, card in enumerate(board):
+      if card != self and card.effect and card.effect.trigger == Triggers.AURA and self.matches_card_requirements(card):
+        adjacent = False
+        if self.parent == self.owner.board:
+          my_index = self.parent.index_of(self)
+          adjacent = card.effect.method == Methods.ADJACENT and (my_index == index-1 or my_index == index+1 or (my_index == 0 and index == last_index) or (my_index == last_index and index == 0))
+        if card.effect.method == Methods.ALL or adjacent:
+          if isinstance(card.effect, GiveAttribute):
+            aura_attributes.append(card.effect.value)
+        
+    for card in self.parent.parent.other_player.board:
+      if card.effect and card.effect.trigger == Triggers.AURA and self.matches_card_requirements(card):
+        if card.effect.method == Methods.ALL:
+          if isinstance(card.effect, GiveAttribute):
+            aura_attributes.append(card.effect.value)
+
+    return aura_attributes
+
   def get_aura_stats(self):
     aura_attack = 0
     aura_health = 0
