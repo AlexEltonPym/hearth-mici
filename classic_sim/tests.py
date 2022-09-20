@@ -1463,7 +1463,7 @@ def test_starving_buzzard():
   assert starving_buzzard.get_health() == 1
 
 def test_animal_companion():
-  game = GameManager(RandomState(1)).create_test_game()
+  game = GameManager(RandomState(3)).create_test_game()
   animal_companion = game.game_manager.get_card("Animal Companion", game.current_player.hand)
   play_companion = list(filter(lambda action: action.source == animal_companion, game.get_available_actions(game.current_player)))[0]
   game.perform_action(play_companion)
@@ -1496,6 +1496,53 @@ def test_battlecry_reduce_cost():
   assert fireball.get_manacost() == 5
   assert friendly_wisp.get_manacost() == 0
 
+def test_kill_command():
+  game = GameManager().create_test_game()
+  kill_command = game.game_manager.get_card('Kill Command', game.current_player.hand)
+  assert kill_command.effect.value(kill_command) == 3
+  river_crok = game.game_manager.get_card('River Crocolisk', game.current_player.board)
+  assert kill_command.effect.value(kill_command) == 5
+  cast_command = list(filter(lambda action: action.source == kill_command and action.targets[0] == game.current_player.other_player, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(cast_command)
+  assert game.current_player.other_player.get_health() == 25
+
+def test_houndmaster():
+  game = GameManager().create_test_game()
+  houndmaster = game.game_manager.get_card('Houndmaster', game.current_player.hand)
+  river_crok = game.game_manager.get_card('River Crocolisk', game.current_player.board)
+  assert river_crok.get_attack() == 2
+  assert river_crok.get_health() == 3
+  play_houndmaster = list(filter(lambda action: action.source == houndmaster and action.targets[0] == river_crok, game.get_available_actions(game.current_player)))
+  print(play_houndmaster)
+  game.perform_action(play_houndmaster[0])
+  assert river_crok.get_attack() == 4
+  assert river_crok.get_health() == 5
+  assert river_crok.has_attribute(Attributes.TAUNT)
+
+def test_multishot_zero_targets():
+  game = GameManager().create_test_game()
+  multishot = game.game_manager.get_card('Multi-Shot', game.current_player.hand)
+  play_multishot_actions = list(filter(lambda action: action.source == multishot, game.get_available_actions(game.current_player)))
+  assert len(play_multishot_actions) == 0
+
+def test_multishot_one_targets():
+  game = GameManager().create_test_game()
+  mountain_giant = game.game_manager.get_card('Mountain Giant', game.current_player.other_player.board)
+  multishot = game.game_manager.get_card('Multi-Shot', game.current_player.hand)
+  play_multishot = list(filter(lambda action: action.source == multishot, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(play_multishot)
+  assert mountain_giant.get_health() == 5
+
+def test_multishot():
+  game = GameManager().create_test_game()
+  mountain_giant = game.game_manager.get_card('Mountain Giant', game.current_player.other_player.board)
+  sea_giant = game.game_manager.get_card('Sea Giant', game.current_player.other_player.board)
+  multishot = game.game_manager.get_card('Multi-Shot', game.current_player.hand)
+  play_multishot = list(filter(lambda action: action.source == multishot, game.get_available_actions(game.current_player)))[0]
+  print(play_multishot)
+  game.perform_action(play_multishot)
+  assert mountain_giant.get_health() == 5
+  assert sea_giant.get_health() == 5
 
 def test_windfury_weapon():
   game = GameManager().create_test_game()

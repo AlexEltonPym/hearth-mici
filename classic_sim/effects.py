@@ -11,11 +11,12 @@ class GainMana():
   available_type_filters = []
   available_durations = [Durations.TURN, Durations.PERMANENTLY]
   available_triggers = list(filter(lambda t: t != Triggers.AURA, [t for t in Triggers]))
-  def __init__(self, method, value, duration, owner_filter, target=Targets.HERO, random_count=1, trigger=None, type_filter=None):
+  def __init__(self, method, value, duration, owner_filter, target=Targets.HERO, random_count=1, random_replace=True, trigger=None, type_filter=None):
     self.zone_filter = Zones.BOARD
     self.method = method
     self.value = value
     self.random_count = random_count
+    self.random_replace = random_replace
     self.target = target
     self.owner_filter = owner_filter
     self.duration = duration
@@ -47,11 +48,12 @@ class DealDamage():
   available_durations = []
   available_triggers = list(filter(lambda t: t != Triggers.AURA, [t for t in Triggers]))
 
-  def __init__(self, method, value, target, owner_filter, random_count=1, trigger=None, type_filter=None, duration=None):
+  def __init__(self, method, value, target, owner_filter, random_count=1, random_replace=True, trigger=None, type_filter=None, duration=None):
     self.zone_filter = Zones.BOARD
     self.method = method
     self.value = value
     self.random_count = random_count
+    self.random_replace = random_replace
     self.target = target
     self.owner_filter = owner_filter
     self.type_filter = type_filter
@@ -72,11 +74,12 @@ class Destroy():
   available_durations = []
   available_triggers = list(filter(lambda t: t != Triggers.AURA, [t for t in Triggers]))
 
-  def __init__(self, method, target, owner_filter, value=None, random_count=1, trigger=None, type_filter=None, duration=None, dynamic_filter=None):
+  def __init__(self, method, target, owner_filter, value=None, random_count=1, random_replace=True, trigger=None, type_filter=None, duration=None, dynamic_filter=None):
     self.zone_filter = Zones.BOARD
     self.method = method
     self.value = value
     self.random_count = random_count
+    self.random_replace = random_replace
     self.target = target
     self.owner_filter = owner_filter
     self.type_filter = type_filter
@@ -96,11 +99,12 @@ class ChangeStats():
   available_type_filters = [c for c in CreatureTypes]
   available_durations = [d for d in Durations]
   available_triggers = [t for t in Triggers]
-  def __init__(self, value, method, target, owner_filter, random_count=1, duration=None, trigger=None, type_filter=None):
+  def __init__(self, value, method, target, owner_filter, random_count=1, random_replace=True, duration=None, trigger=None, type_filter=None):
     self.zone_filter = Zones.BOARD #this could be changeable
     self.method = method
     self.value = value
     self.random_count = random_count
+    self.random_replace = random_replace
     self.target = target
     self.owner_filter = owner_filter
     self.type_filter = type_filter
@@ -124,11 +128,12 @@ class SetStats():
   available_type_filters = [c for c in CreatureTypes]
   available_durations = []
   available_triggers = [t for t in Triggers]
-  def __init__(self, value, method, target, owner_filter, random_count=1, duration=None, trigger=None, type_filter=None):
+  def __init__(self, value, method, target, owner_filter, random_count=1, random_replace=True, duration=None, trigger=None, type_filter=None):
     self.zone_filter = Zones.BOARD #this could be changeable
     self.method = method
     self.value = value
     self.random_count = random_count
+    self.random_replace = random_replace
     self.target = target
     self.owner_filter = owner_filter
     self.type_filter = type_filter
@@ -156,11 +161,12 @@ class SwapStats():
   available_type_filters = [c for c in CreatureTypes]
   available_durations = [Durations.PERMANENTLY]
   available_triggers = [t for t in Triggers]
-  def __init__(self, method, target, owner_filter, value=None, random_count=1, duration=None, trigger=None, type_filter=None):
+  def __init__(self, method, target, owner_filter, value=None, random_count=1, random_replace=True, duration=None, trigger=None, type_filter=None):
     self.zone_filter = Zones.BOARD #this could be changeable
     self.method = method
     self.value = value
     self.random_count = random_count
+    self.random_replace = random_replace
     self.target = target
     self.owner_filter = owner_filter
     self.type_filter = type_filter
@@ -183,11 +189,12 @@ class DrawCards():
   available_durations = []
   available_triggers = list(filter(lambda t: t != Triggers.AURA, [t for t in Triggers]))
 
-  def __init__(self, method, value, owner_filter, random_count=1, target=Targets.HERO, trigger=None, type_filter=None, duration=None):
+  def __init__(self, method, value, owner_filter, random_count=1, random_replace=True, target=Targets.HERO, trigger=None, type_filter=None, duration=None):
     self.zone_filter = Zones.BOARD #draw cards targets a player
     self.method = method
     self.value = value
     self.random_count = random_count
+    self.random_replace = random_replace
     self.target = target
     self.owner_filter = owner_filter
     self.type_filter = type_filter
@@ -207,11 +214,12 @@ class Tutor():
   available_durations = []
   available_triggers = list(filter(lambda t: t != Triggers.AURA, [t for t in Triggers]))
 
-  def __init__(self, method, owner_filter, value=None, random_count=1, target=Targets.HERO, trigger=None, type_filter=None, duration=None):
+  def __init__(self, method, owner_filter, value=None, random_count=1, random_replace=True, target=Targets.HERO, trigger=None, type_filter=None, duration=None):
     self.zone_filter = Zones.DECK
     self.method = method
     self.value = value
     self.random_count = random_count
+    self.random_replace = random_replace
     self.target = target
     self.owner_filter = owner_filter
     self.type_filter = type_filter
@@ -234,11 +242,12 @@ class ReturnToHand():
   available_durations = []
   available_triggers = list(filter(lambda t: t != Triggers.AURA, [t for t in Triggers]))
 
-  def __init__(self, method, owner_filter, random_count=1, target=Targets.MINION, value=None, trigger=None, type_filter=None, duration=None):
+  def __init__(self, method, owner_filter, random_count=1, random_replace=True, target=Targets.MINION, value=None, trigger=None, type_filter=None, duration=None):
     self.zone_filter = Zones.BOARD #targets a card in play
     self.method = method
     self.value = value
     self.random_count = random_count
+    self.random_replace = random_replace
     self.target = target
     self.owner_filter = owner_filter
     self.type_filter = type_filter
@@ -259,11 +268,12 @@ class RestoreHealth():
   available_durations = []
   available_triggers = list(filter(lambda t: t != Triggers.AURA, [t for t in Triggers]))
  
-  def __init__(self, method, owner_filter, target, value, random_count=1, trigger=None, type_filter=None, duration=None):
+  def __init__(self, method, owner_filter, target, value, random_count=1, random_replace=True, trigger=None, type_filter=None, duration=None):
     self.zone_filter = Zones.BOARD
     self.method = method
     self.value = value
     self.random_count = random_count
+    self.random_replace = random_replace
     self.target = target
     self.owner_filter = owner_filter
     self.type_filter = type_filter
@@ -288,11 +298,12 @@ class GiveAttribute():
   available_type_filters = [c for c in CreatureTypes]
   available_durations = [d for d in Durations]
   available_triggers = [t for t in Triggers]
-  def __init__(self, value, method, target, owner_filter, random_count=1, duration=None, trigger=None, type_filter=None):
+  def __init__(self, value, method, target, owner_filter, random_count=1, random_replace=True, duration=None, trigger=None, type_filter=None):
     self.zone_filter = Zones.BOARD #could be changeable
     self.method = method
     self.value = value
     self.random_count = random_count
+    self.random_replace = random_replace
     self.target = target
     self.owner_filter = owner_filter
     self.type_filter = type_filter
@@ -314,11 +325,12 @@ class RemoveAttribute():
   available_type_filters = [c for c in CreatureTypes]
   available_durations = []
   available_triggers = [t for t in Triggers]
-  def __init__(self, value, method, target, owner_filter, random_count=1, duration=None, trigger=None, type_filter=None):
+  def __init__(self, value, method, target, owner_filter, random_count=1, random_replace=True, duration=None, trigger=None, type_filter=None):
     self.zone_filter = Zones.BOARD #could be changeable
     self.method = method
     self.value = value
     self.random_count = random_count
+    self.random_replace = random_replace
     self.target = target
     self.owner_filter = owner_filter
     self.type_filter = type_filter
@@ -341,11 +353,12 @@ class SummonToken(): #summon minion for target player
   available_durations = []
   available_triggers = list(filter(lambda t: t != Triggers.AURA, [t for t in Triggers]))
 
-  def __init__(self, value, method, owner_filter, target=Targets.HERO, random_count=1, duration=None, trigger=None, type_filter=None):
+  def __init__(self, value, method, owner_filter, target=Targets.HERO, random_count=1, random_replace=True, duration=None, trigger=None, type_filter=None):
     self.zone_filter = Zones.BOARD #could be changed to make this add tokens to hand
     self.method = method
     self.value = value
     self.random_count = random_count
+    self.random_replace = random_replace
     self.target = target
     self.owner_filter = owner_filter
     self.type_filter = type_filter
@@ -369,11 +382,12 @@ class Silence():
   available_durations = []
   available_triggers = list(filter(lambda t: t != Triggers.AURA, [t for t in Triggers]))
   
-  def __init__(self, method, owner_filter, target, value=None, random_count=1, duration=None, trigger=None, type_filter=None):
+  def __init__(self, method, owner_filter, target, value=None, random_count=1, random_replace=True, duration=None, trigger=None, type_filter=None):
     self.zone_filter = Zones.BOARD
     self.method = method
     self.value = value
     self.random_count = random_count
+    self.random_replace = random_replace
     self.target = target
     self.owner_filter = owner_filter
     self.type_filter = type_filter
@@ -401,11 +415,12 @@ class ChangeCost():
   available_durations = []
   available_triggers = [t for t in Triggers]
   
-  def __init__(self, method, owner_filter, target, value, random_count=1, duration=None, trigger=None, type_filter=None):
+  def __init__(self, method, owner_filter, target, value, random_count=1, random_replace=True, duration=None, trigger=None, type_filter=None):
     self.zone_filter = Zones.HAND
     self.method = method
     self.value = value
     self.random_count = random_count
+    self.random_replace = random_replace
     self.target = target
     self.owner_filter = owner_filter
     self.type_filter = type_filter
@@ -425,11 +440,12 @@ class SwapWithMinion():
   available_durations = []
   available_triggers = [t for t in Triggers]
   
-  def __init__(self, method, owner_filter, target, value=None, random_count=1, duration=None, trigger=None, type_filter=None):
+  def __init__(self, method, owner_filter, target, value=None, random_count=1, random_replace=True, duration=None, trigger=None, type_filter=None):
     self.zone_filter = Zones.HAND
     self.method = method
     self.value = value
     self.random_count = random_count
+    self.random_replace = random_replace
     self.target = target
     self.owner_filter = owner_filter
     self.type_filter = type_filter
@@ -450,11 +466,12 @@ class CopyMinion():
   available_durations = []
   available_triggers = [t for t in Triggers]
   
-  def __init__(self, method, owner_filter, target=Targets.MINION, value=None, random_count=1, duration=None, trigger=None, type_filter=None):
+  def __init__(self, method, owner_filter, target=Targets.MINION, value=None, random_count=1, random_replace=True, duration=None, trigger=None, type_filter=None):
     self.zone_filter = Zones.BOARD
     self.method = method
     self.value = value
     self.random_count = random_count
+    self.random_replace = random_replace
     self.target = target
     self.owner_filter = owner_filter
     self.type_filter = type_filter
@@ -479,11 +496,13 @@ class CopyMinion():
       action.source.perm_attributes = deepcopy(target.perm_attributes)
 
 
-class DuelAction():
+class DuelAction(): #second effect will recieve the same action as the first effect
   def __init__(self, first_effect, second_effect):
     self.first_effect = first_effect
     self.second_effect = second_effect
     self.method = first_effect.method
+    self.random_count = first_effect.random_count
+    self.random_replace = first_effect.random_replace
     self.value = first_effect.value
     self.param_type = first_effect.param_type
     self.target = first_effect.target
@@ -497,12 +516,14 @@ class DuelAction():
     self.first_effect.resolve_action(game, action)
     self.second_effect.resolve_action(game, action)
 
-class DuelActionSelf():
+class DuelActionSelf(): #second effect will target self
   def __init__(self, first_effect, second_effect, first_effect_first=True):
     self.first_effect = first_effect
     self.second_effect = second_effect
     self.first_effect_first = first_effect_first
     self.method = first_effect.method
+    self.random_count = first_effect.random_count
+    self.random_replace = first_effect.random_replace
     self.value = first_effect.value
     self.param_type = first_effect.param_type
     self.target = first_effect.target
@@ -520,10 +541,12 @@ class DuelActionSelf():
       self.second_effect.resolve_action(game, Action(action_type=Actions.CAST_EFFECT, source=action.source, targets=[action.source]))
       self.first_effect.resolve_action(game, action)
 
-class MultiEffectRandom():
+class MultiEffectRandom(): #one effect from list is chosen, same target as first effect
   def __init__(self, effects):
     self.effects = effects
     self.method = effects[0].method
+    self.random_count = effects[0].random_count
+    self.random_replace = effects[0].random_replace
     self.value = effects[0].value
     self.param_type = effects[0].param_type
     self.target = effects[0].target

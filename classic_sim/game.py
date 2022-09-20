@@ -250,7 +250,7 @@ class Game():
       if card.effect.method == Methods.ALL:
         card.effect.resolve_action(self, Action(Actions.CAST_EFFECT, card, targets))
       elif card.effect.method == Methods.RANDOMLY:
-        card.effect.resolve_action(self, Action(Actions.CAST_EFFECT, card, self.game_manager.random_state.choice(targets, card.effect.random_count)))
+        card.effect.resolve_action(self, Action(Actions.CAST_EFFECT, card, self.game_manager.random_state.choice(targets, card.effect.random_count if card.effect.random_replace else min(len(cast_targets), card.effect.random_count), card.effect.random_replace)))
       elif card.effect.method == Methods.TARGETED:
         card.effect.resolve_action(self, Action(Actions.CAST_EFFECT, card, [targets[0]]))
       elif card.effect.method == Methods.SELF:
@@ -369,7 +369,8 @@ class Game():
           for target in filter(lambda target: not (target.has_attribute(Attributes.STEALTH) or target.has_attribute(Attributes.HEXPROOF)), cast_targets):
             playable_spell_actions.append(Action(Actions.CAST_SPELL, card, [target]))
         elif card.effect.method == Methods.RANDOMLY:
-          playable_spell_actions.append(Action(Actions.CAST_SPELL, card, [self.game_manager.random_state.choice(cast_targets)]))
+          playable_spell_actions.append(Action(Actions.CAST_SPELL, card, self.game_manager.random_state.choice(cast_targets, card.effect.random_count if card.effect.random_replace else min(len(cast_targets), card.effect.random_count), card.effect.random_replace)))
+          print(playable_spell_actions)
         elif card.effect.method == Methods.ALL:
           playable_spell_actions.append(Action(Actions.CAST_SPELL, card, cast_targets))
     return playable_spell_actions
@@ -389,7 +390,7 @@ class Game():
         for target in filter(lambda target: not (target.has_attribute(Attributes.STEALTH) or target.has_attribute(Attributes.HEXPROOF)), cast_targets):
           hero_power_actions.append(Action(Actions.CAST_HERO_POWER, player.hero_power, [target]))
       elif player.hero_power.effect.method == Methods.RANDOMLY:
-        hero_power_actions.append(Action(Actions.CAST_HERO_POWER, player.hero_power, self.game_manager.random_state.choice(cast_targets, player.hero_power.effect.random_count)))
+        hero_power_actions.append(Action(Actions.CAST_HERO_POWER, player.hero_power, self.game_manager.random_state.choice(cast_targets, player.hero_power.effect.random_count if player.hero_power.effect.random_replace else min(len(cast_targets), player.hero_power.effect.random_count), player.hero_power.effect.random_replace)))
       elif player.hero_power.effect.method == Methods.ALL:
         hero_power_actions.append(Action(Actions.CAST_HERO_POWER, player.hero_power, cast_targets))
 
@@ -515,7 +516,7 @@ class Game():
               for target in filter(lambda target: not target.has_attribute(Attributes.STEALTH),  battlecry_targets):
                 playable_minion_actions.append(Action(Actions.CAST_MINION, card, [target]))
             elif card.effect.method == Methods.RANDOMLY:
-              playable_minion_actions.append(Action(Actions.CAST_MINION, card, self.game_manager.random_state.choice(battlecry_targets, card.effect.random_count)))
+              playable_minion_actions.append(Action(Actions.CAST_MINION, card, self.game_manager.random_state.choice(battlecry_targets, card.effect.random_count if card.effect.random_replace else min(len(cast_targets), card.effect.random_count), card.effect.random_replace)))
             elif card.effect.method == Methods.ALL:
               playable_minion_actions.append(Action(Actions.CAST_MINION, card, battlecry_targets))
             elif card.effect.target == Targets.MINION and card.effect.method == Methods.ADJACENT:
@@ -540,7 +541,7 @@ class Game():
               for target in filter(lambda target: not target.has_attribute(Attributes.STEALTH), battlecry_targets):
                 playable_weapon_actions.append(Action(Actions.CAST_WEAPON, card, [target]))
             elif card.effect.method == Methods.RANDOMLY:
-              playable_weapon_actions.append(Action(Actions.CAST_WEAPON, card, self.game_manager.random_state.choice(battlecry_targets, card.effect.random_count)))
+              playable_weapon_actions.append(Action(Actions.CAST_WEAPON, card, self.game_manager.random_state.choice(battlecry_targets, card.effect.random_count if card.effect.random_replace else min(len(cast_targets), card.effect.random_count), card.effect.random_replace)))
             elif card.effect.method == Methods.ALL:
               playable_weapon_actions.append(Action(Actions.CAST_WEAPON, card, battlecry_targets))
           else:

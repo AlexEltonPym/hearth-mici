@@ -127,3 +127,19 @@ class NumWithAttribute(object):
         if minion.has_attribute(self.attribute):
           count += 1
     return count
+
+class NumWithCreatureType(object):
+  def __init__(self, creature_type, owner_filter):
+    self.creature_type = creature_type
+    self.owner_filter = owner_filter
+  def __call__(self, card):
+    count = 0
+    if self.owner_filter == OwnerFilters.FRIENDLY or self.owner_filter == OwnerFilters.ALL:
+      for minion in card.owner.board:
+        if minion.creature_type == self.creature_type:
+          count += 1
+    if self.owner_filter == OwnerFilters.ENEMY or self.owner_filter == OwnerFilters.ALL:
+      for minion in card.owner.other_player.board:
+        if minion.creature_type == self.creature_type:
+          count += 1
+    return count

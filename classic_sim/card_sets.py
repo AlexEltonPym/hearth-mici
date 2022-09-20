@@ -386,6 +386,7 @@ def get_epic_cards():
   return epic_one_drops + epic_two_drops + epic_three_drops + epic_five_drops + epic_ten_plus_drops
 
 def get_hunter_cards():
+  #Hunter basic cards
   hunters_mark = Card(name="Hunter's Mark", card_type=CardTypes.SPELL, manacost=0,\
                       effect=SetStats(value=(None, Constant(1)), method=Methods.TARGETED, target=Targets.MINION, owner_filter=OwnerFilters.ALL))
   arcane_shot = Card(name="Arcane Shot", card_type=CardTypes.SPELL, manacost=1,\
@@ -401,13 +402,24 @@ def get_hunter_cards():
                                                     SummonToken(method=Methods.ALL, owner_filter=OwnerFilters.FRIENDLY, value=Card(name="Leokk", collectable=False, card_type=CardTypes.MINION, manacost=3, attack=2, health=4, creature_type=CreatureTypes.BEAST,\
                                                                            effect=ChangeStats(value=(Constant(1), Constant(0)), trigger=Triggers.AURA, target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY, method=Methods.ALL))),\
                                                     SummonToken(method=Methods.ALL, owner_filter=OwnerFilters.FRIENDLY, value=Card(name="Misha", collectable=False, card_type=CardTypes.MINION, manacost=3, attack=4, health=4, creature_type=CreatureTypes.BEAST, attributes=[Attributes.TAUNT]))]))
+  kill_command = Card(name="Kill Command", manacost=3, card_type=CardTypes.SPELL,\
+                      effect=DealDamage(value=If(GreaterThan(NumWithCreatureType(CreatureTypes.BEAST, OwnerFilters.FRIENDLY), Constant(0)),Constant(5), Constant(3)),\
+                                        method=Methods.TARGETED, target=Targets.MINION_OR_HERO, owner_filter=OwnerFilters.ALL))
+  houndmaster = Card(name="Houndmaster",card_type=CardTypes.MINION, manacost=4, attack=4, health=3,\
+                    effect=DuelAction(ChangeStats(value=(Constant(2), Constant(2)), method=Methods.TARGETED, trigger=Triggers.BATTLECRY, target=Targets.MINION, type_filter=CreatureTypes.BEAST, owner_filter=OwnerFilters.FRIENDLY, duration=Durations.PERMANENTLY),
+                                      GiveAttribute(value=Attributes.TAUNT, method=Methods.TARGETED, trigger=Triggers.BATTLECRY, target=Targets.MINION, type_filter=CreatureTypes.BEAST, owner_filter=OwnerFilters.FRIENDLY, duration=Durations.PERMANENTLY)))
+  multishot = Card(name="Multi-Shot", card_type=CardTypes.SPELL, manacost=4,\
+                  effect=DealDamage(value=Constant(3), method=Methods.RANDOMLY, random_count=2, random_replace=False, target=Targets.MINION, owner_filter=OwnerFilters.ENEMY))
 
+
+  #Hunter common cards
   snipe = Card(name="Snipe", card_type=CardTypes.SECRET, manacost=2,\
               effect=DealDamage(value=Constant(4), trigger=Triggers.ENEMY_MINION_SUMMONED, method=Methods.TRIGGERER, target=Targets.MINION, owner_filter=OwnerFilters.ENEMY))
 
-  hunter_cards = [hunters_mark, arcane_shot, timber_wolf, tracking, starving_buzzard, animal_companion, snipe]
+  basic_hunter_cards = [hunters_mark, arcane_shot, timber_wolf, tracking, starving_buzzard, animal_companion, kill_command, houndmaster, multishot]
+  common_hunter_cards = [snipe]
 
-  return hunter_cards
+  return basic_hunter_cards + common_hunter_cards
 
 def get_mage_cards():
   fireball = Card(name="Fireball", card_type=CardTypes.SPELL, manacost=4, effect=DealDamage(
