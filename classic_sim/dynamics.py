@@ -112,6 +112,12 @@ class AttackValue(object):
   def __call__(self, card):
     return card.get_attack()
 
+class Damaged(object):
+  def __init__(self):
+    pass
+  def __call__(self, card):
+    return card.get_health() < card.get_max_health()
+
 class NumWithAttribute(object):
   def __init__(self, attribute, owner_filter):
     self.attribute = attribute

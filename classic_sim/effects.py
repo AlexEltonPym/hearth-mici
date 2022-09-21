@@ -340,9 +340,8 @@ class RemoveAttribute():
 
   def resolve_action(self, game, action):
     for target in action.targets:
-      if self.value in target.temp_attributes: target.temp_attributes.remove(self.value)
-      if self.value in target.perm_attributes: target.perm_attributes.remove(self.value)
-      if self.value in target.attributes: target.attributes.remove(self.value)
+      target.remove_attribute(self.value)
+
 
 
 class SummonToken(): #summon minion for target player

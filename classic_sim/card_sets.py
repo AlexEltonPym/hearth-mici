@@ -208,7 +208,7 @@ def get_common_cards():
                 effect=SummonToken(value=(Constant(1), Card(name="Squire", collectable=False, card_type=CardTypes.MINION, manacost=1, attack=2, health=2)),
                          method=Methods.TARGETED, owner_filter=OwnerFilters.FRIENDLY, trigger=Triggers.BATTLECRY))
   spiteful_smith = Card(name="Spiteful Smith", card_type=CardTypes.MINION, manacost=5, attack=4, health=6,
-              effect=ChangeStats(value=(Constant(2), Constant(0)), trigger=Triggers.AURA, owner_filter=OwnerFilters.FRIENDLY, target=Targets.WEAPON, method=Methods.ALL))
+              effect=ChangeStats(value=(If(Damaged(), Constant(2), Constant(0)), Constant(0)), trigger=Triggers.AURA, owner_filter=OwnerFilters.FRIENDLY, target=Targets.WEAPON, method=Methods.ALL))
   stranglethorn_tiger = Card(name="Stranglethorn Tiger", card_type=CardTypes.MINION, creature_type=CreatureTypes.BEAST, manacost=5,attack=5, health=5, attributes=[Attributes.STEALTH])
   
   venture_co_mercenary = Card(name="Venture Co. Mercenary", card_type=CardTypes.MINION, manacost=5, attack=7, health=6,
@@ -438,13 +438,27 @@ def get_hunter_cards():
                       effect=Redirect(trigger=Triggers.ENEMY_MINION_ATTACKS))
   eaglehorn_bow = Card(name="Eaglehorn Bow", card_type=CardTypes.WEAPON, manacost=3, attack=3, health=2,\
                       effect=ChangeStats(value=(Constant(0), Constant(1)), trigger=Triggers.ANY_SECRET_REVEALED, method=Methods.SELF, target=Targets.WEAPON, owner_filter=OwnerFilters.FRIENDLY, duration=Durations.PERMANENTLY))
-
+  explosive_shot = Card(name="Explosive Shot", card_type=CardTypes.SPELL, manacost=6,\
+                        effect=DealDamage(method=Methods.RANDOMLY, value=Constant(3), random_count=3, target=Targets.MINION_OR_HERO, owner_filter=OwnerFilters.ENEMY))
+  savannah_highmane = Card(name="Savannah Highmane", card_type=CardTypes.MINION, manacost=6, attack=6, health=5, creature_type=CreatureTypes.BEAST,\
+                          effect=SummonToken(method=Methods.ALL, owner_filter=OwnerFilters.FRIENDLY, trigger=Triggers.DEATHRATTLE,\
+                                             value=(Constant(2), Card(name="Hyena", collectable=False, card_type=CardTypes.MINION, manacost=2, attack=2, health=2, creature_type=CreatureTypes.BEAST))))
+  
+  # Hunter epic cards
+  beastial_wrath = Card(name="Beastial Wrath", card_type=CardTypes.SPELL, manacost=1,\
+                       effect=DualAction(ChangeStats(value=(Constant(2), Constant(0)), target=Targets.MINION, owner_filter=OwnerFilters.ALL, method=Methods.TARGETED, duration=Durations.TURN, type_filter=CreatureTypes.BEAST),\
+                                          GiveAttribute(value=Attributes.IMMUNE, target=Targets.MINION, owner_filter=OwnerFilters.ALL, method=Methods.TARGETED, duration=Durations.TURN, type_filter=CreatureTypes.BEAST)))
+  snake_trap = Card(name="Snake Trap", card_type=CardTypes.SECRET, manacost=2,\
+                    effect=SummonToken(owner_filter=OwnerFilters.FRIENDLY, method=Methods.ALL, trigger=Triggers.ENEMY_ATTACKS_FRIENDLY_MINION,\
+                    value=(Constant(3), Card(name="Snake", collectable=False, card_type=CardTypes.MINION, manacost=0, attack=1, health=1, creature_type=CreatureTypes.BEAST))))
+  gladiators_longbow = Card(name="Gladiator's Longbow", card_type=CardTypes.WEAPON, manacost=7, attack=5, health=2, attributes=[Attributes.IMMUNE])
   # Combine
   basic_hunter_cards = [hunters_mark, arcane_shot, timber_wolf, tracking, starving_buzzard, animal_companion, kill_command, houndmaster, multishot, tundra_rhino]
   common_hunter_cards = [explosive_trap, freezing_trap, scavenging_hyena, snipe, deadly_shot, unleash_the_hounds]
-  rare_hunter_cards = [flare, misdirection, eaglehorn_bow]
+  rare_hunter_cards = [flare, misdirection, eaglehorn_bow, explosive_shot, savannah_highmane]
+  epic_hunter_cards = [beastial_wrath, snake_trap, gladiators_longbow]
 
-  return basic_hunter_cards + common_hunter_cards + rare_hunter_cards
+  return basic_hunter_cards + common_hunter_cards + rare_hunter_cards + epic_hunter_cards
 
 def get_mage_cards():
   fireball = Card(name="Fireball", card_type=CardTypes.SPELL, manacost=4, effect=DealDamage(

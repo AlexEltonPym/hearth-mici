@@ -12,7 +12,7 @@ class Attributes(Enum):
   DEFENDER = 8
   SPELL_DAMAGE = 9
   POISONOUS = 10
-
+  IMMUNE = 11
 
 class Triggers(Enum):
   BATTLECRY = 0
@@ -63,10 +63,11 @@ class Triggers(Enum):
   FRIENDLY_HERO_ATTACKED = 34
 
   ENEMY_MINION_ATTACKS = 35
-  
+
   FRIENDLY_SAME_TYPE_DIES = 36
 
   ANY_SECRET_REVEALED = 37
+  ENEMY_ATTACKS_FRIENDLY_MINION = 38
 
 class Actions(Enum):
   ATTACK = 0

@@ -91,6 +91,11 @@ class Card():
           or (self.condition and attribute in self.condition.result['attributes'] and self.condition.requirement(self.owner.game, self))\
           or attribute in self.get_aura_attributes()
   
+  def remove_attribute(self, attribute):
+    if attribute in self.attributes: self.attributes.remove(attribute)
+    if attribute in self.temp_attributes: self.temp_attributes.remove(attribute)
+    if attribute in self.perm_attributes: self.perm_attributes.remove(attribute)
+
   def get_attack(self):
     aura_attack, _ = self.get_aura_stats()
     condition_attack = self.condition.result['temp_attack'] if self.condition and self.condition.requirement(self.owner.game, self) else 0

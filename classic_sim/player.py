@@ -93,12 +93,10 @@ class Player():
     player_has = attribute in self.attributes\
           or (self.condition and attribute in self.condition.result['attributes']\
           and self.condition.requirement(self.game, self))
-    weapon_has = self.weapon and (attribute in self.weapon.attributes\
-          or (self.weapon.condition and attribute in self.weapon.condition.result['attributes']\
-            and self.weapon.condition.requirement(self.game, self)))
+
     temp_attributes_has = attribute in self.temp_attributes
     perm_attributes_has = attribute in self.perm_attributes
-    return player_has or weapon_has or temp_attributes_has or perm_attributes_has
+    return player_has or temp_attributes_has or perm_attributes_has
 
   def get_spell_damage(self):
     spell_damage_bonus = 0

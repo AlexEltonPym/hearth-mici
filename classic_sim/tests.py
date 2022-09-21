@@ -684,6 +684,9 @@ def test_spiteful_smith():
   assert spiteful_smith.get_attack() == 4
 
   generic_weapon = game.game_manager.get_card('Generic Weapon', game.current_player)
+  assert generic_weapon.get_attack() == 3
+
+  game.deal_damage(spiteful_smith, 1)
   assert generic_weapon.get_attack() == 5
 
   game.deal_damage(spiteful_smith, 6)
@@ -1645,6 +1648,85 @@ def test_eaglehorn_bow():
   assert game.current_player.get_health() == 28
   assert enemy_misdirection.parent == enemy_misdirection.owner.graveyard
   assert eaglehorn_bow.get_health() == 3
+
+def test_explosive_shot():
+  game = GameManager().create_test_game()
+  explosive_shot = game.game_manager.get_card('Explosive Shot', game.current_player.hand)
+  cast_explosive_shot = list(filter(lambda action: action.source == explosive_shot, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(cast_explosive_shot)
+  assert game.current_player.other_player.get_health() == 21
+
+def test_savannah_highmane():
+  game = GameManager().create_test_game()
+  savannah_highmane = game.game_manager.get_card('Savannah Highmane', game.current_player.board)
+  game.deal_damage(savannah_highmane, 5)
+  assert len(game.current_player.board) == 2
+  for hyena in game.current_player.board:
+    assert hyena.creature_type == CreatureTypes.BEAST
+    assert hyena.get_attack() == 2
+    assert hyena.get_health() == 2
+
+def test_beastial_wrath():
+  game = GameManager().create_test_game()
+  tundra_rhino = game.game_manager.get_card('Tundra Rhino', game.current_player.board)
+  assert tundra_rhino.get_attack() == 2
+  beastial_wrath = game.game_manager.get_card('Beastial Wrath', game.current_player.hand)
+  cast_beastial_wrath = list(filter(lambda action: action.source == beastial_wrath, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(cast_beastial_wrath)
+  assert tundra_rhino.get_attack() == 4
+  attack_with_rhino = list(filter(lambda action: action.source == tundra_rhino, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(attack_with_rhino)
+  assert game.current_player.other_player.get_health() == 26
+  game.end_turn()
+  assert tundra_rhino.get_attack() == 2
+
+def test_beastial_wrath_immunity():
+  game = GameManager().create_test_game()
+  tundra_rhino = game.game_manager.get_card('Tundra Rhino', game.current_player.board)
+  assert tundra_rhino.get_attack() == 2
+  beastial_wrath = game.game_manager.get_card('Beastial Wrath', game.current_player.hand)
+  cast_beastial_wrath = list(filter(lambda action: action.source == beastial_wrath, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(cast_beastial_wrath)
+  assert tundra_rhino.get_attack() == 4
+  assert tundra_rhino.has_attribute(Attributes.IMMUNE)
+  enemy_wisp = game.game_manager.get_card('Wisp', game.current_player.other_player.board)
+  attack_with_rhino = list(filter(lambda action: action.source == tundra_rhino and action.targets[0] == enemy_wisp, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(attack_with_rhino)
+  assert enemy_wisp.parent == enemy_wisp.owner.graveyard
+  assert tundra_rhino.get_health() == 5
+  game.end_turn()
+  assert tundra_rhino.get_attack() == 2
+  assert not tundra_rhino.has_attribute(Attributes.IMMUNE)
+
+def test_snake_trap():
+  game = GameManager().create_test_game()
+  snake_trap = game.game_manager.get_card('Snake Trap', game.current_player.other_player.secrets_zone)
+  tundra_rhino = game.game_manager.get_card('Tundra Rhino', game.current_player.board)
+  enemy_wisp = game.game_manager.get_card('Wisp', game.current_player.other_player.board)
+  attack_with_rhino = list(filter(lambda action: action.source == tundra_rhino and action.targets[0] == enemy_wisp, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(attack_with_rhino)
+  assert snake_trap.parent == snake_trap.owner.graveyard
+  assert enemy_wisp.parent == enemy_wisp.owner.graveyard
+  assert tundra_rhino.get_health() == 4
+  assert len(game.current_player.other_player.board) == 3
+  for snake in game.current_player.other_player.board:
+    assert snake.creature_type == CreatureTypes.BEAST
+    assert snake.get_attack() == 1
+    assert snake.get_health() == 1
+
+def test_gladiators_longbow():
+  game = GameManager().create_test_game()
+  gladiators_longbow = game.game_manager.get_card("Gladiator's Longbow", game.current_player)
+  assert game.current_player.weapon
+  enemy_wisp = game.game_manager.get_card('Wisp', game.current_player.other_player.board)
+  attack_wisp = list(filter(lambda action: action.targets[0] == enemy_wisp, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(attack_wisp)
+  assert gladiators_longbow.get_health() == 1
+  assert game.current_player.get_health() == 30
+  attack_actions = list(filter(lambda action: action.action_type == Actions.ATTACK, game.get_available_actions(game.current_player)))
+  assert len(attack_actions) == 0
+  game.deal_damage(game.current_player, 10)
+  assert game.current_player.get_health() == 20
 
 
 def test_battlecry_reduce_cost():

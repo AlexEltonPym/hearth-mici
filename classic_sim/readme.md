@@ -20,9 +20,8 @@ To change the game-state, an action must be performed. Each action has a type, s
 
 # Card changes
 Not all cards can be implemented directly, so the following cards are implemented slighly differently:
-Fireblast: can target self. Is this allowed?
-Spiteful smith: always gives +2/0 to weapon, not when damaged. Add condition to auras?
 Tracking: Tutor for a beast instead of draw 3 discard 2
+Explosive shot: Deal 3x3 damage to targets with replace=True for 6 mana (+1)
 
 ## Running the simulator
 Create a virtual environment, then install the requirements:
