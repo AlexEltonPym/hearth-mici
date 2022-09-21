@@ -213,6 +213,9 @@ class Game():
     else:
       damage = action.source.get_attack()
       other_damage = action.targets[0].get_attack()
+      self.trigger(action.source, Triggers.ENEMY_MINION_ATTACKS)
+    if isinstance(action.targets[0], Player):
+      self.trigger(action.targets[0], Triggers.FRIENDLY_HERO_ATTACKED)
     self.deal_damage(action.targets[0], damage, poisonous=action.source.has_attribute(Attributes.POISONOUS))
     self.deal_damage(action.source, other_damage, poisonous=action.targets[0].has_attribute(Attributes.POISONOUS))
     if action.source.attacks_this_turn == -1: #used charge to attack
@@ -243,6 +246,8 @@ class Game():
     self.trigger(card, Triggers.ANY_MINION_DIES)
     self.trigger(card, Triggers.FRIENDLY_MINION_DIES)
     self.trigger(card, Triggers.ENEMY_MINION_DIES)
+    self.trigger(card, Triggers.FRIENDLY_SAME_TYPE_DIES)
+
           
   def resolve_effect(self, card, triggerer=None):
     targets = self.get_available_effect_targets(card)
@@ -258,96 +263,101 @@ class Game():
       elif card.effect.method == Methods.TRIGGERER:
         card.effect.resolve_action(self, Action(Actions.CAST_EFFECT, card, [triggerer]))
 
-  def trigger(self, source, trigger_type):
+  def trigger(self, triggerer, trigger_type):
     # print(f"{source=}")
     # print(f"{trigger_type=}")
     for player in [self.player, self.enemy]:
       player_weapon = [player.weapon] if player.weapon else []
       for card in player_weapon + player.board.get_all() + player.secrets_zone.get_all():
-        if card.effect and trigger_type == card.effect.trigger and source != card:
-          if "FRIENDLY" in trigger_type.name and source.owner == card.owner:
+        if card.effect and trigger_type == card.effect.trigger and triggerer != card:
+          if "FRIENDLY" in trigger_type.name and triggerer.owner == card.owner:
             if trigger_type == Triggers.FRIENDLY_MINION_DIES:
-              self.resolve_effect(card, source)
+              self.resolve_effect(card, triggerer)
             elif trigger_type == Triggers.FRIENDLY_HEALED:
-              self.resolve_effect(card, source)
+              self.resolve_effect(card, triggerer)
             elif trigger_type == Triggers.FRIENDLY_MINION_SUMMONED:
-              self.resolve_effect(card, source)
-            elif trigger_type == Triggers.FRIENDLY_SAME_TYPE_SUMMONED\
-               and source.creature_type and card.creature_type\
-               and (source.creature_type == CreatureTypes.ALL\
+              self.resolve_effect(card, triggerer)
+            elif (trigger_type == Triggers.FRIENDLY_SAME_TYPE_SUMMONED\
+                or trigger_type == Triggers.FRIENDLY_SAME_TYPE_DIES)\
+               and triggerer.creature_type and card.creature_type\
+               and (triggerer.creature_type == CreatureTypes.ALL\
                or card.creature_type == CreatureTypes.ALL\
-               or source.creature_type == card.creature_type):
+               or triggerer.creature_type == card.creature_type):
               self.resolve_effect(card)
             elif trigger_type == Triggers.FRIENDLY_END_TURN:
-              self.resolve_effect(card, source)
+              self.resolve_effect(card, triggerer)
             elif trigger_type == Triggers.FRIENDLY_SPELL_CAST:
-              self.resolve_effect(card, source)
+              self.resolve_effect(card, triggerer)
             elif trigger_type == Triggers.FRIENDLY_SECRET_CAST:
-              self.resolve_effect(card, source)
+              self.resolve_effect(card, triggerer)
             elif trigger_type == Triggers.FRIENDLY_UNTAP:
-              self.resolve_effect(card, source)
+              self.resolve_effect(card, triggerer)
             elif trigger_type == Triggers.FRIENDLY_WEAPON_PLAYED:
-              self.resolve_effect(card, source)
+              self.resolve_effect(card, triggerer)
             elif trigger_type == Triggers.FRIENDLY_CARD_PLAYED:
-              self.resolve_effect(card, source)
-          elif "ENEMY" in trigger_type.name and source.owner != card.owner:
+              self.resolve_effect(card, triggerer)
+            elif trigger_type == Triggers.FRIENDLY_HERO_ATTACKED:
+              self.resolve_effect(card, triggerer)
+          elif "ENEMY" in trigger_type.name and triggerer.owner != card.owner:
             if trigger_type == Triggers.ENEMY_MINION_DIES:
-              self.resolve_effect(card, source)
+              self.resolve_effect(card, triggerer)
             elif trigger_type == Triggers.ENEMY_HEALED:
-              self.resolve_effect(card, source)
+              self.resolve_effect(card, triggerer)
             elif trigger_type == Triggers.ENEMY_MINION_SUMMONED:
-              self.resolve_effect(card, source)
+              self.resolve_effect(card, triggerer)
             elif trigger_type == Triggers.ENEMY_SAME_TYPE_SUMMONED\
-               and source.creature_type and card.creature_type\
-               and (source.creature_type == CreatureTypes.ALL\
+               and triggerer.creature_type and card.creature_type\
+               and (triggerer.creature_type == CreatureTypes.ALL\
                or card.creature_type == CreatureTypes.ALL\
-               or source.creature_type == card.creature_type):
+               or triggerer.creature_type == card.creature_type):
               self.resolve_effect(card)
             elif trigger_type == Triggers.ENEMY_END_TURN:
-              self.resolve_effect(card, source)
+              self.resolve_effect(card, triggerer)
             elif trigger_type == Triggers.ENEMY_SPELL_CAST:
-              self.resolve_effect(card, source)
+              self.resolve_effect(card, triggerer)
             elif trigger_type == Triggers.ENEMY_SECRET_CAST:
-              self.resolve_effect(card, source)
+              self.resolve_effect(card, triggerer)
             elif trigger_type == Triggers.ENEMY_UNTAP:
-              self.resolve_effect(card, source)
+              self.resolve_effect(card, triggerer)
             elif trigger_type == Triggers.ENEMY_WEAPON_PLAYED:
-              self.resolve_effect(card, source)
+              self.resolve_effect(card, triggerer)
             elif trigger_type == Triggers.ENEMY_CARD_PLAYED:
-              self.resolve_effect(card, source)
+              self.resolve_effect(card, triggerer)
+            elif trigger_type == Triggers.ENEMY_MINION_ATTACKS:
+              self.resolve_effect(card, triggerer)
           else:
             if trigger_type == Triggers.ANY_MINION_DIES:
-              self.resolve_effect(card, source)
+              self.resolve_effect(card, triggerer)
             elif trigger_type == Triggers.ANY_HEALED:
-              self.resolve_effect(card, source)
+              self.resolve_effect(card, triggerer)
             elif trigger_type == Triggers.ANY_MINION_SUMMONED:
-              self.resolve_effect(card, source)
+              self.resolve_effect(card, triggerer)
             elif trigger_type == Triggers.ANY_SAME_TYPE_SUMMONED\
-                and source.creature_type and card.creature_type\
-                and (source.creature_type == CreatureTypes.ALL\
+                and triggerer.creature_type and card.creature_type\
+                and (triggerer.creature_type == CreatureTypes.ALL\
                 or card.creature_type == CreatureTypes.ALL\
-                or source.creature_type == card.creature_type):
-              self.resolve_effect(card, source)
+                or triggerer.creature_type == card.creature_type):
+              self.resolve_effect(card, triggerer)
             elif trigger_type == Triggers.ANY_SECRET_CAST:
-              self.resolve_effect(card,source)
+              self.resolve_effect(card,triggerer)
             elif trigger_type == Triggers.ANY_END_TURN:
-              self.resolve_effect(card, source)
+              self.resolve_effect(card, triggerer)
             elif trigger_type == Triggers.ANY_SPELL_CAST:
-              self.resolve_effect(card, source)
+              self.resolve_effect(card, triggerer)
             elif trigger_type == Triggers.ANY_SECRET_CAST:
-              self.resolve_effect(card, source)
+              self.resolve_effect(card, triggerer)
             elif trigger_type == Triggers.ANY_UNTAP:
-              self.resolve_effect(card, source)
+              self.resolve_effect(card, triggerer)
             elif trigger_type == Triggers.ANY_WEAPON_PLAYED:
-              self.resolve_effect(card, source)
+              self.resolve_effect(card, triggerer)
             elif trigger_type == Triggers.ANY_CARD_PLAYED:
-              self.resolve_effect(card, source)
+              self.resolve_effect(card, triggerer)
           if card.card_type == CardTypes.SECRET:
             card.change_parent(card.owner.graveyard)
 
-        elif card.effect and trigger_type == card.effect.trigger and source == card:
+        elif card.effect and trigger_type == card.effect.trigger and triggerer == card:
           if trigger_type == Triggers.SELF_DAMAGE_TAKEN:
-            self.resolve_effect(card, source)
+            self.resolve_effect(card, triggerer)
 
 
   def get_available_targets(self, card):

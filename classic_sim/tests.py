@@ -16,12 +16,13 @@ def test_classic_pool():
   basics = get_basic_cards()
   commons = get_common_cards()
   rares = get_rare_cards()
+  epics = get_epic_cards()
   mage = get_mage_cards()
   hunter = get_hunter_cards()
-  print(len(basics + commons + rares + mage + hunter))
   assert len(basics) == 43
   assert len(commons) == 40
 
+  print(f"{len(basics + commons + rares + epics + mage + hunter)}/202") 
   assert True
 
 def test_coin():
@@ -1532,9 +1533,72 @@ def test_tundra_rhino():
 
   assert tundra_rhino.has_attribute(Attributes.CHARGE)
   assert river_crok.has_attribute(Attributes.CHARGE)
-  assert len(list(filter(lambda action: action.action_type== Actions.ATTACK, game.get_available_actions(game.current_player)))) == 2
+  assert len(list(filter(lambda action: action.action_type == Actions.ATTACK, game.get_available_actions(game.current_player)))) == 2
 
   
+def test_explosive_trap():
+  game = GameManager().create_test_game()
+  river_crok = game.game_manager.get_card('River Crocolisk', game.current_player.other_player.board)
+  tundra_rhino = game.game_manager.get_card('Tundra Rhino', game.current_player.other_player.board)
+  explosive_trap = game.game_manager.get_card('Explosive Trap', game.current_player.hand)
+  play_trap = list(filter(lambda action: action.source == explosive_trap, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(play_trap)
+  assert explosive_trap.parent == explosive_trap.owner.secrets_zone
+  enemy_attack_actions = list(filter(lambda action: action.action_type == Actions.ATTACK, game.get_available_actions(game.current_player.other_player)))
+  assert len(enemy_attack_actions) == 2
+  assert game.current_player.other_player.get_health() == 30
+  assert game.current_player.get_health() == 30
+  assert river_crok.get_health() == 3
+  assert tundra_rhino.get_health() == 5
+  game.perform_action(enemy_attack_actions[0])
+  assert game.current_player.other_player.get_health() == 28
+  assert game.current_player.get_health() == 28 #got attacked by a 2-attack minion
+  assert river_crok.get_health() == 1
+  assert tundra_rhino.get_health() == 3
+  assert explosive_trap.parent == explosive_trap.owner.graveyard
+
+def test_freezing_trap():
+  game = GameManager().create_test_game()
+  tundra_rhino = game.game_manager.get_card('Tundra Rhino', game.current_player.other_player.board)
+  freezing_trap = game.game_manager.get_card('Freezing Trap', game.current_player.hand)
+  play_trap = list(filter(lambda action: action.source == freezing_trap, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(play_trap)
+  assert freezing_trap.parent == freezing_trap.owner.secrets_zone
+  enemy_attack_actions = list(filter(lambda action: action.action_type == Actions.ATTACK, game.get_available_actions(game.current_player.other_player)))
+  assert len(enemy_attack_actions) == 1
+  game.perform_action(enemy_attack_actions[0])
+  assert tundra_rhino.parent == tundra_rhino.owner.hand
+  assert tundra_rhino.get_manacost() == 7
+  assert freezing_trap.parent == freezing_trap.owner.graveyard
+  
+def test_scavenging_hyena():
+  game = GameManager().create_test_game()
+  scavenging_hyena = game.game_manager.get_card('Scavenging Hyena', game.current_player.board)
+  assert scavenging_hyena.get_attack() == 2
+  assert scavenging_hyena.get_health() == 2
+  tundra_rhino = game.game_manager.get_card('Tundra Rhino', game.current_player.board)
+  game.deal_damage(tundra_rhino, 5)
+  assert scavenging_hyena.get_attack() == 4
+  assert scavenging_hyena.get_health() == 3
+  enemy_crok = game.game_manager.get_card('River Crocolisk', game.current_player.other_player.board)
+  game.deal_damage(enemy_crok, 5)
+  assert scavenging_hyena.get_attack() == 4
+  assert scavenging_hyena.get_health() == 3
+  friendly_crok = game.game_manager.get_card('River Crocolisk', game.current_player.board)
+  game.deal_damage(friendly_crok, 5)
+  assert scavenging_hyena.get_attack() == 6
+  assert scavenging_hyena.get_health() == 4
+
+def test_deadly_shot():
+  game = GameManager().create_test_game()
+  deadly_shot = game.game_manager.get_card('Deadly Shot', game.current_player.hand)
+  enemy_crok = game.game_manager.get_card('River Crocolisk', game.current_player.other_player.board)
+
+  play_deadly_shot = list(filter(lambda action: action.source == deadly_shot, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(play_deadly_shot)
+  assert enemy_crok.parent == enemy_crok.owner.graveyard
+
+
 
 def test_battlecry_reduce_cost():
   game = GameManager().create_test_game()

@@ -63,6 +63,7 @@ class DealDamage():
   def resolve_action(self, game, action):
     damage_amount = self.value(action.source) + (action.source.owner.get_spell_damage() if action.source.card_type == CardTypes.SPELL else 0)
     for target in action.targets:
+      print(f"Dealing {damage_amount} damage to {target}")
       game.deal_damage(target, damage_amount)
 
 class Destroy():
@@ -257,7 +258,7 @@ class ReturnToHand():
   def resolve_action(self, game, action):
     for target in action.targets:
       target.change_parent(target.parent.parent.hand) #return to targets parent's player's hand (the parent of the board is the player)
-      target.reset()
+      target.return_to_hand_reset()
 
 class RestoreHealth():
   available_methods = [Methods.TARGETED, Methods.RANDOMLY, Methods.ALL, Methods.SELF]
@@ -496,7 +497,7 @@ class CopyMinion():
       action.source.perm_attributes = deepcopy(target.perm_attributes)
 
 
-class DuelAction(): #second effect will recieve the same action as the first effect
+class DualAction(): #second effect will recieve the same action as the first effect
   def __init__(self, first_effect, second_effect):
     self.first_effect = first_effect
     self.second_effect = second_effect
@@ -516,7 +517,7 @@ class DuelAction(): #second effect will recieve the same action as the first eff
     self.first_effect.resolve_action(game, action)
     self.second_effect.resolve_action(game, action)
 
-class DuelActionSelf(): #second effect will target self
+class DualActionSelf(): #second effect will target self
   def __init__(self, first_effect, second_effect, first_effect_first=True):
     self.first_effect = first_effect
     self.second_effect = second_effect

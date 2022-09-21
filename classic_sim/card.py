@@ -151,6 +151,22 @@ class Card():
 
     return aura_attack, aura_health
 
+  def return_to_hand_reset(self):
+    self.attacks_this_turn = -1
+    self.attack = self.original_attack
+    self.temp_attack = 0
+    self.temp_health = 0
+    self.perm_attack = 0
+    self.perm_health = 0 
+    self.temp_attributes = []
+    self.perm_attributes = []
+    self.max_health = self.original_health
+    self.health = self.max_health
+    self.effect = deepcopy(self.original_effect)
+    self.attributes = deepcopy(self.original_attributes)
+    self.condition = deepcopy(self.original_condition)
+    #dont change manacost so that freezing trap works, all other change cost effects are auras
+
   def reset(self):
     self.attacks_this_turn = -1
     self.attack = self.original_attack
@@ -165,8 +181,7 @@ class Card():
     self.effect = deepcopy(self.original_effect)
     self.attributes = deepcopy(self.original_attributes)
     self.condition = deepcopy(self.original_condition)
-    self.manacost = self.original_manacost
-
+    self.manacost = self.original_manacost #when reseting for making new games, mana must be reset
 
   def get_string(self):
     if(self.card_type == CardTypes.MINION):
