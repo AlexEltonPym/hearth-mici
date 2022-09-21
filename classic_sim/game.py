@@ -205,6 +205,21 @@ class Game():
     self.trigger(action.source, Triggers.ENEMY_CARD_PLAYED)
 
   def handle_attack(self, action):
+    for secret in action.targets[0].owner.secrets_zone:
+      if isinstance(secret.effect, Redirect):
+        player_board = self.player.board.get_all()
+        enemy_board = self.player.other_player.board.get_all()
+        player_themselves = [self.player]
+        enemy_themselves = [self.player.other_player]
+        possible_targets = player_board + enemy_board + player_themselves + enemy_themselves
+        possible_targets.remove(action.targets[0])
+        possible_targets.remove(action.source)
+        action.targets[0] = self.game_manager.random_state.choice(possible_targets)
+
+
+    if isinstance(action.targets[0], Player):
+      self.trigger(action.targets[0], Triggers.FRIENDLY_HERO_ATTACKED)
+
     if isinstance(action.source, Player) and action.source.weapon:
       damage = action.source.get_attack() + action.source.weapon.attack
       other_damage = action.targets[0].get_attack()
@@ -214,8 +229,7 @@ class Game():
       damage = action.source.get_attack()
       other_damage = action.targets[0].get_attack()
       self.trigger(action.source, Triggers.ENEMY_MINION_ATTACKS)
-    if isinstance(action.targets[0], Player):
-      self.trigger(action.targets[0], Triggers.FRIENDLY_HERO_ATTACKED)
+    
     self.deal_damage(action.targets[0], damage, poisonous=action.source.has_attribute(Attributes.POISONOUS))
     self.deal_damage(action.source, other_damage, poisonous=action.targets[0].has_attribute(Attributes.POISONOUS))
     if action.source.attacks_this_turn == -1: #used charge to attack

@@ -1610,6 +1610,28 @@ def test_unleash_the_hounds():
   print(game.current_player.board.get_all())
   assert len(game.current_player.board) == 4
 
+def test_flare():
+  game = GameManager().create_test_game()
+  flare = game.game_manager.get_card('Flare', game.current_player.hand)
+  enemy_snipe = game.game_manager.get_card('Snipe', game.current_player.other_player.secrets_zone)
+  worgen_infiltrator = game.game_manager.get_card('Worgen Infiltrator', game.current_player.other_player.board)
+  assert len(game.current_player.other_player.secrets_zone) == 1
+  assert worgen_infiltrator.has_attribute(Attributes.STEALTH)
+  play_flare = list(filter(lambda action: action.source == flare, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(play_flare)
+  assert len(game.current_player.other_player.secrets_zone) == 0
+  assert not worgen_infiltrator.has_attribute(Attributes.STEALTH)
+  assert enemy_snipe.parent == enemy_snipe.owner.graveyard
+  assert len(game.current_player.hand) == 1
+ 
+def test_misdirection():
+  game = GameManager().create_test_game()
+  enemy_misdirection = game.game_manager.get_card('Misdirection', game.current_player.other_player.secrets_zone)
+  tundra_rhino = game.game_manager.get_card('Tundra Rhino', game.current_player.board)
+  attack_with_rhino = list(filter(lambda action: action.source == tundra_rhino, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(attack_with_rhino)
+  assert game.current_player.get_health() == 28
+  assert enemy_misdirection.parent == enemy_misdirection.owner.graveyard
 
 def test_battlecry_reduce_cost():
   game = GameManager().create_test_game()

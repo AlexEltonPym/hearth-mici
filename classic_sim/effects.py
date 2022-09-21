@@ -1,7 +1,7 @@
 from enums import *
 from copy import deepcopy
 from action import Action
-
+from dynamics import *
 
 class GainMana():
   available_methods = [Methods.TARGETED, Methods.RANDOMLY, Methods.ALL]
@@ -499,6 +499,50 @@ class CopyMinion():
       action.source.temp_attributes = deepcopy(target.temp_attributes)
       action.source.perm_attributes = deepcopy(target.perm_attributes)
 
+class Redirect():
+  available_methods = [Methods.ALL]
+  param_type = ParamTypes.NONE
+  available_targets = [Targets.MINION]
+  available_owner_filters = [OwnerFilters.ENEMY]
+  available_type_filters = []
+  available_durations = []
+  available_triggers = [Triggers.ENEMY_MINION_ATTACKS]
+  available_card_types = [CardTypes.SECRET]
+  
+  def __init__(self, method=Methods.ALL, owner_filter=OwnerFilters.ENEMY, target=Targets.MINION, value=None, random_count=1, random_replace=True, duration=None, trigger=Triggers.ENEMY_MINION_ATTACKS, type_filter=None):
+    self.zone_filter = Zones.BOARD
+    self.method = method
+    self.value = value
+    self.random_count = random_count
+    self.random_replace = random_replace
+    self.target = target
+    self.owner_filter = owner_filter
+    self.type_filter = type_filter
+    self.trigger = trigger
+    self.duration = duration
+
+  def resolve_action(self, game, action): #handled seperatly in attack action resolver
+    return
+
+class Cantrip(): #performs first effect + draw a card
+  def __init__(self, first_effect):
+    self.first_effect = first_effect
+    self.second_effect = DrawCards(value=Constant(1), method=Methods.ALL, owner_filter=OwnerFilters.FRIENDLY)
+    self.method = first_effect.method
+    self.random_count = first_effect.random_count
+    self.random_replace = first_effect.random_replace
+    self.value = first_effect.value
+    self.param_type = first_effect.param_type
+    self.target = first_effect.target
+    self.owner_filter = first_effect.owner_filter
+    self.type_filter = first_effect.type_filter
+    self.duration = first_effect.duration
+    self.trigger = first_effect.trigger
+    self.zone_filter = first_effect.zone_filter
+  
+  def resolve_action(self, game, action):
+    self.first_effect.resolve_action(game, action)
+    self.second_effect.resolve_action(game, Action(action_type=Actions.CAST_EFFECT, source=action.source, targets=[action.source.owner]))
 
 class DualAction(): #second effect will recieve the same action as the first effect
   def __init__(self, first_effect, second_effect):
@@ -544,6 +588,27 @@ class DualActionSelf(): #second effect will target self
     else:
       self.second_effect.resolve_action(game, Action(action_type=Actions.CAST_EFFECT, source=action.source, targets=[action.source]))
       self.first_effect.resolve_action(game, action)
+
+
+class DualActionSecrets(): #second effect will target all enemy secrets
+  def __init__(self, first_effect, second_effect):
+    self.first_effect = first_effect
+    self.second_effect = second_effect
+    self.method = first_effect.method
+    self.random_count = first_effect.random_count
+    self.random_replace = first_effect.random_replace
+    self.value = first_effect.value
+    self.param_type = first_effect.param_type
+    self.target = first_effect.target
+    self.owner_filter = first_effect.owner_filter
+    self.type_filter = first_effect.type_filter
+    self.duration = first_effect.duration
+    self.trigger = first_effect.trigger
+    self.zone_filter = first_effect.zone_filter
+  
+  def resolve_action(self, game, action):
+    self.first_effect.resolve_action(game, action)
+    self.second_effect.resolve_action(game, Action(action_type=Actions.CAST_EFFECT, source=action.source, targets=action.source.owner.other_player.secrets_zone.get_all()))
 
 class MultiEffectRandom(): #one effect from list is chosen, same target as first effect
   def __init__(self, effects):

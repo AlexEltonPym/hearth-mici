@@ -430,10 +430,18 @@ def get_hunter_cards():
                             effect=SummonToken(method=Methods.ALL, owner_filter=OwnerFilters.FRIENDLY,\
                                                value=(NumOtherMinions(OwnerFilters.ENEMY), Card(name="Hound", collectable=False, card_type=CardTypes.MINION, manacost=1, attack=1, health=1, creature_type=CreatureTypes.BEAST, attributes=[Attributes.CHARGE]))))
   
+  #Hunter rare cards
+  flare = Card(name="Flare", card_type=CardTypes.SPELL, manacost=1,\
+              effect=Cantrip(DualActionSecrets(RemoveAttribute(value=Attributes.STEALTH, target=Targets.MINION, owner_filter=OwnerFilters.ENEMY, method=Methods.ALL),\
+                                       Destroy(method=Methods.ALL, target=Targets.SECRET, owner_filter=OwnerFilters.ENEMY))))
+  misdirection = Card(name="Misdirection", card_type=CardTypes.SECRET, manacost=2,\
+                      effect=Redirect(trigger=Triggers.ENEMY_MINION_ATTACKS))
+  # Combine
   basic_hunter_cards = [hunters_mark, arcane_shot, timber_wolf, tracking, starving_buzzard, animal_companion, kill_command, houndmaster, multishot, tundra_rhino]
   common_hunter_cards = [explosive_trap, freezing_trap, scavenging_hyena, snipe, deadly_shot, unleash_the_hounds]
+  rare_hunter_cards = [flare, misdirection]
 
-  return basic_hunter_cards + common_hunter_cards
+  return basic_hunter_cards + common_hunter_cards + rare_hunter_cards
 
 def get_mage_cards():
   fireball = Card(name="Fireball", card_type=CardTypes.SPELL, manacost=4, effect=DealDamage(
