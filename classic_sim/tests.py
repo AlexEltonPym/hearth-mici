@@ -1598,6 +1598,17 @@ def test_deadly_shot():
   game.perform_action(play_deadly_shot)
   assert enemy_crok.parent == enemy_crok.owner.graveyard
 
+def test_unleash_the_hounds():
+  game = GameManager().create_test_game()
+  unleash_the_hounds = game.game_manager.get_card('Unleash the Hounds', game.current_player.hand)
+  enemy_crok = game.game_manager.get_card('River Crocolisk', game.current_player.other_player.board)
+  enemy_wisp = game.game_manager.get_card('Wisp', game.current_player.other_player.board)
+  enemy_giant = game.game_manager.get_card('Mountain Giant', game.current_player.other_player.board)
+  firendly_wisp = game.game_manager.get_card('Wisp', game.current_player.board)
+  play_unleash = list(filter(lambda action: action.source == unleash_the_hounds, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(play_unleash)
+  print(game.current_player.board.get_all())
+  assert len(game.current_player.board) == 4
 
 
 def test_battlecry_reduce_cost():

@@ -144,7 +144,7 @@ class ParamTypes(Enum):
   X = 2
   XY = 3
   NONE = 4
-  TOKEN = 5
+  X_TOKENS = 5
   DYNAMIC = 6
 
 class Zones(Enum):

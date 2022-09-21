@@ -347,7 +347,7 @@ class RemoveAttribute():
 
 class SummonToken(): #summon minion for target player
   available_methods = [Methods.TARGETED, Methods.RANDOMLY, Methods.ALL]
-  param_type = ParamTypes.TOKEN
+  param_type = ParamTypes.X_TOKENS
   available_targets = [Targets.HERO]
   available_owner_filters = []
   available_type_filters = []
@@ -368,11 +368,14 @@ class SummonToken(): #summon minion for target player
 
   def resolve_action(self, game, action):
     for target in action.targets:
-      new_token = deepcopy(self.value)
-      #Doesn't trigger battlecry
-      if len(target.board) < target.board.max_entries:
+      for token_number in range(self.value[0](action.source)):
+        if len(target.board) >= target.board.max_entries:
+          return
+        new_token = deepcopy(self.value[1])
         new_token.set_owner(target)
-        new_token.set_parent(target.board)
+        new_token.set_parent(target.board) #Doesn't trigger battlecry
+
+
       
 class Silence():
   available_methods = [Methods.TARGETED, Methods.RANDOMLY, Methods.ALL]

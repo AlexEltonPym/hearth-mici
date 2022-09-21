@@ -54,7 +54,7 @@ def get_basic_cards():
   kobold_geomancer = Card(name="Kobold Geomancer", card_type=CardTypes.MINION, manacost=2, attack=2, health=2, attributes=[Attributes.SPELL_DAMAGE])
   murloc_tidehunter = Card(name="Murloc Tidehunter", card_type=CardTypes.MINION, manacost=2, attack=2, health=1, creature_type=CreatureTypes.MURLOC,\
                            effect=SummonToken(trigger=Triggers.BATTLECRY, method=Methods.ALL, owner_filter=OwnerFilters.FRIENDLY,\
-                           value=Card(name="Murloc Scout", collectable=False, card_type=CardTypes.MINION, manacost=0, attack=1, health=1, creature_type=CreatureTypes.MURLOC)))
+                           value=(Constant(1), Card(name="Murloc Scout", collectable=False, card_type=CardTypes.MINION, manacost=0, attack=1, health=1, creature_type=CreatureTypes.MURLOC))))
   novice_engineer = Card(name="Novice Engineer", card_type=CardTypes.MINION, manacost=2, attack=1, health=1,\
                          effect=DrawCards(value=Constant(1), trigger=Triggers.BATTLECRY, method=Methods.ALL, owner_filter=OwnerFilters.FRIENDLY))
   river_crocolisk = Card(name="River Crocolisk", card_type=CardTypes.MINION, manacost=2, attack=2, health=3, creature_type=CreatureTypes.BEAST)
@@ -69,7 +69,7 @@ def get_basic_cards():
                      effect=ChangeStats(value=(Constant(1),Constant(0)), trigger=Triggers.AURA, method=Methods.ALL, target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY))
   razorfen_hunter = Card(name="Razorfen Hunter", card_type=CardTypes.MINION, manacost=3, attack=2, health=3,\
                            effect=SummonToken(trigger=Triggers.BATTLECRY, method=Methods.ALL, owner_filter=OwnerFilters.FRIENDLY,\
-                           value=Card(name="Boar", collectable=False, card_type=CardTypes.MINION, manacost=1, attack=1, health=1, creature_type=CreatureTypes.BEAST)))
+                           value=(Constant(1), Card(name="Boar", collectable=False, card_type=CardTypes.MINION, manacost=1, attack=1, health=1, creature_type=CreatureTypes.BEAST))))
   shattered_sun_cleric = Card(name="Shattered Sun Cleric", card_type=CardTypes.MINION, manacost=3, attack=3, health=2,\
                               effect=ChangeStats(value=(Constant(1),Constant(1)), trigger=Triggers.BATTLECRY, method=Methods.TARGETED, target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY, duration=Durations.PERMANENTLY))
   silverback_patriarch = Card(name="Silverback Patriarch", card_type=CardTypes.MINION, manacost=3, attack=1, health=4, creature_type=CreatureTypes.BEAST, attributes=[Attributes.TAUNT])
@@ -79,7 +79,7 @@ def get_basic_cards():
   chillwind_yeti = Card(name="Chillwind Yeti", card_type=CardTypes.MINION, manacost=4, attack=4, health=5)
   dragonling_mechanic = Card(name="Dragonling Mechanic", card_type=CardTypes.MINION, manacost=4, attack=2, health=4,\
                              effect=SummonToken(trigger=Triggers.BATTLECRY, method=Methods.ALL, owner_filter=OwnerFilters.FRIENDLY,\
-                             value=Card(name="Mechanical Dragonling", collectable=False, card_type=CardTypes.MINION, manacost=1, attack=2, health=1, creature_type=CreatureTypes.MECH)))
+                             value=(Constant(1), Card(name="Mechanical Dragonling", collectable=False, card_type=CardTypes.MINION, manacost=1, attack=2, health=1, creature_type=CreatureTypes.MECH))))
   gnomish_inventor = Card(name="Gnomish Inventor", card_type=CardTypes.MINION, manacost=4, attack=2, health=4,\
                          effect=DrawCards(value=Constant(1), trigger=Triggers.BATTLECRY, method=Methods.ALL, owner_filter=OwnerFilters.FRIENDLY))
   oasis_snapjaw = Card(name="Oasis Snapjaw", card_type=CardTypes.MINION, manacost=4, attack=2, health=7, creature_type=CreatureTypes.BEAST)
@@ -172,7 +172,7 @@ def get_common_cards():
   flesheating_ghoul = Card(name="Flesheating Ghoul", card_type=CardTypes.MINION, manacost=3, attack=2, health=3,
                effect=ChangeStats(value=(Constant(1), Constant(0)), method=Methods.SELF, target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY, duration=Durations.PERMANENTLY, trigger=Triggers.ANY_MINION_DIES))
   harvest_golem = Card(name="Harvest Golem", card_type=CardTypes.MINION, creature_type=CreatureTypes.MECH, manacost=3, attack=2, health=3,
-             effect=SummonToken(value=Card(name="Damaged Golem", collectable=False, card_type=CardTypes.MINION, creature_type=CreatureTypes.MECH, manacost=1, attack=2, health=1),
+             effect=SummonToken(value=(Constant(1), Card(name="Damaged Golem", collectable=False, card_type=CardTypes.MINION, creature_type=CreatureTypes.MECH, manacost=1, attack=2, health=1)),
                       method=Methods.TARGETED, owner_filter=OwnerFilters.FRIENDLY, trigger=Triggers.DEATHRATTLE))
   jungle_panther = Card(name="Jungle Panther", card_type=CardTypes.MINION,
               creature_type=CreatureTypes.BEAST, manacost=3, attack=4, health=2, attributes=[Attributes.STEALTH])
@@ -205,7 +205,7 @@ def get_common_cards():
   fen_creeper = Card(name="Fen Creeper", card_type=CardTypes.MINION,
              manacost=5, attack=3, health=6, attributes=[Attributes.TAUNT])
   silver_hand_knight = Card(name="Silver Hand Knight", card_type=CardTypes.MINION, manacost=5, attack=4, health=4,
-                effect=SummonToken(value=Card(name="Squire", collectable=False, card_type=CardTypes.MINION, manacost=1, attack=2, health=2),
+                effect=SummonToken(value=(Constant(1), Card(name="Squire", collectable=False, card_type=CardTypes.MINION, manacost=1, attack=2, health=2)),
                          method=Methods.TARGETED, owner_filter=OwnerFilters.FRIENDLY, trigger=Triggers.BATTLECRY))
   spiteful_smith = Card(name="Spiteful Smith", card_type=CardTypes.MINION, manacost=5, attack=4, health=6,
               effect=ChangeStats(value=(Constant(2), Constant(0)), trigger=Triggers.AURA, owner_filter=OwnerFilters.FRIENDLY, target=Targets.WEAPON, method=Methods.ALL))
@@ -288,7 +288,8 @@ def get_rare_cards():
                     effect=DealDamage(value=Constant(2), method=Methods.RANDOMLY, trigger=Triggers.FRIENDLY_UNTAP, target=Targets.MINION, owner_filter=OwnerFilters.ENEMY))
   emperor_cobra = Card(name="Emperor Cobra", card_type=CardTypes.MINION, manacost=3, attack=2, health=3, creature_type=CreatureTypes.BEAST, attributes=[Attributes.POISONOUS])
   imp_master = Card(name="Imp Master", card_type=CardTypes.MINION, manacost=3, attack=1, health=5,\
-                    effect=DualActionSelf(SummonToken(value=Card(name="Imp", card_type=CardTypes.MINION, collectable=False, manacost=1, attack=1, health=1, creature_type=CreatureTypes.DEMON), trigger=Triggers.FRIENDLY_END_TURN, method=Methods.ALL, owner_filter=OwnerFilters.FRIENDLY),\
+                    effect=DualActionSelf(SummonToken(trigger=Triggers.FRIENDLY_END_TURN, method=Methods.ALL, owner_filter=OwnerFilters.FRIENDLY,\
+                                          value=(Constant(1), Card(name="Imp", card_type=CardTypes.MINION, collectable=False, manacost=1, attack=1, health=1, creature_type=CreatureTypes.DEMON))),\
                                           DealDamage(value=Constant(1),method=Methods.SELF, trigger=Triggers.FRIENDLY_END_TURN, target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY)))
   injured_blademaster = Card(name="Injured Blademaster", card_type=CardTypes.MINION, manacost=3, attack=4, health=7,\
                              effect=DealDamage(value=Constant(4), trigger=Triggers.BATTLECRY, method=Methods.SELF, target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY))
@@ -307,7 +308,7 @@ def get_rare_cards():
   twilight_drake = Card(name="Twilight Drake", card_type=CardTypes.MINION, manacost=4, attack=4, health=1, creature_type=CreatureTypes.DRAGON,\
                         effect=ChangeStats(value=(Constant(0), NumCardsInHand()), method=Methods.SELF, trigger=Triggers.BATTLECRY, target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY, duration=Durations.PERMANENTLY))
   violet_teacher = Card(name="Violet Teacher", card_type=CardTypes.MINION, manacost=4, attack=3, health=5,\
-                       effect=SummonToken(value=Card(name="Violet Apprentice", collectable=False, card_type=CardTypes.MINION, manacost=0, attack=1, health=1),\
+                       effect=SummonToken(value=(Constant(1), Card(name="Violet Apprentice", collectable=False, card_type=CardTypes.MINION, manacost=0, attack=1, health=1)),\
                                           trigger=Triggers.FRIENDLY_SPELL_CAST, method=Methods.ALL, owner_filter=OwnerFilters.FRIENDLY))
 
   # Rare five drops
@@ -398,10 +399,10 @@ def get_hunter_cards():
   starving_buzzard = Card(name="Starving Buzzard", card_type=CardTypes.MINION, manacost=2, attack=2, health=1, creature_type=CreatureTypes.BEAST,\
                           effect=DrawCards(value=Constant(1), trigger=Triggers.FRIENDLY_SAME_TYPE_SUMMONED, method=Methods.ALL, owner_filter=OwnerFilters.FRIENDLY)) 
   animal_companion = Card(name="Animal Companion", card_type=CardTypes.SPELL, manacost=3,\
-                          effect=MultiEffectRandom([SummonToken(method=Methods.ALL, owner_filter=OwnerFilters.FRIENDLY, value=Card(name="Huffer", collectable=False, card_type=CardTypes.MINION, manacost=3, attack=4, health=2, creature_type=CreatureTypes.BEAST, attributes=[Attributes.CHARGE])),\
-                                                    SummonToken(method=Methods.ALL, owner_filter=OwnerFilters.FRIENDLY, value=Card(name="Leokk", collectable=False, card_type=CardTypes.MINION, manacost=3, attack=2, health=4, creature_type=CreatureTypes.BEAST,\
-                                                                           effect=ChangeStats(value=(Constant(1), Constant(0)), trigger=Triggers.AURA, target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY, method=Methods.ALL))),\
-                                                    SummonToken(method=Methods.ALL, owner_filter=OwnerFilters.FRIENDLY, value=Card(name="Misha", collectable=False, card_type=CardTypes.MINION, manacost=3, attack=4, health=4, creature_type=CreatureTypes.BEAST, attributes=[Attributes.TAUNT]))]))
+                          effect=MultiEffectRandom([SummonToken(method=Methods.ALL, owner_filter=OwnerFilters.FRIENDLY, value=(Constant(1), Card(name="Huffer", collectable=False, card_type=CardTypes.MINION, manacost=3, attack=4, health=2, creature_type=CreatureTypes.BEAST, attributes=[Attributes.CHARGE]))),\
+                                                    SummonToken(method=Methods.ALL, owner_filter=OwnerFilters.FRIENDLY, value=(Constant(1), Card(name="Leokk", collectable=False, card_type=CardTypes.MINION, manacost=3, attack=2, health=4, creature_type=CreatureTypes.BEAST,\
+                                                                                                                                                 effect=ChangeStats(value=(Constant(1), Constant(0)), trigger=Triggers.AURA, target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY, method=Methods.ALL)))),\
+                                                    SummonToken(method=Methods.ALL, owner_filter=OwnerFilters.FRIENDLY, value=(Constant(1), Card(name="Misha", collectable=False, card_type=CardTypes.MINION, manacost=3, attack=4, health=4, creature_type=CreatureTypes.BEAST, attributes=[Attributes.TAUNT])))]))
   kill_command = Card(name="Kill Command", manacost=3, card_type=CardTypes.SPELL,\
                       effect=DealDamage(value=If(GreaterThan(NumWithCreatureType(CreatureTypes.BEAST, OwnerFilters.FRIENDLY), Constant(0)),Constant(5), Constant(3)),\
                                         method=Methods.TARGETED, target=Targets.MINION_OR_HERO, owner_filter=OwnerFilters.ALL))
@@ -425,8 +426,12 @@ def get_hunter_cards():
               effect=DealDamage(value=Constant(4), trigger=Triggers.ENEMY_MINION_SUMMONED, method=Methods.TRIGGERER, target=Targets.MINION, owner_filter=OwnerFilters.ENEMY))
   deadly_shot = Card(name="Deadly Shot", card_type=CardTypes.SPELL, manacost=3,\
                     effect=Destroy(method=Methods.RANDOMLY, target=Targets.MINION, owner_filter=OwnerFilters.ENEMY))
+  unleash_the_hounds = Card(name="Unleash the Hounds", card_type=CardTypes.SPELL, manacost=3,\
+                            effect=SummonToken(method=Methods.ALL, owner_filter=OwnerFilters.FRIENDLY,\
+                                               value=(NumOtherMinions(OwnerFilters.ENEMY), Card(name="Hound", collectable=False, card_type=CardTypes.MINION, manacost=1, attack=1, health=1, creature_type=CreatureTypes.BEAST, attributes=[Attributes.CHARGE]))))
+  
   basic_hunter_cards = [hunters_mark, arcane_shot, timber_wolf, tracking, starving_buzzard, animal_companion, kill_command, houndmaster, multishot, tundra_rhino]
-  common_hunter_cards = [explosive_trap, freezing_trap, scavenging_hyena, snipe, deadly_shot]
+  common_hunter_cards = [explosive_trap, freezing_trap, scavenging_hyena, snipe, deadly_shot, unleash_the_hounds]
 
   return basic_hunter_cards + common_hunter_cards
 
