@@ -63,7 +63,10 @@ class Triggers(Enum):
   FRIENDLY_HERO_ATTACKED = 34
 
   ENEMY_MINION_ATTACKS = 35
+  
   FRIENDLY_SAME_TYPE_DIES = 36
+
+  ANY_SECRET_REVEALED = 37
 
 class Actions(Enum):
   ATTACK = 0

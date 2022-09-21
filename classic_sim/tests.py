@@ -1633,6 +1633,20 @@ def test_misdirection():
   assert game.current_player.get_health() == 28
   assert enemy_misdirection.parent == enemy_misdirection.owner.graveyard
 
+def test_eaglehorn_bow():
+  game = GameManager().create_test_game()
+  eaglehorn_bow = game.game_manager.get_card('Eaglehorn Bow', game.current_player)
+  assert game.current_player.weapon == eaglehorn_bow
+  assert eaglehorn_bow.get_health() == 2
+  enemy_misdirection = game.game_manager.get_card('Misdirection', game.current_player.other_player.secrets_zone)
+  tundra_rhino = game.game_manager.get_card('Tundra Rhino', game.current_player.board)
+  attack_with_rhino = list(filter(lambda action: action.source == tundra_rhino, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(attack_with_rhino)
+  assert game.current_player.get_health() == 28
+  assert enemy_misdirection.parent == enemy_misdirection.owner.graveyard
+  assert eaglehorn_bow.get_health() == 3
+
+
 def test_battlecry_reduce_cost():
   game = GameManager().create_test_game()
 

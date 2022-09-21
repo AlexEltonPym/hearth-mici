@@ -216,7 +216,6 @@ class Game():
         possible_targets.remove(action.source)
         action.targets[0] = self.game_manager.random_state.choice(possible_targets)
 
-
     if isinstance(action.targets[0], Player):
       self.trigger(action.targets[0], Triggers.FRIENDLY_HERO_ATTACKED)
 
@@ -366,8 +365,11 @@ class Game():
               self.resolve_effect(card, triggerer)
             elif trigger_type == Triggers.ANY_CARD_PLAYED:
               self.resolve_effect(card, triggerer)
+            elif trigger_type == Triggers.ANY_SECRET_REVEALED:
+              self.resolve_effect(card, triggerer)
           if card.card_type == CardTypes.SECRET:
             card.change_parent(card.owner.graveyard)
+            self.trigger(card, Triggers.ANY_SECRET_REVEALED)
 
         elif card.effect and trigger_type == card.effect.trigger and triggerer == card:
           if trigger_type == Triggers.SELF_DAMAGE_TAKEN:

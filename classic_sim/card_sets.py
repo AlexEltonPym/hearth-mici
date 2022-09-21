@@ -436,10 +436,13 @@ def get_hunter_cards():
                                        Destroy(method=Methods.ALL, target=Targets.SECRET, owner_filter=OwnerFilters.ENEMY))))
   misdirection = Card(name="Misdirection", card_type=CardTypes.SECRET, manacost=2,\
                       effect=Redirect(trigger=Triggers.ENEMY_MINION_ATTACKS))
+  eaglehorn_bow = Card(name="Eaglehorn Bow", card_type=CardTypes.WEAPON, manacost=3, attack=3, health=2,\
+                      effect=ChangeStats(value=(Constant(0), Constant(1)), trigger=Triggers.ANY_SECRET_REVEALED, method=Methods.SELF, target=Targets.WEAPON, owner_filter=OwnerFilters.FRIENDLY, duration=Durations.PERMANENTLY))
+
   # Combine
   basic_hunter_cards = [hunters_mark, arcane_shot, timber_wolf, tracking, starving_buzzard, animal_companion, kill_command, houndmaster, multishot, tundra_rhino]
   common_hunter_cards = [explosive_trap, freezing_trap, scavenging_hyena, snipe, deadly_shot, unleash_the_hounds]
-  rare_hunter_cards = [flare, misdirection]
+  rare_hunter_cards = [flare, misdirection, eaglehorn_bow]
 
   return basic_hunter_cards + common_hunter_cards + rare_hunter_cards
 
