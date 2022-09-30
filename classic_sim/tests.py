@@ -22,7 +22,7 @@ def test_classic_pool():
   assert len(basics) == 43
   assert len(commons) == 40
 
-  print(f"{len(basics + commons + rares + epics + mage + hunter)}/202") 
+  print(f"{len(basics + commons + rares + epics + mage + hunter)}/202") #161
   assert True
 
 def test_coin():
@@ -1652,9 +1652,14 @@ def test_eaglehorn_bow():
 def test_explosive_shot():
   game = GameManager().create_test_game()
   explosive_shot = game.game_manager.get_card('Explosive Shot', game.current_player.hand)
+  enemy_wisp1 = game.game_manager.get_card('Wisp', game.current_player.other_player.board)
+  enemy_wisp2 = game.game_manager.get_card('Wisp', game.current_player.other_player.board)
+  enemy_wisp3 = game.game_manager.get_card('Wisp', game.current_player.other_player.board)
+
   cast_explosive_shot = list(filter(lambda action: action.source == explosive_shot, game.get_available_actions(game.current_player)))[0]
   game.perform_action(cast_explosive_shot)
-  assert game.current_player.other_player.get_health() == 21
+  combined_health = enemy_wisp1.get_health() + enemy_wisp2.get_health() + enemy_wisp3.get_health()
+  assert combined_health == -6
 
 def test_savannah_highmane():
   game = GameManager().create_test_game()
@@ -1728,6 +1733,109 @@ def test_gladiators_longbow():
   game.deal_damage(game.current_player, 10)
   assert game.current_player.get_health() == 20
 
+# Mage cards
+
+def test_arcane_missiles():
+  game = GameManager(RandomState()).create_test_game()
+  arcane_missiles = game.game_manager.get_card("Arcane Missiles", game.current_player.hand)
+  enemy_wisp = game.game_manager.get_card("Wisp", game.current_player.other_player.board)
+  cast_missiles = list(filter(lambda action: action.source == arcane_missiles, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(cast_missiles)
+  assert enemy_wisp.get_health() == 0 and game.current_player.other_player.get_health() == 28 \
+      or enemy_wisp.get_health() == -1 and game.current_player.other_player.get_health() == 29 \
+      or game.current_player.other_player.get_health() == 27
+
+def test_mirror_image():
+  game = GameManager().create_test_game()
+  mirror_image = game.game_manager.get_card("Mirror Image", game.current_player.hand)
+  cast_mirror_image = list(filter(lambda action: action.source == mirror_image, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(cast_mirror_image)
+  assert len(game.current_player.board) == 2
+  for mirror_token in game.current_player.board:
+    assert mirror_token.has_attribute(Attributes.TAUNT)
+    mirror_token.attacks_this_turn = 0
+  attack_actions = list(filter(lambda action: action.action_type == Actions.ATTACK, game.get_available_actions(game.current_player)))
+  assert len(attack_actions) == 0 #cant attack with 0 power
+  for mirror_token in game.current_player.board:
+    mirror_token.attack = 1
+  attack_actions = list(filter(lambda action: action.action_type == Actions.ATTACK, game.get_available_actions(game.current_player)))
+  assert len(attack_actions) == 2 #can attack with 1 power
+
+def test_arcane_explosion():
+  game = GameManager().create_test_game()
+  arcane_explosion = game.game_manager.get_card("Arcane Explosion", game.current_player.hand)
+  enemy_wisp = game.game_manager.get_card("Wisp", game.current_player.other_player.board)
+  enemy_watcher = game.game_manager.get_card("Ancient Watcher", game.current_player.other_player.board)
+  assert enemy_wisp.get_health() == 1
+  assert enemy_watcher.get_health() == 5
+  cast_arcane_explosion = list(filter(lambda action: action.source == arcane_explosion, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(cast_arcane_explosion)
+  assert enemy_wisp.get_health() == 0
+  assert enemy_wisp.parent == enemy_wisp.owner.graveyard
+  assert enemy_watcher.get_health() == 4
+  assert game.current_player.other_player.get_health() == 30
+
+def test_frostbolt():
+  game = GameManager().create_test_game()
+  frostbolt = game.game_manager.get_card("Frostbolt", game.current_player.hand)
+  enemy_rhino = game.game_manager.get_card("Tundra Rhino", game.current_player.other_player.board)
+  assert enemy_rhino.get_health() == 5
+  assert enemy_rhino.has_attribute(Attributes.CHARGE)
+  assert not enemy_rhino.has_attribute(Attributes.FROZEN)
+  cast_frostbolt = list(filter(lambda action: action.source == frostbolt and action.targets[0] == enemy_rhino, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(cast_frostbolt)
+  assert enemy_rhino.has_attribute(Attributes.FROZEN)
+  assert enemy_rhino.get_health() == 2
+  game.end_turn()
+  game.untap()
+  attack_actions_with_rhino = list(filter(lambda action: action.source == enemy_rhino, game.get_available_actions(game.current_player)))
+  assert len(attack_actions_with_rhino) == 0
+  assert enemy_rhino.has_attribute(Attributes.FROZEN)
+  game.end_turn()
+  game.untap()
+  game.end_turn()
+  game.untap()
+  attack_actions_with_rhino = list(filter(lambda action: action.source == enemy_rhino, game.get_available_actions(game.current_player)))
+  assert len(attack_actions_with_rhino) == 1
+  assert not enemy_rhino.has_attribute(Attributes.FROZEN)
+
+def test_arcane_intellect():
+  game = GameManager().create_test_game()
+  arcane_intellect = game.game_manager.get_card("Arcane Intellect", game.current_player.hand)
+  assert len(game.current_player.hand) == 1
+  cast_arcane_intellect = list(filter(lambda action: action.source == arcane_intellect, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(cast_arcane_intellect)
+  assert len(game.current_player.hand) == 2
+
+def test_arcane_intellect_full_hand():
+  game = GameManager().create_test_game()
+  arcane_intellect = game.game_manager.get_card("Arcane Intellect", game.current_player.hand)
+  assert len(game.current_player.hand) == 1
+  for wisp_number in range(9):
+    game.game_manager.get_card("Wisp", game.current_player.hand)
+  assert len(game.current_player.hand) == 10
+  cast_arcane_intellect = list(filter(lambda action: action.source == arcane_intellect, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(cast_arcane_intellect)
+  assert len(game.current_player.hand) == 10
+  assert len(game.current_player.graveyard) == 2
+
+def test_frost_nova():
+  game = GameManager().create_test_game()
+  frost_nova = game.game_manager.get_card("Frost Nova", game.current_player.hand)
+  for wisp_number in range(4):
+    game.game_manager.get_card("Wisp", game.current_player.other_player.board)
+  cast_frost_nova = list(filter(lambda action: action.source == frost_nova, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(cast_frost_nova)
+  for wisp in game.current_player.other_player.board:
+    assert wisp.has_attribute(Attributes.FROZEN)
+  game.end_turn()
+  game.untap()
+  for wisp in game.current_player.other_player.board:
+    assert wisp.has_attribute(Attributes.FROZEN)
+  game.end_turn()
+  game.untap()
+  for wisp in game.current_player.other_player.board:
+    assert not wisp.has_attribute(Attributes.FROZEN)
 
 def test_battlecry_reduce_cost():
   game = GameManager().create_test_game()

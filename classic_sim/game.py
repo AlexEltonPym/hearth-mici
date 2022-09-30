@@ -95,19 +95,14 @@ class Game():
     self.current_player.temp_attack = 0
     self.current_player.temp_health = 0
     self.current_player.temp_attributes = []
-    if Attributes.FROZEN in self.current_player.attributes:
-      self.current_player.attributes.remove(Attributes.FROZEN)
-    if Attributes.FROZEN in self.current_player.perm_attributes:
-      self.current_player.perm_attributes.remove(Attributes.FROZEN)
+    self.current_player.remove_attribute(Attributes.FROZEN)
   
     for minion in self.current_player.board.get_all():
       minion.temp_attack = 0
       minion.temp_health = 0
       minion.temp_attributes = []
-      if Attributes.FROZEN in minion.attributes:
-        minion.attributes.remove(Attributes.FROZEN)
-      if Attributes.FROZEN in minion.perm_attributes:
-        minion.perm_attributes.remove(Attributes.FROZEN)
+      minion.remove_attribute(Attributes.FROZEN)
+    
     
     self.current_player.minions_played_this_turn = 0
 
@@ -402,7 +397,6 @@ class Game():
             playable_spell_actions.append(Action(Actions.CAST_SPELL, card, [target]))
         elif card.effect.method == Methods.RANDOMLY:
           playable_spell_actions.append(Action(Actions.CAST_SPELL, card, self.game_manager.random_state.choice(cast_targets, card.effect.random_count if card.effect.random_replace else min(len(cast_targets), card.effect.random_count), card.effect.random_replace)))
-          print(playable_spell_actions)
         elif card.effect.method == Methods.ALL:
           playable_spell_actions.append(Action(Actions.CAST_SPELL, card, cast_targets))
     return playable_spell_actions

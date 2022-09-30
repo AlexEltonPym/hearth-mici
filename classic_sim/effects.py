@@ -375,6 +375,36 @@ class SummonToken(): #summon minion for target player
         new_token.set_parent(target.board) #Doesn't trigger battlecry
 
 
+class ReplaceWithToken(): #replace minion with summoned token
+  available_methods = [Methods.TARGETED, Methods.RANDOMLY, Methods.ALL]
+  param_type = ParamTypes.X_TOKENS
+  available_targets = [Targets.MINION]
+  available_owner_filters = []
+  available_type_filters = []
+  available_durations = []
+  available_triggers = list(filter(lambda t: t != Triggers.AURA, [t for t in Triggers]))
+
+  def __init__(self, value, method, owner_filter, target=Targets.MINION, random_count=1, random_replace=True, duration=None, trigger=None, type_filter=None):
+    self.zone_filter = Zones.BOARD #could be changed to make this add tokens to hand
+    self.method = method
+    self.value = value
+    self.random_count = random_count
+    self.random_replace = random_replace
+    self.target = target
+    self.owner_filter = owner_filter
+    self.type_filter = type_filter
+    self.trigger = trigger
+    self.duration = duration
+
+  def resolve_action(self, game, action):
+    for target in action.targets:
+      for token_number in range(self.value[0](action.source)):
+        if len(target.board) >= target.board.max_entries:
+          return
+        new_token = deepcopy(self.value[1])
+        new_token.set_owner(target)
+        new_token.set_parent(target.board) #Doesn't trigger battlecry
+
       
 class Silence():
   available_methods = [Methods.TARGETED, Methods.RANDOMLY, Methods.ALL]
@@ -543,7 +573,7 @@ class Cantrip(): #performs first effect + draw a card
     self.first_effect.resolve_action(game, action)
     self.second_effect.resolve_action(game, Action(action_type=Actions.CAST_EFFECT, source=action.source, targets=[action.source.owner]))
 
-class DualAction(): #second effect will recieve the same action as the first effect
+class DualEffect(): #second effect will recieve the same action as the first effect
   def __init__(self, first_effect, second_effect):
     self.first_effect = first_effect
     self.second_effect = second_effect
@@ -563,7 +593,7 @@ class DualAction(): #second effect will recieve the same action as the first eff
     self.first_effect.resolve_action(game, action)
     self.second_effect.resolve_action(game, action)
 
-class DualActionSelf(): #second effect will target self
+class DualEffectSelf(): #second effect will target self
   def __init__(self, first_effect, second_effect, first_effect_first=True):
     self.first_effect = first_effect
     self.second_effect = second_effect
@@ -589,7 +619,7 @@ class DualActionSelf(): #second effect will target self
       self.first_effect.resolve_action(game, action)
 
 
-class DualActionSecrets(): #second effect will target all enemy secrets
+class DualEffectSecrets(): #second effect will target all enemy secrets
   def __init__(self, first_effect, second_effect):
     self.first_effect = first_effect
     self.second_effect = second_effect

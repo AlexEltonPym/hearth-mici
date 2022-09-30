@@ -21,7 +21,10 @@ To change the game-state, an action must be performed. Each action has a type, s
 # Card changes
 Not all cards can be implemented directly, so the following cards are implemented slighly differently:
 Tracking: Tutor for a beast instead of draw 3 discard 2
-Explosive shot: Deal 3x3 damage to targets with replace=True for 6 mana (+1)
+Explosive shot: Deal 3x3 damage to targets with replace=True for 6 mana (+1) #todo change to 5 randomly and 2x2 randomly
+Arcane Missiles: Can overkill a minion
+Frozen: Clears at end of turn, not missing next attack. This means if you freeze your own minion it will clear at end of turn, regardless of if its attacked or not
+
 
 ## Running the simulator
 Create a virtual environment, then install the requirements:

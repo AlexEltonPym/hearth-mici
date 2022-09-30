@@ -97,7 +97,12 @@ class Player():
     temp_attributes_has = attribute in self.temp_attributes
     perm_attributes_has = attribute in self.perm_attributes
     return player_has or temp_attributes_has or perm_attributes_has
-
+ 
+  def remove_attribute(self, attribute):
+    if attribute in self.attributes: self.attributes.remove(attribute)
+    if attribute in self.temp_attributes: self.temp_attributes.remove(attribute)
+    if attribute in self.perm_attributes: self.perm_attributes.remove(attribute)
+    
   def get_spell_damage(self):
     spell_damage_bonus = 0
     for card in self.board:

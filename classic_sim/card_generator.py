@@ -15,7 +15,7 @@ def make_random_card(id, random_state):
   _attack = random_state.randint(0, 10)
   _health = random_state.randint(1, 10)
   _attributes = random_state.choice([[random_state.choice([a for a in Attributes])], []])
-  EffectType = random_state.choice([None] + list(filter(lambda effect_type: effect_type != effects.DualAction and effect_type != effects.SummonToken, get_classes(effects))))
+  EffectType = random_state.choice([None] + list(filter(lambda effect_type: effect_type != effects.DualEffect and effect_type != effects.SummonToken, get_classes(effects))))
   requirement = random_state.choice(Condition.get_available_conditions())
   result = {'attributes': [random_state.choice([a for a in Attributes])], 'temp_attack': random_state.randint(0, 10), 'temp_health': random_state.randint(0, 10)}
   _condition = random_state.choice([Condition(requirement=requirement, result=result), None])
