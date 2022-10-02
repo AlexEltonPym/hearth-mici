@@ -90,6 +90,7 @@ class Player():
     return self.max_health+self.temp_health+self.perm_health
   
   def has_attribute(self, attribute):
+    print(f"checking for {attribute}")
     player_has = attribute in self.attributes\
           or (self.condition and attribute in self.condition.result['attributes']\
           and self.condition.requirement(self.game, self))

@@ -13,6 +13,7 @@ class Attributes(Enum):
   SPELL_DAMAGE = 9
   POISONOUS = 10
   IMMUNE = 11
+  FREEZER = 12
 
 class Triggers(Enum):
   BATTLECRY = 0

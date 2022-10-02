@@ -227,23 +227,24 @@ class Game():
       other_damage = action.targets[0].get_attack()
       self.trigger(action.source, Triggers.ENEMY_MINION_ATTACKS)
     
-    self.deal_damage(action.targets[0], damage, poisonous=action.source.has_attribute(Attributes.POISONOUS))
-    self.deal_damage(action.source, other_damage, poisonous=action.targets[0].has_attribute(Attributes.POISONOUS))
+    self.deal_damage(action.targets[0], damage, poisonous=action.source.has_attribute(Attributes.POISONOUS), freezer=action.source.has_attribute(Attributes.FREEZER))
+    self.deal_damage(action.source, other_damage, poisonous=action.targets[0].has_attribute(Attributes.POISONOUS), freezer=action.targets[0].has_attribute(Attributes.FREEZER))
     if action.source.attacks_this_turn == -1: #used charge to attack
       action.source.attacks_this_turn += 2
     else:
       action.source.attacks_this_turn += 1
-    if Attributes.STEALTH in action.source.attributes:
-      action.source.attributes.remove(Attributes.STEALTH)
+    action.source.remove_attribute(Attributes.STEALTH)
 
 
-  def deal_damage(self, target, amount, poisonous=False):
+  def deal_damage(self, target, amount, poisonous=False, freezer=False):
     if target.has_attribute(Attributes.IMMUNE):
       return
-    elif target.has_attribute(Attributes.DIVINE_SHIELD):
+    elif target.has_attribute(Attributes.DIVINE_SHIELD) and amount > 0:
       target.remove_attribute(Attributes.DIVINE_SHIELD)
     elif amount > 0:
       target.health -= amount
+      if freezer and not target.has_attribute(Attributes.FROZEN):
+        target.perm_attributes.append(Attributes.FROZEN)
       self.trigger(target, Triggers.SELF_DAMAGE_TAKEN)
       self.check_dead(target, poisonous=poisonous)
 
@@ -522,10 +523,10 @@ class Game():
 
   def get_hero_attack_actions(self, player):
     hero_attack_options = []
-    if (player.get_attack() > 0 and not (player.has_attribute(Attributes.FROZEN) or player.has_attribute(Attributes.DEFENDER))\
-        or (player.weapon and player.weapon.attack > 0))\
-        and (player.attacks_this_turn == 0\
-        or (player.attacks_this_turn == 1 and (player.has_attribute(Attributes.WINDFURY) or (player.weapon and player.weapon.has_attribute(Attributes.WINDFURY))))):
+    if (not (player.has_attribute(Attributes.FROZEN) or player.has_attribute(Attributes.DEFENDER))\
+        and (player.get_attack() > 0 or player.weapon and player.weapon.attack > 0)\
+        and (player.attacks_this_turn == 0 or (player.attacks_this_turn == 1 and (player.has_attribute(Attributes.WINDFURY) or (player.weapon and player.weapon.has_attribute(Attributes.WINDFURY)))))):
+      print(f"player is frozen {player.has_attribute(Attributes.FROZEN)}")
       for target in self.get_available_targets(player):
         hero_attack_options.append(Action(Actions.ATTACK, player, [target]))
     return hero_attack_options

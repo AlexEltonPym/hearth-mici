@@ -477,7 +477,12 @@ def get_mage_cards():
                     effect=GiveAttribute(value=Attributes.FROZEN, method=Methods.ALL, owner_filter=OwnerFilters.ENEMY, target=Targets.MINION, duration=Durations.PERMANENTLY))
   fireball = Card(name="Fireball", card_type=CardTypes.SPELL, manacost=4, effect=DealDamage(
     value=Constant(6), method=Methods.TARGETED, target=Targets.MINION_OR_HERO, owner_filter=OwnerFilters.ALL))
-  return [arcane_missiles, mirror_image, arcane_explosion, frostbolt, arcane_intellect, frost_nova, fireball]
+  polymorph = Card(name="Polymorph", card_type=CardTypes.SPELL, manacost=4,\
+                  effect=ReplaceWithToken(method=Methods.TARGETED, owner_filter=OwnerFilters.ALL,\
+                  value=(Constant(1), Card(name="Sheep", collectable=False, card_type=CardTypes.MINION, manacost=0, attack=1, health=1, creature_type=CreatureTypes.BEAST))))
+  water_elemental = Card(name="Water Elemental", card_type=CardTypes.MINION, manacost=4, attack=3, health=6, attributes=[Attributes.FREEZER])
+  
+  return [arcane_missiles, mirror_image, arcane_explosion, frostbolt, arcane_intellect, frost_nova, fireball, polymorph, water_elemental]
 
 
 def get_test_cards():

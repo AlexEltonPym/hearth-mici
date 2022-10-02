@@ -313,9 +313,9 @@ class GiveAttribute():
 
   def resolve_action(self, game, action):
     for target in action.targets:
-      if self.duration == Durations.TURN:
+      if self.duration == Durations.TURN and not self.value in target.temp_attributes:
         target.temp_attributes.append(self.value)
-      elif self.duration == Durations.PERMANENTLY:
+      elif self.duration == Durations.PERMANENTLY and not self.value in target.perm_attributes:
         target.perm_attributes.append(self.value)
 
 class RemoveAttribute():
@@ -369,7 +369,7 @@ class SummonToken(): #summon minion for target player
     for target in action.targets:
       for token_number in range(self.value[0](action.source)):
         if len(target.board) >= target.board.max_entries:
-          return
+          break
         new_token = deepcopy(self.value[1])
         new_token.set_owner(target)
         new_token.set_parent(target.board) #Doesn't trigger battlecry
@@ -398,12 +398,14 @@ class ReplaceWithToken(): #replace minion with summoned token
 
   def resolve_action(self, game, action):
     for target in action.targets:
+      target.change_parent(target.owner.graveyard)
+
       for token_number in range(self.value[0](action.source)):
-        if len(target.board) >= target.board.max_entries:
-          return
+        if len(target.owner.board) >= target.owner.board.max_entries:
+          break
         new_token = deepcopy(self.value[1])
-        new_token.set_owner(target)
-        new_token.set_parent(target.board) #Doesn't trigger battlecry
+        new_token.set_owner(target.owner)
+        new_token.set_parent(target.owner.board) #Doesn't trigger battlecry
 
       
 class Silence():

@@ -1837,6 +1837,58 @@ def test_frost_nova():
   for wisp in game.current_player.other_player.board:
     assert not wisp.has_attribute(Attributes.FROZEN)
 
+def test_polymorph():
+  game = GameManager().create_test_game()
+  polymorph = game.game_manager.get_card("Polymorph", game.current_player.hand)
+  enemy_giant = game.game_manager.get_card("Sea Giant", game.current_player.other_player.board)
+  play_polymorph = list(filter(lambda action: action.source == polymorph, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(play_polymorph)
+  assert enemy_giant.parent == enemy_giant.owner.graveyard
+  enemy_sheep = game.current_player.other_player.board.get_all()[0]
+  assert enemy_sheep.name == "Sheep"
+  assert enemy_sheep.get_attack() == 1
+  assert enemy_sheep.creature_type == CreatureTypes.BEAST
+
+def test_water_elemental():
+  game = GameManager().create_test_game()
+  water_elemental = game.game_manager.get_card("Water Elemental", game.current_player.board)
+  enemy_giant = game.game_manager.get_card("Sea Giant", game.current_player.other_player.board)
+  water_elemental.attacks_this_turn = 0
+  attack_with_elemental = list(filter(lambda action: action.source == water_elemental and action.targets[0] == enemy_giant, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(attack_with_elemental)
+  assert enemy_giant.has_attribute(Attributes.FROZEN)
+  assert water_elemental.parent == water_elemental.owner.graveyard
+  game.end_turn()
+  game.untap()
+  giant_attack_actions = list(filter(lambda action: action.source == enemy_giant, game.get_available_actions(game.current_player)))
+  assert len(giant_attack_actions) == 0
+  assert enemy_giant.has_attribute(Attributes.FROZEN)
+  game.end_turn()
+  game.untap()
+  assert not enemy_giant.has_attribute(Attributes.FROZEN)
+
+def test_water_elemental_player():
+  game = GameManager().create_test_game()
+  water_elemental = game.game_manager.get_card("Water Elemental", game.current_player.board)
+  water_elemental.attacks_this_turn = 0
+  attack_with_elemental = list(filter(lambda action: action.action_type==Actions.ATTACK and action.source == water_elemental, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(attack_with_elemental)
+  assert game.current_player.other_player.has_attribute(Attributes.FROZEN)
+  generic_weapon = game.game_manager.get_card("Generic Weapon", game.current_player.other_player)
+  game.end_turn()
+  game.untap()
+  enemy_weapon_attacks = list(filter(lambda action: action.action_type==Actions.ATTACK and action.source == game.current_player, game.get_available_actions(game.current_player)))
+  assert len(enemy_weapon_attacks) == 0
+  assert game.current_player.has_attribute(Attributes.FROZEN)
+  game.end_turn()
+  game.untap()
+  game.end_turn()
+  game.untap()
+  enemy_weapon_attacks = list(filter(lambda action: action.action_type==Actions.ATTACK and action.source == game.current_player, game.get_available_actions(game.current_player)))
+  assert len(enemy_weapon_attacks) == 2
+  assert not game.current_player.has_attribute(Attributes.FROZEN)
+
+
 def test_battlecry_reduce_cost():
   game = GameManager().create_test_game()
 
