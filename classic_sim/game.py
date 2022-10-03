@@ -526,7 +526,6 @@ class Game():
     if (not (player.has_attribute(Attributes.FROZEN) or player.has_attribute(Attributes.DEFENDER))\
         and (player.get_attack() > 0 or player.weapon and player.weapon.attack > 0)\
         and (player.attacks_this_turn == 0 or (player.attacks_this_turn == 1 and (player.has_attribute(Attributes.WINDFURY) or (player.weapon and player.weapon.has_attribute(Attributes.WINDFURY)))))):
-      print(f"player is frozen {player.has_attribute(Attributes.FROZEN)}")
       for target in self.get_available_targets(player):
         hero_attack_options.append(Action(Actions.ATTACK, player, [target]))
     return hero_attack_options

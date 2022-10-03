@@ -461,6 +461,7 @@ def get_hunter_cards():
   return basic_hunter_cards + common_hunter_cards + rare_hunter_cards + epic_hunter_cards
 
 def get_mage_cards():
+  # Mage basic cards
   arcane_missiles = Card(name="Arcane Missiles", manacost=1, card_type=CardTypes.SPELL,\
                          effect=DealDamage(value=Constant(1), random_count=3, method=Methods.RANDOMLY, target=Targets.MINION_OR_HERO, owner_filter=OwnerFilters.ENEMY))
   mirror_image = Card(name="Mirror Image", manacost=1, card_type=CardTypes.SPELL,\
@@ -481,9 +482,19 @@ def get_mage_cards():
                   effect=ReplaceWithToken(method=Methods.TARGETED, owner_filter=OwnerFilters.ALL,\
                   value=(Constant(1), Card(name="Sheep", collectable=False, card_type=CardTypes.MINION, manacost=0, attack=1, health=1, creature_type=CreatureTypes.BEAST))))
   water_elemental = Card(name="Water Elemental", card_type=CardTypes.MINION, manacost=4, attack=3, health=6, attributes=[Attributes.FREEZER])
+  flamestrike = Card(name="Flamestrike", card_type=CardTypes.SPELL, manacost=7,\
+                    effect=DealDamage(value=Constant(4), target=Targets.MINION, method=Methods.ALL, owner_filter=OwnerFilters.ENEMY))
   
-  return [arcane_missiles, mirror_image, arcane_explosion, frostbolt, arcane_intellect, frost_nova, fireball, polymorph, water_elemental]
+  # Mage common cards
+  ice_lance = Card(name="Ice Lance", card_type=CardTypes.SPELL, manacost=1,\
+                  effect=DualEffect(DealDamage(value=If(TargetFrozen(), Constant(4), Constant(0)), method=Methods.TARGETED, target=Targets.MINION_OR_HERO, owner_filter=OwnerFilters.ALL),\
+                        GiveAttribute(value=Attributes.FROZEN, method=Methods.TARGETED, target=Targets.MINION_OR_HERO, owner_filter=OwnerFilters.ALL, duration=Durations.PERMANENTLY)))
+  mana_wyrm = Card(name="Mana Wyrm", card_type=CardTypes.MINION, manacost=1, attack=1, health=3,\
+                  effect=ChangeStats(value=(Constant(1), Constant(0)), trigger=Triggers.FRIENDLY_SPELL_CAST, method=Methods.SELF, target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY, duration=Durations.PERMANENTLY))
 
+  basic_mage_cards = [arcane_missiles, mirror_image, arcane_explosion, frostbolt, arcane_intellect, frost_nova, fireball, polymorph, water_elemental, flamestrike]
+  common_mage_cards = [ice_lance, mana_wyrm]
+  return basic_mage_cards + common_mage_cards
 
 def get_test_cards():
   all_dam = Card("All Damage", card_type=CardTypes.SPELL, manacost=0,

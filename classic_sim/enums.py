@@ -79,6 +79,7 @@ class Actions(Enum):
   END_TURN = 5
   CAST_EFFECT = 6
   CAST_SECRET = 7
+  GET_MANACOST = 8 #not really used
 
 
 

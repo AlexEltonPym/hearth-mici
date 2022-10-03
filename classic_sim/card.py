@@ -45,12 +45,12 @@ class Card():
   def get_manacost(self):
     manacost = self.manacost
     if self.effect and isinstance(self.effect, ChangeCost) and self.effect.trigger == Triggers.AURA and self.effect.method == Methods.SELF:
-      manacost += self.effect.value(self)
+      manacost += self.effect.value(Action(Actions.GET_MANACOST, self, [self])) #dyanmics require actions by default so we need to wrap this inside one.
     
     for card in self.owner.board.get_all() + self.owner.other_player.board.get_all():
       if card.effect and isinstance(card.effect, ChangeCost) and card.effect.trigger == Triggers.AURA and card.effect.method == Methods.ALL:
         if self.matches_card_requirements(card):
-          manacost += card.effect.value(card)
+          manacost += card.effect.value(Action(Actions.GET_MANACOST, card, [card])) #dyanmics require actions by default so we need to wrap this inside one.
 
     return max(manacost, 0)
 
@@ -75,7 +75,7 @@ class Card():
 
 
     try:
-      dynamics_okay = effect.dynamic_filter == None or effect.dynamic_filter(self)
+      dynamics_okay = effect.dynamic_filter == None or effect.dynamic_filter(Action(Actions.CAST_EFFECT, self, [card]))
     except AttributeError:
       dynamics_okay = True
         
@@ -144,15 +144,15 @@ class Card():
           adjacent = card.effect.method == Methods.ADJACENT and (my_index == index-1 or my_index == index+1 or (my_index == 0 and index == last_index) or (my_index == last_index and index == 0))
         if card.effect.method == Methods.ALL or adjacent:
           if isinstance(card.effect, ChangeStats):
-            aura_attack += card.effect.value[0](card)
-            aura_health += card.effect.value[1](card)
+            aura_attack += card.effect.value[0](Action(Actions.CAST_EFFECT, card, [self]))
+            aura_health += card.effect.value[1](Action(Actions.CAST_EFFECT, card, [self]))
         
     for card in self.parent.parent.other_player.board:
       if card.effect and card.effect.trigger == Triggers.AURA and self.matches_card_requirements(card):
         if card.effect.method == Methods.ALL:
           if isinstance(card.effect, ChangeStats):
-            aura_attack += card.effect.value[0](card)
-            aura_health += card.effect.value[1](card)
+            aura_attack += card.effect.value[0](Action(Actions.CAST_EFFECT, card, [self]))
+            aura_health += card.effect.value[1](Action(Actions.CAST_EFFECT, card, [self]))
 
     return aura_attack, aura_health
 

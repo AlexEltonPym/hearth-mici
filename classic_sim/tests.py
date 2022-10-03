@@ -1482,9 +1482,9 @@ def test_animal_companion():
 def test_kill_command():
   game = GameManager().create_test_game()
   kill_command = game.game_manager.get_card('Kill Command', game.current_player.hand)
-  assert kill_command.effect.value(kill_command) == 3
+  assert kill_command.effect.value(Action(Actions.CAST_EFFECT, kill_command, [kill_command])) == 3
   river_crok = game.game_manager.get_card('River Crocolisk', game.current_player.board)
-  assert kill_command.effect.value(kill_command) == 5
+  assert kill_command.effect.value(Action(Actions.CAST_EFFECT, kill_command, [kill_command])) == 5
   cast_command = list(filter(lambda action: action.source == kill_command and action.targets[0] == game.current_player.other_player, game.get_available_actions(game.current_player)))[0]
   game.perform_action(cast_command)
   assert game.current_player.other_player.get_health() == 25
@@ -1888,6 +1888,52 @@ def test_water_elemental_player():
   assert len(enemy_weapon_attacks) == 2
   assert not game.current_player.has_attribute(Attributes.FROZEN)
 
+def test_flamestrike():
+  game = GameManager().create_test_game()
+  enemy_water_elemental = game.game_manager.get_card("Water Elemental", game.current_player.other_player.board)
+  friendly_wisp = game.game_manager.get_card("Wisp", game.current_player.board)
+  flamestrike = game.game_manager.get_card("Flamestrike", game.current_player.hand)
+  cast_flamestrike_actions = list(filter(lambda action: action.source == flamestrike, game.get_available_actions(game.current_player)))
+  assert len(cast_flamestrike_actions) == 1
+  assert enemy_water_elemental.get_health() == 6
+  
+  game.perform_action(cast_flamestrike_actions[0])
+  assert enemy_water_elemental.get_health() == 2
+  assert friendly_wisp.parent == friendly_wisp.owner.board
+  
+def test_ice_lance():
+  game = GameManager().create_test_game()
+  enemy_wisp = game.game_manager.get_card("Wisp", game.current_player.other_player.board)
+  ice_lance = game.game_manager.get_card("Ice Lance", game.current_player.hand)
+  cast_ice_lance = list(filter(lambda action: action.source == ice_lance and action.targets[0] == enemy_wisp, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(cast_ice_lance)
+  assert enemy_wisp.has_attribute(Attributes.FROZEN)
+  assert enemy_wisp.parent == enemy_wisp.owner.board
+  ice_lance2 = game.game_manager.get_card("Ice Lance", game.current_player.hand)
+  cast_ice_lance2 = list(filter(lambda action: action.source == ice_lance2 and action.targets[0] == enemy_wisp, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(cast_ice_lance2)
+  assert enemy_wisp.parent == enemy_wisp.owner.graveyard
+  assert enemy_wisp.get_health() == -3 
+
+def test_mana_wyrm():
+  game = GameManager().create_test_game()
+  mana_wyrm = game.game_manager.get_card("Mana Wyrm", game.current_player.board)
+  ice_lance = game.game_manager.get_card("Ice Lance", game.current_player.hand)
+  cast_ice_lance = list(filter(lambda action: action.source == ice_lance and action.targets[0] == game.current_player.other_player, game.get_available_actions(game.current_player)))[0]
+  assert mana_wyrm.get_attack() == 1
+  assert mana_wyrm.get_health() == 3
+  game.perform_action(cast_ice_lance)
+  assert mana_wyrm.get_attack() == 2
+  assert mana_wyrm.get_health() == 3
+  assert game.current_player.other_player.has_attribute(Attributes.FROZEN)
+  assert game.current_player.other_player.get_health() == 30
+  ice_lance2 = game.game_manager.get_card("Ice Lance", game.current_player.hand)
+  cast_ice_lance2 = list(filter(lambda action: action.source == ice_lance2 and action.targets[0] == game.current_player.other_player, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(cast_ice_lance2)
+  assert mana_wyrm.get_attack() == 3
+  assert mana_wyrm.get_health() == 3
+  assert game.current_player.other_player.has_attribute(Attributes.FROZEN)
+  assert game.current_player.other_player.get_health() == 26
 
 def test_battlecry_reduce_cost():
   game = GameManager().create_test_game()

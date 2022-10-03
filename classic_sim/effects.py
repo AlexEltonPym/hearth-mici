@@ -27,16 +27,16 @@ class GainMana():
     from card_sets import get_utility_card
     for target in action.targets:
       if self.duration == Durations.TURN:
-        target.current_mana += self.value(action.source)
+        target.current_mana += self.value(action)
         target.current_mana = min(target.current_mana, 10)
       elif self.duration == Durations.PERMANENTLY:
-        target.max_mana += self.value(action.source)
+        target.max_mana += self.value(action)
         if target.max_mana > 10:
           excess_mana = get_utility_card('Excess Mana')
           excess_mana.set_owner(target)
           excess_mana.set_parent(target.hand)
           target.max_mana = 10
-        target.current_mana += self.value(action.source)
+        target.current_mana += self.value(action)
         target.current_mana = min(target.current_mana, 10)
 
 class DealDamage():
@@ -61,7 +61,7 @@ class DealDamage():
     self.duration = duration
 
   def resolve_action(self, game, action):
-    damage_amount = self.value(action.source) + (action.source.owner.get_spell_damage() if action.source.card_type == CardTypes.SPELL else 0)
+    damage_amount = self.value(action) + (action.source.owner.get_spell_damage() if action.source.card_type == CardTypes.SPELL else 0)
     for target in action.targets:
       print(f"Dealing {damage_amount} damage to {target}")
       game.deal_damage(target, damage_amount)
@@ -115,11 +115,11 @@ class ChangeStats():
   def resolve_action(self, game, action):
     for target in action.targets:
       if self.duration == Durations.TURN:
-        target.temp_attack += self.value[0](action.source)
-        target.temp_health += self.value[1](action.source)
+        target.temp_attack += self.value[0](action)
+        target.temp_health += self.value[1](action)
       elif self.duration == Durations.PERMANENTLY:
-        target.perm_attack += self.value[0](action.source)
-        target.perm_health += self.value[1](action.source)
+        target.perm_attack += self.value[0](action)
+        target.perm_health += self.value[1](action)
 
 class SetStats():
   available_methods = [m for m in Methods]
@@ -146,11 +146,11 @@ class SetStats():
       if self.value[0] != None:
         target.temp_attack = 0
         target.perm_attack = 0
-        target.attack = self.value[0](action.source)
+        target.attack = self.value[0](action)
       if self.value[1] != None:
         target.temp_health = 0
         target.perm_health = 0
-        target.health = self.value[1](action.source)
+        target.health = self.value[1](action)
         target.max_health = target.health
 
 
@@ -204,7 +204,7 @@ class DrawCards():
 
   def resolve_action(self, game, action):
     for target in action.targets:
-      game.draw(target, self.value(action.source))
+      game.draw(target, self.value(action))
 
 class Tutor():
   available_methods = [Methods.RANDOMLY, Methods.ALL]
@@ -284,7 +284,7 @@ class RestoreHealth():
   def resolve_action(self, game, action):
     for target in action.targets:
       max_healing = target.get_max_health() - target.get_health()
-      healing = min(self.value(action.source), max_healing)
+      healing = min(self.value(action), max_healing)
       target.health += healing
       if healing > 0:
         game.trigger(target, Triggers.ANY_HEALED)
@@ -367,7 +367,7 @@ class SummonToken(): #summon minion for target player
 
   def resolve_action(self, game, action):
     for target in action.targets:
-      for token_number in range(self.value[0](action.source)):
+      for token_number in range(self.value[0](action)):
         if len(target.board) >= target.board.max_entries:
           break
         new_token = deepcopy(self.value[1])
@@ -400,7 +400,7 @@ class ReplaceWithToken(): #replace minion with summoned token
     for target in action.targets:
       target.change_parent(target.owner.graveyard)
 
-      for token_number in range(self.value[0](action.source)):
+      for token_number in range(self.value[0](action)):
         if len(target.owner.board) >= target.owner.board.max_entries:
           break
         new_token = deepcopy(self.value[1])
@@ -464,7 +464,7 @@ class ChangeCost():
   
   def resolve_action(self, game, action):
     for target in action.targets:
-      target.manacost += self.value(action.source)
+      target.manacost += self.value(action)
 
 class SwapWithMinion():
   available_methods = [Methods.RANDOMLY, Methods.ALL]
