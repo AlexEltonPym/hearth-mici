@@ -1652,14 +1652,15 @@ def test_eaglehorn_bow():
 def test_explosive_shot():
   game = GameManager().create_test_game()
   explosive_shot = game.game_manager.get_card('Explosive Shot', game.current_player.hand)
-  enemy_wisp1 = game.game_manager.get_card('Wisp', game.current_player.other_player.board)
-  enemy_wisp2 = game.game_manager.get_card('Wisp', game.current_player.other_player.board)
-  enemy_wisp3 = game.game_manager.get_card('Wisp', game.current_player.other_player.board)
+  enemy_giant1 = game.game_manager.get_card('Sea Giant', game.current_player.other_player.board)
+  enemy_giant2 = game.game_manager.get_card('Sea Giant', game.current_player.other_player.board)
+  enemy_giant3 = game.game_manager.get_card('Sea Giant', game.current_player.other_player.board)
 
-  cast_explosive_shot = list(filter(lambda action: action.source == explosive_shot, game.get_available_actions(game.current_player)))[0]
+  cast_explosive_shot = list(filter(lambda action: action.source == explosive_shot and action.targets[0] == enemy_giant1, game.get_available_actions(game.current_player)))[0]
   game.perform_action(cast_explosive_shot)
-  combined_health = enemy_wisp1.get_health() + enemy_wisp2.get_health() + enemy_wisp3.get_health()
-  assert combined_health == -6
+  assert enemy_giant1.get_health() == 3
+  assert enemy_giant2.get_health() == 6
+  assert enemy_giant3.get_health() == 6
 
 def test_savannah_highmane():
   game = GameManager().create_test_game()
@@ -1743,6 +1744,7 @@ def test_arcane_missiles():
   game.perform_action(cast_missiles)
   assert enemy_wisp.get_health() == 0 and game.current_player.other_player.get_health() == 28 \
       or enemy_wisp.get_health() == -1 and game.current_player.other_player.get_health() == 29 \
+      or enemy_wisp.get_health() == -2 and game.current_player.other_player.get_health() == 30 \
       or game.current_player.other_player.get_health() == 27
 
 def test_mirror_image():
@@ -1934,6 +1936,168 @@ def test_mana_wyrm():
   assert mana_wyrm.get_health() == 3
   assert game.current_player.other_player.has_attribute(Attributes.FROZEN)
   assert game.current_player.other_player.get_health() == 26
+
+def test_sorcerers_apprentice():
+  game = GameManager().create_test_game()
+  ice_lance = game.game_manager.get_card("Ice Lance", game.current_player.hand)
+  assert ice_lance.get_manacost() == 1
+  sorcerers_apprentice = game.game_manager.get_card("Sorcerer's Apprentice", game.current_player.board)
+  assert ice_lance.get_manacost() == 0
+  river_crok = game.game_manager.get_card("River Crocolisk", game.current_player.hand)
+  assert river_crok.get_manacost() == 2
+  enemy_ice_lance = game.game_manager.get_card("Ice Lance", game.current_player.other_player.hand)
+  assert enemy_ice_lance.get_manacost() == 1
+
+def test_ice_barrier():
+  game = GameManager().create_test_game()
+  ice_barrier = game.game_manager.get_card("Ice Barrier", game.current_player.other_player.secrets_zone)
+  tundra_rhino = game.game_manager.get_card('Tundra Rhino', game.current_player.board)
+  assert game.current_player.other_player.armor == 0
+  attack_with_rhino = list(filter(lambda action: action.source == tundra_rhino, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(attack_with_rhino)
+  assert game.current_player.other_player.armor == 6
+  assert game.current_player.other_player.get_health() == 30
+  assert ice_barrier.parent == ice_barrier.owner.graveyard
+
+def test_multiple_secrets():
+  game = GameManager().create_test_game()
+  ice_barrier = game.game_manager.get_card("Ice Barrier", game.current_player.other_player.secrets_zone)
+  enemy_misdirection = game.game_manager.get_card('Misdirection', game.current_player.other_player.secrets_zone)
+  tundra_rhino = game.game_manager.get_card('Tundra Rhino', game.current_player.board)
+  attack_with_rhino = list(filter(lambda action: action.source == tundra_rhino, game.get_available_actions(game.current_player)))[0]
+
+  assert game.current_player.other_player.armor == 0
+  game.perform_action(attack_with_rhino)
+  assert game.current_player.other_player.armor == 8
+  assert game.current_player.other_player.get_health() == 30
+  assert game.current_player.get_health() == 28
+  assert enemy_misdirection.parent == enemy_misdirection.owner.graveyard
+  assert ice_barrier.parent == ice_barrier.owner.graveyard
+
+def test_mirror_entity():
+  game = GameManager().create_test_game()
+  mirror_entity = game.game_manager.get_card("Mirror Entity", game.current_player.other_player.secrets_zone)
+  tundra_rhino = game.game_manager.get_card('Tundra Rhino', game.current_player.hand)
+  play_rhino = list(filter(lambda action: action.source == tundra_rhino, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(play_rhino)
+  attack_with_rhino = list(filter(lambda action: action.source == tundra_rhino, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(attack_with_rhino)
+  for card in game.current_player.board:
+    assert card.name == "Tundra Rhino"
+    assert card.collectable
+    assert card.owner == game.current_player
+
+  for card in game.current_player.other_player.board:
+    assert card.name == "Tundra Rhino"
+    assert not card.collectable
+    assert card.owner == game.current_player.other_player
+
+def test_cone_of_cold_one_target():
+  game = GameManager().create_test_game()
+  cone_of_cold = game.game_manager.get_card("Cone of Cold", game.current_player.hand)
+  enemy_wisp = game.game_manager.get_card("Wisp", game.current_player.other_player.board)
+  play_cone_of_cold = list(filter(lambda action: action.source == cone_of_cold, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(play_cone_of_cold)
+  assert enemy_wisp.get_health() == 0
+  assert enemy_wisp.has_attribute(Attributes.FROZEN)
+
+def test_cone_of_cold_two_targets():
+  game = GameManager().create_test_game()
+  cone_of_cold = game.game_manager.get_card("Cone of Cold", game.current_player.hand)
+  enemy_wisp = game.game_manager.get_card("Wisp", game.current_player.other_player.board)
+  enemy_wisp2 = game.game_manager.get_card("Wisp", game.current_player.other_player.board)
+
+  play_cone_of_cold = list(filter(lambda action: action.source == cone_of_cold and action.targets[0] == enemy_wisp, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(play_cone_of_cold)
+  assert enemy_wisp.get_health() == 0
+  assert enemy_wisp.has_attribute(Attributes.FROZEN)
+  assert enemy_wisp2.get_health() == 0
+  assert enemy_wisp2.has_attribute(Attributes.FROZEN)
+
+
+def test_cone_of_cold_three_targets():
+  game = GameManager().create_test_game()
+  cone_of_cold = game.game_manager.get_card("Cone of Cold", game.current_player.hand)
+  enemy_wisp = game.game_manager.get_card("Wisp", game.current_player.other_player.board)
+  enemy_wisp2 = game.game_manager.get_card("Wisp", game.current_player.other_player.board)
+  enemy_wisp3 = game.game_manager.get_card("Wisp", game.current_player.other_player.board)
+
+  play_cone_of_cold = list(filter(lambda action: action.source == cone_of_cold and action.targets[0] == enemy_wisp, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(play_cone_of_cold)
+  assert enemy_wisp.get_health() == 0
+  assert enemy_wisp.has_attribute(Attributes.FROZEN)
+
+  assert enemy_wisp2.get_health() == 0
+  assert enemy_wisp2.has_attribute(Attributes.FROZEN)
+
+  assert enemy_wisp3.get_health() == 0
+  assert enemy_wisp3.has_attribute(Attributes.FROZEN)
+
+
+def test_cone_of_cold_three_targets_middle():
+  game = GameManager().create_test_game()
+  cone_of_cold = game.game_manager.get_card("Cone of Cold", game.current_player.hand)
+  enemy_wisp = game.game_manager.get_card("Wisp", game.current_player.other_player.board)
+  enemy_wisp2 = game.game_manager.get_card("Wisp", game.current_player.other_player.board)
+  enemy_wisp3 = game.game_manager.get_card("Wisp", game.current_player.other_player.board)
+
+  play_cone_of_cold = list(filter(lambda action: action.source == cone_of_cold and action.targets[0] == enemy_wisp2, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(play_cone_of_cold)
+  assert enemy_wisp.get_health() == 0
+  assert enemy_wisp.has_attribute(Attributes.FROZEN)
+
+  assert enemy_wisp2.get_health() == 0
+  assert enemy_wisp2.has_attribute(Attributes.FROZEN)
+
+  assert enemy_wisp3.get_health() == 0
+  assert enemy_wisp3.has_attribute(Attributes.FROZEN)
+
+
+def test_cone_of_cold_four_targets():
+  game = GameManager().create_test_game()
+  cone_of_cold = game.game_manager.get_card("Cone of Cold", game.current_player.hand)
+  enemy_wisp = game.game_manager.get_card("Wisp", game.current_player.other_player.board)
+  enemy_wisp2 = game.game_manager.get_card("Wisp", game.current_player.other_player.board)
+  enemy_wisp3 = game.game_manager.get_card("Wisp", game.current_player.other_player.board)
+  enemy_wisp4 = game.game_manager.get_card("Wisp", game.current_player.other_player.board)
+
+  play_cone_of_cold = list(filter(lambda action: action.source == cone_of_cold and action.targets[0] == enemy_wisp, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(play_cone_of_cold)
+  assert enemy_wisp.get_health() == 0
+  assert enemy_wisp.has_attribute(Attributes.FROZEN)
+
+  assert enemy_wisp2.get_health() == 0  
+  assert enemy_wisp2.has_attribute(Attributes.FROZEN)
+
+  assert enemy_wisp3.get_health() == 1  
+  assert not enemy_wisp3.has_attribute(Attributes.FROZEN)
+
+  assert enemy_wisp4.get_health() == 0 
+  assert enemy_wisp4.has_attribute(Attributes.FROZEN)
+
+
+def test_cone_of_cold_four_targets_last():
+  game = GameManager().create_test_game()
+  cone_of_cold = game.game_manager.get_card("Cone of Cold", game.current_player.hand)
+  enemy_wisp = game.game_manager.get_card("Wisp", game.current_player.other_player.board)
+  enemy_wisp2 = game.game_manager.get_card("Wisp", game.current_player.other_player.board)
+  enemy_wisp3 = game.game_manager.get_card("Wisp", game.current_player.other_player.board)
+  enemy_wisp4 = game.game_manager.get_card("Wisp", game.current_player.other_player.board)
+
+  play_cone_of_cold = list(filter(lambda action: action.source == cone_of_cold and action.targets[0] == enemy_wisp4, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(play_cone_of_cold)
+  assert enemy_wisp.get_health() == 0
+  assert enemy_wisp.has_attribute(Attributes.FROZEN)
+
+  assert enemy_wisp2.get_health() == 1
+  assert not enemy_wisp2.has_attribute(Attributes.FROZEN)
+
+  assert enemy_wisp3.get_health() == 0
+  assert enemy_wisp3.has_attribute(Attributes.FROZEN)
+
+  assert enemy_wisp4.get_health() == 0
+  assert enemy_wisp4.has_attribute(Attributes.FROZEN)
+
 
 def test_battlecry_reduce_cost():
   game = GameManager().create_test_game()

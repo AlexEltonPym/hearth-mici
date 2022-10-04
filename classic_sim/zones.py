@@ -44,6 +44,17 @@ class Zone(object):
     key_index = self.zone.index(key)
     return key_index == 0 or key_index == len(self.zone)-1
 
+  def get_adjacent(self, key):
+    if self.name != 'board': #adjacency only for board
+      return []
+    key_index = self.zone.index(key)
+    adjacent_set = set()
+    adjacent_set.add(self.zone[key_index-1])
+    adjacent_set.add(self.zone[(key_index+1)%len(self.zone)])
+    if self.zone[key_index] in adjacent_set: adjacent_set.remove(self.zone[key_index])
+    return list(adjacent_set)
+    
+
   def __len__(self):
     return len(self.zone)
 

@@ -48,12 +48,13 @@ class DealDamage():
   available_durations = []
   available_triggers = list(filter(lambda t: t != Triggers.AURA, [t for t in Triggers]))
 
-  def __init__(self, method, value, target, owner_filter, random_count=1, random_replace=True, trigger=None, type_filter=None, duration=None):
+  def __init__(self, method, value, target, owner_filter, random_count=1, random_replace=True, hits_adjacent=False, trigger=None, type_filter=None, duration=None):
     self.zone_filter = Zones.BOARD
     self.method = method
     self.value = value
     self.random_count = random_count
     self.random_replace = random_replace
+    self.hits_adjacent = hits_adjacent
     self.target = target
     self.owner_filter = owner_filter
     self.type_filter = type_filter
@@ -62,9 +63,15 @@ class DealDamage():
 
   def resolve_action(self, game, action):
     damage_amount = self.value(action) + (action.source.owner.get_spell_damage() if action.source.card_type == CardTypes.SPELL else 0)
+
     for target in action.targets:
       print(f"Dealing {damage_amount} damage to {target}")
+      if self.hits_adjacent:
+        adjacent_targets = target.parent.get_adjacent(target)
+        for adjacent_target in adjacent_targets:
+          game.deal_damage(adjacent_target, damage_amount)
       game.deal_damage(target, damage_amount)
+
 
 class Destroy():
   available_methods = [Methods.TARGETED, Methods.RANDOMLY, Methods.ALL, Methods.SELF]
@@ -75,12 +82,13 @@ class Destroy():
   available_durations = []
   available_triggers = list(filter(lambda t: t != Triggers.AURA, [t for t in Triggers]))
 
-  def __init__(self, method, target, owner_filter, value=None, random_count=1, random_replace=True, trigger=None, type_filter=None, duration=None, dynamic_filter=None):
+  def __init__(self, method, target, owner_filter, value=None, random_count=1, random_replace=True, hits_adjacent=False, trigger=None, type_filter=None, duration=None, dynamic_filter=None):
     self.zone_filter = Zones.BOARD
     self.method = method
     self.value = value
     self.random_count = random_count
     self.random_replace = random_replace
+    self.hits_adjacent = hits_adjacent
     self.target = target
     self.owner_filter = owner_filter
     self.type_filter = type_filter
@@ -90,7 +98,12 @@ class Destroy():
 
   def resolve_action(self, game, action):
     for target in action.targets:
+      if self.hits_adjacent:
+        adjacent_targets = target.parent.get_adjacent(target)
+        for adjacent_target in adjacent_targets:
+          game.handle_death(adjacent_target)
       game.handle_death(target)
+      
 
 class ChangeStats():
   available_methods = [m for m in Methods]
@@ -100,12 +113,13 @@ class ChangeStats():
   available_type_filters = [c for c in CreatureTypes]
   available_durations = [d for d in Durations]
   available_triggers = [t for t in Triggers]
-  def __init__(self, value, method, target, owner_filter, random_count=1, random_replace=True, duration=None, trigger=None, type_filter=None):
+  def __init__(self, value, method, target, owner_filter, random_count=1, random_replace=True, hits_adjacent=False, duration=None, trigger=None, type_filter=None):
     self.zone_filter = Zones.BOARD #this could be changeable
     self.method = method
     self.value = value
     self.random_count = random_count
     self.random_replace = random_replace
+    self.hits_adjacent = hits_adjacent
     self.target = target
     self.owner_filter = owner_filter
     self.type_filter = type_filter
@@ -114,6 +128,15 @@ class ChangeStats():
 
   def resolve_action(self, game, action):
     for target in action.targets:
+      if self.hits_adjacent:
+        adjacent_targets = target.parent.get_adjacent(target)
+        for adjacent_target in adjacent_targets:
+          if self.duration == Durations.TURN:
+            adjacent_target.temp_attack += self.value[0](action)
+            adjacent_target.temp_health += self.value[1](action)
+          elif self.duration == Durations.PERMANENTLY:
+            adjacent_target.perm_attack += self.value[0](action)
+            adjacent_target.perm_health += self.value[1](action)
       if self.duration == Durations.TURN:
         target.temp_attack += self.value[0](action)
         target.temp_health += self.value[1](action)
@@ -129,12 +152,13 @@ class SetStats():
   available_type_filters = [c for c in CreatureTypes]
   available_durations = []
   available_triggers = [t for t in Triggers]
-  def __init__(self, value, method, target, owner_filter, random_count=1, random_replace=True, duration=None, trigger=None, type_filter=None):
+  def __init__(self, value, method, target, owner_filter, random_count=1, random_replace=True, hits_adjacent=False, duration=None, trigger=None, type_filter=None):
     self.zone_filter = Zones.BOARD #this could be changeable
     self.method = method
     self.value = value
     self.random_count = random_count
     self.random_replace = random_replace
+    self.hits_adjacent = hits_adjacent
     self.target = target
     self.owner_filter = owner_filter
     self.type_filter = type_filter
@@ -143,6 +167,18 @@ class SetStats():
 
   def resolve_action(self, game, action):
     for target in action.targets:
+      if self.hits_adjacent:
+        adjacent_targets = target.parent.get_adjacent(target)
+        for adjacent_target in adjacent_targets:
+          if self.value[0] != None:
+            adjacent_target.temp_attack = 0
+            adjacent_target.perm_attack = 0
+            adjacent_target.attack = self.value[0](action)
+          if self.value[1] != None:
+            adjacent_target.temp_health = 0
+            adjacent_target.perm_health = 0
+            adjacent_target.health = self.value[1](action)
+            adjacent_target.max_health = target.health
       if self.value[0] != None:
         target.temp_attack = 0
         target.perm_attack = 0
@@ -162,8 +198,44 @@ class SwapStats():
   available_type_filters = [c for c in CreatureTypes]
   available_durations = [Durations.PERMANENTLY]
   available_triggers = [t for t in Triggers]
-  def __init__(self, method, target, owner_filter, value=None, random_count=1, random_replace=True, duration=None, trigger=None, type_filter=None):
+  def __init__(self, method, target, owner_filter, value=None, random_count=1, random_replace=True, hits_adjacent=False, duration=None, trigger=None, type_filter=None):
     self.zone_filter = Zones.BOARD #this could be changeable
+    self.method = method
+    self.value = value
+    self.random_count = random_count
+    self.random_replace = random_replace
+    self.hits_adjacent = hits_adjacent
+    self.target = target
+    self.owner_filter = owner_filter
+    self.type_filter = type_filter
+    self.trigger = trigger
+    self.duration = duration
+
+  def resolve_action(self, game, action):
+    for target in action.targets:
+      if self.hits_adjacent:
+        adjacent_targets = target.parent.get_adjacent(target)
+        for adjacent_target in adjacent_targets:
+          temp = adjacent_target.get_attack()
+          adjacent_target.attack = adjacent_target.get_health()
+          adjacent_target.health = temp
+          adjacent_target.max_health = temp
+      temp = target.get_attack()
+      target.attack = target.get_health()
+      target.health = temp
+      target.max_health = temp
+
+class GainArmor():
+  available_methods = [Methods.TARGETED, Methods.RANDOMLY, Methods.ALL]
+  param_type = ParamTypes.X
+  available_targets = [Targets.HERO]
+  available_owner_filters = [f for f in OwnerFilters]
+  available_type_filters = []
+  available_durations = []
+  available_triggers = list(filter(lambda t: t != Triggers.AURA, [t for t in Triggers]))
+
+  def __init__(self, method, value, owner_filter, random_count=1, random_replace=True, target=Targets.HERO, trigger=None, type_filter=None, duration=None):
+    self.zone_filter = Zones.BOARD #draw cards targets a player
     self.method = method
     self.value = value
     self.random_count = random_count
@@ -176,10 +248,9 @@ class SwapStats():
 
   def resolve_action(self, game, action):
     for target in action.targets:
-      temp = target.get_attack()
-      target.attack = target.get_health()
-      target.health = temp
-      target.max_health = temp
+      target.armor += self.value(action)
+      print(f"{target} gaining {self.value(action)} armor")
+      target.armor = max(target.armor, 0) #prevent negative armor
 
 class DrawCards():
   available_methods = [Methods.TARGETED, Methods.RANDOMLY, Methods.ALL]
@@ -243,12 +314,13 @@ class ReturnToHand():
   available_durations = []
   available_triggers = list(filter(lambda t: t != Triggers.AURA, [t for t in Triggers]))
 
-  def __init__(self, method, owner_filter, random_count=1, random_replace=True, target=Targets.MINION, value=None, trigger=None, type_filter=None, duration=None):
+  def __init__(self, method, owner_filter, random_count=1, random_replace=True, hits_adjacent=False, target=Targets.MINION, value=None, trigger=None, type_filter=None, duration=None):
     self.zone_filter = Zones.BOARD #targets a card in play
     self.method = method
     self.value = value
     self.random_count = random_count
     self.random_replace = random_replace
+    self.hits_adjacent = hits_adjacent
     self.target = target
     self.owner_filter = owner_filter
     self.type_filter = type_filter
@@ -257,6 +329,12 @@ class ReturnToHand():
 
   def resolve_action(self, game, action):
     for target in action.targets:
+      if self.hits_adjacent:
+        adjacent_targets = target.parent.get_adjacent(target)
+        for adjacent_target in adjacent_targets:
+          adjacent_target.change_parent(adjacent_target.parent.parent.hand) #return to targets parent's player's hand (the parent of the board is the player)
+          adjacent_target.return_to_hand_reset()
+
       target.change_parent(target.parent.parent.hand) #return to targets parent's player's hand (the parent of the board is the player)
       target.return_to_hand_reset()
 
@@ -269,12 +347,13 @@ class RestoreHealth():
   available_durations = []
   available_triggers = list(filter(lambda t: t != Triggers.AURA, [t for t in Triggers]))
  
-  def __init__(self, method, owner_filter, target, value, random_count=1, random_replace=True, trigger=None, type_filter=None, duration=None):
+  def __init__(self, method, owner_filter, target, value, random_count=1, random_replace=True, hits_adjacent=False, trigger=None, type_filter=None, duration=None):
     self.zone_filter = Zones.BOARD
     self.method = method
     self.value = value
     self.random_count = random_count
     self.random_replace = random_replace
+    self.hits_adjacent = hits_adjacent
     self.target = target
     self.owner_filter = owner_filter
     self.type_filter = type_filter
@@ -283,6 +362,16 @@ class RestoreHealth():
 
   def resolve_action(self, game, action):
     for target in action.targets:
+      if self.hits_adjacent:
+        adjacent_targets = target.parent.get_adjacent(target)
+        for adjacent_target in adjacent_targets:
+          max_healing = adjacent_target.get_max_health() - adjacent_target.get_health()
+          healing = min(self.value(action), max_healing)
+          adjacent_target.health += healing
+          if healing > 0:
+            game.trigger(adjacent_target, Triggers.ANY_HEALED)
+            game.trigger(adjacent_target, Triggers.FRIENDLY_HEALED)
+            game.trigger(adjacent_target, Triggers.ENEMY_HEALED)
       max_healing = target.get_max_health() - target.get_health()
       healing = min(self.value(action), max_healing)
       target.health += healing
@@ -299,12 +388,13 @@ class GiveAttribute():
   available_type_filters = [c for c in CreatureTypes]
   available_durations = [d for d in Durations]
   available_triggers = [t for t in Triggers]
-  def __init__(self, value, method, target, owner_filter, random_count=1, random_replace=True, duration=None, trigger=None, type_filter=None):
+  def __init__(self, value, method, target, owner_filter, random_count=1, random_replace=True, hits_adjacent=False, duration=None, trigger=None, type_filter=None):
     self.zone_filter = Zones.BOARD #could be changeable
     self.method = method
     self.value = value
     self.random_count = random_count
     self.random_replace = random_replace
+    self.hits_adjacent = hits_adjacent
     self.target = target
     self.owner_filter = owner_filter
     self.type_filter = type_filter
@@ -313,6 +403,15 @@ class GiveAttribute():
 
   def resolve_action(self, game, action):
     for target in action.targets:
+      if self.hits_adjacent:
+        adjacent_targets = target.parent.get_adjacent(target)
+        print(f"freezing {target}")
+
+        for adjacent_target in adjacent_targets:
+          if self.duration == Durations.TURN and not self.value in adjacent_target.temp_attributes:
+            adjacent_target.temp_attributes.append(self.value)
+          elif self.duration == Durations.PERMANENTLY and not self.value in adjacent_target.perm_attributes:
+            adjacent_target.perm_attributes.append(self.value)
       if self.duration == Durations.TURN and not self.value in target.temp_attributes:
         target.temp_attributes.append(self.value)
       elif self.duration == Durations.PERMANENTLY and not self.value in target.perm_attributes:
@@ -326,12 +425,13 @@ class RemoveAttribute():
   available_type_filters = [c for c in CreatureTypes]
   available_durations = []
   available_triggers = [t for t in Triggers]
-  def __init__(self, value, method, target, owner_filter, random_count=1, random_replace=True, duration=None, trigger=None, type_filter=None):
+  def __init__(self, value, method, target, owner_filter, random_count=1, random_replace=True, hits_adjacent=False, duration=None, trigger=None, type_filter=None):
     self.zone_filter = Zones.BOARD #could be changeable
     self.method = method
     self.value = value
     self.random_count = random_count
     self.random_replace = random_replace
+    self.hits_adjacent = hits_adjacent
     self.target = target
     self.owner_filter = owner_filter
     self.type_filter = type_filter
@@ -340,12 +440,16 @@ class RemoveAttribute():
 
   def resolve_action(self, game, action):
     for target in action.targets:
+      if self.hits_adjacent:
+        adjacent_targets = target.parent.get_adjacent(target)
+        for adjacent_target in adjacent_targets:
+          adjacent_target.remove_attribute(self.value)
       target.remove_attribute(self.value)
 
 
 
 class SummonToken(): #summon minion for target player
-  available_methods = [Methods.TARGETED, Methods.RANDOMLY, Methods.ALL]
+  available_methods = [Methods.TARGETED, Methods.RANDOMLY, Methods.ALL, Methods.TRIGGERER]
   param_type = ParamTypes.X_TOKENS
   available_targets = [Targets.HERO]
   available_owner_filters = []
@@ -366,14 +470,16 @@ class SummonToken(): #summon minion for target player
     self.duration = duration
 
   def resolve_action(self, game, action):
-    for target in action.targets:
-      for token_number in range(self.value[0](action)):
-        if len(target.board) >= target.board.max_entries:
-          break
-        new_token = deepcopy(self.value[1])
-        new_token.set_owner(target)
-        new_token.set_parent(target.board) #Doesn't trigger battlecry
-
+    token_count = self.value[0](action)
+    summoned_card = self.value[1](action)
+    new_owner = action.targets[0].owner.other_player if self.method == Methods.TRIGGERER else action.targets[0]
+    for token_number in range(token_count):
+      if len(new_owner.board) >= new_owner.board.max_entries:
+        break
+      new_token = deepcopy(summoned_card)
+      new_token.collectable = False
+      new_token.set_owner(new_owner)
+      new_token.set_parent(new_owner.board) #Doesn't trigger battlecry
 
 class ReplaceWithToken(): #replace minion with summoned token
   available_methods = [Methods.TARGETED, Methods.RANDOMLY, Methods.ALL]
@@ -403,7 +509,8 @@ class ReplaceWithToken(): #replace minion with summoned token
       for token_number in range(self.value[0](action)):
         if len(target.owner.board) >= target.owner.board.max_entries:
           break
-        new_token = deepcopy(self.value[1])
+        new_token = deepcopy(self.value[1](action))
+        new_token.collectable = False
         new_token.set_owner(target.owner)
         new_token.set_parent(target.owner.board) #Doesn't trigger battlecry
 
@@ -417,12 +524,13 @@ class Silence():
   available_durations = []
   available_triggers = list(filter(lambda t: t != Triggers.AURA, [t for t in Triggers]))
   
-  def __init__(self, method, owner_filter, target, value=None, random_count=1, random_replace=True, duration=None, trigger=None, type_filter=None):
+  def __init__(self, method, owner_filter, target, value=None, random_count=1, random_replace=True, hits_adjacent=False, duration=None, trigger=None, type_filter=None):
     self.zone_filter = Zones.BOARD
     self.method = method
     self.value = value
     self.random_count = random_count
     self.random_replace = random_replace
+    self.hits_adjacent = hits_adjacent
     self.target = target
     self.owner_filter = owner_filter
     self.type_filter = type_filter
@@ -431,6 +539,18 @@ class Silence():
 
   def resolve_action(self, game, action):
     for target in action.targets:
+      if self.hits_adjacent:
+        adjacent_targets = target.parent.get_adjacent(target)
+        for adjacent_target in adjacent_targets:
+          adjacent_target.temp_attack = 0
+          adjacent_target.temp_health = 0
+          adjacent_target.temp_attributes = []
+          adjacent_target.perm_attack = 0
+          adjacent_target.perm_health = 0
+          adjacent_target.perm_attributes = []
+          adjacent_target.attributes = []
+          adjacent_target.effect = None
+          adjacent_target.condition = None
       target.temp_attack = 0
       target.temp_health = 0
       target.temp_attributes = []

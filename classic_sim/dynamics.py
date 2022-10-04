@@ -54,6 +54,18 @@ class If(object):
     else: 
       return self.alternative(action)
 
+class Source(object):
+  def __init__(self):
+    pass
+  def __call__(self, action):
+    return action.source
+
+class Target(object):
+  def __init__(self):
+    pass
+  def __call__(self, action):
+    return action.targets[0]
+
 ## Dynamic values
 
 class NumOtherMinions(object):

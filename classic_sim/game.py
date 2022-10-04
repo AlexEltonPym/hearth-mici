@@ -208,13 +208,12 @@ class Game():
           player_themselves = [self.player]
           enemy_themselves = [self.player.other_player]
           possible_targets = player_board + enemy_board + player_themselves + enemy_themselves
-          possible_targets.remove(action.targets[0])
+          possible_targets.remove(action.targets[0]) #todo what happens if player attacks player
           possible_targets.remove(action.source)
           action.targets[0] = self.game_manager.random_state.choice(possible_targets)
-
-      self.trigger(action.targets[0], Triggers.FRIENDLY_HERO_ATTACKED)
+      self.trigger(action.targets[0], Triggers.HERO_ATTACKED) #this triggers even if redirected to another target
     else:
-      self.trigger(action.source, Triggers.ENEMY_ATTACKS_FRIENDLY_MINION)
+      self.trigger(action.source, Triggers.ENEMY_ATTACKS_MINION)
     
     if isinstance(action.source, Player) and action.source.weapon:
       damage = action.source.get_attack() + action.source.weapon.attack
@@ -242,7 +241,16 @@ class Game():
     elif target.has_attribute(Attributes.DIVINE_SHIELD) and amount > 0:
       target.remove_attribute(Attributes.DIVINE_SHIELD)
     elif amount > 0:
-      target.health -= amount
+      if isinstance(target, Player):
+        if target.armor > 0:
+          target.armor -= amount
+          if target.armor < 0:
+            target.health += target.armor #armor is negative here
+            target.armor = 0
+        else:
+          target.health -= amount #no armor to worry about
+      else:
+        target.health -= amount #minions dont have armor
       if freezer and not target.has_attribute(Attributes.FROZEN):
         target.perm_attributes.append(Attributes.FROZEN)
       self.trigger(target, Triggers.SELF_DAMAGE_TAKEN)
@@ -278,8 +286,8 @@ class Game():
         card.effect.resolve_action(self, Action(Actions.CAST_EFFECT, card, [triggerer]))
 
   def trigger(self, triggerer, trigger_type):
-    print(f"{triggerer=}")
     print(f"{trigger_type=}")
+    print(f"{triggerer=}")
     for player in [self.player, self.enemy]:
       player_weapon = [player.weapon] if player.weapon else []
       for card in player_weapon + player.board.get_all() + player.secrets_zone.get_all():
@@ -310,8 +318,6 @@ class Game():
               self.resolve_effect(card, triggerer)
             elif trigger_type == Triggers.FRIENDLY_CARD_PLAYED:
               self.resolve_effect(card, triggerer)
-            elif trigger_type == Triggers.FRIENDLY_HERO_ATTACKED:
-              self.resolve_effect(card, triggerer)
 
           elif "ENEMY" in trigger_type.name and triggerer.owner != card.owner:
             if trigger_type == Triggers.ENEMY_MINION_DIES:
@@ -340,7 +346,7 @@ class Game():
               self.resolve_effect(card, triggerer)
             elif trigger_type == Triggers.ENEMY_MINION_ATTACKS:
               self.resolve_effect(card, triggerer)
-            elif trigger_type == Triggers.ENEMY_ATTACKS_FRIENDLY_MINION:
+            elif trigger_type == Triggers.ENEMY_ATTACKS_MINION:
               self.resolve_effect(card, triggerer)
           else:
             if trigger_type == Triggers.ANY_MINION_DIES:
@@ -369,6 +375,10 @@ class Game():
               self.resolve_effect(card, triggerer)
             elif trigger_type == Triggers.ANY_SECRET_REVEALED:
               self.resolve_effect(card, triggerer)
+            elif trigger_type == Triggers.HERO_ATTACKED:
+              self.resolve_effect(card, triggerer)
+
+
           if card.card_type == CardTypes.SECRET:
             card.change_parent(card.owner.graveyard)
             self.trigger(card, Triggers.ANY_SECRET_REVEALED)
