@@ -51,7 +51,8 @@ class Card():
       if card.effect and isinstance(card.effect, ChangeCost) and card.effect.trigger == Triggers.AURA and card.effect.method == Methods.ALL:
         if self.matches_card_requirements(card):
           manacost += card.effect.value(Action(Actions.GET_MANACOST, card, [card])) #dyanmics require actions by default so we need to wrap this inside one.
-
+    if self.owner.has_attribute(Attributes.FREE_SECRET) and self.card_type == CardTypes.SECRET:
+      manacost = 0
     return max(manacost, 0)
 
   def matches_card_requirements(self, card):

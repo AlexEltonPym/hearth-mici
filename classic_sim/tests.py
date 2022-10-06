@@ -22,7 +22,7 @@ def test_classic_pool():
   assert len(basics) == 43
   assert len(commons) == 40
 
-  print(f"{len(basics + commons + rares + epics + mage + hunter)}/202") #161
+  print(f"{len(basics + commons + rares + epics + mage + hunter)}/202") #172
   assert True
 
 def test_coin():
@@ -1496,7 +1496,6 @@ def test_houndmaster():
   assert river_crok.get_attack() == 2
   assert river_crok.get_health() == 3
   play_houndmaster = list(filter(lambda action: action.source == houndmaster and action.targets[0] == river_crok, game.get_available_actions(game.current_player)))
-  print(play_houndmaster)
   game.perform_action(play_houndmaster[0])
   assert river_crok.get_attack() == 4
   assert river_crok.get_health() == 5
@@ -1522,7 +1521,6 @@ def test_multishot():
   sea_giant = game.game_manager.get_card('Sea Giant', game.current_player.other_player.board)
   multishot = game.game_manager.get_card('Multi-Shot', game.current_player.hand)
   play_multishot = list(filter(lambda action: action.source == multishot, game.get_available_actions(game.current_player)))[0]
-  print(play_multishot)
   game.perform_action(play_multishot)
   assert mountain_giant.get_health() == 5
   assert sea_giant.get_health() == 5
@@ -1610,7 +1608,6 @@ def test_unleash_the_hounds():
   firendly_wisp = game.game_manager.get_card('Wisp', game.current_player.board)
   play_unleash = list(filter(lambda action: action.source == unleash_the_hounds, game.get_available_actions(game.current_player)))[0]
   game.perform_action(play_unleash)
-  print(game.current_player.board.get_all())
   assert len(game.current_player.board) == 4
 
 def test_flare():
@@ -2098,6 +2095,158 @@ def test_cone_of_cold_four_targets_last():
   assert enemy_wisp4.get_health() == 0
   assert enemy_wisp4.has_attribute(Attributes.FROZEN)
 
+def test_counterspell():
+  game = GameManager().create_test_game()
+  counterspell = game.game_manager.get_card('Counterspell', game.current_player.other_player.secrets_zone)
+  fireball = game.game_manager.get_card('Fireball', game.current_player.hand)
+  cast_fireball = list(filter(lambda action: action.source == fireball and action.targets[0] == game.current_player.other_player, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(cast_fireball)
+  assert fireball.parent == fireball.owner.graveyard
+  assert counterspell.parent == counterspell.owner.graveyard
+  assert game.current_player.other_player.get_health() == 30
+
+def test_counterspell_friendly():
+  game = GameManager().create_test_game()
+  counterspell = game.game_manager.get_card('Counterspell', game.current_player.secrets_zone)
+  fireball = game.game_manager.get_card('Fireball', game.current_player.hand)
+  cast_fireball = list(filter(lambda action: action.source == fireball and action.targets[0] == game.current_player.other_player, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(cast_fireball)
+  assert fireball.parent == fireball.owner.graveyard
+  assert counterspell.parent == counterspell.owner.secrets_zone
+  assert game.current_player.other_player.get_health() == 24
+
+def test_counterspell_on_secret():
+  game = GameManager().create_test_game()
+  counterspell = game.game_manager.get_card('Counterspell', game.current_player.other_player.secrets_zone)
+  misdirection = game.game_manager.get_card('Misdirection', game.current_player.hand)
+  play_misdirection = list(filter(lambda action: action.source == misdirection, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(play_misdirection)
+  assert counterspell.parent == counterspell.owner.graveyard
+  assert misdirection.parent == misdirection.owner.graveyard
+
+def test_counterspell_on_flare():
+  game = GameManager().create_test_game()
+  counterspell = game.game_manager.get_card('Counterspell', game.current_player.other_player.secrets_zone)
+  flare = game.game_manager.get_card('Flare', game.current_player.hand)
+  play_flare = list(filter(lambda action: action.source == flare, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(play_flare)
+  assert counterspell.parent == counterspell.owner.graveyard
+  assert flare.parent == flare.owner.graveyard
+  assert len(game.current_player.hand) == 0
+
+def test_kirin_tor_mage():
+  game = GameManager().create_test_game()
+  counterspell = game.game_manager.get_card('Counterspell', game.current_player.hand)
+  kirin_tor_mage = game.game_manager.get_card('Kirin Tor Mage', game.current_player.hand)
+  assert game.current_player.current_mana == 10
+  play_kirin_tor_mage = list(filter(lambda action: action.source == kirin_tor_mage, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(play_kirin_tor_mage)
+  assert game.current_player.current_mana == 7
+  assert game.current_player.has_attribute(Attributes.FREE_SECRET)
+  assert counterspell.get_manacost() == 0
+  play_counterspell = list(filter(lambda action: action.source == counterspell, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(play_counterspell)
+  assert game.current_player.current_mana == 7
+  misdirection = game.game_manager.get_card('Misdirection', game.current_player.hand)
+  assert misdirection.get_manacost() == 2
+
+def test_kirin_tor_mage_end_turn():
+  game = GameManager().create_test_game()
+  counterspell = game.game_manager.get_card('Counterspell', game.current_player.hand)
+  kirin_tor_mage = game.game_manager.get_card('Kirin Tor Mage', game.current_player.hand)
+  play_kirin_tor_mage = list(filter(lambda action: action.source == kirin_tor_mage, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(play_kirin_tor_mage)
+  assert game.current_player.current_mana == 7
+  assert game.current_player.has_attribute(Attributes.FREE_SECRET)
+  assert counterspell.get_manacost() == 0
+  game.end_turn()
+  game.untap()
+  game.end_turn()
+  game.untap()
+  assert not game.current_player.has_attribute(Attributes.FREE_SECRET)
+  assert counterspell.get_manacost() == 3
+
+def test_no_duplicate_secrets():
+  game = GameManager().create_test_game()
+  counterspell_in_zone = game.game_manager.get_card('Counterspell', game.current_player.secrets_zone)
+  counterspell_in_hand = game.game_manager.get_card('Counterspell', game.current_player.hand)
+  play_counterspell_in_hand_actions = list(filter(lambda action: action.source == counterspell_in_hand, game.get_available_actions(game.current_player)))
+  assert len(play_counterspell_in_hand_actions) == 0
+
+def test_vaporize():
+  game = GameManager().create_test_game()
+  vaporize = game.game_manager.get_card('Vaporize', game.current_player.other_player.secrets_zone)
+  tundra_rhino = game.game_manager.get_card('Tundra Rhino', game.current_player.board)
+  attack_with_rhino = list(filter(lambda action: action.source == tundra_rhino, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(attack_with_rhino)
+  assert vaporize.parent == vaporize.owner.graveyard
+  assert tundra_rhino.parent == tundra_rhino.owner.graveyard
+  assert game.current_player.other_player.get_health() == 30
+
+def test_etherial_arcanist():
+  game = GameManager().create_test_game()
+  vaporize = game.game_manager.get_card('Vaporize', game.current_player.secrets_zone)
+  etherial_arcanist = game.game_manager.get_card('Etherial Arcanist', game.current_player.board)
+  assert etherial_arcanist.get_attack() == 3
+  assert etherial_arcanist.get_health() == 3
+  game.end_turn()
+  game.untap()
+  assert etherial_arcanist.get_attack() == 5
+  assert etherial_arcanist.get_health() == 5
+  game.end_turn()
+  game.untap()
+  assert etherial_arcanist.get_attack() == 5
+  assert etherial_arcanist.get_health() == 5
+  game.end_turn()
+  game.untap()
+  assert etherial_arcanist.get_attack() == 7
+  assert etherial_arcanist.get_health() == 7
+  vaporize.change_parent(vaporize.owner.graveyard)
+  game.end_turn()
+  game.untap()
+  assert etherial_arcanist.get_attack() == 7
+  assert etherial_arcanist.get_health() == 7
+  game.end_turn()
+  game.untap()
+  assert etherial_arcanist.get_attack() == 7
+  assert etherial_arcanist.get_health() == 7
+
+def test_blizzard():
+  game = GameManager().create_test_game()
+  blizzard = game.game_manager.get_card('Blizzard', game.current_player.hand)
+  etherial_arcanist = game.game_manager.get_card('Etherial Arcanist', game.current_player.other_player.board)
+  wisp = game.game_manager.get_card('Wisp', game.current_player.other_player.board)
+  play_blizzard = list(filter(lambda action: action.source == blizzard, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(play_blizzard)
+  assert etherial_arcanist.get_health() == 1
+  assert etherial_arcanist.has_attribute(Attributes.FROZEN)
+  assert wisp.get_health() == -1
+  assert wisp.parent == wisp.owner.graveyard
+  game.end_turn()
+  game.untap()
+  attack_with_etherial_actions =  list(filter(lambda action: action.source == etherial_arcanist, game.get_available_actions(game.current_player)))
+  assert len(attack_with_etherial_actions) == 0
+  assert etherial_arcanist.has_attribute(Attributes.FROZEN)
+
+def test_ice_block():
+  game = GameManager().create_test_game()
+  ice_block = game.game_manager.get_card('Ice Block', game.current_player.other_player.secrets_zone)
+  game.current_player.other_player.armor = 5
+  game.deal_damage(game.current_player.other_player, 40)
+  assert game.current_player.other_player.armor == 5
+  assert game.current_player.other_player.get_health() == 30
+  assert game.current_player.other_player.has_attribute(Attributes.IMMUNE)
+  assert ice_block.parent == ice_block.owner.graveyard
+  game.deal_damage(game.current_player.other_player, 1)
+  assert game.current_player.other_player.armor == 5
+  assert game.current_player.other_player.get_health() == 30
+  game.end_turn()
+  game.untap()
+  assert not game.current_player.has_attribute(Attributes.IMMUNE)
+
+
+  
+ 
 
 def test_battlecry_reduce_cost():
   game = GameManager().create_test_game()

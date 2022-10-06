@@ -97,13 +97,21 @@ class Game():
     self.current_player.temp_attributes = []
     self.current_player.remove_attribute(Attributes.FROZEN)
   
+    self.current_player.other_player.temp_attack = 0
+    self.current_player.other_player.temp_health = 0
+    self.current_player.other_player.temp_attributes = []
+
     for minion in self.current_player.board.get_all():
       minion.temp_attack = 0
       minion.temp_health = 0
       minion.temp_attributes = []
       minion.remove_attribute(Attributes.FROZEN)
     
-    
+    for minion in self.current_player.other_player.board.get_all():
+      minion.temp_attack = 0
+      minion.temp_health = 0
+      minion.temp_attributes = []
+      
     self.current_player.minions_played_this_turn = 0
 
     self.current_player = self.current_player.other_player
@@ -160,28 +168,51 @@ class Game():
 
 
   def cast_spell(self, action):
+    spell_countered = False
+    for secret in action.source.owner.other_player.secrets_zone:
+      if isinstance(secret.effect, Counterspell):
+        spell_countered = True
+
     self.current_player.current_mana -= action.source.get_manacost()
     action.source.change_parent(action.source.owner.graveyard)
-    action.source.effect.resolve_action(self, action)
-    self.trigger(action.source, Triggers.ANY_SPELL_CAST)
-    self.trigger(action.source, Triggers.FRIENDLY_SPELL_CAST)
-    self.trigger(action.source, Triggers.ENEMY_SPELL_CAST)
-    self.trigger(action.source, Triggers.ANY_CARD_PLAYED)
-    self.trigger(action.source, Triggers.FRIENDLY_CARD_PLAYED)
-    self.trigger(action.source, Triggers.ENEMY_CARD_PLAYED)
+
+    if spell_countered:
+      self.trigger(action.source, Triggers.ENEMY_SPELL_ATTEMPT)
+    else:
+      action.source.effect.resolve_action(self, action)
+
+      self.trigger(action.source, Triggers.ANY_SPELL_CAST)
+      self.trigger(action.source, Triggers.FRIENDLY_SPELL_CAST)
+      self.trigger(action.source, Triggers.ENEMY_SPELL_CAST)
+      self.trigger(action.source, Triggers.ANY_CARD_PLAYED)
+      self.trigger(action.source, Triggers.FRIENDLY_CARD_PLAYED)
+      self.trigger(action.source, Triggers.ENEMY_CARD_PLAYED)
+      
+
 
   def cast_secret(self, action):
+    spell_countered = False
+    for secret in action.source.owner.other_player.secrets_zone:
+      if isinstance(secret.effect, Counterspell):
+        spell_countered = True
+    
     self.current_player.current_mana -= action.source.get_manacost()
-    action.source.change_parent(action.source.owner.secrets_zone)
-    self.trigger(action.source, Triggers.ANY_SECRET_CAST)
-    self.trigger(action.source, Triggers.FRIENDLY_SECRET_CAST)
-    self.trigger(action.source, Triggers.ENEMY_SECRET_CAST)
-    self.trigger(action.source, Triggers.ANY_SPELL_CAST)
-    self.trigger(action.source, Triggers.FRIENDLY_SPELL_CAST)
-    self.trigger(action.source, Triggers.ENEMY_SPELL_CAST)
-    self.trigger(action.source, Triggers.ANY_CARD_PLAYED)
-    self.trigger(action.source, Triggers.FRIENDLY_CARD_PLAYED)
-    self.trigger(action.source, Triggers.ENEMY_CARD_PLAYED)
+    self.current_player.remove_attribute(Attributes.FREE_SECRET)
+
+    if spell_countered:
+      self.trigger(action.source, Triggers.ENEMY_SPELL_ATTEMPT)
+      action.source.change_parent(action.source.owner.graveyard)
+    else:
+      action.source.change_parent(action.source.owner.secrets_zone)
+      self.trigger(action.source, Triggers.ANY_SECRET_CAST)
+      self.trigger(action.source, Triggers.FRIENDLY_SECRET_CAST)
+      self.trigger(action.source, Triggers.ENEMY_SECRET_CAST)
+      self.trigger(action.source, Triggers.ANY_SPELL_CAST)
+      self.trigger(action.source, Triggers.FRIENDLY_SPELL_CAST)
+      self.trigger(action.source, Triggers.ENEMY_SPELL_CAST)
+      self.trigger(action.source, Triggers.ANY_CARD_PLAYED)
+      self.trigger(action.source, Triggers.FRIENDLY_CARD_PLAYED)
+      self.trigger(action.source, Triggers.ENEMY_CARD_PLAYED)
 
   def cast_effect(self, action):
     action.source.effect.resolve_action(self, action)
@@ -211,6 +242,10 @@ class Game():
           possible_targets.remove(action.targets[0]) #todo what happens if player attacks player
           possible_targets.remove(action.source)
           action.targets[0] = self.game_manager.random_state.choice(possible_targets)
+        if isinstance(secret.effect, Destroy):
+          self.handle_death(action.source)
+          self.trigger(action.targets[0], Triggers.HERO_ATTACKED)
+          return
       self.trigger(action.targets[0], Triggers.HERO_ATTACKED) #this triggers even if redirected to another target
     else:
       self.trigger(action.source, Triggers.ENEMY_ATTACKS_MINION)
@@ -225,6 +260,7 @@ class Game():
       damage = action.source.get_attack()
       other_damage = action.targets[0].get_attack()
       self.trigger(action.source, Triggers.ENEMY_MINION_ATTACKS)
+
     
     self.deal_damage(action.targets[0], damage, poisonous=action.source.has_attribute(Attributes.POISONOUS), freezer=action.source.has_attribute(Attributes.FREEZER))
     self.deal_damage(action.source, other_damage, poisonous=action.targets[0].has_attribute(Attributes.POISONOUS), freezer=action.targets[0].has_attribute(Attributes.FREEZER))
@@ -242,13 +278,22 @@ class Game():
       target.remove_attribute(Attributes.DIVINE_SHIELD)
     elif amount > 0:
       if isinstance(target, Player):
-        if target.armor > 0:
-          target.armor -= amount
-          if target.armor < 0:
-            target.health += target.armor #armor is negative here
-            target.armor = 0
+        new_health = target.health
+        new_armor = target.armor
+        if new_armor > 0:
+          new_armor -= amount
+          if new_armor < 0:
+            new_health += new_armor #armor is negative here
+            new_armor = 0
         else:
-          target.health -= amount #no armor to worry about
+          new_health -= amount #no armor to worry about
+        if new_health <= 0:
+          self.trigger(target, Triggers.LETHAL_DAMAGE)
+        if target.has_attribute(Attributes.IMMUNE):
+          return
+        else:
+          target.health = new_health
+          target.armor = new_armor
       else:
         target.health -= amount #minions dont have armor
       if freezer and not target.has_attribute(Attributes.FROZEN):
@@ -273,7 +318,7 @@ class Game():
           
   def resolve_effect(self, card, triggerer=None):
     targets = self.get_available_effect_targets(card)
-    if len(targets) > 0:
+    if len(targets) > 0 or card.effect.method == Methods.ALL:
       if card.effect.method == Methods.ALL:
         card.effect.resolve_action(self, Action(Actions.CAST_EFFECT, card, targets))
       elif card.effect.method == Methods.RANDOMLY:
@@ -284,6 +329,11 @@ class Game():
         card.effect.resolve_action(self, Action(Actions.CAST_EFFECT, card, [card]))
       elif card.effect.method == Methods.TRIGGERER:
         card.effect.resolve_action(self, Action(Actions.CAST_EFFECT, card, [triggerer]))
+
+    if card.card_type == CardTypes.SECRET:
+      card.change_parent(card.owner.graveyard)
+      self.trigger(card, Triggers.ANY_SECRET_REVEALED)
+
 
   def trigger(self, triggerer, trigger_type):
     print(f"{trigger_type=}")
@@ -348,6 +398,8 @@ class Game():
               self.resolve_effect(card, triggerer)
             elif trigger_type == Triggers.ENEMY_ATTACKS_MINION:
               self.resolve_effect(card, triggerer)
+            elif trigger_type == Triggers.ENEMY_SPELL_ATTEMPT:
+              self.resolve_effect(card, triggerer)
           else:
             if trigger_type == Triggers.ANY_MINION_DIES:
               self.resolve_effect(card, triggerer)
@@ -377,11 +429,9 @@ class Game():
               self.resolve_effect(card, triggerer)
             elif trigger_type == Triggers.HERO_ATTACKED:
               self.resolve_effect(card, triggerer)
+            elif trigger_type == Triggers.LETHAL_DAMAGE:
+              self.resolve_effect(card, triggerer)
 
-
-          if card.card_type == CardTypes.SECRET:
-            card.change_parent(card.owner.graveyard)
-            self.trigger(card, Triggers.ANY_SECRET_REVEALED)
 
         elif card.effect and trigger_type == card.effect.trigger and triggerer == card:
           if trigger_type == Triggers.SELF_DAMAGE_TAKEN:
@@ -400,9 +450,10 @@ class Game():
 
   def get_playable_spells_actions(self, player):
     playable_spell_actions = []
+    
     for card in filter(lambda card: card.get_manacost() <= player.current_mana and card.card_type == CardTypes.SPELL, player.hand):
       cast_targets = self.get_available_effect_targets(card)
-      if card.effect and len(cast_targets) > 0:
+      if card.effect and (len(cast_targets) > 0 or card.effect.method==Methods.ALL):
         if card.effect.method == Methods.TARGETED:
           for target in filter(lambda target: not (target.has_attribute(Attributes.STEALTH) or target.has_attribute(Attributes.HEXPROOF)), cast_targets):
             playable_spell_actions.append(Action(Actions.CAST_SPELL, card, [target]))
@@ -415,7 +466,7 @@ class Game():
   def get_playable_secret_actions(self, player):
     playable_secret_actions = []
     if len(player.secrets_zone) < player.secrets_zone.max_entries:
-      for card in filter(lambda card: card.get_manacost() <= player.current_mana and card.card_type == CardTypes.SECRET, player.hand):
+      for card in filter(lambda card: card.get_manacost() <= player.current_mana and card.card_type == CardTypes.SECRET and card.name not in player.secrets_zone.names(), player.hand):
         playable_secret_actions.append(Action(Actions.CAST_SECRET, card, [player.secrets_zone]))
     return playable_secret_actions
 
@@ -547,7 +598,7 @@ class Game():
       for card in filter(lambda card: card.get_manacost() <= player.current_mana and card.card_type == CardTypes.MINION, player.hand):
         if card.effect and card.effect.trigger == Triggers.BATTLECRY:
           battlecry_targets = self.get_available_effect_targets(card)
-          if len(battlecry_targets) > 0:
+          if len(battlecry_targets) > 0 or card.effect.method == Methods.ALL:
             if card.effect.method == Methods.TARGETED:
               for target in filter(lambda target: not target.has_attribute(Attributes.STEALTH),  battlecry_targets):
                 playable_minion_actions.append(Action(Actions.CAST_MINION, card, [target]))
@@ -572,7 +623,7 @@ class Game():
       for card in filter(lambda card: card.get_manacost() <= player.current_mana and card.card_type == CardTypes.WEAPON, player.hand):
         if card.effect and card.effect.trigger == Triggers.BATTLECRY:
           battlecry_targets = self.get_available_effect_targets(card)
-          if len(battlecry_targets) > 0:
+          if len(battlecry_targets) > 0 or card.effect.method == Methods.ALL:
             if card.effect.method == Methods.TARGETED:
               for target in filter(lambda target: not target.has_attribute(Attributes.STEALTH), battlecry_targets):
                 playable_weapon_actions.append(Action(Actions.CAST_WEAPON, card, [target]))

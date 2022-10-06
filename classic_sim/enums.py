@@ -14,6 +14,7 @@ class Attributes(Enum):
   POISONOUS = 10
   IMMUNE = 11
   FREEZER = 12
+  FREE_SECRET = 13
 
 class Triggers(Enum):
   BATTLECRY = 0
@@ -69,6 +70,9 @@ class Triggers(Enum):
 
   ANY_SECRET_REVEALED = 37
   ENEMY_ATTACKS_MINION = 38
+
+  ENEMY_SPELL_ATTEMPT = 39
+  LETHAL_DAMAGE = 40
 
 class Actions(Enum):
   ATTACK = 0

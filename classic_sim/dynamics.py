@@ -168,3 +168,15 @@ class TargetFrozen(object):
     pass
   def __call__(self, action):
     return action.targets[0].has_attribute(Attributes.FROZEN)
+
+class PlayerHasAttribute(object):
+  def __init__(self, attribute):
+    self.attribute = attribute
+  def __call__(self, action):
+    return action.source.owner.has_attribute(self.attribute)
+
+class HasSecret(object):
+  def __init__(self):
+    pass
+  def __call__(self, action):
+    return len(action.source.owner.secrets_zone) > 0

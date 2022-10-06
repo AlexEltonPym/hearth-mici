@@ -17,6 +17,7 @@ class GainMana():
     self.value = value
     self.random_count = random_count
     self.random_replace = random_replace
+    self.hits_adjacent = False
     self.target = target
     self.owner_filter = owner_filter
     self.duration = duration
@@ -65,7 +66,7 @@ class DealDamage():
     damage_amount = self.value(action) + (action.source.owner.get_spell_damage() if action.source.card_type == CardTypes.SPELL else 0)
 
     for target in action.targets:
-      print(f"Dealing {damage_amount} damage to {target}")
+      # print(f"Dealing {damage_amount} damage to {target}")
       if self.hits_adjacent:
         adjacent_targets = target.parent.get_adjacent(target)
         for adjacent_target in adjacent_targets:
@@ -74,7 +75,7 @@ class DealDamage():
 
 
 class Destroy():
-  available_methods = [Methods.TARGETED, Methods.RANDOMLY, Methods.ALL, Methods.SELF]
+  available_methods = [Methods.TARGETED, Methods.RANDOMLY, Methods.ALL, Methods.SELF, Methods.TRIGGERER]
   param_type = ParamTypes.NONE
   available_targets = [Targets.MINION, Targets.HERO, Targets.MINION_OR_HERO]
   available_owner_filters = [f for f in OwnerFilters]
@@ -240,6 +241,7 @@ class GainArmor():
     self.value = value
     self.random_count = random_count
     self.random_replace = random_replace
+    self.hits_adjacent = False
     self.target = target
     self.owner_filter = owner_filter
     self.type_filter = type_filter
@@ -249,7 +251,7 @@ class GainArmor():
   def resolve_action(self, game, action):
     for target in action.targets:
       target.armor += self.value(action)
-      print(f"{target} gaining {self.value(action)} armor")
+      # print(f"{target} gaining {self.value(action)} armor")
       target.armor = max(target.armor, 0) #prevent negative armor
 
 class DrawCards():
@@ -267,6 +269,7 @@ class DrawCards():
     self.value = value
     self.random_count = random_count
     self.random_replace = random_replace
+    self.hits_adjacent = False
     self.target = target
     self.owner_filter = owner_filter
     self.type_filter = type_filter
@@ -292,6 +295,7 @@ class Tutor():
     self.value = value
     self.random_count = random_count
     self.random_replace = random_replace
+    self.hits_adjacent = False
     self.target = target
     self.owner_filter = owner_filter
     self.type_filter = type_filter
@@ -405,7 +409,7 @@ class GiveAttribute():
     for target in action.targets:
       if self.hits_adjacent:
         adjacent_targets = target.parent.get_adjacent(target)
-        print(f"freezing {target}")
+        # print(f"freezing {target}")
 
         for adjacent_target in adjacent_targets:
           if self.duration == Durations.TURN and not self.value in adjacent_target.temp_attributes:
@@ -463,6 +467,7 @@ class SummonToken(): #summon minion for target player
     self.value = value
     self.random_count = random_count
     self.random_replace = random_replace
+    self.hits_adjacent = False
     self.target = target
     self.owner_filter = owner_filter
     self.type_filter = type_filter
@@ -496,6 +501,7 @@ class ReplaceWithToken(): #replace minion with summoned token
     self.value = value
     self.random_count = random_count
     self.random_replace = random_replace
+    self.hits_adjacent = False
     self.target = target
     self.owner_filter = owner_filter
     self.type_filter = type_filter
@@ -576,6 +582,7 @@ class ChangeCost():
     self.value = value
     self.random_count = random_count
     self.random_replace = random_replace
+    self.hits_adjacent = False
     self.target = target
     self.owner_filter = owner_filter
     self.type_filter = type_filter
@@ -601,6 +608,7 @@ class SwapWithMinion():
     self.value = value
     self.random_count = random_count
     self.random_replace = random_replace
+    self.hits_adjacent = False
     self.target = target
     self.owner_filter = owner_filter
     self.type_filter = type_filter
@@ -627,6 +635,7 @@ class CopyMinion():
     self.value = value
     self.random_count = random_count
     self.random_replace = random_replace
+    self.hits_adjacent = False
     self.target = target
     self.owner_filter = owner_filter
     self.type_filter = type_filter
@@ -666,6 +675,7 @@ class Redirect():
     self.value = value
     self.random_count = random_count
     self.random_replace = random_replace
+    self.hits_adjacent = False
     self.target = target
     self.owner_filter = owner_filter
     self.type_filter = type_filter
@@ -675,6 +685,32 @@ class Redirect():
   def resolve_action(self, game, action): #handled seperatly in attack action resolver
     return
 
+class Counterspell():
+  available_methods = [Methods.ALL]
+  param_type = ParamTypes.NONE
+  available_targets = [Targets.SPELL]
+  available_owner_filters = [OwnerFilters.ENEMY]
+  available_type_filters = []
+  available_durations = []
+  available_triggers = [Triggers.ENEMY_SPELL_ATTEMPT]
+  available_card_types = [CardTypes.SECRET]
+  
+  def __init__(self, method=Methods.ALL, owner_filter=OwnerFilters.ENEMY, target=Targets.MINION, value=None, random_count=1, random_replace=True, duration=None, trigger=Triggers.ENEMY_SPELL_ATTEMPT, type_filter=None):
+    self.zone_filter = Zones.BOARD
+    self.method = method
+    self.value = value
+    self.random_count = random_count
+    self.random_replace = random_replace
+    self.hits_adjacent = False
+    self.target = target
+    self.owner_filter = owner_filter
+    self.type_filter = type_filter
+    self.trigger = trigger
+    self.duration = duration
+
+  def resolve_action(self, game, action): #handled seperatly in spell action resolver
+    return
+
 class Cantrip(): #performs first effect + draw a card
   def __init__(self, first_effect):
     self.first_effect = first_effect
@@ -682,6 +718,7 @@ class Cantrip(): #performs first effect + draw a card
     self.method = first_effect.method
     self.random_count = first_effect.random_count
     self.random_replace = first_effect.random_replace
+    self.hits_adjacent = first_effect.hits_adjacent
     self.value = first_effect.value
     self.param_type = first_effect.param_type
     self.target = first_effect.target
@@ -702,6 +739,7 @@ class DualEffect(): #second effect will recieve the same action as the first eff
     self.method = first_effect.method
     self.random_count = first_effect.random_count
     self.random_replace = first_effect.random_replace
+    self.hits_adjacent = first_effect.hits_adjacent
     self.value = first_effect.value
     self.param_type = first_effect.param_type
     self.target = first_effect.target
@@ -723,6 +761,7 @@ class DualEffectSelf(): #second effect will target self
     self.method = first_effect.method
     self.random_count = first_effect.random_count
     self.random_replace = first_effect.random_replace
+    self.hits_adjacent = first_effect.hits_adjacent
     self.value = first_effect.value
     self.param_type = first_effect.param_type
     self.target = first_effect.target
@@ -740,7 +779,6 @@ class DualEffectSelf(): #second effect will target self
       self.second_effect.resolve_action(game, Action(action_type=Actions.CAST_EFFECT, source=action.source, targets=[action.source]))
       self.first_effect.resolve_action(game, action)
 
-
 class DualEffectSecrets(): #second effect will target all enemy secrets
   def __init__(self, first_effect, second_effect):
     self.first_effect = first_effect
@@ -748,6 +786,7 @@ class DualEffectSecrets(): #second effect will target all enemy secrets
     self.method = first_effect.method
     self.random_count = first_effect.random_count
     self.random_replace = first_effect.random_replace
+    self.hits_adjacent = first_effect.hits_adjacent
     self.value = first_effect.value
     self.param_type = first_effect.param_type
     self.target = first_effect.target
@@ -767,6 +806,7 @@ class MultiEffectRandom(): #one effect from list is chosen, same target as first
     self.method = effects[0].method
     self.random_count = effects[0].random_count
     self.random_replace = effects[0].random_replace
+    self.hits_adjacent = effects[0].hits_adjacent
     self.value = effects[0].value
     self.param_type = effects[0].param_type
     self.target = effects[0].target
