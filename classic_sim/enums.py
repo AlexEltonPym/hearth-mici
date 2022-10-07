@@ -71,8 +71,10 @@ class Triggers(Enum):
   ANY_SECRET_REVEALED = 37
   ENEMY_ATTACKS_MINION = 38
 
-  ENEMY_SPELL_ATTEMPT = 39
+  ENEMY_SPELL_COUNTERED = 39
   LETHAL_DAMAGE = 40
+  ENEMY_SPELL_REDIRECTED = 41
+  DESTROY_SECRET_REVEALED = 42
 
 class Actions(Enum):
   ATTACK = 0
@@ -138,6 +140,7 @@ class CardSets(Enum):
 class Classes(Enum):
   HUNTER = 0
   MAGE = 1
+  WARRIOR = 2
 
 
 class CardTypes(Enum):

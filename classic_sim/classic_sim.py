@@ -2,18 +2,37 @@ from zones import Deck
 from enums import *
 from strategy import GreedyAction, RandomAction, RandomNoEarlyPassing
 from game_manager import GameManager
-NUM_GAMES = 16
+from numpy.random import RandomState
 
 def main():
+  results = []
+  # results.append(random_hunter_vs_mage())
+  results.append(class_cards_hunter_vs_mage())
+  print(results)
+
+
+
+  return True
+
+def class_cards_hunter_vs_mage():
+  game_manager = GameManager(RandomState())
+  game_manager.create_player_pool([CardSets.CLASSIC_MAGE])
+  game_manager.create_enemy_pool([CardSets.CLASSIC_HUNTER])
+  game_manager.create_player(Classes.MAGE, Deck.generate_random, GreedyAction)
+  game_manager.create_enemy(Classes.HUNTER, Deck.generate_random, GreedyAction)
+
+  result = game_manager.simulate(num_games=100, parralel=-1)
+  return result
+
+def random_hunter_vs_mage():
   game_manager = GameManager()
-  game_manager.create_player_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER, CardSets.TEST_CARDS])
-  game_manager.create_enemy_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_MAGE, CardSets.TEST_CARDS])
+  game_manager.create_player_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER])
+  game_manager.create_enemy_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_MAGE])
   game_manager.create_player(Classes.HUNTER, Deck.generate_random, GreedyAction)
   game_manager.create_enemy(Classes.MAGE, Deck.generate_random, GreedyAction)
 
-  result = game_manager.simulate(NUM_GAMES, parralel=1)
-  assert result > 0 and result < 1
-  print(result)
+  result = game_manager.simulate(num_games=100, parralel=-1)
+  return result
 
 if __name__ == '__main__':
   main()

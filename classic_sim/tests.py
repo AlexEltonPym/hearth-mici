@@ -21,6 +21,10 @@ def test_classic_pool():
   hunter = get_hunter_cards()
   assert len(basics) == 43
   assert len(commons) == 40
+  assert len(rares) == 36
+  assert len(epics) == 11
+  assert len(hunter) == 24
+  assert len(mage) == 24
 
   print(f"{len(basics + commons + rares + epics + mage + hunter)}/202") #172
   assert True
@@ -2244,9 +2248,52 @@ def test_ice_block():
   game.untap()
   assert not game.current_player.has_attribute(Attributes.IMMUNE)
 
-
+def test_spellbender():
+  game = GameManager().create_test_game()
+  spellbender = game.game_manager.get_card('Spellbender', game.current_player.other_player.secrets_zone)
+  ice_lance = game.game_manager.get_card('Ice Lance', game.current_player.hand)
+  enemy_wisp = game.game_manager.get_card('Wisp', game.current_player.other_player.board)
+  freeze_wisp = list(filter(lambda action: action.source == ice_lance and action.targets[0] == enemy_wisp, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(freeze_wisp)
+  assert not enemy_wisp.has_attribute(Attributes.FROZEN)
+  assert len(game.current_player.other_player.board) == 2
+  spellbender_token = game.current_player.other_player.board.get_all()[1]
+  assert spellbender_token.name == "Spellbender Token"
+  assert spellbender_token.has_attribute(Attributes.FROZEN)
+  assert spellbender.parent == spellbender.owner.graveyard
   
- 
+def test_spellbender_friendly():
+  game = GameManager().create_test_game()
+  spellbender = game.game_manager.get_card('Spellbender', game.current_player.secrets_zone)
+  ice_lance = game.game_manager.get_card('Ice Lance', game.current_player.hand)
+  enemy_wisp = game.game_manager.get_card('Wisp', game.current_player.other_player.board)
+  freeze_wisp = list(filter(lambda action: action.source == ice_lance and action.targets[0] == enemy_wisp, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(freeze_wisp)
+  assert enemy_wisp.has_attribute(Attributes.FROZEN)
+  assert len(game.current_player.other_player.board) == 1
+  assert len(game.current_player.board) == 0
+  assert spellbender.parent == spellbender.owner.secrets_zone
+  
+def test_spellbender_full_board():
+  game = GameManager().create_test_game()
+  spellbender = game.game_manager.get_card('Spellbender', game.current_player.other_player.secrets_zone)
+  ice_lance = game.game_manager.get_card('Ice Lance', game.current_player.hand)
+  enemy_wisp = game.game_manager.get_card('Wisp', game.current_player.other_player.board)
+  for addition_wisp in range(6):
+    game.game_manager.get_card('Wisp', game.current_player.other_player.board)
+  assert len(game.current_player.other_player.board) == game.current_player.other_player.board.max_entries
+  freeze_wisp = list(filter(lambda action: action.source == ice_lance and action.targets[0] == enemy_wisp, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(freeze_wisp)
+  assert enemy_wisp.has_attribute(Attributes.FROZEN)
+  assert len(game.current_player.other_player.board) == 7
+  assert spellbender.parent == spellbender.owner.secrets_zone
+
+def test_pyroblast():
+  game = GameManager().create_test_game()
+  pyroblast = game.game_manager.get_card('Pyroblast', game.current_player.hand)
+  pyroblast_enemy = list(filter(lambda action: action.source == pyroblast and action.targets[0] == game.current_player.other_player, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(pyroblast_enemy)
+  assert game.current_player.other_player.get_health() == 20
 
 def test_battlecry_reduce_cost():
   game = GameManager().create_test_game()

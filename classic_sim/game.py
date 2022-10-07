@@ -169,16 +169,31 @@ class Game():
 
   def cast_spell(self, action):
     spell_countered = False
+    spell_targeted = action.source.effect.method == Methods.TARGETED
+    spell_redirected = False
+    spell_new_target = None
     for secret in action.source.owner.other_player.secrets_zone:
       if isinstance(secret.effect, Counterspell):
         spell_countered = True
+      if spell_targeted and isinstance(secret.effect, RedirectToToken):
+        for token_number in range(secret.effect.value[0](action)):
+          if len(secret.owner.board) >= secret.owner.board.max_entries:
+            break
+          spell_redirected = True
+          spell_new_target = deepcopy(secret.effect.value[1](action))
+          spell_new_target.collectable = False
+          spell_new_target.set_owner(secret.owner)
+          spell_new_target.set_parent(secret.owner.board) #Doesn't trigger battlecry
 
     self.current_player.current_mana -= action.source.get_manacost()
     action.source.change_parent(action.source.owner.graveyard)
 
     if spell_countered:
-      self.trigger(action.source, Triggers.ENEMY_SPELL_ATTEMPT)
+      self.trigger(action.source, Triggers.ENEMY_SPELL_COUNTERED)
     else:
+      if spell_redirected:
+        action.targets[0] = spell_new_target
+        self.trigger(action.source, Triggers.ENEMY_SPELL_REDIRECTED)
       action.source.effect.resolve_action(self, action)
 
       self.trigger(action.source, Triggers.ANY_SPELL_CAST)
@@ -200,7 +215,7 @@ class Game():
     self.current_player.remove_attribute(Attributes.FREE_SECRET)
 
     if spell_countered:
-      self.trigger(action.source, Triggers.ENEMY_SPELL_ATTEMPT)
+      self.trigger(action.source, Triggers.ENEMY_SPELL_COUNTERED)
       action.source.change_parent(action.source.owner.graveyard)
     else:
       action.source.change_parent(action.source.owner.secrets_zone)
@@ -242,9 +257,9 @@ class Game():
           possible_targets.remove(action.targets[0]) #todo what happens if player attacks player
           possible_targets.remove(action.source)
           action.targets[0] = self.game_manager.random_state.choice(possible_targets)
-        if isinstance(secret.effect, Destroy):
+        if isinstance(secret.effect, Destroy) and not isinstance(action.source, Player):
           self.handle_death(action.source)
-          self.trigger(action.targets[0], Triggers.HERO_ATTACKED)
+          self.trigger(action.source, Triggers.DESTROY_SECRET_REVEALED)
           return
       self.trigger(action.targets[0], Triggers.HERO_ATTACKED) #this triggers even if redirected to another target
     else:
@@ -336,8 +351,8 @@ class Game():
 
 
   def trigger(self, triggerer, trigger_type):
-    print(f"{trigger_type=}")
-    print(f"{triggerer=}")
+    # print(f"{trigger_type=}")
+    # print(f"{triggerer=}")
     for player in [self.player, self.enemy]:
       player_weapon = [player.weapon] if player.weapon else []
       for card in player_weapon + player.board.get_all() + player.secrets_zone.get_all():
@@ -398,7 +413,9 @@ class Game():
               self.resolve_effect(card, triggerer)
             elif trigger_type == Triggers.ENEMY_ATTACKS_MINION:
               self.resolve_effect(card, triggerer)
-            elif trigger_type == Triggers.ENEMY_SPELL_ATTEMPT:
+            elif trigger_type == Triggers.ENEMY_SPELL_COUNTERED:
+              self.resolve_effect(card, triggerer)
+            elif trigger_type == Triggers.ENEMY_SPELL_REDIRECTED:
               self.resolve_effect(card, triggerer)
           else:
             if trigger_type == Triggers.ANY_MINION_DIES:
@@ -431,7 +448,8 @@ class Game():
               self.resolve_effect(card, triggerer)
             elif trigger_type == Triggers.LETHAL_DAMAGE:
               self.resolve_effect(card, triggerer)
-
+            elif trigger_type == Triggers.DESTROY_SECRET_REVEALED:
+              self.resolve_effect(card, triggerer)
 
         elif card.effect and trigger_type == card.effect.trigger and triggerer == card:
           if trigger_type == Triggers.SELF_DAMAGE_TAKEN:

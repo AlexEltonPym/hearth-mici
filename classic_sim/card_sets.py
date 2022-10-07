@@ -504,11 +504,11 @@ def get_mage_cards():
 
   # Mage rare cards
   counterspell = Card(name="Counterspell", card_type=CardTypes.SECRET, manacost=3,\
-                      effect=Counterspell(method=Methods.ALL, trigger=Triggers.ENEMY_SPELL_ATTEMPT, owner_filter=OwnerFilters.ENEMY))
+                      effect=Counterspell(method=Methods.ALL, trigger=Triggers.ENEMY_SPELL_COUNTERED, owner_filter=OwnerFilters.ENEMY))
   kirin_tor_mage = Card(name="Kirin Tor Mage", card_type=CardTypes.MINION, manacost=3, attack=4, health=3,\
                         effect=GiveAttribute(method=Methods.ALL, target=Targets.HERO, trigger=Triggers.BATTLECRY, owner_filter=OwnerFilters.FRIENDLY, duration=Durations.TURN, value=Attributes.FREE_SECRET))
   vaporize = Card(name="Vaporize", card_type=CardTypes.SECRET, manacost=3,\
-                  effect=Destroy(trigger=Triggers.HERO_ATTACKED, method=Methods.TRIGGERER, target=Targets.MINION, owner_filter=OwnerFilters.ENEMY))
+                  effect=Destroy(trigger=Triggers.DESTROY_SECRET_REVEALED, method=Methods.TRIGGERER, target=Targets.MINION, owner_filter=OwnerFilters.ENEMY))
   etherial_arcanist = Card(name="Etherial Arcanist", card_type=CardTypes.MINION, manacost=4, attack=3, health=3,\
                             effect=ChangeStats(trigger=Triggers.FRIENDLY_END_TURN, value=(If(HasSecret(),Constant(2),Constant(0)), If(HasSecret(),Constant(2),Constant(0))),\
                                                 method=Methods.SELF, target=Targets.MINION, duration=Durations.PERMANENTLY, owner_filter=OwnerFilters.FRIENDLY))
@@ -519,11 +519,16 @@ def get_mage_cards():
   # Mage epic cards
   ice_block = Card(name="Ice Block", card_type=CardTypes.SECRET, manacost=3,\
                     effect=GiveAttribute(trigger=Triggers.LETHAL_DAMAGE, value=Attributes.IMMUNE, method=Methods.ALL, target=Targets.HERO, owner_filter=OwnerFilters.FRIENDLY, duration=Durations.TURN))
+  spellbender = Card(name="Spellbender", card_type=CardTypes.SECRET, manacost=3,\
+                      effect=RedirectToToken(value=(Constant(1), Constant(Card(name="Spellbender Token", collectable=False, card_type=CardTypes.MINION, manacost=0, attack=1, health=3))),\
+                                              trigger=Triggers.ENEMY_SPELL_REDIRECTED))
+  pyroblast = Card(name="Pyroblast", card_type=CardTypes.SPELL, manacost=10,\
+                    effect=DealDamage(value=Constant(10), method=Methods.TARGETED, target=Targets.MINION_OR_HERO, owner_filter=OwnerFilters.ALL))
 
   basic_mage_cards = [arcane_missiles, mirror_image, arcane_explosion, frostbolt, arcane_intellect, frost_nova, fireball, polymorph, water_elemental, flamestrike]
   common_mage_cards = [ice_lance, mana_wyrm, sorcerers_apprentice, ice_barrier, mirror_entity, cone_of_cold]
   rare_mage_cards = [counterspell, kirin_tor_mage, vaporize, etherial_arcanist, blizzard]
-  epic_mage_cards = [ice_block]
+  epic_mage_cards = [ice_block, spellbender, pyroblast]
   return basic_mage_cards + common_mage_cards + rare_mage_cards + epic_mage_cards
 
 def get_test_cards():

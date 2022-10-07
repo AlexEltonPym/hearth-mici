@@ -77,7 +77,7 @@ class DealDamage():
 class Destroy():
   available_methods = [Methods.TARGETED, Methods.RANDOMLY, Methods.ALL, Methods.SELF, Methods.TRIGGERER]
   param_type = ParamTypes.NONE
-  available_targets = [Targets.MINION, Targets.HERO, Targets.MINION_OR_HERO]
+  available_targets = [Targets.MINION]
   available_owner_filters = [f for f in OwnerFilters]
   available_type_filters = [c for c in CreatureTypes]
   available_durations = []
@@ -520,7 +520,30 @@ class ReplaceWithToken(): #replace minion with summoned token
         new_token.set_owner(target.owner)
         new_token.set_parent(target.owner.board) #Doesn't trigger battlecry
 
-      
+class RedirectToToken(): #change the target of spell to summoned token 
+  available_methods = [Methods.ALL]
+  param_type = ParamTypes.X_TOKENS
+  available_targets = [Targets.HERO]
+  available_owner_filters = [OwnerFilters.FRIENDLY]
+  available_type_filters = []
+  available_durations = []
+  available_triggers = list(filter(lambda t: t != Triggers.AURA, [t for t in Triggers]))
+
+  def __init__(self, value, method=Methods.ALL, owner_filter=OwnerFilters.FRIENDLY, target=Targets.HERO, random_count=1, random_replace=True, duration=None, trigger=None, type_filter=None):
+    self.zone_filter = Zones.BOARD #could be changed to make this add tokens to hand
+    self.method = method
+    self.value = value
+    self.random_count = random_count
+    self.random_replace = random_replace
+    self.hits_adjacent = False
+    self.target = target
+    self.owner_filter = owner_filter
+    self.type_filter = type_filter
+    self.trigger = trigger
+    self.duration = duration
+  def resolve_action(self, game, action):
+    pass
+
 class Silence():
   available_methods = [Methods.TARGETED, Methods.RANDOMLY, Methods.ALL]
   param_type = ParamTypes.NONE
@@ -692,10 +715,10 @@ class Counterspell():
   available_owner_filters = [OwnerFilters.ENEMY]
   available_type_filters = []
   available_durations = []
-  available_triggers = [Triggers.ENEMY_SPELL_ATTEMPT]
+  available_triggers = [Triggers.ENEMY_SPELL_COUNTERED]
   available_card_types = [CardTypes.SECRET]
   
-  def __init__(self, method=Methods.ALL, owner_filter=OwnerFilters.ENEMY, target=Targets.MINION, value=None, random_count=1, random_replace=True, duration=None, trigger=Triggers.ENEMY_SPELL_ATTEMPT, type_filter=None):
+  def __init__(self, method=Methods.ALL, owner_filter=OwnerFilters.ENEMY, target=Targets.MINION, value=None, random_count=1, random_replace=True, duration=None, trigger=Triggers.ENEMY_SPELL_COUNTERED, type_filter=None):
     self.zone_filter = Zones.BOARD
     self.method = method
     self.value = value
