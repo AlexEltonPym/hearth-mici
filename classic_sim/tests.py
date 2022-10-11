@@ -63,7 +63,8 @@ def test_abusive_sergeant():
 
 def test_hunter_hero_power():
   game = GameManager().create_test_game()
-
+  game.current_player = game.enemy
+  game.current_player.other_player = game.player
   assert game.current_player.hero_power.name == get_hero_power(Classes.HUNTER).name
   assert game.current_player.other_player.get_health() == 30
   use_hero_power = Action(Actions.CAST_HERO_POWER, game.current_player.hero_power, [game.current_player.other_player])
@@ -2295,6 +2296,332 @@ def test_pyroblast():
   game.perform_action(pyroblast_enemy)
   assert game.current_player.other_player.get_health() == 20
 
+# Test warrior cards
+
+def test_warrior_hero_power():
+  game = GameManager().create_test_game()
+  game.current_player = game.player
+  game.current_player.other_player = game.enemy
+  assert game.player.hero_power.name == get_hero_power(Classes.WARRIOR).name
+  assert game.player.armor == 0
+  use_hero_power = Action(Actions.CAST_HERO_POWER, game.player.hero_power, [game.player])
+  game.perform_action(use_hero_power)
+  assert game.player.armor == 2
+  assert game.player.used_hero_power
+
+def test_execute():
+  game = GameManager().create_test_game()
+  execute = game.game_manager.get_card('Execute', game.current_player.hand)
+  enemy_watcher = game.game_manager.get_card('Ancient Watcher', game.current_player.other_player.board)
+  cast_execute_actions = list(filter(lambda action: action.source == execute, game.get_available_actions(game.current_player)))
+  assert len(cast_execute_actions) == 0
+  game.deal_damage(enemy_watcher, 1)
+  cast_execute_actions = list(filter(lambda action: action.source == execute, game.get_available_actions(game.current_player)))
+  assert len(cast_execute_actions) == 1
+  game.perform_action(cast_execute_actions[0])
+  assert enemy_watcher.parent == enemy_watcher.owner.graveyard
+
+def test_whirlwind():
+  game = GameManager().create_test_game()
+  whirlwind = game.game_manager.get_card('Whirlwind', game.current_player.hand)
+  enemy_watcher = game.game_manager.get_card('Ancient Watcher', game.current_player.other_player.board)
+  enemy_wisp = game.game_manager.get_card('Wisp', game.current_player.other_player.board)
+  friendly_wisp = game.game_manager.get_card('Wisp', game.current_player.board)
+  cast_whirlwind = list(filter(lambda action: action.source == whirlwind, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(cast_whirlwind)
+  assert enemy_watcher.get_health() == 4
+  assert enemy_watcher.parent == enemy_watcher.owner.board
+  assert enemy_wisp.get_health() == 0
+  assert enemy_wisp.parent == enemy_wisp.owner.graveyard
+  assert friendly_wisp.get_health() == 0
+  assert friendly_wisp.parent == friendly_wisp.owner.graveyard
+
+def test_cleave_three_targets():
+  game = GameManager().create_test_game()
+  cleave = game.game_manager.get_card('Cleave', game.current_player.hand)
+  for wisp_number in range(3):
+    enemy_wisp = game.game_manager.get_card('Wisp', game.current_player.other_player.board)
+  cast_cleave = list(filter(lambda action: action.source == cleave, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(cast_cleave)
+  wisp_total_health = 0
+  for wisp in game.current_player.other_player.board:
+    assert wisp.get_health() == 1
+  assert len(game.current_player.other_player.board) == 1
+
+def test_cleave_two_targets():
+  game = GameManager().create_test_game()
+  cleave = game.game_manager.get_card('Cleave', game.current_player.hand)
+  enemy_watcher = game.game_manager.get_card('Ancient Watcher', game.current_player.other_player.board)
+  enemy_wisp = game.game_manager.get_card('Wisp', game.current_player.other_player.board)
+  cast_cleave = list(filter(lambda action: action.source == cleave, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(cast_cleave)
+  assert enemy_watcher.get_health() == 3
+  assert enemy_watcher.parent == enemy_watcher.owner.board
+  assert enemy_wisp.get_health() == -1
+  assert enemy_wisp.parent == enemy_wisp.owner.graveyard
+
+def test_cleave_one_targets():
+  game = GameManager().create_test_game()
+  cleave = game.game_manager.get_card('Cleave', game.current_player.hand)
+  enemy_watcher = game.game_manager.get_card('Ancient Watcher', game.current_player.other_player.board)
+  cast_cleave = list(filter(lambda action: action.source == cleave, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(cast_cleave)
+  assert enemy_watcher.get_health() == 3
+  assert enemy_watcher.parent == enemy_watcher.owner.board
+
+def test_cleave_zero_targets():
+  game = GameManager().create_test_game()
+  cleave = game.game_manager.get_card('Cleave', game.current_player.hand)
+  cast_cleave_actions = list(filter(lambda action: action.source == cleave, game.get_available_actions(game.current_player)))
+  assert len(cast_cleave_actions) == 0
+
+def test_fiery_war_axe():
+  game = GameManager().create_test_game()
+  fiery_war_axe = game.game_manager.get_card('Fiery War Axe', game.current_player)
+  enemy_fiery_war_axe = game.game_manager.get_card('Fiery War Axe', game.current_player.other_player)
+
+  attack_enemy_with_axe = list(filter(lambda action: action.source == game.current_player, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(attack_enemy_with_axe)
+  assert game.current_player.other_player.get_health() == 27
+  assert game.current_player.get_health() == 30
+
+def test_heroic_strike():
+  game = GameManager().create_test_game()
+  heroic_strike = game.game_manager.get_card('Heroic Strike', game.current_player.hand)
+  cast_heroic_strike = list(filter(lambda action: action.source == heroic_strike, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(cast_heroic_strike)
+  assert game.current_player.get_attack() == 4
+  attack_enemy = list(filter(lambda action: action.source == game.current_player, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(attack_enemy)
+  assert game.current_player.other_player.get_health() == 26
+  assert game.current_player.get_health() == 30
+  game.end_turn()
+  game.untap()
+  assert game.current_player.other_player.get_attack() == 0
+
+def test_axe_plus_heroic():
+  game = GameManager().create_test_game()
+  fiery_war_axe = game.game_manager.get_card('Fiery War Axe', game.current_player)
+  heroic_strike = game.game_manager.get_card('Heroic Strike', game.current_player.hand)
+  cast_heroic_strike = list(filter(lambda action: action.source == heroic_strike, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(cast_heroic_strike)
+  assert game.current_player.get_attack() == 7
+  attack_enemy_with_axe = list(filter(lambda action: action.source == game.current_player, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(attack_enemy_with_axe)
+  assert game.current_player.other_player.get_health() == 23
+  assert game.current_player.get_health() == 30
+
+def test_enemy_heroic():
+  game = GameManager().create_test_game()
+  fiery_war_axe = game.game_manager.get_card('Fiery War Axe', game.current_player)
+  heroic_strike = game.game_manager.get_card('Heroic Strike', game.current_player.other_player.hand)
+  cast_heroic_strike = list(filter(lambda action: action.source == heroic_strike, game.get_available_actions(game.current_player.other_player)))[0]
+  game.perform_action(cast_heroic_strike)
+  assert game.current_player.get_attack() == 3
+  assert game.current_player.other_player.get_attack() == 4
+  attack_enemy_with_axe = list(filter(lambda action: action.source == game.current_player, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(attack_enemy_with_axe)
+  assert game.current_player.other_player.get_health() == 27
+  assert game.current_player.get_health() == 30
+
+def test_charge():
+  game = GameManager().create_test_game()
+  charge = game.game_manager.get_card('Charge', game.current_player.hand)
+  friendly_wisp = game.game_manager.get_card('Wisp', game.current_player.board)
+  cast_charge = list(filter(lambda action: action.source == charge, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(cast_charge)
+  assert friendly_wisp.get_attack() == 3
+  assert friendly_wisp.has_attribute(Attributes.CHARGE)
+  attack_with_wisp = list(filter(lambda action: action.action_type == Actions.ATTACK and action.source == friendly_wisp, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(attack_with_wisp)
+  assert game.current_player.other_player.get_health() == 27
+
+def test_shield_block():
+  game = GameManager().create_test_game()
+  shield_block = game.game_manager.get_card('Shield Block', game.current_player.hand)
+  cast_shield_block = list(filter(lambda action: action.source == shield_block, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(cast_shield_block)
+  assert game.current_player.armor == 5
+  assert len(game.current_player.hand) == 1
+
+def test_shield_block_full_hand():
+  game = GameManager().create_test_game()
+  shield_block = game.game_manager.get_card('Shield Block', game.current_player.hand)
+  for wisp_number in range(9):
+    game.game_manager.get_card('Wisp', game.current_player.hand)
+  cast_shield_block = list(filter(lambda action: action.source == shield_block, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(cast_shield_block)
+  assert game.current_player.armor == 5
+  assert len(game.current_player.hand) == 10
+
+def test_warsong_commander():
+  game = GameManager().create_test_game()
+  warsong_commander = game.game_manager.get_card('Warsong Commander', game.current_player.board)
+  wisp = game.game_manager.get_card('Wisp', game.current_player.hand)
+  cast_wisp = list(filter(lambda action: action.source == wisp, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(cast_wisp)
+  assert wisp.has_attribute(Attributes.CHARGE)
+  watcher = game.game_manager.get_card('Ancient Watcher', game.current_player.hand)
+  cast_watcher = list(filter(lambda action: action.source == watcher, game.get_available_actions(game.current_player)))[0]
+  assert not watcher.has_attribute(Attributes.CHARGE)
+  game.deal_damage(warsong_commander, 3)
+  assert warsong_commander.parent == warsong_commander.owner.graveyard
+  second_wisp = game.game_manager.get_card('Wisp', game.current_player.hand)
+  cast_second_wisp = list(filter(lambda action: action.source == second_wisp, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(cast_second_wisp)
+  assert not second_wisp.has_attribute(Attributes.CHARGE)
+
+def test_kor_and_arcanite():
+  game = GameManager().create_test_game()
+  korkron_elite = game.game_manager.get_card("Kor'kron Elite", game.current_player.board)
+  arcanite_reaper = game.game_manager.get_card('Arcanite Reaper', game.current_player)
+  assert game.current_player.weapon
+  assert korkron_elite.has_attribute(Attributes.CHARGE)
+  attack_with_weapon_actions = list(filter(lambda action: action.source == game.current_player and action.action_type == Actions.ATTACK, game.get_available_actions(game.current_player)))
+  assert len(attack_with_weapon_actions) == 1
+  game.perform_action(attack_with_weapon_actions[0])
+  assert game.current_player.other_player.get_health() == 25
+  attack_with_korkron = list(filter(lambda action: action.source == korkron_elite, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(attack_with_korkron)
+  assert game.current_player.other_player.get_health() == 21
+
+def test_inner_rage():
+  game = GameManager().create_test_game()
+  korkron_elite = game.game_manager.get_card("Kor'kron Elite", game.current_player.board)
+  inner_rage = game.game_manager.get_card('Inner Rage', game.current_player.hand)
+  
+  cast_inner_rage = list(filter(lambda action: action.source == inner_rage, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(cast_inner_rage)
+  assert korkron_elite.get_health() == 2
+  assert korkron_elite.get_max_health() == 3
+  assert korkron_elite.get_attack() == 6
+
+def test_inner_rage_offensive():
+  game = GameManager().create_test_game()
+  enemy_wisp = game.game_manager.get_card("Wisp", game.current_player.other_player.board)
+  inner_rage = game.game_manager.get_card('Inner Rage', game.current_player.hand)
+  
+  cast_inner_rage = list(filter(lambda action: action.source == inner_rage, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(cast_inner_rage)
+  assert enemy_wisp.get_health() == 0
+  assert enemy_wisp.get_max_health() == 1
+  assert enemy_wisp.get_attack() == 3
+  assert enemy_wisp.parent == enemy_wisp.owner.graveyard
+
+def test_battle_rage_no_damaged():
+  game = GameManager().create_test_game()
+  korkron_elite = game.game_manager.get_card("Kor'kron Elite", game.current_player.board)
+  enemy_korkron_elite = game.game_manager.get_card("Kor'kron Elite", game.current_player.other_player.board)
+  wisp = game.game_manager.get_card("Wisp", game.current_player.board)
+  battle_rage = game.game_manager.get_card("Battle Rage", game.current_player.hand)
+  cast_battle_rage = list(filter(lambda action: action.source == battle_rage, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(cast_battle_rage)
+  assert len(game.current_player.hand) == 0
+
+def test_battle_rage_enemy_damaged():
+  game = GameManager().create_test_game()
+  korkron_elite = game.game_manager.get_card("Kor'kron Elite", game.current_player.board)
+  enemy_korkron_elite = game.game_manager.get_card("Kor'kron Elite", game.current_player.other_player.board)
+  game.deal_damage(enemy_korkron_elite, 1)
+  wisp = game.game_manager.get_card("Wisp", game.current_player.board)
+  battle_rage = game.game_manager.get_card("Battle Rage", game.current_player.hand)
+  cast_battle_rage = list(filter(lambda action: action.source == battle_rage, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(cast_battle_rage)
+  assert len(game.current_player.hand) == 0
+
+def test_battle_rage_player_damaged():
+  game = GameManager().create_test_game()
+  korkron_elite = game.game_manager.get_card("Kor'kron Elite", game.current_player.board)
+  enemy_korkron_elite = game.game_manager.get_card("Kor'kron Elite", game.current_player.other_player.board)
+  wisp = game.game_manager.get_card("Wisp", game.current_player.board)
+  battle_rage = game.game_manager.get_card("Battle Rage", game.current_player.hand)
+  game.deal_damage(game.current_player, 10)
+  cast_battle_rage = list(filter(lambda action: action.source == battle_rage, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(cast_battle_rage)
+  assert len(game.current_player.hand) == 1
+
+def test_battle_rage_all_damaged():
+  game = GameManager().create_test_game()
+  korkron_elite = game.game_manager.get_card("Kor'kron Elite", game.current_player.board)
+  game.deal_damage(korkron_elite, 2)
+  enemy_korkron_elite = game.game_manager.get_card("Kor'kron Elite", game.current_player.other_player.board)
+  game.deal_damage(enemy_korkron_elite, 2)
+  wisp = game.game_manager.get_card("Wisp", game.current_player.board)
+  game.deal_damage(wisp, 1)
+  battle_rage = game.game_manager.get_card("Battle Rage", game.current_player.hand)
+  game.deal_damage(game.current_player, 3)
+  cast_battle_rage = list(filter(lambda action: action.source == battle_rage, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(cast_battle_rage)
+  assert len(game.current_player.hand) == 2
+
+def test_battle_rage_all_damaged_but_player():
+  game = GameManager().create_test_game()
+  korkron_elite = game.game_manager.get_card("Kor'kron Elite", game.current_player.board)
+  game.deal_damage(korkron_elite, 2)
+  enemy_korkron_elite = game.game_manager.get_card("Kor'kron Elite", game.current_player.other_player.board)
+  game.deal_damage(enemy_korkron_elite, 2)
+  wisp = game.game_manager.get_card("Wisp", game.current_player.board)
+  game.deal_damage(wisp, 1)
+  battle_rage = game.game_manager.get_card("Battle Rage", game.current_player.hand)
+  cast_battle_rage = list(filter(lambda action: action.source == battle_rage, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(cast_battle_rage)
+  assert len(game.current_player.hand) == 1
+
+def test_cruel_taskmaster():
+  game = GameManager().create_test_game()
+  korkron_elite = game.game_manager.get_card("Kor'kron Elite", game.current_player.board)
+  cruel_taskmaster = game.game_manager.get_card("Cruel Taskmaster", game.current_player.hand)
+  play_cruel_taskmaster_actions = list(filter(lambda action: action.source == cruel_taskmaster, game.get_available_actions(game.current_player)))
+  assert len(play_cruel_taskmaster_actions) == 1
+  game.perform_action(play_cruel_taskmaster_actions[0])
+  assert korkron_elite.get_health() == 2
+  assert korkron_elite.get_max_health() == 3
+  assert korkron_elite.get_attack() == 6
+
+def test_cruel_taskmaster_no_targets():
+  game = GameManager().create_test_game()
+  cruel_taskmaster = game.game_manager.get_card("Cruel Taskmaster", game.current_player.hand)
+  play_cruel_taskmaster_actions = list(filter(lambda action: action.source == cruel_taskmaster, game.get_available_actions(game.current_player)))
+  assert len(play_cruel_taskmaster_actions) == 1
+  game.perform_action(play_cruel_taskmaster_actions[0])
+  assert cruel_taskmaster.get_health() == 2
+  assert cruel_taskmaster.get_max_health() == 2
+  assert cruel_taskmaster.get_attack() == 2
+
+def test_rampage():
+  game = GameManager().create_test_game()
+  rampage = game.game_manager.get_card("Rampage", game.current_player.hand)
+  korkron_elite = game.game_manager.get_card("Kor'kron Elite", game.current_player.board)
+
+  play_rampage_actions = list(filter(lambda action: action.source == rampage, game.get_available_actions(game.current_player)))
+  assert len(play_rampage_actions) == 0
+  game.deal_damage(korkron_elite, 1)
+  play_rampage_actions = list(filter(lambda action: action.source == rampage, game.get_available_actions(game.current_player)))
+  assert len(play_rampage_actions) == 1
+  game.perform_action(play_rampage_actions[0])
+  assert korkron_elite.get_health() == 5
+  assert korkron_elite.get_max_health() == 6
+  assert korkron_elite.get_attack() == 7
+
+def test_slam():
+  game = GameManager().create_test_game()
+  slam = game.game_manager.get_card("Slam", game.current_player.hand)
+  korkron_elite = game.game_manager.get_card("Kor'kron Elite", game.current_player.board)
+  wisp = game.game_manager.get_card("Wisp", game.current_player.other_player.board)
+  play_slam_on_wisp = list(filter(lambda action: action.source == slam and action.targets[0] == wisp, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(play_slam_on_wisp)
+  assert len(game.current_player.hand) == 0
+  assert wisp.parent == wisp.owner.graveyard
+  slam2 = game.game_manager.get_card("Slam", game.current_player.hand)
+  play_slam_on_korkron = list(filter(lambda action: action.source == slam2 and action.targets[0] == korkron_elite, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(play_slam_on_korkron)
+  assert len(game.current_player.hand) == 1
+  assert korkron_elite.parent == korkron_elite.owner.board
+  assert korkron_elite.get_health() == 1
+
+
+
+# Test test cards
 def test_battlecry_reduce_cost():
   game = GameManager().create_test_game()
 

@@ -43,6 +43,21 @@ class GreaterThan(object):
   def __call__(self, action):
     return self.A(action) > self.B(action)
 
+class Minimum(object):
+  def __init__(self, A, B):
+    self.A = A
+    self.B = B
+  def __call__(self, action):
+    return min(self.A(action), self.B(action))
+
+class Maximum(object):
+  def __init__(self, A, B):
+    self.A = A
+    self.B = B
+  def __call__(self, action):
+    return max(self.A(action), self.B(action))
+
+
 class If(object):
   def __init__(self, condition, result, alternative):
     self.condition = condition
@@ -125,6 +140,12 @@ class AttackValue(object):
   def __call__(self, action):
     return action.source.get_attack()
 
+class HealthValue(object):
+  def __init__(self):
+    pass
+  def __call__(self, action):
+    return action.source.get_health()
+
 class Damaged(object):
   def __init__(self):
     pass
@@ -163,6 +184,21 @@ class NumWithCreatureType(object):
           count += 1
     return count
 
+class NumDamaged(object):
+  def __init__(self, owner_filter):
+    self.owner_filter = owner_filter
+  def __call__(self, action):
+    count = 0
+    if self.owner_filter == OwnerFilters.FRIENDLY or self.owner_filter == OwnerFilters.ALL:
+      for minion in action.source.owner.board:
+        if minion.get_health() < minion.get_max_health():
+          count += 1
+    if self.owner_filter == OwnerFilters.ENEMY or self.owner_filter == OwnerFilters.ALL:
+      for minion in action.source.owner.other_player.board:
+        if minion.get_health() < minion.get_max_health():
+          count += 1
+    return count
+
 class TargetFrozen(object):
   def __init__(self):
     pass
@@ -180,3 +216,9 @@ class HasSecret(object):
     pass
   def __call__(self, action):
     return len(action.source.owner.secrets_zone) > 0
+
+class TargetAlive(object):
+  def __init__(self):
+    pass
+  def __call__(self, action):
+    return action.targets[0].get_health() > 0

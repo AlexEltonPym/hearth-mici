@@ -57,9 +57,9 @@ class GameManager():
     return self.game
 
   def create_test_game(self):
-    self.create_player_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_MAGE, CardSets.CLASSIC_HUNTER, CardSets.TEST_CARDS])
-    self.create_enemy_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_MAGE, CardSets.CLASSIC_HUNTER, CardSets.TEST_CARDS])
-    self.create_player(Classes.HUNTER, Deck.generate_random, GreedyAction)
+    self.create_player_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_MAGE, CardSets.CLASSIC_HUNTER, CardSets.CLASSIC_WARRIOR, CardSets.TEST_CARDS])
+    self.create_enemy_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_MAGE, CardSets.CLASSIC_HUNTER, CardSets.CLASSIC_WARRIOR, CardSets.TEST_CARDS])
+    self.create_player(Classes.WARRIOR, Deck.generate_random, GreedyAction)
     self.create_enemy(Classes.HUNTER, Deck.generate_random, GreedyAction)
     self.create_game()
     self.game.player.hand.clear()

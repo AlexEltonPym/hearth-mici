@@ -81,7 +81,8 @@ class Player():
 
   def get_attack(self):
     conditional_attack = self.condition.result['temp_attack'] if self.condition and self.condition.requirement(self.game, self) else 0
-    return self.attack+self.temp_attack+self.perm_attack+conditional_attack
+    weapon_attack = self.weapon.attack if self.weapon else 0
+    return self.attack+self.temp_attack+self.perm_attack+conditional_attack+weapon_attack
 
   def get_health(self):
     return self.health + self.temp_health + self.perm_health

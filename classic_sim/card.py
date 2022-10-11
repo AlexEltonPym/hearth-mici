@@ -74,12 +74,16 @@ class Card():
     creature_type_okay = (effect.type_filter == None or effect.type_filter == CreatureTypes.ALL)\
     or effect.type_filter == self.creature_type
 
-
     try:
-      dynamics_okay = effect.dynamic_filter == None or effect.dynamic_filter(Action(Actions.CAST_EFFECT, self, [card]))
+      if effect.param_type == ParamTypes.DYNAMICS and effect.value != None:
+        dynamics_okay = effect.value(Action(Actions.CAST_EFFECT, self, [card]))
+      elif effect.dynamic_filter:
+        dynamics_okay = effect.dynamic_filter(Action(Actions.CAST_EFFECT, self, [card]))
+      else:
+        dynamics_okay = True
     except AttributeError:
       dynamics_okay = True
-        
+    
     # print(f"{type_okay=}")
     # print(f"{owner_okay=}")
     # print(f"{creature_type_okay=}")

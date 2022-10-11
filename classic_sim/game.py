@@ -149,12 +149,16 @@ class Game():
 
   def cast_minion(self, action):
     self.current_player.current_mana -= action.source.get_manacost()
+    
+    initial_attack_less_than_three = action.source.get_attack() <= 3
+
     action.source.change_parent(action.source.owner.board)
 
     if action.source.effect and action.source.effect.trigger == Triggers.BATTLECRY and len(action.targets) > 0:
       action.source.effect.resolve_action(self, action)
 
     self.current_player.minions_played_this_turn += 1
+
 
     self.trigger(action.source, Triggers.ANY_MINION_SUMMONED)
     self.trigger(action.source, Triggers.ANY_SAME_TYPE_SUMMONED)
@@ -165,6 +169,10 @@ class Game():
     self.trigger(action.source, Triggers.ANY_CARD_PLAYED)
     self.trigger(action.source, Triggers.FRIENDLY_CARD_PLAYED)
     self.trigger(action.source, Triggers.ENEMY_CARD_PLAYED)
+    if initial_attack_less_than_three:
+      print("triggering")
+      self.trigger(action.source, Triggers.FRIENDLY_LESS_THAN_FOUR_ATTACK_SUMMONED)
+
 
 
   def cast_spell(self, action):
@@ -266,7 +274,7 @@ class Game():
       self.trigger(action.source, Triggers.ENEMY_ATTACKS_MINION)
     
     if isinstance(action.source, Player) and action.source.weapon:
-      damage = action.source.get_attack() + action.source.weapon.attack
+      damage = action.source.get_attack()
       other_damage = 0 if action.source.weapon.has_attribute(Attributes.IMMUNE) else action.targets[0].get_attack()
       action.source.weapon.health -= 1
       self.check_dead(action.source.weapon)
@@ -276,6 +284,8 @@ class Game():
       other_damage = action.targets[0].get_attack()
       self.trigger(action.source, Triggers.ENEMY_MINION_ATTACKS)
 
+    if isinstance(action.targets[0], Player):
+      other_damage = 0
     
     self.deal_damage(action.targets[0], damage, poisonous=action.source.has_attribute(Attributes.POISONOUS), freezer=action.source.has_attribute(Attributes.FREEZER))
     self.deal_damage(action.source, other_damage, poisonous=action.targets[0].has_attribute(Attributes.POISONOUS), freezer=action.targets[0].has_attribute(Attributes.FREEZER))
@@ -382,6 +392,8 @@ class Game():
             elif trigger_type == Triggers.FRIENDLY_WEAPON_PLAYED:
               self.resolve_effect(card, triggerer)
             elif trigger_type == Triggers.FRIENDLY_CARD_PLAYED:
+              self.resolve_effect(card, triggerer)
+            elif trigger_type == Triggers.FRIENDLY_LESS_THAN_FOUR_ATTACK_SUMMONED:
               self.resolve_effect(card, triggerer)
 
           elif "ENEMY" in trigger_type.name and triggerer.owner != card.owner:

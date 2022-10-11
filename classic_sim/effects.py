@@ -2,6 +2,7 @@ from enums import *
 from copy import deepcopy
 from action import Action
 from dynamics import *
+from player import Player
 
 class GainMana():
   available_methods = [Methods.TARGETED, Methods.RANDOMLY, Methods.ALL]
@@ -76,14 +77,14 @@ class DealDamage():
 
 class Destroy():
   available_methods = [Methods.TARGETED, Methods.RANDOMLY, Methods.ALL, Methods.SELF, Methods.TRIGGERER]
-  param_type = ParamTypes.NONE
+  param_type = ParamTypes.DYNAMICS
   available_targets = [Targets.MINION]
   available_owner_filters = [f for f in OwnerFilters]
   available_type_filters = [c for c in CreatureTypes]
   available_durations = []
   available_triggers = list(filter(lambda t: t != Triggers.AURA, [t for t in Triggers]))
 
-  def __init__(self, method, target, owner_filter, value=None, random_count=1, random_replace=True, hits_adjacent=False, trigger=None, type_filter=None, duration=None, dynamic_filter=None):
+  def __init__(self, method, target, owner_filter, value=None, random_count=1, random_replace=True, hits_adjacent=False, trigger=None, type_filter=None, duration=None):
     self.zone_filter = Zones.BOARD
     self.method = method
     self.value = value
@@ -95,7 +96,6 @@ class Destroy():
     self.type_filter = type_filter
     self.trigger = trigger
     self.duration = duration
-    self.dynamic_filter = dynamic_filter
 
   def resolve_action(self, game, action):
     for target in action.targets:
@@ -114,7 +114,7 @@ class ChangeStats():
   available_type_filters = [c for c in CreatureTypes]
   available_durations = [d for d in Durations]
   available_triggers = [t for t in Triggers]
-  def __init__(self, value, method, target, owner_filter, random_count=1, random_replace=True, hits_adjacent=False, duration=None, trigger=None, type_filter=None):
+  def __init__(self, value, method, target, owner_filter, random_count=1, random_replace=True, hits_adjacent=False, duration=None, trigger=None, type_filter=None, dynamic_filter=None):
     self.zone_filter = Zones.BOARD #this could be changeable
     self.method = method
     self.value = value
@@ -126,6 +126,7 @@ class ChangeStats():
     self.type_filter = type_filter
     self.trigger = trigger
     self.duration = duration
+    self.dynamic_filter = dynamic_filter
 
   def resolve_action(self, game, action):
     for target in action.targets:
@@ -257,7 +258,7 @@ class GainArmor():
 class DrawCards():
   available_methods = [Methods.TARGETED, Methods.RANDOMLY, Methods.ALL]
   param_type = ParamTypes.X
-  available_targets = [Targets.HERO]
+  available_targets = [t for t in Targets]
   available_owner_filters = [f for f in OwnerFilters]
   available_type_filters = []
   available_durations = []
@@ -277,8 +278,13 @@ class DrawCards():
     self.duration = duration
 
   def resolve_action(self, game, action):
+      
     for target in action.targets:
-      game.draw(target, self.value(action))
+      if isinstance(target, Player):
+        game.draw(target, self.value(action))
+      else:
+        game.draw(target.owner, self.value(action))
+
 
 class Tutor():
   available_methods = [Methods.RANDOMLY, Methods.ALL]
@@ -592,7 +598,7 @@ class Silence():
       
 class ChangeCost():
   available_methods = [Methods.SELF, Methods.ALL, Methods.TARGETED]
-  param_type = ParamTypes.DYNAMIC
+  param_type = ParamTypes.X
   available_targets = [Targets.MINION, Targets.WEAPON]
   available_owner_filters = [o for o in OwnerFilters]
   available_type_filters = [t for t in CreatureTypes]

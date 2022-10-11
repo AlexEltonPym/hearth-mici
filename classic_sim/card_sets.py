@@ -24,7 +24,9 @@ def get_hero_power(hero_class):
   fireblast = Card(name="Fireblast", collectable=False, card_type=CardTypes.HERO_POWER, manacost=2,
            effect=DealDamage(value=Constant(1), method=Methods.TARGETED, target=Targets.MINION_OR_HERO,
                      owner_filter=OwnerFilters.ALL))
-  hero_powers = {Classes.HUNTER: steady_shot, Classes.MAGE: fireblast}
+  armor_up = Card(name="Armor Up!", card_type=CardTypes.HERO_POWER, collectable=False, manacost=2,\
+                  effect=GainArmor(value=Constant(2), method=Methods.ALL, owner_filter=OwnerFilters.FRIENDLY))
+  hero_powers = {Classes.HUNTER: steady_shot, Classes.MAGE: fireblast, Classes.WARRIOR: armor_up}
   return hero_powers[hero_class]
 
 
@@ -319,7 +321,7 @@ def get_rare_cards():
   gadgetzan_auctioneer = Card(name="Gadgetzan Auctioneer", card_type=CardTypes.MINION, manacost=5, attack=4, health=4,\
                               effect=DrawCards(value=Constant(1), trigger=Triggers.FRIENDLY_SPELL_CAST, owner_filter=OwnerFilters.FRIENDLY, method=Methods.ALL))
   stampeding_kodo = Card(name="Stampeding Kodo", card_type=CardTypes.MINION, manacost=5, attack=3, health=5, creature_type=CreatureTypes.BEAST,\
-                          effect=Destroy(dynamic_filter=LessThan(AttackValue(), Constant(3)),method=Methods.RANDOMLY, target=Targets.MINION, trigger=Triggers.BATTLECRY, owner_filter=OwnerFilters.ENEMY))
+                          effect=Destroy(value=LessThan(AttackValue(), Constant(3)),method=Methods.RANDOMLY, target=Targets.MINION, trigger=Triggers.BATTLECRY, owner_filter=OwnerFilters.ENEMY))
 
   # Rare six drops
   argent_commander = Card(name="Argent Commander", card_type=CardTypes.MINION, manacost=6, attack=4, health=2, attributes=[Attributes.CHARGE, Attributes.DIVINE_SHIELD])
@@ -354,7 +356,7 @@ def get_epic_cards():
 
   # Epic three drops
   big_game_hunter = Card(name="Big Game Hunter", card_type=CardTypes.MINION, manacost=3, attack=4, health=2,\
-                          effect=Destroy(dynamic_filter=GreaterThan(AttackValue(), Constant(6)),method=Methods.TARGETED, target=Targets.MINION, trigger=Triggers.BATTLECRY, owner_filter=OwnerFilters.ALL))
+                          effect=Destroy(value=GreaterThan(AttackValue(), Constant(6)),method=Methods.TARGETED, target=Targets.MINION, trigger=Triggers.BATTLECRY, owner_filter=OwnerFilters.ALL))
   blood_knight = Card(name="Blood Knight", card_type=CardTypes.MINION, manacost=3, attack=3, health=3,\
                       effect=DualEffectSelf(RemoveAttribute(value=Attributes.DIVINE_SHIELD, method=Methods.ALL, trigger=Triggers.BATTLECRY, owner_filter=OwnerFilters.ALL, target=Targets.MINION),\
                                             ChangeStats(value=(Multiply(NumWithAttribute(Attributes.DIVINE_SHIELD, OwnerFilters.ALL), Constant(3)), Multiply(NumWithAttribute(Attributes.DIVINE_SHIELD, OwnerFilters.ALL), Constant(3))),\
@@ -531,6 +533,49 @@ def get_mage_cards():
   epic_mage_cards = [ice_block, spellbender, pyroblast]
   return basic_mage_cards + common_mage_cards + rare_mage_cards + epic_mage_cards
 
+def get_warrior_cards():
+  #Warrior basic cards
+  execute = Card(name="Execute", card_type=CardTypes.SPELL, manacost=1,\
+                 effect=Destroy(value=Damaged(), target=Targets.MINION, owner_filter=OwnerFilters.ALL, method=Methods.TARGETED))
+  whirlwind = Card(name="Whirlwind", card_type=CardTypes.SPELL, manacost=1,\
+                   effect=DealDamage(value=Constant(1), method=Methods.ALL, target=Targets.MINION, owner_filter=OwnerFilters.ALL))
+  cleave = Card(name="Cleave", card_type=CardTypes.SPELL, manacost=2,\
+                effect=DealDamage(value=Constant(2), random_count=2, random_replace=False, method=Methods.RANDOMLY, target=Targets.MINION, owner_filter=OwnerFilters.ENEMY))
+  fiery_war_axe = Card(name="Fiery War Axe", card_type=CardTypes.WEAPON, manacost=2, attack=3, health=2)
+  heroic_strike = Card(name="Heroic Strike", card_type=CardTypes.SPELL, manacost=2,\
+                      effect=ChangeStats(value=(Constant(4), Constant(0)), method=Methods.ALL, target=Targets.HERO, owner_filter=OwnerFilters.FRIENDLY, duration=Durations.TURN))
+  charge = Card(name="Charge", card_type=CardTypes.SPELL, manacost=3,\
+                effect=DualEffect(GiveAttribute(value=Attributes.CHARGE, method=Methods.TARGETED, target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY, duration=Durations.PERMANENTLY),\
+                                  ChangeStats(value=(Constant(2), Constant(0)), method=Methods.TARGETED, target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY, duration=Durations.PERMANENTLY)))
+  shield_block = Card(name="Shield Block", card_type=CardTypes.SPELL, manacost=3,\
+                      effect=Cantrip(GainArmor(value=Constant(5), method=Methods.ALL, owner_filter=OwnerFilters.FRIENDLY)))
+  warsong_commander = Card(name="Warsong Commander", card_type=CardTypes.MINION, manacost=3, attack=2, health=3,\
+                          effect=GiveAttribute(trigger=Triggers.FRIENDLY_LESS_THAN_FOUR_ATTACK_SUMMONED, value=Attributes.CHARGE, method=Methods.TRIGGERER, target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY, duration=Durations.PERMANENTLY))
+  korkron_elite = Card(name="Kor'kron Elite", card_type=CardTypes.MINION, manacost=4, attack=4, health=3, attributes=[Attributes.CHARGE])
+  arcanite_reaper = Card(name="Arcanite Reaper", card_type=CardTypes.WEAPON, manacost=5, attack=5, health=2)
+
+  #Warrior common cards
+  inner_rage = Card(name="Inner Rage", card_type=CardTypes.SPELL, manacost=0,\
+                    effect=DualEffect(DealDamage(value=Constant(1), target=Targets.MINION, method=Methods.TARGETED, owner_filter=OwnerFilters.ALL),\
+                                      ChangeStats(value=(Constant(2), Constant(0)), target=Targets.MINION, method=Methods.TARGETED, owner_filter=OwnerFilters.ALL, duration=Durations.PERMANENTLY)))
+  battle_rage = Card(name="Battle Rage", card_type=CardTypes.SPELL, manacost=2,\
+                    effect=DrawCards(value=Add(NumDamaged(OwnerFilters.FRIENDLY), If(GreaterThan(DamageTaken(OwnerFilters.FRIENDLY), Constant(1)), Constant(1), Constant(0))),\
+                                      method=Methods.ALL, owner_filter=OwnerFilters.FRIENDLY))
+  cruel_taskmaster = Card(name="Cruel Taskmaster", card_type=CardTypes.MINION, manacost=2, attack=2, health=2,\
+                    effect=DualEffect(DealDamage(value=Constant(1), trigger=Triggers.BATTLECRY, target=Targets.MINION, method=Methods.TARGETED, owner_filter=OwnerFilters.ALL),\
+                                      ChangeStats(value=(Constant(2), Constant(0)), target=Targets.MINION, method=Methods.TARGETED, owner_filter=OwnerFilters.ALL, duration=Durations.PERMANENTLY)))
+  rampage = Card(name="Rampage", card_type=CardTypes.SPELL, manacost=2,\
+                effect=ChangeStats(value=(Constant(3), Constant(3)), method=Methods.TARGETED, target=Targets.MINION, owner_filter=OwnerFilters.ALL, duration=Durations.PERMANENTLY, dynamic_filter=Damaged()))
+  slam = Card(name="Slam", card_type=CardTypes.SPELL, manacost=2,\
+              effect=DualEffect(DealDamage(value=Constant(2), method=Methods.TARGETED, target=Targets.MINION, owner_filter=OwnerFilters.ALL),\
+                                DrawCards(value=If(TargetAlive(), Constant(1), Constant(0)), owner_filter=OwnerFilters.FRIENDLY, method=Methods.ALL)))
+
+  basic_warrior_cards = [execute, whirlwind, cleave, fiery_war_axe, heroic_strike, charge, shield_block, warsong_commander, korkron_elite, arcanite_reaper]
+  common_warrior_cards = [inner_rage, battle_rage, cruel_taskmaster, rampage, slam]
+  rare_warrior_cards = []
+  epic_warrior_cards = []
+  return basic_warrior_cards + common_warrior_cards + rare_warrior_cards + epic_warrior_cards
+
 def get_test_cards():
   all_dam = Card("All Damage", card_type=CardTypes.SPELL, manacost=0,
            effect=DealDamage(value=Constant(3), method=Methods.ALL, target=Targets.MINION_OR_HERO,
@@ -566,6 +611,8 @@ def build_pool(set_names, random_state):
     pool.extend(get_hunter_cards())
   if CardSets.CLASSIC_MAGE in set_names:
     pool.extend(get_mage_cards())
+  if CardSets.CLASSIC_WARRIOR in set_names:
+    pool.extend(get_warrior_cards())
   if CardSets.OP_CARDS in set_names:
     pool.extend(get_op_cards())
   if CardSets.TEST_CARDS in set_names:

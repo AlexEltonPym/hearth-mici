@@ -75,6 +75,7 @@ class Triggers(Enum):
   LETHAL_DAMAGE = 40
   ENEMY_SPELL_REDIRECTED = 41
   DESTROY_SECRET_REVEALED = 42
+  FRIENDLY_LESS_THAN_FOUR_ATTACK_SUMMONED = 43
 
 class Actions(Enum):
   ATTACK = 0
@@ -136,6 +137,7 @@ class CardSets(Enum):
   TEST_CARDS = 3
   RANDOM_CARDS = 4
   CLASSIC_MAGE = 5
+  CLASSIC_WARRIOR = 6
 
 class Classes(Enum):
   HUNTER = 0
@@ -158,7 +160,7 @@ class ParamTypes(Enum):
   XY = 3
   NONE = 4
   X_TOKENS = 5
-  DYNAMIC = 6
+  DYNAMICS = 6
 
 class Zones(Enum):
   BOARD = 0
