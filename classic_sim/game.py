@@ -261,9 +261,12 @@ class Game():
           player_themselves = [self.player]
           enemy_themselves = [self.player.other_player]
           possible_targets = player_board + enemy_board + player_themselves + enemy_themselves
-          possible_targets.remove(action.targets[0]) #todo what happens if player attacks player
+          possible_targets.remove(action.targets[0])
           possible_targets.remove(action.source)
-          action.targets[0] = self.game_manager.random_state.choice(possible_targets)
+          if len(possible_targets) > 0:
+            action.targets[0] = self.game_manager.random_state.choice(possible_targets)
+            self.trigger(action.source, Triggers.REDIRECT_SECRET_REVEALED)
+
         if isinstance(secret.effect, Destroy) and not isinstance(action.source, Player):
           self.handle_death(action.source)
           self.trigger(action.source, Triggers.DESTROY_SECRET_REVEALED)
@@ -478,6 +481,8 @@ class Game():
             elif trigger_type == Triggers.LETHAL_DAMAGE:
               self.resolve_effect(card, triggerer)
             elif trigger_type == Triggers.DESTROY_SECRET_REVEALED:
+              self.resolve_effect(card, triggerer)
+            elif trigger_type == Triggers.REDIRECT_SECRET_REVEALED:
               self.resolve_effect(card, triggerer)
             elif trigger_type == Triggers.ANY_MINION_DAMAGED:
               self.resolve_effect(card, triggerer)

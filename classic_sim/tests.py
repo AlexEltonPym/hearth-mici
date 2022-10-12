@@ -28,8 +28,8 @@ def test_classic_pool():
   assert len(mage) == 24
   assert len(warrior) == 24
 
-  print(f"{len(basics + commons + rares + epics + mage + hunter + warrior)}/202") #172
-  assert True
+  total = len(basics + commons + rares + epics + mage + hunter + warrior)
+  assert total == 202
 
 def test_coin():
   game_manager = GameManager()

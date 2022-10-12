@@ -99,10 +99,7 @@ class Destroy():
 
   def resolve_action(self, game, action):
     for target in action.targets:
-      print(f"{target=}")
-      print(f"{self.value=}")
       if (self.value and self.value(Action(Actions.CAST_EFFECT, source=target, targets=[action.source]))) or self.value == None: #still a valid dynamic target
-        print("still valid")
         if self.hits_adjacent:
           adjacent_targets = target.parent.get_adjacent(target)
           for adjacent_target in adjacent_targets:
