@@ -170,7 +170,6 @@ class Game():
     self.trigger(action.source, Triggers.FRIENDLY_CARD_PLAYED)
     self.trigger(action.source, Triggers.ENEMY_CARD_PLAYED)
     if initial_attack_less_than_three:
-      print("triggering")
       self.trigger(action.source, Triggers.FRIENDLY_LESS_THAN_FOUR_ATTACK_SUMMONED)
 
 
@@ -276,7 +275,11 @@ class Game():
     if isinstance(action.source, Player) and action.source.weapon:
       damage = action.source.get_attack()
       other_damage = 0 if action.source.weapon.has_attribute(Attributes.IMMUNE) else action.targets[0].get_attack()
-      action.source.weapon.health -= 1
+      if action.source.weapon.has_attribute(Attributes.ATTACK_AS_DURABILITY) and not isinstance(action.targets[0], Player):
+        action.source.weapon.attack -= 1
+        action.source.weapon.attack = max(action.source.weapon.attack, 0)
+      else:
+        action.source.weapon.health -= 1
       self.check_dead(action.source.weapon)
 
     else:
@@ -320,7 +323,16 @@ class Game():
           target.health = new_health
           target.armor = new_armor
       else:
+        previous_health = target.health
+          
         target.health -= amount #minions dont have armor
+        if target.owner.has_attribute(Attributes.MINIONS_UNKILLABLE):
+          target.health = max(target.health, 1)
+        if target.health < previous_health:
+          self.trigger(target, Triggers.FRIENDLY_MINION_DAMAGED)
+          self.trigger(target, Triggers.ENEMY_MINION_DAMAGED)
+          self.trigger(target, Triggers.ANY_MINION_DAMAGED)
+
       if freezer and not target.has_attribute(Attributes.FROZEN):
         target.perm_attributes.append(Attributes.FROZEN)
       self.trigger(target, Triggers.SELF_DAMAGE_TAKEN)
@@ -395,6 +407,9 @@ class Game():
               self.resolve_effect(card, triggerer)
             elif trigger_type == Triggers.FRIENDLY_LESS_THAN_FOUR_ATTACK_SUMMONED:
               self.resolve_effect(card, triggerer)
+            elif trigger_type == Triggers.FRIENDLY_MINION_DAMAGED:
+              self.resolve_effect(card, triggerer)
+
 
           elif "ENEMY" in trigger_type.name and triggerer.owner != card.owner:
             if trigger_type == Triggers.ENEMY_MINION_DIES:
@@ -429,6 +444,8 @@ class Game():
               self.resolve_effect(card, triggerer)
             elif trigger_type == Triggers.ENEMY_SPELL_REDIRECTED:
               self.resolve_effect(card, triggerer)
+            elif trigger_type == Triggers.ENEMY_MINION_DAMAGED:
+              self.resolve_effect(card, triggerer)
           else:
             if trigger_type == Triggers.ANY_MINION_DIES:
               self.resolve_effect(card, triggerer)
@@ -462,9 +479,17 @@ class Game():
               self.resolve_effect(card, triggerer)
             elif trigger_type == Triggers.DESTROY_SECRET_REVEALED:
               self.resolve_effect(card, triggerer)
+            elif trigger_type == Triggers.ANY_MINION_DAMAGED:
+              self.resolve_effect(card, triggerer)
 
         elif card.effect and trigger_type == card.effect.trigger and triggerer == card:
           if trigger_type == Triggers.SELF_DAMAGE_TAKEN:
+            self.resolve_effect(card, triggerer)
+          if triggerer.owner == card.owner and trigger_type == Triggers.FRIENDLY_MINION_DAMAGED:
+            self.resolve_effect(card, triggerer)
+          if triggerer.owner != card.owner and trigger_type == Triggers.ANY_MINION_DAMAGED:
+            self.resolve_effect(card, triggerer)
+          if trigger_type == Triggers.ANY_MINION_DAMAGED:
             self.resolve_effect(card, triggerer)
 
 

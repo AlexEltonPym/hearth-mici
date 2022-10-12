@@ -2,6 +2,7 @@
 from zones import SecretsZone, Hand, Board, Graveyard
 from copy import deepcopy
 from enums import *
+from action import Action
 
 class Player():
   def __init__(self, name, game_manager, player_class, deck_constructor, strategy):
@@ -69,19 +70,35 @@ class Player():
     self.weapon = card
 
   def matches_card_requirements(self, card):
-    effect = card.effect
+    try:
+      if card.effect.condition(Action(Actions.CAST_EFFECT, self, [card])):
+        effect=card.effect.first_effect
+      else:
+        effect=card.effect.second_effect
+    except AttributeError:
+      effect = card.effect
     type_okay = effect.target == Targets.HERO or effect.target == Targets.MINION_OR_HERO
 
     owner_okay = (self == card.owner and effect.owner_filter == OwnerFilters.FRIENDLY)\
     or (self == card.owner.other_player and effect.owner_filter == OwnerFilters.ENEMY)\
     or (effect.owner_filter == OwnerFilters.ALL)
+
+    try:
+      if effect.param_type == ParamTypes.DYNAMICS and effect.value != None:
+        dynamics_okay = effect.value(Action(Actions.CAST_EFFECT, self, [card]))
+      elif effect.dynamic_filter:
+        dynamics_okay = effect.dynamic_filter(Action(Actions.CAST_EFFECT, self, [card]))
+      else:
+        dynamics_okay = True
+    except AttributeError:
+      dynamics_okay = True
     
-    return type_okay and owner_okay
+    return type_okay and owner_okay and dynamics_okay
 
 
   def get_attack(self):
     conditional_attack = self.condition.result['temp_attack'] if self.condition and self.condition.requirement(self.game, self) else 0
-    weapon_attack = self.weapon.attack if self.weapon else 0
+    weapon_attack = self.weapon.get_attack() if self.weapon else 0
     return self.attack+self.temp_attack+self.perm_attack+conditional_attack+weapon_attack
 
   def get_health(self):

@@ -569,11 +569,39 @@ def get_warrior_cards():
   slam = Card(name="Slam", card_type=CardTypes.SPELL, manacost=2,\
               effect=DualEffect(DealDamage(value=Constant(2), method=Methods.TARGETED, target=Targets.MINION, owner_filter=OwnerFilters.ALL),\
                                 DrawCards(value=If(TargetAlive(), Constant(1), Constant(0)), owner_filter=OwnerFilters.FRIENDLY, method=Methods.ALL)))
+  arathi_weaponsmith = Card(name="Arathi Weaponsmith", card_type=CardTypes.MINION, manacost=4, attack=3, health=3,\
+                            effect=SummonToken(trigger=Triggers.BATTLECRY, method=Methods.ALL, owner_filter=OwnerFilters.FRIENDLY,\
+                            value=(Constant(1), Constant(Card(name="Battle Axe", collectable=False, card_type=CardTypes.WEAPON, manacost=1, attack=2, health=2)))))
+
+  #Warrior rare cards
+  upgrade = Card(name="Upgrade!", card_type=CardTypes.SPELL, manacost=1,\
+                  effect=DynamicChoice(HasWeapon(OwnerFilters.FRIENDLY),
+                                       ChangeStats(value=(Constant(1), Constant(1)), target=Targets.WEAPON, owner_filter=OwnerFilters.FRIENDLY, method=Methods.ALL, duration=Durations.PERMANENTLY),\
+                                       SummonToken(trigger=Triggers.BATTLECRY, method=Methods.ALL, owner_filter=OwnerFilters.FRIENDLY,\
+                                                   value=(Constant(1), Constant(Card(name="Heavy Axe", collectable=False, card_type=CardTypes.WEAPON, manacost=1, attack=1, health=3))))))
+  armorsmith = Card(name="Armorsmith", card_type=CardTypes.MINION, manacost=2, attack=1, health=4,\
+                    effect=GainArmor(value=Constant(1), trigger=Triggers.FRIENDLY_MINION_DAMAGED, method=Methods.ALL, owner_filter=OwnerFilters.FRIENDLY))
+  commanding_shout = Card(name="Commanding Shout", card_type=CardTypes.SPELL, manacost=2,\
+                          effect=Cantrip(GiveAttribute(value=Attributes.MINIONS_UNKILLABLE, method=Methods.ALL, target=Targets.HERO, owner_filter=OwnerFilters.FRIENDLY, duration=Durations.TURN)))
+  frothing_berserker = Card(name="Frothing Berserker", card_type=CardTypes.MINION, manacost=3, attack=2, health=4,\
+                            effect=ChangeStats(value=(Constant(1), Constant(0)), trigger=Triggers.ANY_MINION_DAMAGED, method=Methods.SELF, target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY, duration=Durations.PERMANENTLY))
+  mortal_strike = Card(name="Mortal Strike", card_type=CardTypes.SPELL, manacost=4,\
+                        effect=DealDamage(value=If(GreaterThan(DamageTaken(OwnerFilters.FRIENDLY), Constant(17)), Constant(6), Constant(4)),\
+                                          method=Methods.TARGETED, target=Targets.MINION_OR_HERO, owner_filter=OwnerFilters.ALL))
+
+  #Warrior epic cards
+  shield_slam = Card(name="Shield Slam", card_type=CardTypes.SPELL, manacost=1,\
+                     effect=DealDamage(value=PlayerArmor(OwnerFilters.FRIENDLY), method=Methods.TARGETED, target=Targets.MINION, owner_filter=OwnerFilters.ALL))
+  brawl = Card(name="Brawl", card_type=CardTypes.SPELL, manacost=5,\
+              effect=DualEffectBoard(GiveAttribute(value=Attributes.BRAWL_PROTECTION, method=Methods.RANDOMLY, target=Targets.MINION, owner_filter=OwnerFilters.ALL, duration=Durations.TURN),\
+                                     DualEffect(Destroy(value=Not(SourceHasAttribute(Attributes.BRAWL_PROTECTION)), method=Methods.ALL, target=Targets.MINION, owner_filter=OwnerFilters.ALL),\
+                                     RemoveAttribute(value=Attributes.BRAWL_PROTECTION, method=Methods.ALL, target=Targets.MINION, owner_filter=OwnerFilters.ALL))))
+  gorehowl = Card(name="Gorehowl", card_type=CardTypes.WEAPON, manacost=7, attack=7, health=1, attributes=[Attributes.ATTACK_AS_DURABILITY])
 
   basic_warrior_cards = [execute, whirlwind, cleave, fiery_war_axe, heroic_strike, charge, shield_block, warsong_commander, korkron_elite, arcanite_reaper]
-  common_warrior_cards = [inner_rage, battle_rage, cruel_taskmaster, rampage, slam]
-  rare_warrior_cards = []
-  epic_warrior_cards = []
+  common_warrior_cards = [inner_rage, battle_rage, cruel_taskmaster, rampage, slam, arathi_weaponsmith]
+  rare_warrior_cards = [upgrade, armorsmith, commanding_shout, frothing_berserker, mortal_strike]
+  epic_warrior_cards = [shield_slam, brawl, gorehowl]
   return basic_warrior_cards + common_warrior_cards + rare_warrior_cards + epic_warrior_cards
 
 def get_test_cards():

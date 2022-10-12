@@ -24,6 +24,7 @@ Mind control tech: Has no effect
 Tracking: Tutor for a beast instead of draw 3 discard 2
 Arcane Missiles: Can overkill a minion
 Frozen: Clears at end of turn, not missing next attack. This means if you freeze your own minion it will clear at end of turn, regardless of if its attacked or not
+Brawl: Cannot be cast if there are no minions on the board
 
 ## Running the simulator
 Create a virtual environment, then install the requirements:

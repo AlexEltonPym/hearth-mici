@@ -19,14 +19,16 @@ def test_classic_pool():
   epics = get_epic_cards()
   mage = get_mage_cards()
   hunter = get_hunter_cards()
+  warrior = get_warrior_cards()
   assert len(basics) == 43
   assert len(commons) == 40
   assert len(rares) == 36
   assert len(epics) == 11
   assert len(hunter) == 24
   assert len(mage) == 24
+  assert len(warrior) == 24
 
-  print(f"{len(basics + commons + rares + epics + mage + hunter)}/202") #172
+  print(f"{len(basics + commons + rares + epics + mage + hunter + warrior)}/202") #172
   assert True
 
 def test_coin():
@@ -2606,6 +2608,22 @@ def test_rampage():
 def test_slam():
   game = GameManager().create_test_game()
   slam = game.game_manager.get_card("Slam", game.current_player.hand)
+  korkron_elite = game.game_manager.get_card("Kor'kron Elite", game.current_player.other_player.board)
+  wisp = game.game_manager.get_card("Wisp", game.current_player.other_player.board)
+  play_slam_on_wisp = list(filter(lambda action: action.source == slam and action.targets[0] == wisp, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(play_slam_on_wisp)
+  assert len(game.current_player.hand) == 0
+  assert wisp.parent == wisp.owner.graveyard
+  slam2 = game.game_manager.get_card("Slam", game.current_player.hand)
+  play_slam_on_korkron = list(filter(lambda action: action.source == slam2 and action.targets[0] == korkron_elite, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(play_slam_on_korkron)
+  assert len(game.current_player.hand) == 1
+  assert korkron_elite.parent == korkron_elite.owner.board
+  assert korkron_elite.get_health() == 1
+
+def test_slam_friendly():
+  game = GameManager().create_test_game()
+  slam = game.game_manager.get_card("Slam", game.current_player.hand)
   korkron_elite = game.game_manager.get_card("Kor'kron Elite", game.current_player.board)
   wisp = game.game_manager.get_card("Wisp", game.current_player.other_player.board)
   play_slam_on_wisp = list(filter(lambda action: action.source == slam and action.targets[0] == wisp, game.get_available_actions(game.current_player)))[0]
@@ -2619,11 +2637,224 @@ def test_slam():
   assert korkron_elite.parent == korkron_elite.owner.board
   assert korkron_elite.get_health() == 1
 
+def test_arathi_weaponsmith():
+  game = GameManager().create_test_game()
+  arathi_weaponsmith = game.game_manager.get_card("Arathi Weaponsmith", game.current_player.hand)
+  play_weaponsmith = list(filter(lambda action: action.source == arathi_weaponsmith, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(play_weaponsmith)
+  assert arathi_weaponsmith.parent == arathi_weaponsmith.owner.board
+  assert game.current_player.weapon
+  assert game.current_player.weapon.get_attack() == 2
+  assert game.current_player.weapon.get_health() == 2
+  assert game.current_player.get_attack() == 2
+  assert game.current_player.get_health() == 30
+  attack_with_weapon = list(filter(lambda action: action.action_type == Actions.ATTACK, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(attack_with_weapon)
+  assert game.current_player.other_player.get_health() == 28
+  assert game.current_player.get_health() == 30
+
+
+def test_arathi_weaponsmith_existing_weapon():
+  game = GameManager().create_test_game()
+  arcanite_reaper = game.game_manager.get_card('Arcanite Reaper', game.current_player)
+  arathi_weaponsmith = game.game_manager.get_card("Arathi Weaponsmith", game.current_player.hand)
+  play_weaponsmith = list(filter(lambda action: action.source == arathi_weaponsmith, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(play_weaponsmith)
+  assert arcanite_reaper.parent == arcanite_reaper.owner.graveyard
+  assert arathi_weaponsmith.parent == arathi_weaponsmith.owner.board
+  assert game.current_player.weapon
+  assert game.current_player.weapon.get_attack() == 2
+  assert game.current_player.weapon.get_health() == 2
+  assert game.current_player.get_attack() == 2
+  assert game.current_player.get_health() == 30
+  attack_with_weapon = list(filter(lambda action: action.action_type == Actions.ATTACK, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(attack_with_weapon)
+  assert game.current_player.other_player.get_health() == 28
+  assert game.current_player.get_health() == 30
+
+def test_upgrade_no_weapon():
+  game = GameManager().create_test_game()
+  upgrade = game.game_manager.get_card('Upgrade!', game.current_player.hand)
+  play_upgrade = list(filter(lambda action: action.source == upgrade, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(play_upgrade)
+  assert game.current_player.weapon
+  assert game.current_player.weapon.name == "Heavy Axe"
+  assert game.current_player.weapon.get_attack() == 1
+  assert game.current_player.weapon.get_health() == 3
+  assert game.current_player.get_attack() == 1
+
+
+def test_upgrade_existing_weapon():
+  game = GameManager().create_test_game()
+  upgrade = game.game_manager.get_card('Upgrade!', game.current_player.hand)
+  arcanite_reaper = game.game_manager.get_card('Arcanite Reaper', game.current_player)
+  play_upgrade = list(filter(lambda action: action.source == upgrade, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(play_upgrade)
+  assert game.current_player.weapon
+  assert game.current_player.weapon.name == "Arcanite Reaper"
+  assert game.current_player.weapon.get_attack() == 6
+  assert game.current_player.weapon.get_health() == 3
+  assert game.current_player.get_attack() == 6
+
+
+def test_armorsmith():
+  game = GameManager().create_test_game()
+  armorsmith = game.game_manager.get_card('Armorsmith', game.current_player.board)
+  game.deal_damage(armorsmith, 1)
+  assert armorsmith.get_health() == 3
+  assert game.current_player.armor == 1
+  wisp = game.game_manager.get_card('Wisp', game.current_player.board)
+  game.deal_damage(wisp, 1)
+  assert game.current_player.armor == 2
+  enemy_wisp = game.game_manager.get_card('Wisp', game.current_player.other_player.board)
+  game.deal_damage(enemy_wisp, 1)
+  assert game.current_player.armor == 2
+  game.deal_damage(game.current_player, 3)
+  assert game.current_player.armor == 0
+  assert game.current_player.get_health() == 29
+
+
+def test_armorsmith_whirlwind_combo():
+  game = GameManager().create_test_game()
+  armorsmith = game.game_manager.get_card('Armorsmith', game.current_player.board)
+  for wisp_number in range(5):
+    wisp = game.game_manager.get_card('Wisp', game.current_player.board)
+  assert len(game.current_player.board) == 6
+  whirlwind = game.game_manager.get_card('Whirlwind', game.current_player.hand)
+  cast_whirlwind = list(filter(lambda action: action.source == whirlwind, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(cast_whirlwind)
+  assert len(game.current_player.board) == 1
+  assert game.current_player.armor == 6
+
+def test_commanding_shout():
+  game = GameManager().create_test_game()
+
+  commanding_shout = game.game_manager.get_card('Commanding Shout', game.current_player.hand)
+  korkron_elite = game.game_manager.get_card("Kor'kron Elite", game.current_player.board)
+  korkron_elite_enemy = game.game_manager.get_card("Kor'kron Elite", game.current_player.other_player.board)
+  armorsmith = game.game_manager.get_card('Armorsmith', game.current_player.board)
+
+  cast_shout = list(filter(lambda action: action.source == commanding_shout, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(cast_shout)
+  assert len(game.current_player.hand) == 1
+  assert game.current_player.has_attribute(Attributes.MINIONS_UNKILLABLE)
+  trade_korkrons = list(filter(lambda action: action.source == korkron_elite and action.targets[0] == korkron_elite_enemy, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(trade_korkrons)
+  assert korkron_elite.get_health() == 1
+  assert korkron_elite.parent == korkron_elite.owner.board
+  assert korkron_elite_enemy.get_health() == -1
+  assert korkron_elite_enemy.parent == korkron_elite_enemy.owner.graveyard
+  assert game.current_player.armor == 1
+  game.deal_damage(korkron_elite, 100)
+  assert korkron_elite.get_health() == 1
+  assert game.current_player.armor == 1
+
+def test_frothing_berserker():
+
+  game = GameManager().create_test_game()
+  frothing_berserker = game.game_manager.get_card('Frothing Berserker', game.current_player.board)
+  wisp = game.game_manager.get_card('Wisp', game.current_player.board)
+  enemy_wisp = game.game_manager.get_card('Wisp', game.current_player.other_player.board)
+
+  whirlwind = game.game_manager.get_card('Whirlwind', game.current_player.hand)
+  cast_whirlwind = list(filter(lambda action: action.source == whirlwind, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(cast_whirlwind)
+  assert frothing_berserker.get_attack() == 5
+  assert frothing_berserker.get_health() == 3
+
+
+def test_mortal_strike():
+  game = GameManager().create_test_game()
+  mortal_strike = game.game_manager.get_card('Mortal Strike', game.current_player.hand)
+  cast_mortal_strike = list(filter(lambda action: action.source == mortal_strike and action.targets[0] == game.current_player.other_player, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(cast_mortal_strike) 
+  assert game.current_player.other_player.get_health() == 26
+  second_mortal_strike = game.game_manager.get_card('Mortal Strike', game.current_player.hand)
+  cast_second_mortal_strike = list(filter(lambda action: action.source == second_mortal_strike and action.targets[0] == game.current_player.other_player, game.get_available_actions(game.current_player)))[0]
+  game.deal_damage(game.current_player, 18)
+  assert game.current_player.get_health() == 12
+  game.perform_action(cast_second_mortal_strike)
+  assert game.current_player.other_player.get_health() == 20
+
+def test_shield_slam():
+  game = GameManager().create_test_game()
+  shield_slam = game.game_manager.get_card('Shield Slam', game.current_player.hand)
+  game.current_player.armor = 10
+  enemy_wisp = game.game_manager.get_card('Wisp', game.current_player.other_player.board)
+  slam_wisp = list(filter(lambda action: action.source == shield_slam, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(slam_wisp)
+  assert enemy_wisp.get_health() == -9
+
+def test_brawl_one_target():
+  game = GameManager().create_test_game()
+  brawl = game.game_manager.get_card('Brawl', game.current_player.hand)
+  wisp = game.game_manager.get_card('Wisp', game.current_player.board)
+  cast_brawl = list(filter(lambda action: action.source == brawl, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(cast_brawl)
+  assert wisp.parent == wisp.owner.board
+  assert not wisp.has_attribute(Attributes.BRAWL_PROTECTION)
+
+def test_brawl_multi_target():
+  game = GameManager().create_test_game()
+  brawl = game.game_manager.get_card('Brawl', game.current_player.hand)
+  for wisp_number in range(5):
+    friendly_wisp = game.game_manager.get_card('Wisp', game.current_player.board)
+    enemy_wisp = game.game_manager.get_card('Wisp', game.current_player.other_player.board)
+  cast_brawl = list(filter(lambda action: action.source == brawl, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(cast_brawl)
+  assert len(game.current_player.board) + len(game.current_player.other_player.board) == 1
+
+def test_brawl_no_target():
+  game = GameManager().create_test_game()
+  brawl = game.game_manager.get_card('Brawl', game.current_player.hand)
+  cast_brawl_actions = list(filter(lambda action: action.source == brawl, game.get_available_actions(game.current_player)))
+  assert len(cast_brawl_actions) == 0
+
+def test_gorehowl():
+  game = GameManager().create_test_game()
+  gorehowl = game.game_manager.get_card('Gorehowl', game.current_player)
+  enemy_wisp = game.game_manager.get_card('Wisp', game.current_player.other_player.board)
+  attack_wisp = list(filter(lambda action: action.targets[0] == enemy_wisp, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(attack_wisp)
+  assert gorehowl.attack == 6
+  assert enemy_wisp.get_health() == -6
+  assert gorehowl.get_health() == 1
+  assert gorehowl.parent == gorehowl.owner
+  for attack_number in range(6):
+    game.current_player.attacks_this_turn = 0
+    enemy_wisp = game.game_manager.get_card('Wisp', game.current_player.other_player.board)
+    attack_wisp = list(filter(lambda action: action.targets[0] == enemy_wisp, game.get_available_actions(game.current_player)))[0]
+    game.perform_action(attack_wisp)
+  assert gorehowl.attack == 0
+  assert gorehowl.get_health() == 1
+  assert gorehowl.parent == gorehowl.owner
+  game.current_player.attacks_this_turn = 0
+
+  enemy_wisp = game.game_manager.get_card('Wisp', game.current_player.other_player.board)
+  attack_wisp_actions = list(filter(lambda action: action.targets[0] == enemy_wisp, game.get_available_actions(game.current_player)))
+  assert len(attack_wisp_actions) == 0
+  heroic_strike = game.game_manager.get_card('Heroic Strike', game.current_player.hand)
+  cast_heroic_strike = list(filter(lambda action: action.source == heroic_strike, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(cast_heroic_strike)
+  attack_wisp = list(filter(lambda action: action.targets[0] == enemy_wisp, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(attack_wisp)
+  assert enemy_wisp.parent == enemy_wisp.owner.graveyard
+  assert enemy_wisp.get_health() == -3
+  assert gorehowl.get_attack() == 0
+
+def test_gorehowl_face():
+  game = GameManager().create_test_game()
+  gorehowl = game.game_manager.get_card('Gorehowl', game.current_player)
+  attack_enemy = list(filter(lambda action: action.action_type == Actions.ATTACK, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(attack_enemy)
+  assert game.current_player.other_player.get_health() == 23
+  assert gorehowl.parent == gorehowl.owner.graveyard
 
 
 # Test test cards
 def test_battlecry_reduce_cost():
   game = GameManager().create_test_game()
+  
 
   battlecry_reduce_cost = game.game_manager.get_card("Battlecry Reduce Cost", game.current_player.hand)
   enemy_wisp = game.game_manager.get_card("Wisp", game.current_player.other_player.hand)
@@ -2729,8 +2960,6 @@ def test_return_to_hand():
   assert wisp.temp_attack == 0
   assert wisp.get_attack() == 1
 
-
-
 def test_fatigue():
   game_manager = GameManager()
   game_manager.create_player_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER, CardSets.TEST_CARDS])
@@ -2761,6 +2990,7 @@ def test_excess_mana():
   assert game.current_player.max_mana == 10
   assert game.current_player.current_mana == 10
 
+#Random testing
 
 def test_random_card_game():
   game_manager = GameManager()
@@ -2852,3 +3082,4 @@ def main():
 
 if __name__ == '__main__':
   main()
+

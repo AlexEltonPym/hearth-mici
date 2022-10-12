@@ -41,7 +41,15 @@ class GreaterThan(object):
     self.A = A
     self.B = B
   def __call__(self, action):
+
     return self.A(action) > self.B(action)
+  
+
+class Not(object):
+  def __init__(self, A):
+    self.A = A
+  def __call__(self, action):
+    return not self.A(action)
 
 class Minimum(object):
   def __init__(self, A, B):
@@ -116,11 +124,31 @@ class DamageTaken(object):
       count += 30 - action.source.owner.other_player.get_health()
     return count
 
+class PlayerArmor(object):
+  def __init__(self, owner_filter):
+    self.owner_filter = owner_filter
+  def __call__(self, action):
+    count = 0
+    if self.owner_filter == OwnerFilters.FRIENDLY or self.owner_filter == OwnerFilters.ALL:
+      count += action.source.owner.armor
+    if self.owner_filter == OwnerFilters.ENEMY or self.owner_filter == OwnerFilters.ALL:
+      count += action.source.owner.other_player.armor
+    return count
+
 class FriendlyWeaponAttack(object):
   def __init__(self):
     pass
   def __call__(self, action):
     return action.source.owner.weapon.get_attack() if action.source.owner.weapon else 0
+
+class HasWeapon(object):
+  def __init__(self, owner_filter):
+    self.owner_filter = owner_filter
+  def __call__(self, action):
+    if self.owner_filter == OwnerFilters.FRIENDLY or self.owner_filter == OwnerFilters.ALL:
+      return action.source.owner.weapon != None
+    if self.owner_filter == OwnerFilters.ENEMY or self.owner_filter == OwnerFilters.ALL:
+      return action.source.owner.other_player.weapon != None
 
 class MinionsPlayed(object):
   def __init__(self):
@@ -210,6 +238,13 @@ class PlayerHasAttribute(object):
     self.attribute = attribute
   def __call__(self, action):
     return action.source.owner.has_attribute(self.attribute)
+
+class SourceHasAttribute(object):
+  def __init__(self, attribute):
+    self.attribute = attribute
+  def __call__(self, action):
+    return action.source.has_attribute(self.attribute)
+
 
 class HasSecret(object):
   def __init__(self):

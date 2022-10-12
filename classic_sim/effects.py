@@ -99,11 +99,15 @@ class Destroy():
 
   def resolve_action(self, game, action):
     for target in action.targets:
-      if self.hits_adjacent:
-        adjacent_targets = target.parent.get_adjacent(target)
-        for adjacent_target in adjacent_targets:
-          game.handle_death(adjacent_target)
-      game.handle_death(target)
+      print(f"{target=}")
+      print(f"{self.value=}")
+      if (self.value and self.value(Action(Actions.CAST_EFFECT, source=target, targets=[action.source]))) or self.value == None: #still a valid dynamic target
+        print("still valid")
+        if self.hits_adjacent:
+          adjacent_targets = target.parent.get_adjacent(target)
+          for adjacent_target in adjacent_targets:
+            game.handle_death(adjacent_target)
+        game.handle_death(target)
       
 
 class ChangeStats():
@@ -265,7 +269,7 @@ class DrawCards():
   available_triggers = list(filter(lambda t: t != Triggers.AURA, [t for t in Triggers]))
 
   def __init__(self, method, value, owner_filter, random_count=1, random_replace=True, target=Targets.HERO, trigger=None, type_filter=None, duration=None):
-    self.zone_filter = Zones.BOARD #draw cards targets a player
+    self.zone_filter = Zones.BOARD #draw cards targets a player, or if it targets a minion: the sources owner
     self.method = method
     self.value = value
     self.random_count = random_count
@@ -283,7 +287,7 @@ class DrawCards():
       if isinstance(target, Player):
         game.draw(target, self.value(action))
       else:
-        game.draw(target.owner, self.value(action))
+        game.draw(action.source.owner, self.value(action))
 
 
 class Tutor():
@@ -415,8 +419,6 @@ class GiveAttribute():
     for target in action.targets:
       if self.hits_adjacent:
         adjacent_targets = target.parent.get_adjacent(target)
-        # print(f"freezing {target}")
-
         for adjacent_target in adjacent_targets:
           if self.duration == Durations.TURN and not self.value in adjacent_target.temp_attributes:
             adjacent_target.temp_attributes.append(self.value)
@@ -485,12 +487,20 @@ class SummonToken(): #summon minion for target player
     summoned_card = self.value[1](action)
     new_owner = action.targets[0].owner.other_player if self.method == Methods.TRIGGERER else action.targets[0]
     for token_number in range(token_count):
-      if len(new_owner.board) >= new_owner.board.max_entries:
-        break
-      new_token = deepcopy(summoned_card)
-      new_token.collectable = False
-      new_token.set_owner(new_owner)
-      new_token.set_parent(new_owner.board) #Doesn't trigger battlecry
+      if summoned_card.card_type == CardTypes.MINION:
+        if len(new_owner.board) >= new_owner.board.max_entries:
+          break
+        new_minion_token = deepcopy(summoned_card)
+        new_minion_token.collectable = False
+        new_minion_token.set_owner(new_owner)
+        new_minion_token.set_parent(new_owner.board) #Doesn't trigger battlecry
+      elif summoned_card.card_type == CardTypes.WEAPON: 
+        # weapons override their zone so we need to destroy exising weapon
+        if new_owner.weapon: game.handle_death(new_owner.weapon)
+        new_weapon_token = deepcopy(summoned_card)
+        new_weapon_token.collectable = False
+        new_weapon_token.set_owner(new_owner)
+        new_weapon_token.set_parent(new_owner) #Doesn't trigger battlecry
 
 class ReplaceWithToken(): #replace minion with summoned token
   available_methods = [Methods.TARGETED, Methods.RANDOMLY, Methods.ALL]
@@ -828,6 +838,54 @@ class DualEffectSecrets(): #second effect will target all enemy secrets
   def resolve_action(self, game, action):
     self.first_effect.resolve_action(game, action)
     self.second_effect.resolve_action(game, Action(action_type=Actions.CAST_EFFECT, source=action.source, targets=action.source.owner.other_player.secrets_zone.get_all()))
+
+class DualEffectBoard(): #second effect will target all minions
+  def __init__(self, first_effect, second_effect):
+    self.first_effect = first_effect
+    self.second_effect = second_effect
+    self.method = first_effect.method
+    self.random_count = first_effect.random_count
+    self.random_replace = first_effect.random_replace
+    self.hits_adjacent = first_effect.hits_adjacent
+    self.value = first_effect.value
+    self.param_type = first_effect.param_type
+    self.target = first_effect.target
+    self.owner_filter = first_effect.owner_filter
+    self.type_filter = first_effect.type_filter
+    self.duration = first_effect.duration
+    self.trigger = first_effect.trigger
+    self.zone_filter = first_effect.zone_filter
+  
+  def resolve_action(self, game, action):
+    self.first_effect.resolve_action(game, action)
+    board = action.source.owner.board.get_all() + action.source.owner.other_player.board.get_all()
+    self.second_effect.resolve_action(game, Action(action_type=Actions.CAST_EFFECT, source=action.source, targets=board))
+
+
+class DynamicChoice(): #second effect will target all enemy secrets
+  def __init__(self, condition, first_effect, second_effect):
+    self.condition = condition
+    self.first_effect = first_effect
+    self.second_effect = second_effect
+    self.method = first_effect.method
+    self.random_count = first_effect.random_count
+    self.random_replace = first_effect.random_replace
+    self.hits_adjacent = first_effect.hits_adjacent
+    self.value = first_effect.value
+    self.param_type = first_effect.param_type
+    self.target = first_effect.target
+    self.owner_filter = first_effect.owner_filter
+    self.type_filter = first_effect.type_filter
+    self.duration = first_effect.duration
+    self.trigger = first_effect.trigger
+    self.zone_filter = first_effect.zone_filter
+  
+  def resolve_action(self, game, action):
+    if self.condition(action):
+      self.first_effect.resolve_action(game, action)
+    else:
+      self.second_effect.resolve_action(game, action)
+
 
 class MultiEffectRandom(): #one effect from list is chosen, same target as first effect
   def __init__(self, effects):

@@ -14,7 +14,10 @@ class Attributes(Enum):
   POISONOUS = 10
   IMMUNE = 11
   FREEZER = 12
-  FREE_SECRET = 13
+  FREE_SECRET = 13 #player enchantment
+  MINIONS_UNKILLABLE = 14 #player enchantment
+  BRAWL_PROTECTION = 15 #special temp attribute
+  ATTACK_AS_DURABILITY = 16 #special weapon attribute
 
 class Triggers(Enum):
   BATTLECRY = 0
@@ -76,6 +79,10 @@ class Triggers(Enum):
   ENEMY_SPELL_REDIRECTED = 41
   DESTROY_SECRET_REVEALED = 42
   FRIENDLY_LESS_THAN_FOUR_ATTACK_SUMMONED = 43
+  FRIENDLY_MINION_DAMAGED = 44
+  ENEMY_MINION_DAMAGED = 45
+  ANY_MINION_DAMAGED = 46
+
 
 class Actions(Enum):
   ATTACK = 0

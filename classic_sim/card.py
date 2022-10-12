@@ -56,7 +56,13 @@ class Card():
     return max(manacost, 0)
 
   def matches_card_requirements(self, card):
-    effect = card.effect
+    try:
+      if card.effect.condition(Action(Actions.CAST_EFFECT, self, [card])):
+        effect=card.effect.first_effect
+      else:
+        effect=card.effect.second_effect
+    except AttributeError:
+      effect = card.effect
     type_okay = (self.card_type==CardTypes.MINION and (effect.target == Targets.MINION or effect.target == Targets.MINION_OR_HERO or effect.target==Targets.MINION_OR_SPELL))\
     or (self.card_type==CardTypes.WEAPON and (effect.target == Targets.WEAPON))\
     or (self.card_type==CardTypes.SPELL and (effect.target == Targets.SPELL or effect.target== Targets.MINION_OR_SPELL))\
