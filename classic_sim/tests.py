@@ -1579,6 +1579,21 @@ def test_freezing_trap():
   assert tundra_rhino.get_manacost() == 7
   assert freezing_trap.parent == freezing_trap.owner.graveyard
   
+def test_freezing_trap_no_weapon_player_attack():
+  game = GameManager().create_test_game()
+  freezing_trap = game.game_manager.get_card('Freezing Trap', game.current_player.hand)
+  play_trap = list(filter(lambda action: action.source == freezing_trap, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(play_trap)
+  assert freezing_trap.parent == freezing_trap.owner.secrets_zone
+  heroic_strike = game.game_manager.get_card('Heroic Strike', game.current_player.hand)
+  cast_heroic_strike = list(filter(lambda action: action.source == heroic_strike, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(cast_heroic_strike)
+  assert game.current_player.get_attack() == 4
+  attack_enemy = list(filter(lambda action: action.action_type == Actions.ATTACK, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(attack_enemy)
+  assert game.current_player.other_player.get_health() == 26
+
+
 def test_scavenging_hyena():
   game = GameManager().create_test_game()
   scavenging_hyena = game.game_manager.get_card('Scavenging Hyena', game.current_player.board)
@@ -1639,6 +1654,17 @@ def test_misdirection():
   game.perform_action(attack_with_rhino)
   assert game.current_player.get_health() == 28
   assert enemy_misdirection.parent == enemy_misdirection.owner.graveyard
+
+ 
+def test_misdirection_no_targets():
+  game = GameManager().create_test_game()
+  enemy_misdirection = game.game_manager.get_card('Misdirection', game.current_player.other_player.secrets_zone)
+  arcanite_reaper = game.game_manager.get_card('Arcanite Reaper', game.current_player)
+  attack_with_reaper = list(filter(lambda action: action.action_type == Actions.ATTACK, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(attack_with_reaper)
+  assert game.current_player.other_player.get_health() == 25
+  assert enemy_misdirection.parent == enemy_misdirection.owner.secrets_zone
+
 
 def test_eaglehorn_bow():
   game = GameManager().create_test_game()

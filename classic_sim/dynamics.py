@@ -188,11 +188,11 @@ class NumWithAttribute(object):
     count = 0
     if self.owner_filter == OwnerFilters.FRIENDLY or self.owner_filter == OwnerFilters.ALL:
       for minion in action.source.owner.board:
-        if minion.has_attribute(self.attribute):
+        if minion.has_attribute(self.attribute(action)):
           count += 1
     if self.owner_filter == OwnerFilters.ENEMY or self.owner_filter == OwnerFilters.ALL:
       for minion in action.source.owner.other_player.board:
-        if minion.has_attribute(self.attribute):
+        if minion.has_attribute(self.attribute(action)):
           count += 1
     return count
 
@@ -237,13 +237,13 @@ class PlayerHasAttribute(object):
   def __init__(self, attribute):
     self.attribute = attribute
   def __call__(self, action):
-    return action.source.owner.has_attribute(self.attribute)
+    return action.source.owner.has_attribute(self.attribute(action))
 
 class SourceHasAttribute(object):
   def __init__(self, attribute):
     self.attribute = attribute
   def __call__(self, action):
-    return action.source.has_attribute(self.attribute)
+    return action.source.has_attribute(self.attribute(action))
 
 
 class HasSecret(object):

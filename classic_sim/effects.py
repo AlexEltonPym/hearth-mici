@@ -418,13 +418,13 @@ class GiveAttribute():
         adjacent_targets = target.parent.get_adjacent(target)
         for adjacent_target in adjacent_targets:
           if self.duration == Durations.TURN and not self.value in adjacent_target.temp_attributes:
-            adjacent_target.temp_attributes.append(self.value)
+            adjacent_target.temp_attributes.append(self.value(action))
           elif self.duration == Durations.PERMANENTLY and not self.value in adjacent_target.perm_attributes:
-            adjacent_target.perm_attributes.append(self.value)
+            adjacent_target.perm_attributes.append(self.value(action))
       if self.duration == Durations.TURN and not self.value in target.temp_attributes:
-        target.temp_attributes.append(self.value)
+        target.temp_attributes.append(self.value(action))
       elif self.duration == Durations.PERMANENTLY and not self.value in target.perm_attributes:
-        target.perm_attributes.append(self.value)
+        target.perm_attributes.append(self.value(action))
 
 class RemoveAttribute():
   available_methods = [m for m in Methods]
@@ -452,8 +452,8 @@ class RemoveAttribute():
       if self.hits_adjacent:
         adjacent_targets = target.parent.get_adjacent(target)
         for adjacent_target in adjacent_targets:
-          adjacent_target.remove_attribute(self.value)
-      target.remove_attribute(self.value)
+          adjacent_target.remove_attribute(self.value(action))
+      target.remove_attribute(self.value(action))
 
 
 

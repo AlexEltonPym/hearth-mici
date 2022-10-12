@@ -284,8 +284,10 @@ class Game():
       else:
         action.source.weapon.health -= 1
       self.check_dead(action.source.weapon)
-
-    else:
+    elif isinstance(action.source, Player) and not action.source.weapon:
+      damage = action.source.get_attack()
+      other_damage = action.targets[0].get_attack()
+    elif not isinstance(action.source, Player):
       damage = action.source.get_attack()
       other_damage = action.targets[0].get_attack()
       self.trigger(action.source, Triggers.ENEMY_MINION_ATTACKS)
