@@ -99,7 +99,7 @@ class Card():
 
   def has_attribute(self, attribute):
     return attribute in self.attributes or attribute in self.temp_attributes or attribute in self.perm_attributes\
-          or (self.condition and attribute in self.condition.result['attributes'] and self.condition.requirement(self.owner.game, self))\
+          or (self.condition and attribute in self.condition.result['attributes'] and self.condition.requirement(Action(Actions.CAST_EFFECT, self, [self])))\
           or attribute in self.get_aura_attributes()
   
   def remove_attribute(self, attribute):
@@ -109,7 +109,7 @@ class Card():
 
   def get_attack(self):
     aura_attack, _ = self.get_aura_stats()
-    condition_attack = self.condition.result['temp_attack'] if self.condition and self.condition.requirement(self.owner.game, self) else 0
+    condition_attack = self.condition.result['temp_attack'] if self.condition and self.condition.requirement(Action(Actions.CAST_EFFECT, self, [self])) else 0
     return self.attack+self.perm_attack+self.temp_attack+condition_attack+aura_attack
 
   def get_health(self):
@@ -158,7 +158,7 @@ class Card():
             aura_attack += card.effect.value[0](Action(Actions.CAST_EFFECT, card, [self]))
             aura_health += card.effect.value[1](Action(Actions.CAST_EFFECT, card, [self]))
         
-    for card in self.parent.parent.other_player.board:
+    for card in self.owner.other_player.board:
       if card.effect and card.effect.trigger == Triggers.AURA and self.matches_card_requirements(card):
         if card.effect.method == Methods.ALL:
           if isinstance(card.effect, ChangeStats):
@@ -201,9 +201,14 @@ class Card():
 
   def get_string(self):
     if(self.card_type == CardTypes.MINION):
-      return str((id(self), self.owner.name if self.owner else None, self.parent.name if self.parent else None, self.name, self.manacost, self.effect, str(self.attack+self.temp_attack)+"/"+str(self.health+self.temp_health)))
+      return str((self.name, self.manacost, self.attack+self.temp_attack+self.perm_attack, self.health+self.temp_health+self.perm_attack))
     else:
-      return str((id(self), self.owner.name if self.owner else None, self.parent.name if self.parent else None, self.name, self.manacost, self.effect))
+      return str((self.name, self.manacost))
+
+    # if(self.card_type == CardTypes.MINION):
+    #   return str((id(self), self.owner.name if self.owner else None, self.parent.name if self.parent else None, self.name, self.manacost, self.effect, str(self.attack+self.temp_attack)+"/"+str(self.health+self.temp_health)))
+    # else:
+    #   return str((id(self), self.owner.name if self.owner else None, self.parent.name if self.parent else None, self.name, self.manacost, self.effect))
 
   def __str__(self):
     return self.get_string()

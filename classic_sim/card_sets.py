@@ -140,7 +140,7 @@ def get_common_cards():
   shieldbearer = Card(name="Shieldbearer", card_type=CardTypes.MINION,
             manacost=1, attack=0, health=4, attributes=[Attributes.TAUNT])
   southsea_deckhand = Card(name="Southsea Deckhand", card_type=CardTypes.MINION, creature_type=CreatureTypes.PIRATE, manacost=1, attack=2, health=1,
-               condition=Condition(requirement=Condition.has_weapon, result={'attributes': [Attributes.CHARGE]}))
+               condition=Condition(requirement=HasWeapon(OwnerFilters.FRIENDLY), result={'attributes': [Attributes.CHARGE]}))
   worgen_infiltrator = Card(name="Worgen Infiltrator", card_type=CardTypes.MINION,
                 manacost=1, attack=2, health=1, attributes=[Attributes.STEALTH])
   young_dragonhawk = Card(name="Young Dragonhawk", card_type=CardTypes.MINION,
@@ -148,9 +148,9 @@ def get_common_cards():
 
   # Common two drops
   amani_berserker = Card(name="Amani Berserker", card_type=CardTypes.MINION, manacost=2, attack=2,
-               health=3, condition=Condition(requirement=Condition.damaged, result={'temp_attack': 3}))
+               health=3, condition=Condition(requirement=Damaged(), result={'temp_attack': 3}))
   bloodsail_raider = Card(name="Bloodsail Raider", card_type=CardTypes.MINION, manacost=2, attack=2, health=3, creature_type=CreatureTypes.PIRATE,\
-              effect=ChangeStats(trigger=Triggers.BATTLECRY, value=(FriendlyWeaponAttack(), Constant(0)), method=Methods.SELF, target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY, duration=Durations.PERMANENTLY))
+              effect=ChangeStats(trigger=Triggers.BATTLECRY, value=(WeaponAttack(OwnerFilters.FRIENDLY), Constant(0)), method=Methods.SELF, target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY, duration=Durations.PERMANENTLY))
       
   dire_wolf_alpha = Card(name="Dire Wolf Alpha", card_type=CardTypes.MINION, manacost=2, attack=2, health=2, effect=ChangeStats(value=(Constant(1), Constant(0)), trigger=Triggers.AURA, method=Methods.ADJACENT,
                target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY, type_filter=CreatureTypes.ALL))  # gives all minions +1 including self, nerf attack by 1, mana by 1?
@@ -179,11 +179,11 @@ def get_common_cards():
   jungle_panther = Card(name="Jungle Panther", card_type=CardTypes.MINION,
               creature_type=CreatureTypes.BEAST, manacost=3, attack=4, health=2, attributes=[Attributes.STEALTH])
   raging_worgen = Card(name="Raging Worgen", card_type=CardTypes.MINION, manacost=3, attack=3, health=3, condition=Condition(
-    requirement=Condition.damaged, result={'temp_attack': 1, 'attributes': [Attributes.WINDFURY]}))
+    requirement=Damaged(), result={'temp_attack': 1, 'attributes': [Attributes.WINDFURY]}))
   scarlet_crusader = Card(name="Scarlet Crusader", card_type=CardTypes.MINION,
               manacost=3, attack=3, health=1, attributes=[Attributes.DIVINE_SHIELD])
   tauren_warrior = Card(name="Tauren Warrior", card_type=CardTypes.MINION, manacost=3, attack=2, health=3, attributes=[
-              Attributes.TAUNT], condition=Condition(requirement=Condition.damaged, result={'temp_attack': 3}))
+              Attributes.TAUNT], condition=Condition(requirement=Damaged(), result={'temp_attack': 3}))
   thrallmar_farseer = Card(name="Thrallmar Farseer", card_type=CardTypes.MINION,
                manacost=3, attack=2, health=3, attributes=[Attributes.WINDFURY])
 
@@ -195,7 +195,7 @@ def get_common_cards():
   dark_iron_dwarf = Card(name="Dark Iron Dwarf", card_type=CardTypes.MINION, manacost=4, attack=4, health=4,
                effect=ChangeStats(value=(Constant(2), Constant(0)), method=Methods.TARGETED, target=Targets.MINION, owner_filter=OwnerFilters.ALL, duration=Durations.TURN, trigger=Triggers.BATTLECRY))
   dread_corsair = Card(name="Dread Corsair", card_type=CardTypes.MINION, manacost=4, attack=3, health=3, creature_type=CreatureTypes.PIRATE,
-             effect=ChangeCost(value=Multiply(FriendlyWeaponAttack(), Constant(-1)), method=Methods.SELF, target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY, trigger=Triggers.AURA))
+             effect=ChangeCost(value=Multiply(WeaponAttack(OwnerFilters.FRIENDLY), Constant(-1)), method=Methods.SELF, target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY, trigger=Triggers.AURA))
   mogushan_warden = Card(name="Mogushan Warden", card_type=CardTypes.MINION,
                manacost=4, attack=1, health=7, attributes=[Attributes.TAUNT])
   silvermoon_guardian = Card(name="Silvermoon Guardian", card_type=CardTypes.MINION,
@@ -239,7 +239,7 @@ def get_common_cards():
 def get_rare_cards():
   # Rare one drops
   angry_chicken = Card(name="Angry Chicken", card_type=CardTypes.MINION, manacost=1, attack=1, health=1, creature_type=CreatureTypes.BEAST,\
-                       condition=Condition(Condition.damaged, {'temp_attack': 5}))
+                       condition=Condition(Damaged(), {'temp_attack': 5}))
   
   bloodsail_corsair = Card(name="Bloodsail Corsair", card_type=CardTypes.MINION, creature_type=CreatureTypes.PIRATE, manacost=1, attack=1, health=2,\
                            effect=DealDamage(value=Constant(1), trigger=Triggers.BATTLECRY, method=Methods.TARGETED, target=Targets.WEAPON, owner_filter=OwnerFilters.ENEMY))
@@ -268,7 +268,7 @@ def get_rare_cards():
   master_swordsmith = Card(name="Master Swordsmith", card_type=CardTypes.MINION, manacost=2, attack=1, health=3,\
                            effect=ChangeStats(value=(Constant(1), Constant(0)), trigger=Triggers.FRIENDLY_END_TURN, method=Methods.RANDOMLY, target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY, duration=Durations.PERMANENTLY))
   pint_sized_summoner = Card(name="Pint-Sized Summoner", card_type=CardTypes.MINION, manacost=2, attack=2, health=2,\
-                             effect=ChangeCost(value=If(Equals(MinionsPlayed(), Constant(0)), Constant(-1), Constant(0)), trigger=Triggers.AURA, method=Methods.ALL, target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY))
+                             effect=ChangeCost(value=If(Equals(MinionsPlayed(OwnerFilters.FRIENDLY), Constant(0)), Constant(-1), Constant(0)), trigger=Triggers.AURA, method=Methods.ALL, target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY))
   sunfury_protector = Card(name="Sunfury Protector", card_type=CardTypes.MINION, manacost=2, attack=2, health=2,\
                           effect=GiveAttribute(value=Constant(Attributes.TAUNT), method=Methods.ADJACENT, target=Targets.MINION,
                           owner_filter=OwnerFilters.FRIENDLY, duration=Durations.PERMANENTLY, trigger=Triggers.BATTLECRY))
@@ -308,7 +308,7 @@ def get_rare_cards():
                           GiveAttribute(value=Constant(Attributes.TAUNT), method=Methods.ADJACENT, target=Targets.MINION,
                           owner_filter=OwnerFilters.FRIENDLY, duration=Durations.PERMANENTLY, trigger=Triggers.BATTLECRY)))
   twilight_drake = Card(name="Twilight Drake", card_type=CardTypes.MINION, manacost=4, attack=4, health=1, creature_type=CreatureTypes.DRAGON,\
-                        effect=ChangeStats(value=(Constant(0), NumCardsInHand()), method=Methods.SELF, trigger=Triggers.BATTLECRY, target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY, duration=Durations.PERMANENTLY))
+                        effect=ChangeStats(value=(Constant(0), NumCardsInHand(OwnerFilters.FRIENDLY)), method=Methods.SELF, trigger=Triggers.BATTLECRY, target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY, duration=Durations.PERMANENTLY))
   violet_teacher = Card(name="Violet Teacher", card_type=CardTypes.MINION, manacost=4, attack=3, health=5,\
                        effect=SummonToken(value=(Constant(1), Constant(Card(name="Violet Apprentice", collectable=False, card_type=CardTypes.MINION, manacost=0, attack=1, health=1))),\
                                           trigger=Triggers.FRIENDLY_SPELL_CAST, method=Methods.ALL, owner_filter=OwnerFilters.FRIENDLY))
@@ -512,7 +512,7 @@ def get_mage_cards():
   vaporize = Card(name="Vaporize", card_type=CardTypes.SECRET, manacost=3,\
                   effect=Destroy(trigger=Triggers.DESTROY_SECRET_REVEALED, method=Methods.TRIGGERER, target=Targets.MINION, owner_filter=OwnerFilters.ENEMY))
   etherial_arcanist = Card(name="Etherial Arcanist", card_type=CardTypes.MINION, manacost=4, attack=3, health=3,\
-                            effect=ChangeStats(trigger=Triggers.FRIENDLY_END_TURN, value=(If(HasSecret(),Constant(2),Constant(0)), If(HasSecret(),Constant(2),Constant(0))),\
+                            effect=ChangeStats(trigger=Triggers.FRIENDLY_END_TURN, value=(If(HasSecret(OwnerFilters.FRIENDLY),Constant(2),Constant(0)), If(HasSecret(OwnerFilters.FRIENDLY),Constant(2),Constant(0))),\
                                                 method=Methods.SELF, target=Targets.MINION, duration=Durations.PERMANENTLY, owner_filter=OwnerFilters.FRIENDLY))
   blizzard = Card(name="Blizzard", card_type=CardTypes.SPELL, manacost=6,\
                   effect=DualEffect(DealDamage(value=Constant(2), method=Methods.ALL, target=Targets.MINION, owner_filter=OwnerFilters.ENEMY),\

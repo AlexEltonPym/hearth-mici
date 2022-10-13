@@ -34,6 +34,12 @@ class Zone(object):
   def get_all(self):
     return self.zone
 
+  def get_string(self):
+    string_builder = []
+    for card in self.zone:
+      string_builder.append(str(card))
+    return string_builder
+
   def clear(self):
     self.zone.clear()
 

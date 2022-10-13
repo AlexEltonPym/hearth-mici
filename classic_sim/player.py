@@ -97,7 +97,7 @@ class Player():
 
 
   def get_attack(self):
-    conditional_attack = self.condition.result['temp_attack'] if self.condition and self.condition.requirement(self.game, self) else 0
+    conditional_attack = self.condition.result['temp_attack'] if self.condition and self.condition.requirement(Action(Actions.CAST_EFFECT, self, [self])) else 0
     weapon_attack = self.weapon.get_attack() if self.weapon else 0
     return self.attack+self.temp_attack+self.perm_attack+conditional_attack+weapon_attack
 
@@ -111,7 +111,7 @@ class Player():
     # print(f"checking for {attribute}")
     player_has = attribute in self.attributes\
           or (self.condition and attribute in self.condition.result['attributes']\
-          and self.condition.requirement(self.game, self))
+          and self.condition.requirement(Action(Actions.CAST_EFFECT, self, [self])))
 
     temp_attributes_has = attribute in self.temp_attributes
     perm_attributes_has = attribute in self.perm_attributes

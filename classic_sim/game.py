@@ -48,13 +48,13 @@ class Game():
         player.weapon = None
       for card in all_cards:
         if card.collectable:
+          print(f"reseting {card}")
           card.reset()
           card.change_parent(card.owner.deck)
         else:
           card.parent.remove(card)
           del card
       player.reset()
-    self.start_game()
 
 
 
@@ -359,6 +359,8 @@ class Game():
 
           
   def resolve_effect(self, card, triggerer=None):
+    if card.card_type == CardTypes.SECRET and card.owner.game.current_player == card.owner:
+      return
     targets = self.get_available_effect_targets(card)
     if len(targets) > 0 or card.effect.method == Methods.ALL:
       if card.effect.method == Methods.ALL:

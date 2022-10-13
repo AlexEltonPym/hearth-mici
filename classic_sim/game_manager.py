@@ -86,6 +86,7 @@ class GameManager():
       parralel_game_results = Parallel(n_jobs=parralel, verbose=0 if silent else 100)(delayed(self.run_games)(num_games_per_processor, silent) for i in range(num_jobs_to_run))
       for processors_result in parralel_game_results:
         game_results.extend(processors_result)
+      print(game_results)
     return mean(game_results)
 
   def run_games(self, num_games, silent):
@@ -95,5 +96,5 @@ class GameManager():
     for i in trange(num_games, disable=silent):
       game_results.append(self.game.play_game())
       self.game.reset_game()
-      
+      self.game.start_game()
     return game_results

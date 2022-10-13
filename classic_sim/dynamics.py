@@ -44,12 +44,25 @@ class GreaterThan(object):
 
     return self.A(action) > self.B(action)
   
-
 class Not(object):
   def __init__(self, A):
     self.A = A
   def __call__(self, action):
     return not self.A(action)
+
+class And(object):
+  def __init__(self, A, B):
+    self.A = A
+    self.B = B
+  def __call__(self, action):
+    return self.A(action) and self.B(action)
+
+class Or(object):
+  def __init__(self, A, B):
+    self.A = A
+    self.B = B
+  def __call__(self, action):
+    return self.A(action) or self.B(action)
 
 class Minimum(object):
   def __init__(self, A, B):
@@ -64,7 +77,6 @@ class Maximum(object):
     self.B = B
   def __call__(self, action):
     return max(self.A(action), self.B(action))
-
 
 class If(object):
   def __init__(self, condition, result, alternative):
@@ -135,11 +147,16 @@ class PlayerArmor(object):
       count += action.source.owner.other_player.armor
     return count
 
-class FriendlyWeaponAttack(object):
-  def __init__(self):
-    pass
+class WeaponAttack(object):
+  def __init__(self, owner_filter):
+    self.owner_filter = owner_filter
   def __call__(self, action):
-    return action.source.owner.weapon.get_attack() if action.source.owner.weapon else 0
+    count = 0
+    if self.owner_filter == OwnerFilters.FRIENDLY or self.owner_filter == OwnerFilters.ALL:
+      count += action.source.owner.weapon.get_attack() if action.source.owner.weapon else 0
+    if self.owner_filter == OwnerFilters.ENEMY or self.owner_filter == OwnerFilters.ALL:
+      count += action.source.owner.other_player.weapon.get_attack() if action.source.owner.other_player.weapon else 0
+    return count
 
 class HasWeapon(object):
   def __init__(self, owner_filter):
@@ -151,16 +168,27 @@ class HasWeapon(object):
       return action.source.owner.other_player.weapon != None
 
 class MinionsPlayed(object):
-  def __init__(self):
-    pass
+  def __init__(self, owner_filter):
+    self.owner_filter = owner_filter
+
   def __call__(self, action):
-    return action.source.owner.minions_played_this_turn
+    count = 0
+    if self.owner_filter == OwnerFilters.FRIENDLY or self.owner_filter == OwnerFilters.ALL:
+      count += action.source.owner.minions_played_this_turn
+    if self.owner_filter == OwnerFilters.ENEMY or self.owner_filter == OwnerFilters.ALL:
+      count += action.source.owner.other_player.minions_played_this_turn
+    return count
 
 class NumCardsInHand(object):
-  def __init__(self):
-    pass
+  def __init__(self, owner_filter):
+    self.owner_filter=owner_filter
   def __call__(self, action):
-    return len(action.source.owner.hand)
+    count = 0
+    if self.owner_filter == OwnerFilters.FRIENDLY or self.owner_filter == OwnerFilters.ALL:
+      count += len(action.source.owner.hand)
+    if self.owner_filter == OwnerFilters.ENEMY or self.owner_filter == OwnerFilters.ALL:
+      count += len(action.source.owner.other_player.hand)
+    return count
 
 class AttackValue(object):
   def __init__(self):
@@ -234,10 +262,16 @@ class TargetFrozen(object):
     return action.targets[0].has_attribute(Attributes.FROZEN)
 
 class PlayerHasAttribute(object):
-  def __init__(self, attribute):
+  def __init__(self, attribute, owner_filter):
     self.attribute = attribute
+    self.owner_filter = owner_filter
   def __call__(self, action):
-    return action.source.owner.has_attribute(self.attribute(action))
+    if self.owner_filter == OwnerFilters.FRIENDLY:
+      return action.source.owner.has_attribute(self.attribute(action))
+    elif self.owner_filter == OwnerFilters.ENEMY:
+      return action.source.owner.other_player.has_attribute(self.attribute(action))
+    elif self.owner_filter == OwnerFilters.ANY:
+      return action.source.owner.has_attribute(self.attribute(action)) or action.source.owner.other_player.has_attribute(self.attribute(action))
 
 class SourceHasAttribute(object):
   def __init__(self, attribute):
@@ -247,10 +281,15 @@ class SourceHasAttribute(object):
 
 
 class HasSecret(object):
-  def __init__(self):
-    pass
+  def __init__(self, owner_filter):
+    self.owner_filter = owner_filter
   def __call__(self, action):
-    return len(action.source.owner.secrets_zone) > 0
+    if self.owner_filter == OwnerFilters.FRIENDLY:
+      return len(action.source.owner.secrets_zone) > 0
+    elif self.owner_filter == OwnerFilters.ENEMY:
+      return len(action.source.owner.other_player.secrets_zone) > 0
+    elif self.owner_filter == OwnerFilters.ANY:
+      return (len(action.source.owner.secrets_zone) + len(action.source.owner.other_player.secrets_zone)) > 0
 
 class TargetAlive(object):
   def __init__(self):

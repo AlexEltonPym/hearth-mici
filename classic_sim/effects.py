@@ -42,9 +42,9 @@ class GainMana():
         target.current_mana = min(target.current_mana, 10)
 
 class DealDamage():
-  available_methods = [Methods.TARGETED, Methods.RANDOMLY, Methods.ALL, Methods.SELF]
+  available_methods = [Methods.TARGETED, Methods.RANDOMLY, Methods.ALL, Methods.SELF, Methods.TRIGGERER]
   param_type = ParamTypes.X
-  available_targets = [Targets.MINION, Targets.HERO, Targets.MINION_OR_HERO]
+  available_targets = [Targets.MINION, Targets.HERO, Targets.MINION_OR_HERO, Targets.WEAPON]
   available_owner_filters = [f for f in OwnerFilters]
   available_type_filters = [c for c in CreatureTypes]
   available_durations = []
@@ -78,7 +78,7 @@ class DealDamage():
 class Destroy():
   available_methods = [Methods.TARGETED, Methods.RANDOMLY, Methods.ALL, Methods.SELF, Methods.TRIGGERER]
   param_type = ParamTypes.DYNAMICS
-  available_targets = [Targets.MINION]
+  available_targets = [Targets.MINION, Targets.WEAPON, Targets.SECRET]
   available_owner_filters = [f for f in OwnerFilters]
   available_type_filters = [c for c in CreatureTypes]
   available_durations = []
@@ -317,7 +317,7 @@ class Tutor():
         target.change_parent(action.source.owner.graveyard) #mill if hand is full, need to playtest this
 
 class ReturnToHand():
-  available_methods = [Methods.TARGETED, Methods.RANDOMLY, Methods.ALL]
+  available_methods = [Methods.TARGETED, Methods.RANDOMLY, Methods.ALL, Methods.TRIGGERER]
   param_type = ParamTypes.NONE
   available_targets = [Targets.MINION] #could theoreticaly do weapons too
   available_owner_filters = [f for f in OwnerFilters]
@@ -461,7 +461,7 @@ class SummonToken(): #summon minion for target player
   available_methods = [Methods.TARGETED, Methods.RANDOMLY, Methods.ALL, Methods.TRIGGERER]
   param_type = ParamTypes.X_TOKENS
   available_targets = [Targets.HERO]
-  available_owner_filters = []
+  available_owner_filters = [o for o in OwnerFilters]
   available_type_filters = []
   available_durations = []
   available_triggers = list(filter(lambda t: t != Triggers.AURA, [t for t in Triggers]))
@@ -503,7 +503,7 @@ class ReplaceWithToken(): #replace minion with summoned token
   available_methods = [Methods.TARGETED, Methods.RANDOMLY, Methods.ALL]
   param_type = ParamTypes.X_TOKENS
   available_targets = [Targets.MINION]
-  available_owner_filters = []
+  available_owner_filters = [o for o in OwnerFilters]
   available_type_filters = []
   available_durations = []
   available_triggers = list(filter(lambda t: t != Triggers.AURA, [t for t in Triggers]))
@@ -606,7 +606,7 @@ class Silence():
 class ChangeCost():
   available_methods = [Methods.SELF, Methods.ALL, Methods.TARGETED]
   param_type = ParamTypes.X
-  available_targets = [Targets.MINION, Targets.WEAPON]
+  available_targets = [Targets.MINION, Targets.WEAPON, Targets.SPELL, Targets.SECRET]
   available_owner_filters = [o for o in OwnerFilters]
   available_type_filters = [t for t in CreatureTypes]
   available_durations = []
@@ -731,7 +731,7 @@ class Counterspell():
   available_triggers = [Triggers.ENEMY_SPELL_COUNTERED]
   available_card_types = [CardTypes.SECRET]
   
-  def __init__(self, method=Methods.ALL, owner_filter=OwnerFilters.ENEMY, target=Targets.MINION, value=None, random_count=1, random_replace=True, duration=None, trigger=Triggers.ENEMY_SPELL_COUNTERED, type_filter=None):
+  def __init__(self, method=Methods.ALL, owner_filter=OwnerFilters.ENEMY, target=Targets.SPELL, value=None, random_count=1, random_replace=True, duration=None, trigger=Triggers.ENEMY_SPELL_COUNTERED, type_filter=None):
     self.zone_filter = Zones.BOARD
     self.method = method
     self.value = value
@@ -749,6 +749,13 @@ class Counterspell():
 
 class Cantrip(): #performs first effect + draw a card
   def __init__(self, first_effect):
+    self.available_methods = first_effect.available_methods
+    self.param_type = first_effect.param_type
+    self.available_targets = first_effect.available_targets
+    self.available_owner_filters = first_effect.available_owner_filters
+    self.available_type_filters = first_effect.available_type_filters
+    self.available_durations =first_effect.available_durations
+    self.available_triggers = first_effect.available_triggers
     self.first_effect = first_effect
     self.second_effect = DrawCards(value=Constant(1), method=Methods.ALL, owner_filter=OwnerFilters.FRIENDLY)
     self.method = first_effect.method
@@ -770,6 +777,13 @@ class Cantrip(): #performs first effect + draw a card
 
 class DualEffect(): #second effect will recieve the same action as the first effect
   def __init__(self, first_effect, second_effect):
+    self.available_methods = first_effect.available_methods
+    self.param_type = first_effect.param_type
+    self.available_targets = first_effect.available_targets
+    self.available_owner_filters = first_effect.available_owner_filters
+    self.available_type_filters = first_effect.available_type_filters
+    self.available_durations =first_effect.available_durations
+    self.available_triggers = first_effect.available_triggers
     self.first_effect = first_effect
     self.second_effect = second_effect
     self.method = first_effect.method
@@ -791,6 +805,13 @@ class DualEffect(): #second effect will recieve the same action as the first eff
 
 class DualEffectSelf(): #second effect will target self
   def __init__(self, first_effect, second_effect, first_effect_first=True):
+    self.available_methods = first_effect.available_methods
+    self.param_type = first_effect.param_type
+    self.available_targets = first_effect.available_targets
+    self.available_owner_filters = first_effect.available_owner_filters
+    self.available_type_filters = first_effect.available_type_filters
+    self.available_durations =first_effect.available_durations
+    self.available_triggers = first_effect.available_triggers
     self.first_effect = first_effect
     self.second_effect = second_effect
     self.first_effect_first = first_effect_first
@@ -817,6 +838,13 @@ class DualEffectSelf(): #second effect will target self
 
 class DualEffectSecrets(): #second effect will target all enemy secrets
   def __init__(self, first_effect, second_effect):
+    self.available_methods = first_effect.available_methods
+    self.param_type = first_effect.param_type
+    self.available_targets = first_effect.available_targets
+    self.available_owner_filters = first_effect.available_owner_filters
+    self.available_type_filters = first_effect.available_type_filters
+    self.available_durations =first_effect.available_durations
+    self.available_triggers = first_effect.available_triggers
     self.first_effect = first_effect
     self.second_effect = second_effect
     self.method = first_effect.method
@@ -838,6 +866,13 @@ class DualEffectSecrets(): #second effect will target all enemy secrets
 
 class DualEffectBoard(): #second effect will target all minions
   def __init__(self, first_effect, second_effect):
+    self.available_methods = first_effect.available_methods
+    self.param_type = first_effect.param_type
+    self.available_targets = first_effect.available_targets
+    self.available_owner_filters = first_effect.available_owner_filters
+    self.available_type_filters = first_effect.available_type_filters
+    self.available_durations =first_effect.available_durations
+    self.available_triggers = first_effect.available_triggers
     self.first_effect = first_effect
     self.second_effect = second_effect
     self.method = first_effect.method
@@ -861,6 +896,13 @@ class DualEffectBoard(): #second effect will target all minions
 
 class DynamicChoice(): #second effect will target all enemy secrets
   def __init__(self, condition, first_effect, second_effect):
+    self.available_methods = first_effect.available_methods
+    self.param_type = first_effect.param_type
+    self.available_targets = first_effect.available_targets
+    self.available_owner_filters = first_effect.available_owner_filters
+    self.available_type_filters = first_effect.available_type_filters
+    self.available_durations =first_effect.available_durations
+    self.available_triggers = first_effect.available_triggers
     self.condition = condition
     self.first_effect = first_effect
     self.second_effect = second_effect
@@ -886,6 +928,13 @@ class DynamicChoice(): #second effect will target all enemy secrets
 
 class MultiEffectRandom(): #one effect from list is chosen, same target as first effect
   def __init__(self, effects):
+    self.available_methods = effects[0].available_methods
+    self.param_type = effects[0].param_type
+    self.available_targets = effects[0].available_targets
+    self.available_owner_filters = effects[0].available_owner_filters
+    self.available_type_filters = effects[0].available_type_filters
+    self.available_durations =effects[0].available_durations
+    self.available_triggers = effects[0].available_triggers
     self.effects = effects
     self.method = effects[0].method
     self.random_count = effects[0].random_count

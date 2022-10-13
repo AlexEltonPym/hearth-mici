@@ -47,4 +47,44 @@ def make_random_card(id, random_state):
 
   return rand_card
 
+def check_card_effect_valid(card):
+  effect = card.effect
+  assert effect.method in effect.available_methods or effect.method == None
+  assert effect.target in effect.available_targets or effect.target == None
+  assert effect.owner_filter in effect.available_owner_filters or effect.owner_filter == None
+  assert effect.type_filter in effect.available_type_filters or effect.type_filter == None
+  assert effect.trigger in effect.available_triggers or effect.trigger == None
+  assert effect.duration in effect.available_durations or effect.duration == None
+  if isinstance(effect, effects.Redirect) or isinstance(effect, effects.Counterspell) or isinstance(effect, effects.RedirectToToken):
+    assert card.card_type == CardTypes.SECRET
+
+def check_card_attributes_valid(card):
+  if card.card_type == CardTypes.MINION:
+    assert card.manacost >= 0 and card.manacost <= 20
+    assert card.attack >= 0 and card.attack <= 20
+    assert card.health >= 0 and card.health <= 20
+    for attribute in card.attributes:
+      assert attribute in Attributes
+      assert attribute not in [Attributes.FREE_SECRET, Attributes.ATTACK_AS_DURABILITY, Attributes.MINIONS_UNKILLABLE]
+  elif card.card_type == CardTypes.WEAPON:
+    assert card.manacost >= 0 and card.manacost <= 20
+    assert card.attack >= 0 and card.attack <= 20
+    assert card.health >= 0 and card.health <= 20
+    for attribute in card.attributes:
+      assert attribute in [Attributes.IMMUNE, Attributes.WINDFURY, Attributes.ATTACK_AS_DURABILITY]
+  elif card.card_type == CardTypes.SPELL:
+    assert card.manacost >= 0 and card.manacost <= 20
+    assert card.attack == None
+    assert card.health == None
+    assert len(card.attributes) == 0
+  elif card.card_type == CardTypes.SECRET:
+    assert card.manacost >= 0 and card.manacost <= 20
+    assert card.attack == None
+    assert card.health == None
+    assert len(card.attributes) == 0
+
+
+def check_card_valid(card):
+  check_card_attributes_valid(card)
+  check_card_effect_valid(card) if card.effect else True
 
