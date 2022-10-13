@@ -815,13 +815,15 @@ def test_secretkeeper():
   assert secretkeeper.get_attack() == 2
   assert secretkeeper.get_health() == 3
   assert secretkeeper.get_max_health() == 3
-  wisp = game.game_manager.get_card('Wisp', game.current_player.other_player.hand)
-  play_wisp = list(filter(lambda action: action.source == wisp, game.get_available_actions(game.current_player.other_player)))[0]
+  game.end_turn()
+  game.untap()
+  wisp = game.game_manager.get_card('Wisp', game.current_player.hand)
+  play_wisp = list(filter(lambda action: action.source == wisp, game.get_available_actions(game.current_player)))[0]
   game.perform_action(play_wisp)
   assert wisp.get_health() == -3
   assert wisp.parent == wisp.owner.graveyard
   assert snipe.parent == snipe.owner.graveyard
-  assert len(game.current_player.secrets_zone) == 0
+  assert len(game.current_player.other_player.secrets_zone) == 0
   assert secretkeeper.get_attack() == 2
   assert secretkeeper.get_health() == 3
   assert secretkeeper.get_max_health() == 3
@@ -1559,15 +1561,17 @@ def test_explosive_trap():
   play_trap = list(filter(lambda action: action.source == explosive_trap, game.get_available_actions(game.current_player)))[0]
   game.perform_action(play_trap)
   assert explosive_trap.parent == explosive_trap.owner.secrets_zone
-  enemy_attack_actions = list(filter(lambda action: action.action_type == Actions.ATTACK, game.get_available_actions(game.current_player.other_player)))
+  game.end_turn()
+  game.untap()
+  enemy_attack_actions = list(filter(lambda action: action.action_type == Actions.ATTACK, game.get_available_actions(game.current_player)))
   assert len(enemy_attack_actions) == 2
-  assert game.current_player.other_player.get_health() == 30
   assert game.current_player.get_health() == 30
+  assert game.current_player.other_player.get_health() == 30
   assert river_crok.get_health() == 3
   assert tundra_rhino.get_health() == 5
   game.perform_action(enemy_attack_actions[0])
-  assert game.current_player.other_player.get_health() == 28
-  assert game.current_player.get_health() == 28 #got attacked by a 2-attack minion
+  assert game.current_player.get_health() == 28
+  assert game.current_player.other_player.get_health() == 28 #got attacked by a 2-attack minion
   assert river_crok.get_health() == 1
   assert tundra_rhino.get_health() == 3
   assert explosive_trap.parent == explosive_trap.owner.graveyard
@@ -1579,7 +1583,9 @@ def test_freezing_trap():
   play_trap = list(filter(lambda action: action.source == freezing_trap, game.get_available_actions(game.current_player)))[0]
   game.perform_action(play_trap)
   assert freezing_trap.parent == freezing_trap.owner.secrets_zone
-  enemy_attack_actions = list(filter(lambda action: action.action_type == Actions.ATTACK, game.get_available_actions(game.current_player.other_player)))
+  game.end_turn()
+  game.untap()
+  enemy_attack_actions = list(filter(lambda action: action.action_type == Actions.ATTACK, game.get_available_actions(game.current_player)))
   assert len(enemy_attack_actions) == 1
   game.perform_action(enemy_attack_actions[0])
   assert tundra_rhino.parent == tundra_rhino.owner.hand
@@ -3023,6 +3029,23 @@ def test_excess_mana():
   assert game.current_player.max_mana == 10
   assert game.current_player.current_mana == 10
 
+def test_both_players_secrets():
+  game = GameManager().create_test_game()
+  friendly_snipe = game.game_manager.get_card('Snipe', game.current_player.secrets_zone)
+  enemy_snipe = game.game_manager.get_card('Snipe', game.current_player.other_player.secrets_zone)
+  wisp = game.game_manager.get_card('Wisp', game.current_player.hand)
+  play_wisp = list(filter(lambda action: action.source == wisp, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(play_wisp)
+  assert wisp.parent == wisp.owner.graveyard
+  assert enemy_snipe.parent == enemy_snipe.owner.graveyard
+  assert friendly_snipe.parent == friendly_snipe.owner.secrets_zone
+
+def test_reveal_secret_on_your_turn():
+  game = GameManager().create_test_game()
+  ice_block = game.game_manager.get_card('Ice Block', game.current_player.secrets_zone)
+  game.deal_damage(game.current_player, 100)
+  assert game.current_player.get_health() == -70
+  assert ice_block.parent == ice_block.owner.secrets_zone
 
 def main():
   test_big_simulate()
