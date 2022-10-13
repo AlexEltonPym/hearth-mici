@@ -14,19 +14,19 @@ from numpy import empty, array
 from action import Action
 from tqdm import tqdm
 from numpy.random import RandomState
+from card_generator import *
 
 from game_manager import GameManager
 from itertools import zip_longest
-#Random testing
 
 def test_random_reshuffle():
   game_manager = GameManager()
   game_manager.create_player_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER, CardSets.CLASSIC_WARRIOR, CardSets.CLASSIC_MAGE])
   game_manager.create_enemy_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER, CardSets.CLASSIC_WARRIOR, CardSets.CLASSIC_MAGE])
-  game_manager.create_player(Classes.HUNTER, Deck.generate_random, RandomNoEarlyPassing)
-  game_manager.create_enemy(Classes.MAGE, Deck.generate_random, RandomNoEarlyPassing)
+  game_manager.create_player(game_manager.random_state.choice([c for c in Classes]), Deck.generate_random, RandomNoEarlyPassing)
+  game_manager.create_enemy(game_manager.random_state.choice([c for c in Classes]), Deck.generate_random, RandomNoEarlyPassing)
   game = game_manager.create_game()
-  game_results = empty(1000)
+  game_results = empty(100)
 
   def get_deck_stats():
     player_deck = game.player.deck.get_all()
@@ -56,7 +56,7 @@ def test_random_reshuffle():
   game.reset_game()
   deck_stats = get_deck_stats()
 
-  for i in range(1000):
+  for i in range(100):
     game.reset_game()
     new_deck_stats = get_deck_stats()
     compare_stats(deck_stats, new_deck_stats)
@@ -64,8 +64,18 @@ def test_random_reshuffle():
     game.start_game()
     game_results[i] = game.play_game()
 
+def test_cards_valid():
+  game_manager = GameManager()
+  game_manager.create_player_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER, CardSets.CLASSIC_WARRIOR, CardSets.CLASSIC_MAGE])
+  game_manager.create_enemy_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER, CardSets.CLASSIC_WARRIOR, CardSets.CLASSIC_MAGE])
+  game_manager.create_player(game_manager.random_state.choice([c for c in Classes]), Deck.generate_random, RandomNoEarlyPassing)
+  game_manager.create_enemy(game_manager.random_state.choice([c for c in Classes]), Deck.generate_random, RandomNoEarlyPassing)
+  i = 0
+  for card in game_manager.get_player_pool() + [get_hero_power(c) for c in Classes]:
+    print(f"{card=}")
+    check_card_valid(card)
 
-
+   
 def test_random_card_game():
   game_manager = GameManager()
   game_manager.create_player_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER, CardSets.TEST_CARDS])
