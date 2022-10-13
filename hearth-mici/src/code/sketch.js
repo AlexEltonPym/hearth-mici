@@ -1271,7 +1271,9 @@ export default function sketch(p) {
 
 
           let report_stats = report_array[card_number*3].concat(report_array[card_number*3+1]).concat(report_array[card_number*3+2])
-          report_stats = report_stats.sort((a, b) => a[5]-b[5]).slice(0, 6)
+          report_stats = report_stats.sort((a, b) => a[0] == 'WIN_RATE'?-1:b[0]=='WIN_RATE'?1:(a[5]-b[5]))
+          console.log(report_stats)
+          report_stats = report_stats.slice(0, 6)
 
           let mage_stats = []
           let hunter_stats = []
