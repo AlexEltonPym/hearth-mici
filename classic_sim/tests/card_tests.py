@@ -243,13 +243,13 @@ def test_southsea_deckhand():
   new_deckhand = game.game_manager.get_card('Southsea Deckhand', game.current_player.board)
 
   assert new_deckhand.attacks_this_turn == -1
-  assert not new_deckhand.condition.requirement(game, new_deckhand)
+  assert not new_deckhand.condition.requirement(Action(Actions.CAST_EFFECT, new_deckhand, [new_deckhand]))
   assert len(list(filter(lambda action: action.action_type == Actions.ATTACK, game.get_available_actions(game.current_player)))) == 0
 
   new_weapon = game.game_manager.get_card('Generic Weapon', game.current_player)
   assert game.current_player.weapon and game.current_player.weapon == new_weapon
   assert new_deckhand.attacks_this_turn == -1
-  assert new_deckhand.condition.requirement(game, new_deckhand)
+  assert new_deckhand.condition.requirement(Action(Actions.CAST_EFFECT, new_deckhand, [new_deckhand]))
   assert len(list(filter(lambda action: action.action_type == Actions.ATTACK, game.get_available_actions(game.current_player)))) == 2 #attack with charge, attack with weapon
 
 def test_silver_hand_knight():
@@ -339,10 +339,10 @@ def test_enrage():
   game = GameManager().create_test_game()
   new_berserker = game.game_manager.get_card('Amani Berserker', game.current_player.board)
 
-  assert not new_berserker.condition.requirement(game, new_berserker)
+  assert not new_berserker.condition.requirement(Action(Actions.CAST_EFFECT, new_berserker, [new_berserker]))
   new_berserker.attacks_this_turn = 0
   new_berserker.health = 2
-  assert new_berserker.condition.requirement(game, new_berserker)
+  assert new_berserker.condition.requirement(Action(Actions.CAST_EFFECT, new_berserker, [new_berserker]))
   attack_action = Action(action_type=Actions.ATTACK, source=new_berserker, targets=[game.current_player.other_player])
   game.perform_action(attack_action)
   assert game.current_player.other_player.health == 25
