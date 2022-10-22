@@ -3047,8 +3047,15 @@ def test_reveal_secret_on_your_turn():
   assert game.current_player.get_health() == -70
   assert ice_block.parent == ice_block.owner.secrets_zone
 
+def test_summon_none():
+  game = GameManager().create_test_game()
+  summon_none = game.game_manager.get_card('Summon None', game.current_player.hand)
+  cast_summon_none = list(filter(lambda action: action.source == summon_none, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(cast_summon_none)
+  assert len(game.current_player.board) == 0
+
 def main():
-  test_big_simulate()
+  pass
 
 
 if __name__ == '__main__':

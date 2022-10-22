@@ -17,6 +17,10 @@ import yaml # pip install pyyaml
 import jsonpickle
 import json
 from copy import deepcopy
+from game_manager import GameManager
+from collections.abc import Callable
+from typing import Union, get_origin, get_args
+
 
 def test_return_types():
   print("Inputs")
@@ -26,63 +30,87 @@ def test_return_types():
   print(signature(Add.__call__).return_annotation)
   assert True
 
-def test_return_types_constant():
-  print("Inputs")
-  for parameter in signature(Constant).parameters:
-    print(signature(Constant).parameters[parameter].annotation)
-  print("Returns")
-  print(signature(Constant.__call__).return_annotation.__constraints__)
-  assert True
 
 def test_equate_atttribute_to_integer():
-  compared = Equals(Constant(1), Constant(Attributes.CHARGE))
+  compared = Equals(ConstantInt(1), ConstantAttribute(Attributes.CHARGE))
   result = compared(Action(Actions.CAST_EFFECT, None, [None]))
   print(type(Attributes.CHARGE))
   assert True
 
 def test_generate_tree():
-  result_type = int
-  tree = generate_tree(result_type, 0, 2)
-  print("PRINTING TREE")
-  print_tree(tree, 0)
-  evaulation = tree(Action(Actions.CAST_EFFECT, None, [None]))
+  game = GameManager().create_test_game()
+  
+  tundra_rhino1 = game.game_manager.get_card('Tundra Rhino', game.current_player.board)
+  tundra_rhino2 = game.game_manager.get_card('Tundra Rhino', game.current_player.other_player.board)
+
+  result_type = Callable[..., bool]
+  tree = generate_tree(result_type, 0, 3)
+  print_tree(tree, 0, Action(Actions.CAST_EFFECT, tundra_rhino1, [tundra_rhino2]))
+  evaulation = tree(Action(Actions.CAST_EFFECT, tundra_rhino1, [tundra_rhino2]))
   print(f"{evaulation=}")
   
 
-def print_tree(tree, depth):
-  inputs, output = get_input_output_signature(tree.__class__)
+def print_tree(tree, depth, action):
+  if type(tree).__name__ in dir(__builtins__):
+    inputs = []
+    output = tuple([])
+  else:
+    inputs, output = get_input_output_signature(tree.__class__)
 
   if len(inputs) == 0 or inputs[0][0] is inspect._empty:
-    print("  " * depth + str(tree(Action(Actions.CAST_EFFECT, None, [None]))))
+    if callable(tree):
+      print("  " * depth + str(tree) + " == " + str(tree(action)))
+    else:
+      print("  " * depth + "Literal " + str(tree))
   else:
     print("  " * depth + str(tree))
     for attr in tree.__dict__:
-      print_tree(tree.__dict__[attr], depth+1)
+      print_tree(tree.__dict__[attr], depth+1, action)
   
 
 def generate_tree(root_type, depth, MAX_DEPTH):
 
-  internals, terminals = get_function_set()
+  internals, terminals, near_terminals = get_function_set()
   valid_internals = list(filter(lambda internal: root_type in internal[2], internals))
   valid_terminals = list(filter(lambda terminal: root_type in terminal[2], terminals))
+  valid_near_terminals = list(filter(lambda internal: root_type in internal[2], near_terminals))
 
-  print(root_type)
-  print("\n Internals")
-  for internal in valid_internals:
-    print(internal)
-  
-  print("\n Terminals")
-  for terminal in valid_terminals:
-    print(terminal)
-  if depth == MAX_DEPTH:
+  # print(f"{root_type=}")
+  # print("\n Internals")
+  # for internal in valid_internals:
+  #   print(internal)
+  # print("\n Terminals")
+  # for terminal in valid_terminals:
+  #   print(terminal)
+  # print("\n Near Terminals")
+  # for terminal in valid_near_terminals:
+  #   print(terminal)
+
+  if depth == MAX_DEPTH - 1 and len(valid_near_terminals) > 0:
+    chosen_function = choice(valid_near_terminals)
+    child = generate_tree(chosen_function[1][0][0], depth+1, MAX_DEPTH)
+    return chosen_function[0](child)
+  elif depth == MAX_DEPTH and len(valid_terminals) > 0:
     chosen_terminal = choice(valid_terminals)
-    print(f"{chosen_terminal[0]=}")
-    return chosen_terminal[0]()
+    if(callable(chosen_terminal[0])):
+      return chosen_terminal[0]()
+    else:
+      return chosen_terminal[0]
   else:
-    pickset = valid_internals if random() < 0.9 else valid_terminals
-    chosen_function = choice(pickset)
+    if len(valid_terminals) == 0:
+      pickset = valid_internals
+      chosen_function = choice(pickset)
+    elif len(valid_internals) == 0:
+      pickset = valid_terminals
+      chosen_function = choice(pickset)
+    else:
+      pickset = valid_internals if random() < 0.99 else valid_terminals
+      chosen_function = choice(pickset)
     if chosen_function[3]:
-      return chosen_function[0]()
+      if(callable(chosen_function[0])):
+        return chosen_function[0]()
+      else:
+        return chosen_function[0]
     else:
       filled_inputs = []
       for input in chosen_function[1]:
@@ -93,30 +121,23 @@ def generate_tree(root_type, depth, MAX_DEPTH):
 def get_function_set():
   internals = []
   terminals = []
+  near_terminals = []
+  near_terminal_classes = [ConstantInt, ConstantBool, ConstantCard, ConstantAttribute, NumOtherMinions, CardsInHand, DamageTaken, PlayerArmor, WeaponAttack, HasWeapon, MinionsPlayed, NumCardsInHand, NumWithCreatureType, NumDamaged, HasSecret]
   for dynamic_class in map(dynamics.__dict__.get, dynamics.__all__):
     inputs, output = get_input_output_signature(dynamic_class)
     if(len(inputs)==0):
-      # terminals.append((dynamic_class, inputs, output, True))
-      pass
+      terminals.append((dynamic_class, inputs, output, True))
     else:
-      if dynamic_class == Add or dynamic_class == Multiply:
-        internals.append((dynamic_class, inputs, output, False))
+      internals.append((dynamic_class, inputs, output, False))
+      if dynamic_class in near_terminal_classes:
+        near_terminals.append((dynamic_class, inputs, output, False))
 
-  class_names = ["n2", "n1", "zero", "p1", "p2", "true", "false", "friendly", "enemy", "all"]
-  class_values = [-2, -1, 0, 1, 2, True, False, OwnerFilters.FRIENDLY, OwnerFilters.ENEMY, OwnerFilters.ALL]
+  oneone = Card(name="OneOne", collectable=False, card_type=CardTypes.MINION, manacost=1, attack=1, health=1)
+  class_values = list(range(-20, 21)) + [True, False] + [o for o in OwnerFilters] + [c for c in CreatureTypes] + [a for a in Attributes] + [oneone]
+  for class_value in class_values:
+    terminals.append((class_value, [], (type(class_value),), True))
 
-  for class_name, class_value in zip(class_names, class_values):
-    exec(f"class {class_name}(object):\n\
-            def __init__(self):\n\
-              pass\n\
-            def __call__(self, action):\n\
-              return {class_value}")
-    
-    terminals.append((eval(f"{class_name}"), [], (type(class_value),), True))
-
-  
-
-  return (internals, terminals)
+  return (internals, terminals, near_terminals)
 
     
 
