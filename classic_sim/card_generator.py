@@ -6,45 +6,79 @@ import effects
 from card import Card
 from condition import Condition
 import numpy as np
+from action import Action
+from dynamics_generator import create_dynamics_tree
+
+def make_dynamic_param(param_type, random_state):
+  if param_type == ParamTypes.X:
+    tree = create_dynamics_tree(int, 3, 0.4, random_state)
+  elif param_type == ParamTypes.XY:
+    tree = (create_dynamics_tree(int, 3, 0.4, random_state), create_dynamics_tree(int, 3, 0.4, random_state))
+  elif param_type == ParamTypes.NONE:
+    tree = None
+  elif param_type == ParamTypes.KEYWORD:
+    tree = create_dynamics_tree(Attributes, 3, 0.4, random_state)
+  elif param_type == ParamTypes.DYNAMICS:
+    tree = create_dynamics_tree(bool, 3, 0.4, random_state)
+  elif param_type == ParamTypes.X_TOKENS:
+    tree = (create_dynamics_tree(int, 3, 0.4, random_state), create_dynamics_tree("CARD", 3, 0.4, random_state))
+  
+  return tree
+
+def make_random_condition(random_state):
+  requirement = create_dynamics_tree(bool, 3, 0.4, random_state)
+  minion_attributes = list(filter(lambda a: a not in [Attributes.FREE_SECRET, Attributes.ATTACK_AS_DURABILITY, Attributes.MINIONS_UNKILLABLE], [a for a in Attributes]))
+  if random_state.choice([0, 1]) == 0:
+    attributes = [random_state.choice(minion_attributes)]
+  else:
+    attributes = []
+  result = {'attributes': attributes, 'temp_attack': random_state.randint(1, 10)}
+  condition = random_state.choice([Condition(requirement, result), None])
+  return condition
+  
+
+def make_random_effect(random_state, card_type):
+  all_effects = get_classes(effects)
+  special_effects = [effects.Cantrip, effects.DualEffect, effects.DualEffectSelf, effects.DualEffectSecrets, effects.DualEffectBoard, effects.DynamicChoice, effects.MultiEffectRandom]
+  secret_effects = [effects.Redirect, effects.Counterspell, effects.RedirectToToken]
+  minion_effects = list(filter(lambda e: e not in special_effects+secret_effects, get_classes(effects)))
+ 
+  if card_type == CardTypes.SECRET:
+    EffectType = choice_with_none(minion_effects+secret_effects, random_state)
+  else:
+    EffectType = choice_with_none(minion_effects, random_state)
+  method = choice_with_none(EffectType.available_methods, random_state)
+  target = choice_with_none(EffectType.available_targets, random_state)
+  owner_filter = choice_with_none(EffectType.available_owner_filters, random_state)
+  type_filter = choice_with_none(EffectType.available_type_filters, random_state)
+  duration = choice_with_none(EffectType.available_durations, random_state)
+  trigger = choice_with_none(EffectType.available_triggers, random_state)
+  value = make_dynamic_param(EffectType.param_type, random_state)
+  effect = random_state.choice([EffectType(method=method, target=target, owner_filter=owner_filter, type_filter=type_filter, duration=duration, trigger=trigger, value=value), None])
+  return effect
+
+def make_random_minion(id, random_state):
+  manacost = random_state.randint(0, 10)
+  attack = random_state.randint(0, 10)
+  health = random_state.randint(1, 10)
+  minion_attributes = list(filter(lambda a: a not in [Attributes.FREE_SECRET, Attributes.ATTACK_AS_DURABILITY, Attributes.MINIONS_UNKILLABLE], [a for a in Attributes]))
+  if random_state.choice([0, 1]) == 0:
+    attributes = [random_state.choice(minion_attributes)]
+  else:
+    attributes = []
+  effect = make_random_effect(random_state, CardTypes.MINION)
+  condition = make_random_condition(random_state)
+  creature_type = choice_with_none([c for c in CreatureTypes], random_state)
+  rand_minion = Card(f"Generative Minion {id}", card_type=CardTypes.MINION, manacost=manacost, attack=attack, health=health, creature_type=creature_type, attributes=attributes, condition=condition, effect=effect)
+  return rand_minion
 
 def make_random_card(id, random_state):
   np.warnings.filterwarnings('ignore', category=np.VisibleDeprecationWarning) 
 
-  _card_type = random_state.choice([CardTypes.MINION, CardTypes.SPELL, CardTypes.WEAPON]) #not creating random hero powers
-  _manacost = random_state.randint(0, 10)
-  _attack = random_state.randint(0, 10)
-  _health = random_state.randint(1, 10)
-  _attributes = random_state.choice([[random_state.choice([a for a in Attributes])], []])
-  EffectType = random_state.choice([None] + list(filter(lambda effect_type: effect_type != effects.DualEffect and effect_type != effects.SummonToken, get_classes(effects))))
-  requirement = random_state.choice(Condition.get_available_conditions())
-  result = {'attributes': [random_state.choice([a for a in Attributes])], 'temp_attack': random_state.randint(0, 10), 'temp_health': random_state.randint(0, 10)}
-  _condition = random_state.choice([Condition(requirement=requirement, result=result), None])
-  if EffectType == effects.ReturnToHand and _manacost == 0: #prevent infintite loops
-    _manacost=1
-  if EffectType == effects.GainMana: #prevent infinite loops
-    _card_type = CardTypes.SPELL
-  if EffectType:
-    if EffectType.param_type == ParamTypes.X:
-      _value = random_state.randint(1, 10)
-    elif EffectType.param_type == ParamTypes.XY:
-      _value = (random_state.randint(1, 10), random_state.randint(1, 10))
-    elif EffectType.param_type == ParamTypes.NONE:
-      _value = None
-    elif EffectType.param_type == ParamTypes.KEYWORD:
-      _value = random_state.choice([a for a in Attributes])
-    _method = choice_with_none(EffectType.available_methods)
-    _target = choice_with_none(EffectType.available_targets)
-    _owner_filter = choice_with_none(EffectType.available_owner_filters)
-    _type_filter = choice_with_none(EffectType.available_type_filters)
-    _duration = choice_with_none(EffectType.available_durations)
-    _trigger = choice_with_none(EffectType.available_triggers)
-
-    rand_card = Card(f"Random Card {id}", card_type=_card_type, mana=_manacost, attack=_attack, health=_health, attributes=_attributes, condition=_condition,\
-      effect=EffectType(value=_value, method=_method, target=_target, owner_filter=_owner_filter, type_filter=_type_filter, duration=_duration, trigger=_trigger)
-    )
-  else:
-    rand_card = Card(f"Random Card {id}", card_type=CardTypes.MINION, mana=_manacost, attack=_attack, health=_health, condition=_condition, attributes=_attributes)
-
+  card_type = random_state.choice([CardTypes.MINION, CardTypes.SPELL, CardTypes.WEAPON, CardTypes.SECRET]) #not creating random hero powers
+  card_type = CardTypes.MINION
+  if card_type == CardTypes.MINION:
+    rand_card = make_random_minion(id, random_state)
   return rand_card
 
 def check_card_effect_valid(card):
@@ -88,3 +122,6 @@ def check_card_valid(card):
   check_card_attributes_valid(card)
   check_card_effect_valid(card) if card.effect else True
 
+
+if __name__ == "__main__":
+  make_dynamic_param()

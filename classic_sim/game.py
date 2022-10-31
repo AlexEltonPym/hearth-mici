@@ -182,7 +182,7 @@ class Game():
     for secret in action.source.owner.other_player.secrets_zone:
       if isinstance(secret.effect, Counterspell):
         spell_countered = True
-      if spell_targeted and isinstance(secret.effect, RedirectToToken):
+      if spell_targeted and isinstance(secret.effect, RedirectToToken) and secret.effect.value[1](action) is not None:
         for token_number in range(secret.effect.value[0](action)):
           if len(secret.owner.board) >= secret.owner.board.max_entries:
             break

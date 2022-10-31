@@ -163,12 +163,11 @@ class CardTypes(Enum):
 
 class ParamTypes(Enum):
   KEYWORD = 0
-  CREATURE_TYPE = 1
-  X = 2
-  XY = 3
-  NONE = 4
-  X_TOKENS = 5
-  DYNAMICS = 6
+  X = 1
+  XY = 2
+  NONE = 3
+  X_TOKENS = 4
+  DYNAMICS = 5
 
 class Zones(Enum):
   BOARD = 0

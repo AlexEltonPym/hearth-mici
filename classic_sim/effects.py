@@ -480,8 +480,11 @@ class SummonToken(): #summon minion for target player
     self.duration = duration
 
   def resolve_action(self, game, action):
+    if self.value[1](action) is None:
+      return
     token_count = self.value[0](action)
     summoned_card = self.value[1](action)
+
     new_owner = action.targets[0].owner.other_player if self.method == Methods.TRIGGERER else action.targets[0]
     for token_number in range(token_count):
       if summoned_card.card_type == CardTypes.MINION:
@@ -522,6 +525,8 @@ class ReplaceWithToken(): #replace minion with summoned token
     self.duration = duration
 
   def resolve_action(self, game, action):
+    if self.value[1](action) is None:
+      return
     for target in action.targets:
       target.change_parent(target.owner.graveyard)
 
@@ -529,6 +534,7 @@ class ReplaceWithToken(): #replace minion with summoned token
         if len(target.owner.board) >= target.owner.board.max_entries:
           break
         new_token = deepcopy(self.value[1](action))
+
         new_token.collectable = False
         new_token.set_owner(target.owner)
         new_token.set_parent(target.owner.board) #Doesn't trigger battlecry
@@ -757,7 +763,7 @@ class Cantrip(): #performs first effect + draw a card
     self.available_durations =first_effect.available_durations
     self.available_triggers = first_effect.available_triggers
     self.first_effect = first_effect
-    self.second_effect = DrawCards(value=Constant(1), method=Methods.ALL, owner_filter=OwnerFilters.FRIENDLY)
+    self.second_effect = DrawCards(value=ConstantInt(1), method=Methods.ALL, owner_filter=OwnerFilters.FRIENDLY)
     self.method = first_effect.method
     self.random_count = first_effect.random_count
     self.random_replace = first_effect.random_replace
