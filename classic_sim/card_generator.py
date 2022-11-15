@@ -8,6 +8,7 @@ from condition import Condition
 import numpy as np
 from action import Action
 from dynamics_generator import create_dynamics_tree
+from numpy.random import RandomState
 
 def make_dynamic_param(param_type, random_state):
   if param_type == ParamTypes.X:
@@ -26,7 +27,7 @@ def make_dynamic_param(param_type, random_state):
   return tree
 
 def make_random_condition(random_state):
-  requirement = create_dynamics_tree(bool, 3, 0.4, random_state)
+  requirement = create_dynamics_tree(bool, 3, 0.4, random_state, is_condition=True)
   minion_attributes = list(filter(lambda a: a not in [Attributes.FREE_SECRET, Attributes.ATTACK_AS_DURABILITY, Attributes.MINIONS_UNKILLABLE], [a for a in Attributes]))
   if random_state.choice([0, 1]) == 0:
     attributes = [random_state.choice(minion_attributes)]
@@ -79,6 +80,7 @@ def make_random_card(id, random_state):
   card_type = CardTypes.MINION
   if card_type == CardTypes.MINION:
     rand_card = make_random_minion(id, random_state)
+  print(f"Making card {id}")
   return rand_card
 
 def check_card_effect_valid(card):
@@ -124,4 +126,5 @@ def check_card_valid(card):
 
 
 if __name__ == "__main__":
-  make_dynamic_param()
+  card = make_random_card(0, RandomState())
+  print(card)

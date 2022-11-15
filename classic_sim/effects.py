@@ -340,14 +340,15 @@ class ReturnToHand():
 
   def resolve_action(self, game, action):
     for target in action.targets:
-      if self.hits_adjacent:
-        adjacent_targets = target.parent.get_adjacent(target)
-        for adjacent_target in adjacent_targets:
-          adjacent_target.change_parent(adjacent_target.parent.parent.hand) #return to targets parent's player's hand (the parent of the board is the player)
-          adjacent_target.return_to_hand_reset()
+      if not isinstance(target, Player):
+        if self.hits_adjacent:
+          adjacent_targets = target.parent.get_adjacent(target)
+          for adjacent_target in adjacent_targets:
+            adjacent_target.change_parent(adjacent_target.parent.parent.hand) #return to targets parent's player's hand (the parent of the board is the player)
+            adjacent_target.return_to_hand_reset()
 
-      target.change_parent(target.parent.parent.hand) #return to targets parent's player's hand (the parent of the board is the player)
-      target.return_to_hand_reset()
+        target.change_parent(target.parent.parent.hand) #return to targets parent's player's hand (the parent of the board is the player)
+        target.return_to_hand_reset()
 
 class RestoreHealth():
   available_methods = [Methods.TARGETED, Methods.RANDOMLY, Methods.ALL, Methods.SELF]

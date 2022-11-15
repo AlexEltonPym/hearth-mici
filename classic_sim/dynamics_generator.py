@@ -7,15 +7,20 @@ import inspect
 from typing import ForwardRef
 from enums import *
 from collections.abc import Callable
-from card_generator import *
 
 
-def create_dynamics_tree(return_type, max_depth, internals_ratio, random_state):
+
+def create_dynamics_tree(return_type, max_depth, internals_ratio, random_state, is_condition=False):
   CARD="CARD"
   result_type = Callable[..., return_type]
   internals, terminals, near_terminals = get_function_set()
+  if is_condition:
+    for index, terminal in enumerate(terminals):
+      if terminal[0] == dynamics.AttackValue:
+        terminals.pop(index)
 
   tree = generate_tree(result_type, 0, max_depth, internals_ratio, internals, terminals, near_terminals, random_state)
+
   return tree
   
 
@@ -43,16 +48,17 @@ def generate_tree(root_type, depth, MAX_DEPTH, internals_ratio, internals, termi
   valid_terminals = list(filter(lambda terminal: root_type in terminal[2], terminals))
   valid_near_terminals = list(filter(lambda internal: root_type in internal[2], near_terminals))
 
-  print(f"{root_type=}")
-  print("\n Internals")
-  for internal in valid_internals:
-    print(internal)
-  print("\n Terminals")
-  for terminal in valid_terminals:
-    print(terminal)
-  print("\n Near Terminals")
-  for terminal in valid_near_terminals:
-    print(terminal)
+  # print(f"{root_type=}")
+  # print(f"{depth=}")
+  # print("\n Internals")
+  # for internal in valid_internals:
+  #   print(internal)
+  # print("\n Terminals")
+  # for terminal in valid_terminals:
+  #   print(terminal)
+  # print("\n Near Terminals")
+  # for terminal in valid_near_terminals:
+  #   print(terminal)
 
   if depth == MAX_DEPTH - 1 and len(valid_near_terminals) > 0:
     chosen_function = valid_near_terminals[random_state.randint(len(valid_near_terminals))]

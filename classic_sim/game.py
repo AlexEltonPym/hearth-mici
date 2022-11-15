@@ -48,7 +48,6 @@ class Game():
         player.weapon = None
       for card in all_cards:
         if card.collectable:
-          print(f"reseting {card}")
           card.reset()
           card.change_parent(card.owner.deck)
         else:
@@ -76,9 +75,12 @@ class Game():
   def take_turn(self):
     self.untap()
     turn_passed = False
+    action_count = 0
 
     while not turn_passed:
       turn_passed = self.current_player.strategy.choose_action(self)
+      # print(f"{action_count=}")
+      action_count += 1
       if self.player.health <= 0: #if we only check at turn end is faster?
         return 0
       elif self.enemy.health <= 0:
@@ -703,8 +705,10 @@ class Game():
 
   def play_game(self):
     game_status = -1
-
+    turn = 0
     while game_status == -1:
+      # print(f"taking turn {turn}")
+      turn+=1
       game_status = self.take_turn()
       
     return game_status

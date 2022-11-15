@@ -1,27 +1,15 @@
 import sys
-from webbrowser import get
 sys.path.append('../')
 
 from dynamics import *
-import dynamics
 from action import Action
 from inspect import signature
-from player import Player
-from card import Card
-import inspect
-from typing import ForwardRef
 from enums import *
-from random import choice, random
-import pprint
-import yaml # pip install pyyaml
-import jsonpickle
-import json
-from copy import deepcopy
-from game_manager import GameManager
-from collections.abc import Callable
-from typing import Union, get_origin, get_args
-from dynamics_generator import *
+from random import choice
 
+from game_manager import GameManager
+from dynamics_generator import *
+from numpy.random import RandomState
 
 def test_return_types():
   print("Inputs")
@@ -39,7 +27,7 @@ def test_equate_atttribute_to_integer():
   assert True
 
 def test_dyanamics_tree():
-  tree = create_dynamics_tree(return_type=choice([int, bool, "CARD", Attributes]), max_depth=3, internals_ratio=0.4)
+  tree = create_dynamics_tree(return_type=choice([int, bool, "CARD", Attributes]), max_depth=3, internals_ratio=0.4, random_state=RandomState())
 
   game = GameManager().create_test_game()
   tundra_rhino1 = game.game_manager.get_card('Tundra Rhino', game.current_player.board)

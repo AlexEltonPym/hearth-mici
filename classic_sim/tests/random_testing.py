@@ -164,17 +164,22 @@ def test_xl_big_random_cards():
       assert game_results.mean() < 1 and game_results.mean() > 0
 
 def test_generative_cards():
-  game_manager = GameManager(RandomState(0))
+  game_manager = GameManager(RandomState())
   game_manager.create_player_pool([CardSets.RANDOM_CARDS])
   game_manager.create_enemy_pool([CardSets.RANDOM_CARDS])
   game_manager.create_player(Classes.HUNTER, Deck.generate_random, RandomNoEarlyPassing)
   game_manager.create_enemy(Classes.MAGE, Deck.generate_random, RandomNoEarlyPassing)
   game = game_manager.create_game()
-  game_results = empty(100)
-  for i in range(10):
+
+  game_results = empty(1000)
+  for i in range(1000):
     game_result = game.play_game()
     game_results[i] = game_result
     game.reset_game()
     game.start_game()
   print(game_results)
       
+
+if __name__ == "__main__":
+  for i in range(100):
+    test_generative_cards()
