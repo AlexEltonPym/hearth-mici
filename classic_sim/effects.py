@@ -526,7 +526,7 @@ class ReplaceWithToken(): #replace minion with summoned token
     self.duration = duration
 
   def resolve_action(self, game, action):
-    if self.value[1](action) is None:
+    if len(action.targets) == 0 or self.value[1](action) is None:
       return
     for target in action.targets:
       target.change_parent(target.owner.graveyard)
@@ -539,6 +539,7 @@ class ReplaceWithToken(): #replace minion with summoned token
         new_token.collectable = False
         new_token.set_owner(target.owner)
         new_token.set_parent(target.owner.board) #Doesn't trigger battlecry
+        new_token.attacks_this_turn = 2 #prevent infinite attacks, new summon should have SS
 
 class RedirectToToken(): #change the target of spell to summoned token 
   available_methods = [Methods.ALL]
@@ -639,7 +640,7 @@ class ChangeCost():
 class SwapWithMinion():
   available_methods = [Methods.RANDOMLY, Methods.ALL]
   param_type = ParamTypes.NONE
-  available_targets = [Targets.MINION, Targets.WEAPON, Targets.SPELL, Targets.SECRET, Targets.MINION_OR_SPELL]
+  available_targets = [Targets.MINION]
   available_owner_filters = [o for o in OwnerFilters]
   available_type_filters = [t for t in CreatureTypes]
   available_durations = []

@@ -68,9 +68,9 @@ def make_random_minion(id, random_state):
   else:
     attributes = []
   effect = make_random_effect(random_state, CardTypes.MINION)
-  condition = make_random_condition(random_state)
+  # condition = make_random_condition(random_state)
   creature_type = choice_with_none([c for c in CreatureTypes], random_state)
-  rand_minion = Card(f"Generative Minion {id}", card_type=CardTypes.MINION, manacost=manacost, attack=attack, health=health, creature_type=creature_type, attributes=attributes, condition=condition, effect=effect)
+  rand_minion = Card(f"Generative Minion {id}", card_type=CardTypes.MINION, manacost=manacost, attack=attack, health=health, creature_type=creature_type, attributes=attributes, effect=effect)
   return rand_minion
 
 def make_random_card(id, random_state):
@@ -80,7 +80,7 @@ def make_random_card(id, random_state):
   card_type = CardTypes.MINION
   if card_type == CardTypes.MINION:
     rand_card = make_random_minion(id, random_state)
-  print(f"Making card {id}")
+  # print(f"Making card {id}")
   return rand_card
 
 def check_card_effect_valid(card):

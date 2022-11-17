@@ -6,7 +6,7 @@ sys.path.append('../')
 from card import Card
 from zones import Deck
 from player import Player
-from game import Game
+from game import Game, TooManyActions
 from enums import *
 from card_sets import *
 from strategy import GreedyAction, RandomAction, RandomNoEarlyPassing
@@ -18,6 +18,9 @@ from card_generator import *
 
 from game_manager import GameManager
 from itertools import zip_longest
+from tqdm import tqdm
+
+from random import randint
 
 def test_random_reshuffle():
   game_manager = GameManager()
@@ -164,22 +167,37 @@ def test_xl_big_random_cards():
       assert game_results.mean() < 1 and game_results.mean() > 0
 
 def test_generative_cards():
-  game_manager = GameManager(RandomState())
+  random_seed = randint(1, 10000)
+  print(f"{random_seed=}")
+  game_manager = GameManager(RandomState(4218))
   game_manager.create_player_pool([CardSets.RANDOM_CARDS])
   game_manager.create_enemy_pool([CardSets.RANDOM_CARDS])
   game_manager.create_player(Classes.HUNTER, Deck.generate_random, RandomNoEarlyPassing)
   game_manager.create_enemy(Classes.MAGE, Deck.generate_random, RandomNoEarlyPassing)
   game = game_manager.create_game()
+  # for card in game_manager.player.deck:
+  #   print(card)
 
-  game_results = empty(1000)
-  for i in range(1000):
-    game_result = game.play_game()
-    game_results[i] = game_result
+  # print("---")
+  # for card in game_manager.enemy.deck:
+  #   print(card)
+
+  game_results = []#empty(100)
+  for i in tqdm(range(100)):
+    try:
+      game_result = game.play_game()
+    except (TooManyActions, RecursionError) as e:
+      game_result = None
+      # print(e)
+      # for card in list(game_manager.enemy.deck) + list(game_manager.player.deck):
+      #   print(card)
+      # print(game_manager.player.deck)
+    game_results.append(game_result)
     game.reset_game()
     game.start_game()
   print(game_results)
       
 
 if __name__ == "__main__":
-  for i in range(100):
+  for i in range(1):
     test_generative_cards()

@@ -5,6 +5,9 @@ from effects import *
 import copy
 from action import Action
 
+class TooManyActions(Exception):
+  pass
+
 class Game():
   def __init__(self, game_manager):
     self.game_manager = game_manager
@@ -87,6 +90,8 @@ class Game():
         return 1
       if turn_passed:
         self.end_turn()
+      if action_count > 50:
+        raise TooManyActions("Too many actions without passing")
     return -1
 
   def end_turn(self):
@@ -299,10 +304,13 @@ class Game():
     
     self.deal_damage(action.targets[0], damage, poisonous=action.source.has_attribute(Attributes.POISONOUS), freezer=action.source.has_attribute(Attributes.FREEZER))
     self.deal_damage(action.source, other_damage, poisonous=action.targets[0].has_attribute(Attributes.POISONOUS), freezer=action.targets[0].has_attribute(Attributes.FREEZER))
+    # print(action.source.attacks_this_turn)
     if action.source.attacks_this_turn == -1: #used charge to attack
       action.source.attacks_this_turn += 2
     else:
       action.source.attacks_this_turn += 1
+    # print(action.source.attacks_this_turn)
+
     action.source.remove_attribute(Attributes.STEALTH)
 
 
@@ -374,6 +382,9 @@ class Game():
       elif card.effect.method == Methods.SELF:
         card.effect.resolve_action(self, Action(Actions.CAST_EFFECT, card, [card]))
       elif card.effect.method == Methods.TRIGGERER:
+        if isinstance(triggerer, Player) and not Targets.HERO in card.effect.available_targets:
+          return
+        
         card.effect.resolve_action(self, Action(Actions.CAST_EFFECT, card, [triggerer]))
 
     if card.card_type == CardTypes.SECRET:
@@ -401,7 +412,7 @@ class Game():
                and (triggerer.creature_type == CreatureTypes.ALL\
                or card.creature_type == CreatureTypes.ALL\
                or triggerer.creature_type == card.creature_type):
-              self.resolve_effect(card)
+              self.resolve_effect(card, triggerer)
             elif trigger_type == Triggers.FRIENDLY_END_TURN:
               self.resolve_effect(card, triggerer)
             elif trigger_type == Triggers.FRIENDLY_SPELL_CAST:
@@ -432,7 +443,7 @@ class Game():
                and (triggerer.creature_type == CreatureTypes.ALL\
                or card.creature_type == CreatureTypes.ALL\
                or triggerer.creature_type == card.creature_type):
-              self.resolve_effect(card)
+              self.resolve_effect(card, triggerer)
             elif trigger_type == Triggers.ENEMY_END_TURN:
               self.resolve_effect(card, triggerer)
             elif trigger_type == Triggers.ENEMY_SPELL_CAST:
