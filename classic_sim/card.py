@@ -38,8 +38,6 @@ class Card():
     self.parent.add(self)
 
   def change_parent(self, new_parent):
-    if self.name == "The Coin":
-      print(new_parent)
     self.parent.remove(self)
     self.parent = new_parent
     self.parent.add(self)

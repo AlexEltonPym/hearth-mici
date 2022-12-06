@@ -169,7 +169,7 @@ def test_xl_big_random_cards():
 def test_generative_cards():
   random_seed = randint(1, 10000)
   print(f"{random_seed=}")
-  game_manager = GameManager(RandomState(4218))
+  game_manager = GameManager(RandomState(random_seed))
   game_manager.create_player_pool([CardSets.RANDOM_CARDS])
   game_manager.create_enemy_pool([CardSets.RANDOM_CARDS])
   game_manager.create_player(Classes.HUNTER, Deck.generate_random, RandomNoEarlyPassing)
@@ -199,5 +199,5 @@ def test_generative_cards():
       
 
 if __name__ == "__main__":
-  for i in range(1):
+  for i in range(1000):
     test_generative_cards()

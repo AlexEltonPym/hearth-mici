@@ -318,7 +318,7 @@ class TargetFrozen(object):
   def __init__(self):
     pass
   def __call__(self, action) -> Callable[..., bool]:
-    return action.targets[0].has_attribute(Attributes.FROZEN)
+    return len(action.targets) > 0 and action.targets[0].has_attribute(Attributes.FROZEN)
 
 class PlayerHasAttribute(object):
   def __init__(self, attribute:Callable[..., Attributes], owner_filter:OwnerFilters):
@@ -354,7 +354,7 @@ class TargetAlive(object):
   def __init__(self):
     pass
   def __call__(self, action) -> Callable[..., bool]:
-    return action.targets[0].get_health() > 0
+    return len(action.targets) > 0 and action.targets[0].get_health() > 0
 
 
 __all__ = ["ConstantInt", "ConstantBool", "ConstantCard", "ConstantAttribute", "Multiply", "Add", "Equals", "LessThan", "GreaterThan", "Not", "And", "Or", "Minimum", "Maximum", "IfInt", "IfCard", "IfAttribute", "Source", "Target", "NumOtherMinions", "CardsInHand", "DamageTaken", "PlayerArmor", "WeaponAttack", "HasWeapon", "MinionsPlayed", "NumCardsInHand", "AttackValue", "HealthValue", "Damaged", "NumWithAttribute", "NumWithCreatureType", "NumDamaged", "TargetFrozen", "PlayerHasAttribute", "SourceHasAttribute", "HasSecret", "TargetAlive"]

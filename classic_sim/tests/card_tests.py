@@ -6,7 +6,7 @@ sys.path.append('../')
 from card import Card
 from zones import Deck
 from player import Player
-from game import Game
+from game import Game, PlayerDead
 from enums import *
 from card_sets import *
 from strategy import GreedyAction, RandomAction, RandomNoEarlyPassing
@@ -3043,7 +3043,12 @@ def test_both_players_secrets():
 def test_reveal_secret_on_your_turn():
   game = GameManager().create_test_game()
   ice_block = game.game_manager.get_card('Ice Block', game.current_player.secrets_zone)
-  game.deal_damage(game.current_player, 100)
+  try:
+    game.deal_damage(game.current_player, 100)
+  except PlayerDead:
+    assert True
+  else:
+    assert False
   assert game.current_player.get_health() == -70
   assert ice_block.parent == ice_block.owner.secrets_zone
 

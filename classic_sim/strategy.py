@@ -10,11 +10,7 @@ class GreedyAction():
   # @profile
   def choose_action(state):
     available_actions = state.get_available_actions(state.current_player)
-    print(f"{len(available_actions)=}")
-    if len(available_actions) > 20:
-      for available_action in available_actions:
-        print(available_action)
-      # print(available_actions)
+
     possible_actions = []
     for action_index in range(len(available_actions)):
       possible_state = cPickle.loads(cPickle.dumps(state, -1))
@@ -63,8 +59,7 @@ class RandomNoEarlyPassing():
       chosen_action = state.game_manager.random_state.choice(available_actions_without_ending)
     else:
       chosen_action = all_available_actions[0]
-    
-    print(chosen_action)
+    # print(f"{chosen_action=}")
+
     turn_passed = state.perform_action(chosen_action)
-    
     return turn_passed

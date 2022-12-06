@@ -110,7 +110,7 @@ class Destroy():
 class ChangeStats():
   available_methods = [m for m in Methods]
   param_type = ParamTypes.XY
-  available_targets = [t for t in Targets]
+  available_targets = [Targets.MINION, Targets.WEAPON]
   available_owner_filters = [f for f in OwnerFilters]
   available_type_filters = [c for c in CreatureTypes]
   available_durations = [d for d in Durations]
@@ -196,7 +196,7 @@ class SetStats():
 class SwapStats():
   available_methods = [m for m in Methods]
   param_type = ParamTypes.NONE
-  available_targets = [t for t in Targets]
+  available_targets = [Targets.MINION, Targets.WEAPON]
   available_owner_filters = [f for f in OwnerFilters]
   available_type_filters = [c for c in CreatureTypes]
   available_durations = [Durations.PERMANENTLY]
@@ -279,7 +279,6 @@ class DrawCards():
     self.duration = duration
 
   def resolve_action(self, game, action):
-      
     for target in action.targets:
       if isinstance(target, Player):
         game.draw(target, self.value(action))

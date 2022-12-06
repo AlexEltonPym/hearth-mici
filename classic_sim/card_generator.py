@@ -40,7 +40,7 @@ def make_random_condition(random_state):
 
 def make_random_effect(random_state, card_type):
   all_effects = get_classes(effects)
-  special_effects = [effects.Cantrip, effects.DualEffect, effects.DualEffectSelf, effects.DualEffectSecrets, effects.DualEffectBoard, effects.DynamicChoice, effects.MultiEffectRandom]
+  special_effects = [effects.ReplaceWithToken, effects.Cantrip, effects.DualEffect, effects.DualEffectSelf, effects.DualEffectSecrets, effects.DualEffectBoard, effects.DynamicChoice, effects.MultiEffectRandom]
   secret_effects = [effects.Redirect, effects.Counterspell, effects.RedirectToToken]
   minion_effects = list(filter(lambda e: e not in special_effects+secret_effects, get_classes(effects)))
  

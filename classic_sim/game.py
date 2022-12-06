@@ -8,6 +8,9 @@ from action import Action
 class TooManyActions(Exception):
   pass
 
+class PlayerDead(Exception):
+  pass
+
 class Game():
   def __init__(self, game_manager):
     self.game_manager = game_manager
@@ -76,20 +79,37 @@ class Game():
 
 
   def take_turn(self):
-    self.untap()
+    try:
+      self.untap()
+    except PlayerDead:
+      if self.player.health <= 0: #if we only check at turn end is faster?
+        return 0
+      elif self.enemy.health <= 0:
+        return 1
     turn_passed = False
     action_count = 0
 
     while not turn_passed:
-      turn_passed = self.current_player.strategy.choose_action(self)
-      # print(f"{action_count=}")
+      try:
+        turn_passed = self.current_player.strategy.choose_action(self)
+      except PlayerDead:
+        if self.player.health <= 0: #if we only check at turn end is faster?
+          return 0
+        elif self.enemy.health <= 0:
+          return 1
       action_count += 1
       if self.player.health <= 0: #if we only check at turn end is faster?
         return 0
       elif self.enemy.health <= 0:
         return 1
       if turn_passed:
-        self.end_turn()
+        try:
+          self.end_turn()
+        except PlayerDead:
+          if self.player.health <= 0: #if we only check at turn end is faster?
+            return 0
+          elif self.enemy.health <= 0:
+            return 1
       if action_count > 50:
         raise TooManyActions("Too many actions without passing")
     return -1
@@ -280,6 +300,7 @@ class Game():
           return
       self.trigger(action.targets[0], Triggers.HERO_ATTACKED) #this triggers even if redirected to another target
     else:
+
       self.trigger(action.source, Triggers.ENEMY_ATTACKS_MINION)
     
     if isinstance(action.source, Player) and action.source.weapon:
@@ -314,13 +335,14 @@ class Game():
     action.source.remove_attribute(Attributes.STEALTH)
 
 
-  def deal_damage(self, target, amount, poisonous=False, freezer=False):
-    if target.has_attribute(Attributes.IMMUNE):
+  def deal_damage(self, target, amount, poisonous=False, freezer=False, fatigue=False):
+    if target.has_attribute(Attributes.IMMUNE) and not fatigue:
       return
     elif target.has_attribute(Attributes.DIVINE_SHIELD) and amount > 0:
       target.remove_attribute(Attributes.DIVINE_SHIELD)
     elif amount > 0:
       if isinstance(target, Player):
+
         new_health = target.health
         new_armor = target.armor
         if new_armor > 0:
@@ -332,11 +354,14 @@ class Game():
           new_health -= amount #no armor to worry about
         if new_health <= 0:
           self.trigger(target, Triggers.LETHAL_DAMAGE)
-        if target.has_attribute(Attributes.IMMUNE):
+        if target.has_attribute(Attributes.IMMUNE) and not fatigue:
           return
         else:
+
           target.health = new_health
           target.armor = new_armor
+          if target.health <= 0:
+            raise PlayerDead
       else:
         previous_health = target.health
           
@@ -369,11 +394,13 @@ class Game():
 
           
   def resolve_effect(self, card, triggerer=None):
+    print(f"{triggerer=}")
     if card.card_type == CardTypes.SECRET and card.owner.game.current_player == card.owner:
       return
     targets = self.get_available_effect_targets(card)
     if len(targets) > 0 or card.effect.method == Methods.ALL:
       if card.effect.method == Methods.ALL:
+
         card.effect.resolve_action(self, Action(Actions.CAST_EFFECT, card, targets))
       elif card.effect.method == Methods.RANDOMLY:
         card.effect.resolve_action(self, Action(Actions.CAST_EFFECT, card, self.game_manager.random_state.choice(targets, card.effect.random_count if card.effect.random_replace else min(len(cast_targets), card.effect.random_count), card.effect.random_replace)))
@@ -381,8 +408,9 @@ class Game():
         card.effect.resolve_action(self, Action(Actions.CAST_EFFECT, card, [targets[0]]))
       elif card.effect.method == Methods.SELF:
         card.effect.resolve_action(self, Action(Actions.CAST_EFFECT, card, [card]))
-      elif card.effect.method == Methods.TRIGGERER:
-        if isinstance(triggerer, Player) and not Targets.HERO in card.effect.available_targets:
+      elif card.effect.method == Methods.TRIGGERER and triggerer != None:
+        if isinstance(triggerer, Player) and not Targets.HERO in card.effect.available_targets or\
+          not isinstance(triggerer, Player) and triggerer.card_type == CardTypes.SPELL and not (Targets.SPELL in card.effect.available_targets or Targets.MINION_OR_SPELL in card.effect.available_targets):
           return
         
         card.effect.resolve_action(self, Action(Actions.CAST_EFFECT, card, [triggerer]))
@@ -593,7 +621,8 @@ class Game():
         else:
           self.deck_to_graveyard(player)
       else:
-        player.health -= player.fatigue_damage
+        self.deal_damage(player, player.fatigue_damage, fatigue=True)
+        
         player.fatigue_damage += 1
 
   def mulligan(self, player):
