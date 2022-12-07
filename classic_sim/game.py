@@ -91,13 +91,14 @@ class Game():
 
     while not turn_passed:
       try:
+        action_count += 1
         turn_passed = self.current_player.strategy.choose_action(self)
       except PlayerDead:
         if self.player.health <= 0: #if we only check at turn end is faster?
           return 0
         elif self.enemy.health <= 0:
           return 1
-      action_count += 1
+
       if self.player.health <= 0: #if we only check at turn end is faster?
         return 0
       elif self.enemy.health <= 0:
@@ -177,7 +178,7 @@ class Game():
   def cast_minion(self, action):
     self.current_player.current_mana -= action.source.get_manacost()
     
-    initial_attack_less_than_three = action.source.get_attack() <= 3
+    initial_attack_less_than_four = action.source.get_attack() <= 3
 
     action.source.change_parent(action.source.owner.board)
 
@@ -196,7 +197,7 @@ class Game():
     self.trigger(action.source, Triggers.ANY_CARD_PLAYED)
     self.trigger(action.source, Triggers.FRIENDLY_CARD_PLAYED)
     self.trigger(action.source, Triggers.ENEMY_CARD_PLAYED)
-    if initial_attack_less_than_three:
+    if initial_attack_less_than_four:
       self.trigger(action.source, Triggers.FRIENDLY_LESS_THAN_FOUR_ATTACK_SUMMONED)
 
 
@@ -304,7 +305,10 @@ class Game():
       self.trigger(action.source, Triggers.ENEMY_ATTACKS_MINION)
     
     if isinstance(action.source, Player) and action.source.weapon:
+
       damage = action.source.get_attack()
+      print(f"attacking a player with a weapon for {damage} damage")
+
       other_damage = 0 if action.source.weapon.has_attribute(Attributes.IMMUNE) else action.targets[0].get_attack()
       if action.source.weapon.has_attribute(Attributes.ATTACK_AS_DURABILITY) and not isinstance(action.targets[0], Player):
         action.source.weapon.attack -= 1
@@ -325,12 +329,10 @@ class Game():
     
     self.deal_damage(action.targets[0], damage, poisonous=action.source.has_attribute(Attributes.POISONOUS), freezer=action.source.has_attribute(Attributes.FREEZER))
     self.deal_damage(action.source, other_damage, poisonous=action.targets[0].has_attribute(Attributes.POISONOUS), freezer=action.targets[0].has_attribute(Attributes.FREEZER))
-    # print(action.source.attacks_this_turn)
     if action.source.attacks_this_turn == -1: #used charge to attack
       action.source.attacks_this_turn += 2
     else:
       action.source.attacks_this_turn += 1
-    # print(action.source.attacks_this_turn)
 
     action.source.remove_attribute(Attributes.STEALTH)
 
@@ -394,7 +396,7 @@ class Game():
 
           
   def resolve_effect(self, card, triggerer=None):
-    print(f"{triggerer=}")
+    # print(f"{triggerer=}")
     if card.card_type == CardTypes.SECRET and card.owner.game.current_player == card.owner:
       return
     targets = self.get_available_effect_targets(card)
@@ -751,4 +753,4 @@ class Game():
       turn+=1
       game_status = self.take_turn()
       
-    return game_status
+    return (game_status, turn, self.player.health-self.enemy.health)

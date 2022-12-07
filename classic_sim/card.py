@@ -108,23 +108,26 @@ class Card():
     if attribute in self.perm_attributes: self.perm_attributes.remove(attribute)
 
   def get_attack(self):
-    aura_attack, _ = self.get_aura_stats()
-    condition_attack = self.condition.result['temp_attack'] if self.condition and self.condition.requirement(Action(Actions.CAST_EFFECT, self, [self])) else 0
-    # print(self)
-    # print(f"{self.attack=}")
-    # print(self.perm_attack)
-    # print(self.temp_attack)
-    # print(condition_attack)
-    # print(aura_attack)
-    return self.attack+self.perm_attack+self.temp_attack+condition_attack+aura_attack
+    if self.card_type == CardTypes.MINION or self.card_type == CardTypes.WEAPON:
+      aura_attack, _ = self.get_aura_stats()
+      condition_attack = self.condition.result['temp_attack'] if self.condition and self.condition.requirement(Action(Actions.CAST_EFFECT, self, [self])) else 0
+      return self.attack+self.perm_attack+self.temp_attack+condition_attack+aura_attack
+    else:
+      return 0
 
   def get_health(self):
-    _, aura_health = self.get_aura_stats()
-    return self.health+self.temp_health+self.perm_health+aura_health
+    if self.card_type == CardTypes.MINION or self.card_type == CardTypes.WEAPON:
+      _, aura_health = self.get_aura_stats()
+      return self.health+self.temp_health+self.perm_health+aura_health
+    else:
+      return 0
 
   def get_max_health(self):
-    _, aura_health = self.get_aura_stats()
-    return self.max_health+self.temp_health+self.perm_health+aura_health
+    if self.card_type == CardTypes.MINION or self.card_type == CardTypes.WEAPON:
+      _, aura_health = self.get_aura_stats()
+      return self.max_health+self.temp_health+self.perm_health+aura_health
+    else:
+      return 0
     
   def get_aura_attributes(self):
     aura_attributes = []

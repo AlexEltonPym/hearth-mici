@@ -3,6 +3,7 @@ from copy import deepcopy
 from action import Action
 from dynamics import *
 from player import Player
+import inspect
 
 class GainMana():
   available_methods = [Methods.TARGETED, Methods.RANDOMLY, Methods.ALL]
