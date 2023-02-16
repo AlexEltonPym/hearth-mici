@@ -225,8 +225,8 @@ MAGE_DECK_2_CUSTOM = '''### MAGE_DECK_2_CUSTOM
 # 2x Arcane Explosion
 # 2x Bloodfen Raptor
 # 2x Novice Engineer
-# 2x River Crocolisk
 # 2x Custom Card
+# 2x Arcane Intellect
 # 2x Raid Leader
 # 2x Wolfrider
 # 2x Fireball
@@ -244,11 +244,11 @@ MAGE_DECK_4_CUSTOM = '''### MAGE_DECK_4_CUSTOM
 # 2x Arcane Missiles
 # 2x Murloc Raider
 # 2x Arcane Explosion
-# 2x Bloodfen Raptor
 # 2x Novice Engineer
-# 2x River Crocolisk
 # 4x Custom Card
+# 2x Arcane Intellect
 # 2x Raid Leader
+# 2x Wolfrider
 # 2x Fireball
 # 2x Oasis Snapjaw
 # 2x Polymorph
@@ -262,12 +262,12 @@ MAGE_DECK_6_CUSTOM = '''### MAGE_DECK_6_CUSTOM
 # Class: BLUE
 # Format: Standard
 # 2x Arcane Missiles
-# 2x Murloc Raider
 # 2x Arcane Explosion
-# 2x Bloodfen Raptor
 # 2x Novice Engineer
-# 2x River Crocolisk
-# 6x Custom Card
+# 6x River Crocolisk
+# 2x Arcane Intellect
+# 2x Raid Leader
+# 2x Wolfrider
 # 2x Fireball
 # 2x Oasis Snapjaw
 # 2x Polymorph

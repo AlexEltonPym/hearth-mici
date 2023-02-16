@@ -177,7 +177,7 @@ def test_generative_cards(seed):
   game = game_manager.create_game()
 
   game_results = []
-  for i in tqdm(range(10)):
+  for i in tqdm(range(100)):
     try:
       game_result = game.play_game()
     except (TooManyActions, RecursionError) as e:
@@ -189,5 +189,5 @@ def test_generative_cards(seed):
       
 
 if __name__ == "__main__":
-  for i in range(748, 10000):
+  for i in range(963, 10000):
     test_generative_cards(i)

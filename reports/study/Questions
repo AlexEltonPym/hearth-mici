@@ -15,7 +15,7 @@ Study 1 Questions:
 
 Pre-interview:
 1. How much experience do you have with Hearthstone or other CCGs?
-2. When did you last play?
+2. When did you last play? Did you play at launch?
 
 While designing cards:
 1. What role do you see this card filling in a deck?
@@ -28,8 +28,14 @@ After the design task:
     2b. Is there anything you'd like to see added or changed?
 
 At the followup:
-1. Did this card have the impact you were expecting?
-2. Would you like to make any changes to your card?
+1. Did this card have the impact you were expecting? Were you surprised? Was it more powerful than expected?
+2. Would you like to make any changes to your card? Significant/Minor/None
+
+suprise -> desire to change -> modification
+how many had expected impacts
+how many did they change
+how many were as powerful as expected
+how many were less powerful than expected
 
 Reddit script:
 Hello Reddit,
@@ -41,5 +47,24 @@ If this sounds like something you would be interested in, please sign up for the
 
 todo:
 per turn
-croc instead of arcane intellect
 change title
+
+
+
+Patrick followup:
+
+1 Underperforming, particularly in hunter control. Health 2.
+2 Underperforming, wanted to reduce cost to make it more comboable. Other stats are expected.
+3 Underperforming, felt like it was a bit nonbo, screwing over low mana hunter decks. Other stats expected. CHanged aoe damage to enemy only instead of friendly to prevent nonbo.
+
+4 Overpwerformed, armor stats are explained, modified by swapping attack and health to make more defensive. General nerf
+5 Expected to underperofm due to lack of pirate synergy. Relies on combo to perform. Would expect to perform better in combo deck, more spells or more pirates. Happy with how it is, because it should perform well in other decks. No change.
+6 WOuld perform better in combo deck. Performed well in warrior because its a good matchup, poor in hunter and mage because they have cheaper small removal/trades. Happy with performance. (good in one matchup and bad in others)
+
+7 Drawing betgter in more controlly long games vs mage. Card draw less powerful in faster hunter games. Drawing more cards is expected secondary stat. No changes needed.
+8 Arcane missiles good vs mage with lots of little minions. Made hunter games faster probably due to face damage (hypothesised). Should be fun, sometimes good and sometimes bad. Liked randomness. "Not skill based, more of a fun card". No changes needed.
+9 Secondary stat of increased minions played made. Depending on simulation rules, could be quite different. Good vs high value minion decks, weaker vs hunter with more low cost minions. Happy with how it is. 
+
+
+
+huge changes to tiny winrate not as important as big change to balanced.

@@ -1,3 +1,7 @@
+import sys
+sys.path.append('../../Spellsource/python')
+
+
 
 import multiprocessing as mp
 import time
@@ -334,7 +338,7 @@ def experiment_reference():
 
 def experiment_custom_card_gauntlet():
   pp = pprint.PrettyPrinter(indent=1, compact=False)
-  username = "liam"
+  username = "wombat"
   card_id = "01"
   test_class = "HUNTER" #HUNTER, MAGE, WARRIOR, NEUTRAL
   card_swaps = 2

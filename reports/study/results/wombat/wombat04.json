@@ -1,0 +1,25 @@
+{
+  "baseManaCost": 4,
+  "baseHp": 4,
+  "baseAttack": 4,
+  "battlecry": {
+    "targetSelection": "NONE",
+      "spell": {
+        "class": "BuffSpell",
+        "target": "FRIENDLY_HERO",
+        "armorBonus": 3
+      }
+  },
+  "attributes": {
+      "BATTLECRY": true,
+      "TAUNT": true
+  },
+  "name": "Custom Card",
+  "type": "MINION",
+  "rarity": "COMMON",
+  "description": "A custom card",
+  "collectible": true,
+  "set": "CUSTOM",
+  "fileFormatVersion": 1
+}
+

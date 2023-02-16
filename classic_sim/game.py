@@ -307,7 +307,6 @@ class Game():
     if isinstance(action.source, Player) and action.source.weapon:
 
       damage = action.source.get_attack()
-      print(f"attacking a player with a weapon for {damage} damage")
 
       other_damage = 0 if action.source.weapon.has_attribute(Attributes.IMMUNE) else action.targets[0].get_attack()
       if action.source.weapon.has_attribute(Attributes.ATTACK_AS_DURABILITY) and not isinstance(action.targets[0], Player):
@@ -749,8 +748,11 @@ class Game():
     game_status = -1
     turn = 0
     while game_status == -1:
-      # print(f"taking turn {turn}")
+      print(f"taking turn {turn}")
       turn+=1
       game_status = self.take_turn()
+      print(f"{self.player.health}")
+      print(f"{self.enemy.health}")
+
       
     return (game_status, turn, self.player.health-self.enemy.health)

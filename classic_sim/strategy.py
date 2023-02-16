@@ -17,7 +17,7 @@ class GreedyAction():
         game_state = 0
       except PlayerDead:
         turn_passed = 0
-        if possible_state.player.health <= 0:
+        if possible_state.current_player.health <= 0:
           game_state = -1
         else:
           game_state = 1
@@ -27,6 +27,8 @@ class GreedyAction():
       possible_actions.append((action_index, state_score, turn_passed))
     best_action = sorted(possible_actions, key=lambda x: x[1])[-1]
     state.perform_action(available_actions[best_action[0]])
+
+
     return best_action[2]
 
   def get_score(possible_state, turn_passed, game_state):
@@ -53,7 +55,7 @@ class GreedyActionSmart():
         game_state = 0
       except PlayerDead:
         turn_passed = 0
-        if possible_state.player.health <= 0:
+        if possible_state.current_player.health <= 0:
           game_state = -1
         else:
           game_state = 1

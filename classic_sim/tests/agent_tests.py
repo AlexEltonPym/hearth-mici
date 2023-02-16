@@ -16,8 +16,8 @@ def test_smart_greedy_vs_greedy():
   game_manager = GameManager()
   game_manager.create_player_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER])
   game_manager.create_enemy_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER])
-  game_manager.create_player(Classes.HUNTER, Deck.generate_random_from_fixed_seed, RandomNoEarlyPassing)
-  game_manager.create_enemy(Classes.HUNTER, Deck.generate_random_from_fixed_seed, RandomNoEarlyPassing)
+  game_manager.create_player(Classes.HUNTER, Deck.generate_random_from_fixed_seed, GreedyActionSmart)
+  game_manager.create_enemy(Classes.HUNTER, Deck.generate_random_from_fixed_seed, GreedyAction)
   game = game_manager.create_game()
   # print(game_manager.player.deck)
   # for card in game_manager.player.deck:
@@ -28,7 +28,7 @@ def test_smart_greedy_vs_greedy():
   #   print(card)
 
   game_results = []
-  num_games = 100
+  num_games = 200
   for i in tqdm(range(num_games)):
     try:
       game_result = game.play_game()

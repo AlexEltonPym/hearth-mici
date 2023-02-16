@@ -1,0 +1,881 @@
+[
+  [
+    {
+      "y": 643.5,
+      "x": 511.2,
+      "w": 255.6,
+      "h": 346.97700000000003,
+      "oversized": true,
+      "class": "hunter",
+      "type_id": 1,
+      "card_id": 0,
+      "card_task_index": 0,
+      "flav_img_index": 315,
+      "mana": 3,
+      "power": 2,
+      "toughness": 4,
+      "effects": [
+        {
+          "x": 415.35,
+          "y": 509.40689999999995,
+          "effect_string": "Taunt",
+          "effect_string_height": 40,
+          "effect_string_width": 191.7,
+          "label_name": "Keywords",
+          "effect_short": "key",
+          "settings": {
+            "methods": [
+              null,
+              ""
+            ],
+            "params": [
+              [
+                "k"
+              ],
+              "Taunt"
+            ],
+            "targets": [
+              null,
+              ""
+            ],
+            "filters": [
+              null,
+              ""
+            ],
+            "duration": [
+              null,
+              ""
+            ]
+          }
+        },
+        {
+          "x": 415.35,
+          "y": 574.4069,
+          "effect_string": "Beast",
+          "effect_string_height": 40,
+          "effect_string_width": 191.7,
+          "label_name": "Creature types",
+          "effect_short": "cre",
+          "settings": {
+            "methods": [
+              null,
+              ""
+            ],
+            "params": [
+              [
+                "c"
+              ],
+              "Beast"
+            ],
+            "targets": [
+              null,
+              ""
+            ],
+            "filters": [
+              null,
+              ""
+            ],
+            "duration": [
+              null,
+              ""
+            ]
+          }
+        },
+        {
+          "x": 415.35,
+          "y": 619.4069,
+          "effect_string": "Battlecry: Restore 2 health to a target friendly hero",
+          "effect_string_height": 80,
+          "effect_string_width": 191.7,
+          "label_name": "Restore health",
+          "effect_short": "hea",
+          "settings": {
+            "methods": [
+              [
+                "randomly",
+                "targeted",
+                "all"
+              ],
+              "targeted"
+            ],
+            "params": [
+              [
+                "x"
+              ],
+              2
+            ],
+            "targets": [
+              [
+                "minions",
+                "heroes",
+                "minions or heroes",
+                "pirates",
+                "beasts",
+                "elementals",
+                "totems"
+              ],
+              "heroes"
+            ],
+            "filters": [
+              [
+                "enemy",
+                "friendly",
+                "all"
+              ],
+              "friendly"
+            ],
+            "duration": [
+              null,
+              ""
+            ]
+          }
+        }
+      ],
+      "hovered_effect": null,
+      "mouse_over_card_effect": false,
+      "mouse_over_mana": false,
+      "mouse_over_power": false,
+      "mouse_over_toughness": false
+    },
+    {
+      "y": 643.5,
+      "x": 766.8,
+      "w": 255.6,
+      "h": 346.97700000000003,
+      "oversized": true,
+      "class": "hunter",
+      "type_id": 1,
+      "card_id": 1,
+      "card_task_index": 0,
+      "flav_img_index": 37,
+      "mana": 7,
+      "power": 6,
+      "toughness": 5,
+      "effects": [
+        {
+          "x": 1039.5,
+          "y": 488.225,
+          "effect_string": "Battlecry: Summon a 2/3 minion",
+          "effect_string_height": 60,
+          "effect_string_width": 191.7,
+          "label_name": "Summon token",
+          "effect_short": "sum",
+          "settings": {
+            "methods": [
+              null,
+              ""
+            ],
+            "params": [
+              [
+                "x/x"
+              ],
+              "2/3"
+            ],
+            "targets": [
+              null,
+              ""
+            ],
+            "filters": [
+              null,
+              ""
+            ],
+            "duration": [
+              null,
+              ""
+            ]
+          }
+        },
+        {
+          "x": 1039.5,
+          "y": 410.325,
+          "effect_string": "Battlecry: Summon a 2/3 minion",
+          "effect_string_height": 60,
+          "effect_string_width": 191.7,
+          "label_name": "Summon token",
+          "effect_short": "sum",
+          "settings": {
+            "methods": [
+              null,
+              ""
+            ],
+            "params": [
+              [
+                "x/x"
+              ],
+              "2/3"
+            ],
+            "targets": [
+              null,
+              ""
+            ],
+            "filters": [
+              null,
+              ""
+            ],
+            "duration": [
+              null,
+              ""
+            ]
+          }
+        },
+        {
+          "x": 1039.5,
+          "y": 515.325,
+          "effect_string": "Beast",
+          "effect_string_height": 40,
+          "effect_string_width": 191.7,
+          "label_name": "Creature types",
+          "effect_short": "cre",
+          "settings": {
+            "methods": [
+              null,
+              ""
+            ],
+            "params": [
+              [
+                "c"
+              ],
+              "Beast"
+            ],
+            "targets": [
+              null,
+              ""
+            ],
+            "filters": [
+              null,
+              ""
+            ],
+            "duration": [
+              null,
+              ""
+            ]
+          }
+        }
+      ],
+      "hovered_effect": null,
+      "mouse_over_card_effect": false,
+      "mouse_over_mana": false,
+      "mouse_over_power": false,
+      "mouse_over_toughness": false
+    },
+    {
+      "y": 643.5,
+      "x": 1022.4,
+      "w": 255.6,
+      "h": 346.97700000000003,
+      "oversized": false,
+      "class": "hunter",
+      "type_id": 1,
+      "card_id": 2,
+      "card_task_index": 0,
+      "flav_img_index": 742,
+      "mana": 4,
+      "power": 0,
+      "toughness": 1,
+      "effects": [
+        {
+          "x": 1423.5,
+          "y": 488.225,
+          "effect_string": "Battlecry: Deal 2 damage to all enemy minions",
+          "effect_string_height": 80,
+          "effect_string_width": 191.7,
+          "label_name": "Deal damage",
+          "effect_short": "dam",
+          "settings": {
+            "methods": [
+              [
+                "randomly",
+                "targeted",
+                "all"
+              ],
+              "all"
+            ],
+            "params": [
+              [
+                "x"
+              ],
+              2
+            ],
+            "targets": [
+              [
+                "minions",
+                "heroes",
+                "minions or heroes",
+                "pirates",
+                "beasts",
+                "elementals",
+                "totems"
+              ],
+              "minions"
+            ],
+            "filters": [
+              [
+                "enemy",
+                "friendly",
+                "all"
+              ],
+              "enemy"
+            ],
+            "duration": [
+              null,
+              ""
+            ]
+          }
+        }
+      ],
+      "hovered_effect": null,
+      "mouse_over_card_effect": false,
+      "mouse_over_mana": false,
+      "mouse_over_power": false,
+      "mouse_over_toughness": false
+    }
+  ],
+  [
+    {
+      "y": 643.5,
+      "x": 511.2,
+      "w": 255.6,
+      "h": 346.97700000000003,
+      "oversized": true,
+      "class": "warrior",
+      "type_id": 1,
+      "card_id": 0,
+      "card_task_index": 1,
+      "flav_img_index": 36,
+      "mana": 4,
+      "power": 4,
+      "toughness": 4,
+      "effects": [
+        {
+          "x": 655.5,
+          "y": 335.325,
+          "effect_string": "Battlecry: Gain 3 armour",
+          "effect_string_height": 60,
+          "effect_string_width": 191.7,
+          "label_name": "Gain armour",
+          "effect_short": "arm",
+          "settings": {
+            "methods": [
+              null,
+              ""
+            ],
+            "params": [
+              [
+                "x"
+              ],
+              3
+            ],
+            "targets": [
+              null,
+              ""
+            ],
+            "filters": [
+              [
+                "enemy",
+                "friendly",
+                "all"
+              ],
+              "friendly"
+            ],
+            "duration": [
+              null,
+              ""
+            ]
+          }
+        },
+        {
+          "x": 415.35,
+          "y": 594.4069,
+          "effect_string": "Taunt",
+          "effect_string_height": 40,
+          "effect_string_width": 191.7,
+          "label_name": "Keywords",
+          "effect_short": "key",
+          "settings": {
+            "methods": [
+              null,
+              ""
+            ],
+            "params": [
+              [
+                "k"
+              ],
+              "Taunt"
+            ],
+            "targets": [
+              null,
+              ""
+            ],
+            "filters": [
+              null,
+              ""
+            ],
+            "duration": [
+              null,
+              ""
+            ]
+          }
+        }
+      ],
+      "hovered_effect": null,
+      "mouse_over_card_effect": false,
+      "mouse_over_mana": false,
+      "mouse_over_power": false,
+      "mouse_over_toughness": false
+    },
+    {
+      "y": 643.5,
+      "x": 766.8,
+      "w": 255.6,
+      "h": 346.97700000000003,
+      "oversized": false,
+      "class": "warrior",
+      "type_id": 1,
+      "card_id": 1,
+      "card_task_index": 1,
+      "flav_img_index": 223,
+      "mana": 8,
+      "power": 6,
+      "toughness": 5,
+      "effects": [
+        {
+          "x": 670.9499999999999,
+          "y": 638.1977,
+          "effect_string": "Battlecry: Destroy a target enemy minion",
+          "effect_string_height": 80,
+          "effect_string_width": 191.7,
+          "label_name": "Destroy minions",
+          "effect_short": "des",
+          "settings": {
+            "methods": [
+              [
+                "randomly",
+                "targeted",
+                "all"
+              ],
+              "targeted"
+            ],
+            "params": [
+              null,
+              ""
+            ],
+            "targets": [
+              [
+                "minions",
+                "pirates",
+                "beasts",
+                "elementals",
+                "totems",
+                "weapons"
+              ],
+              "minions"
+            ],
+            "filters": [
+              [
+                "enemy",
+                "friendly",
+                "all"
+              ],
+              "enemy"
+            ],
+            "duration": [
+              null,
+              ""
+            ]
+          }
+        }
+      ],
+      "hovered_effect": null,
+      "mouse_over_card_effect": false,
+      "mouse_over_mana": false,
+      "mouse_over_power": false,
+      "mouse_over_toughness": false
+    },
+    {
+      "y": 643.5,
+      "x": 1022.4,
+      "w": 255.6,
+      "h": 346.97700000000003,
+      "oversized": true,
+      "class": "warrior",
+      "type_id": 1,
+      "card_id": 2,
+      "card_task_index": 1,
+      "flav_img_index": 685,
+      "mana": 2,
+      "power": 1,
+      "toughness": 2,
+      "effects": [
+        {
+          "x": 0,
+          "y": 0,
+          "effect_string": "Taunt",
+          "effect_string_height": 40,
+          "effect_string_width": 191.7,
+          "label_name": "Keywords",
+          "effect_short": "key",
+          "settings": {
+            "methods": [
+              null,
+              ""
+            ],
+            "params": [
+              [
+                "k"
+              ],
+              "Taunt"
+            ],
+            "targets": [
+              null,
+              ""
+            ],
+            "filters": [
+              null,
+              ""
+            ],
+            "duration": [
+              null,
+              ""
+            ]
+          }
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "effect_string": "Battlecry: Return a target friendly minion to their owners hand.",
+          "effect_string_height": 100,
+          "effect_string_width": 191.7,
+          "label_name": "Return to hand",
+          "effect_short": "ret",
+          "settings": {
+            "methods": [
+              [
+                "randomly",
+                "targeted",
+                "all"
+              ],
+              "targeted"
+            ],
+            "params": [
+              null,
+              ""
+            ],
+            "targets": [
+              [
+                "minions",
+                "pirates",
+                "beasts",
+                "elementals",
+                "totems"
+              ],
+              "minions"
+            ],
+            "filters": [
+              [
+                "enemy",
+                "friendly",
+                "all"
+              ],
+              "friendly"
+            ],
+            "duration": [
+              null,
+              ""
+            ]
+          }
+        }
+      ],
+      "hovered_effect": null,
+      "mouse_over_card_effect": false,
+      "mouse_over_mana": false,
+      "mouse_over_power": false,
+      "mouse_over_toughness": false
+    }
+  ],
+  [
+    {
+      "y": 643.5,
+      "x": 511.2,
+      "w": 255.6,
+      "h": 346.97700000000003,
+      "oversized": true,
+      "class": "mage",
+      "type_id": 1,
+      "card_id": 0,
+      "card_task_index": 2,
+      "flav_img_index": 452,
+      "mana": 7,
+      "power": 3,
+      "toughness": 4,
+      "effects": [
+        {
+          "x": 655.5,
+          "y": 325.325,
+          "effect_string": "Battlecry: Gain 3 mana crystals",
+          "effect_string_height": 60,
+          "effect_string_width": 191.7,
+          "label_name": "Gain mana crystals",
+          "effect_short": "gai",
+          "settings": {
+            "methods": [
+              null,
+              ""
+            ],
+            "params": [
+              [
+                "x"
+              ],
+              3
+            ],
+            "targets": [
+              null,
+              ""
+            ],
+            "filters": [
+              [
+                "enemy",
+                "friendly",
+                "all"
+              ],
+              "friendly"
+            ],
+            "duration": [
+              null,
+              ""
+            ]
+          }
+        },
+        {
+          "x": 655.5,
+          "y": 410.325,
+          "effect_string": "Battlecry: Deal 1 damage to target enemy hero",
+          "effect_string_height": 80,
+          "effect_string_width": 191.7,
+          "label_name": "Deal damage",
+          "effect_short": "dam",
+          "settings": {
+            "methods": [
+              [
+                "randomly",
+                "targeted",
+                "all"
+              ],
+              "targeted"
+            ],
+            "params": [
+              [
+                "x"
+              ],
+              1
+            ],
+            "targets": [
+              [
+                "minions",
+                "heroes",
+                "minions or heroes",
+                "pirates",
+                "beasts",
+                "elementals",
+                "totems"
+              ],
+              "heroes"
+            ],
+            "filters": [
+              [
+                "enemy",
+                "friendly",
+                "all"
+              ],
+              "enemy"
+            ],
+            "duration": [
+              null,
+              ""
+            ]
+          }
+        }
+      ],
+      "hovered_effect": null,
+      "mouse_over_card_effect": false,
+      "mouse_over_mana": false,
+      "mouse_over_power": false,
+      "mouse_over_toughness": false
+    },
+    {
+      "y": 643.5,
+      "x": 766.8,
+      "w": 255.6,
+      "h": 346.97700000000003,
+      "oversized": false,
+      "class": "mage",
+      "type_id": 1,
+      "card_id": 1,
+      "card_task_index": 2,
+      "flav_img_index": 585,
+      "mana": 3,
+      "power": 1,
+      "toughness": 1,
+      "effects": [
+        {
+          "x": 1039.5,
+          "y": 488.225,
+          "effect_string": "Battlecry: Restore 3 health to a target friendly hero",
+          "effect_string_height": 80,
+          "effect_string_width": 191.7,
+          "label_name": "Restore health",
+          "effect_short": "hea",
+          "settings": {
+            "methods": [
+              [
+                "randomly",
+                "targeted",
+                "all"
+              ],
+              "targeted"
+            ],
+            "params": [
+              [
+                "x"
+              ],
+              3
+            ],
+            "targets": [
+              [
+                "minions",
+                "heroes",
+                "minions or heroes",
+                "pirates",
+                "beasts",
+                "elementals",
+                "totems"
+              ],
+              "heroes"
+            ],
+            "filters": [
+              [
+                "enemy",
+                "friendly",
+                "all"
+              ],
+              "friendly"
+            ],
+            "duration": [
+              null,
+              ""
+            ]
+          }
+        }
+      ],
+      "hovered_effect": null,
+      "mouse_over_card_effect": false,
+      "mouse_over_mana": false,
+      "mouse_over_power": false,
+      "mouse_over_toughness": false
+    },
+    {
+      "y": 643.5,
+      "x": 1022.4,
+      "w": 255.6,
+      "h": 346.97700000000003,
+      "oversized": true,
+      "class": "mage",
+      "type_id": 1,
+      "card_id": 2,
+      "card_task_index": 2,
+      "flav_img_index": 875,
+      "mana": 4,
+      "power": 4,
+      "toughness": 4,
+      "effects": [
+        {
+          "x": 1423.5,
+          "y": 335.325,
+          "effect_string": "Elemental",
+          "effect_string_height": 40,
+          "effect_string_width": 191.7,
+          "label_name": "Creature types",
+          "effect_short": "cre",
+          "settings": {
+            "methods": [
+              null,
+              ""
+            ],
+            "params": [
+              [
+                "c"
+              ],
+              "Elemental"
+            ],
+            "targets": [
+              null,
+              ""
+            ],
+            "filters": [
+              null,
+              ""
+            ],
+            "duration": [
+              null,
+              ""
+            ]
+          }
+        },
+        {
+          "x": 1423.5,
+          "y": 380.325,
+          "effect_string": "Battlecry: Set a target enemy minion to 2/2 permanently",
+          "effect_string_height": 80,
+          "effect_string_width": 191.7,
+          "label_name": "Set stats",
+          "effect_short": "set",
+          "settings": {
+            "methods": [
+              [
+                "randomly",
+                "targeted",
+                "all"
+              ],
+              "targeted"
+            ],
+            "params": [
+              [
+                "x/x"
+              ],
+              "2/2"
+            ],
+            "targets": [
+              [
+                "minions",
+                "pirates",
+                "beasts",
+                "elementals",
+                "totems"
+              ],
+              "minions"
+            ],
+            "filters": [
+              [
+                "enemy",
+                "friendly",
+                "all"
+              ],
+              "enemy"
+            ],
+            "duration": [
+              [
+                "turn",
+                "permanently"
+              ],
+              "permanently"
+            ]
+          }
+        }
+      ],
+      "hovered_effect": null,
+      "mouse_over_card_effect": false,
+      "mouse_over_mana": false,
+      "mouse_over_power": false,
+      "mouse_over_toughness": false
+    }
+  ]
+]

@@ -1,0 +1,57 @@
+Consent via email
+Heathstone experience: year to a year and a half
+played yugiho, played wow tcg, wow for 10 years
+around 2017 played last, played when it came out
+
+looked carefully though the existing cards
+played hunter because it was wow main
+theorzed wow class familiarity would assist in understanding cards
+
+
+loved beasts and menagarie strats in pvp
+
+card1:
+first instinct to add a name to the card
+was thinking about wow mechanics in the design of cards
+would have liked heal to be a deathrattle
+was unclear on how to modify stats
+sees role as defensive, sacrifical card
+
+card2:
+pack leader card, apex dinosaur, inspired by apex
+can summon cards out of your deck, matching creature type like dino
+made it a beast to match hunter
+role is a big swing card that gives you a board state out of nowhere
+imagined a wolf that summons other wolves
+
+card3:
+wanted to make a spell or weapon, decided on aoe spell
+initially made it targeted, struggled to find removal button
+wanted aoe to clear groups of minions including hunter menagerie
+
+
+warrior, card1:
+thought of tank immediately
+began designing all 3 cards at once
+wanted a deathratte: return to your own hand
+card3 trolly, neusance
+card1: taunt tanker
+card2: big swing, hard removal
+
+
+mage:
+card1:
+gone with flavour of gaining mana
+card2:
+weak minion that heals the hero, sacrifices itself, cheap weak healing minion
+card3:
+BUG: hit turn for set stats and it said permanent
+elemental that debuffs enemy minions attack and health
+
+
+After:
+75% able to make the things that they wanted
+minion, spell and weapon options
+past experience with RPGs helped understand interface, such as drag and drop and wording of effect
+save button on every page
+was on large screen
