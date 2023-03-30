@@ -1,6 +1,5 @@
 from utilities import get_classes, choice_with_none
 
-
 from enums import *
 import effects
 from card import Card

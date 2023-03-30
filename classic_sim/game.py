@@ -748,11 +748,11 @@ class Game():
     game_status = -1
     turn = 0
     while game_status == -1:
-      print(f"taking turn {turn}")
+      # print(f"taking turn {turn}")
       turn+=1
       game_status = self.take_turn()
-      print(f"{self.player.health}")
-      print(f"{self.enemy.health}")
+      # print(f"{self.player.health}")
+      # print(f"{self.enemy.health}")
 
       
     return (game_status, turn, self.player.health-self.enemy.health)

@@ -10,7 +10,7 @@ from itertools import combinations
 def main():
   results = []
   # results.append(random_hunter_vs_mage())
-  results.append(class_cards_hunter_vs_warrior())
+  results.append(class_card_all_combinations())
   print(results)
 
 
@@ -30,7 +30,7 @@ def class_card_all_combinations():
     game_manager.create_player(mini_meta_classes[player_index], Deck.generate_random, GreedyAction)
     game_manager.create_enemy(mini_meta_classes[enemy_index], Deck.generate_random, GreedyAction)
 
-    winrate = game_manager.simulate(num_games=500, parralel=-1, silent=False)
+    winrate = game_manager.simulate(num_games=10, parralel=-1, silent=False)
     matchup_string = f"{mini_meta_names[player_index]} vs {mini_meta_names[enemy_index]}"
     results.append((matchup_string, winrate))
   return results

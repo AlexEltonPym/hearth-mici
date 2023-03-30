@@ -4,11 +4,14 @@ from copy import deepcopy
 from enums import *
 from action import Action
 
+
+
 class Player():
   def __init__(self, name, game_manager, player_class, deck_constructor, strategy):
     self.name = name
     self.game_manager = game_manager
     self.player_class = player_class
+
     self.deck = deepcopy(deck_constructor(self))
     self.deck.update_owner(self)
     self.strategy = strategy

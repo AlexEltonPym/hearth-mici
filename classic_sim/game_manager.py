@@ -55,7 +55,7 @@ class GameManager():
     self.game.start_game()
 
     return self.game
-
+  
   def create_test_game(self):
     self.create_player_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_MAGE, CardSets.CLASSIC_HUNTER, CardSets.CLASSIC_WARRIOR, CardSets.TEST_CARDS])
     self.create_enemy_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_MAGE, CardSets.CLASSIC_HUNTER, CardSets.CLASSIC_WARRIOR, CardSets.TEST_CARDS])

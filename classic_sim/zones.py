@@ -126,6 +126,18 @@ class Deck(Zone):
       new_deck.add(rand_card)
       id += 1
     return new_deck
+  
+  def generate_from_decklist(decklist):
+    def generate_from_decklist_and_player(player):
+      new_deck = Deck(player)
+      for id, card in enumerate(decklist):
+        new_card = player.game_manager.find_card(card)
+        new_card.parent = new_deck
+        new_card.id = id
+        new_deck.add(new_card)
+      return new_deck
+    return generate_from_decklist_and_player
+    
     
   def update_owner(self, owner):
     for card in self:
