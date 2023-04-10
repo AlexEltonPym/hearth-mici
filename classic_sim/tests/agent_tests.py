@@ -4,7 +4,7 @@ import sys
 sys.path.append('../')
 
 from game_manager import GameManager
-from strategy import GreedyAction, GreedyActionSmart, RandomNoEarlyPassing, RandomAction
+from strategy import GreedyAction, GreedyActionSmart, RandomNoEarlyPassing, RandomAction, GreedyActionSmartv1
 from enums import *
 from zones import Deck
 from tqdm import tqdm
@@ -16,41 +16,10 @@ def test_smart_greedy_vs_greedy():
   game_manager = GameManager()
   game_manager.create_player_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER])
   game_manager.create_enemy_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER])
-  game_manager.create_player(Classes.HUNTER, Deck.generate_random_from_fixed_seed, GreedyActionSmart)
-  game_manager.create_enemy(Classes.HUNTER, Deck.generate_random_from_fixed_seed, GreedyAction)
-  game = game_manager.create_game()
-  # print(game_manager.player.deck)
-  # for card in game_manager.player.deck:
-  #   print(card)
-  # print("---")
-  # print(game_manager.enemy.deck)
-  # for card in game_manager.enemy.deck:
-  #   print(card)
-
-  game_results = []
-  num_games = 200
-  for i in tqdm(range(num_games)):
-    try:
-      game_result = game.play_game()
-    except (TooManyActions, RecursionError) as e:
-      game_result = None
-      print(e)
-    game_results.append(game_result)
-    game.reset_game()
-    game.start_game()
+  game_manager.create_player(Classes.HUNTER, Deck.generate_random_from_fixed_seed, GreedyActionSmart())
+  game_manager.create_enemy(Classes.HUNTER, Deck.generate_random_from_fixed_seed, GreedyAction())
+  game_results = game_manager.simulate(20, False, -1)
   print(game_results)
-  winrate = 0
-  turns = 0
-  diff = 0
-  for result in game_results:
-    winrate += result[0]
-    turns += result[1]
-    diff += result[2]
-  winrate /= num_games
-  turns /= num_games
-  diff /= num_games
-
-  print((winrate, turns, diff))
 
 
 def test_decklist_vs_decklist():
@@ -155,35 +124,12 @@ def test_decklist_vs_decklist():
 
   game_manager = GameManager()
   game_manager.create_player_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_WARRIOR])
-  game_manager.create_enemy_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_MAGE])
-  game_manager.create_player(Classes.WARRIOR, Deck.generate_from_decklist(basic_warrior), GreedyActionSmart)
-  game_manager.create_enemy(Classes.MAGE, Deck.generate_from_decklist(basic_mage), GreedyActionSmart)
-  game = game_manager.create_game()
+  game_manager.create_enemy_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER])
+  game_manager.create_player(Classes.WARRIOR, Deck.generate_from_decklist(basic_warrior), GreedyActionSmart([-0.1, 1, -1, 1, 1, 2, 2, 1.5, 3, -3, 1, -1, 1, -1, 1, -1, 1, -1, -1, 0, 1]))
+  game_manager.create_enemy(Classes.HUNTER, Deck.generate_from_decklist(basic_hunter), GreedyActionSmart([-0.1, 1, -1, 1, 1, 2, 2, 1.5, 3, -3, 1, -1, 1, -1, 1, -1, 1, -1, -1, 0, 1]))
+  results = game_manager.simulate(17, False, -1)
+  print(results)
   
-  game_results = []
-  num_games = 100
-  for i in tqdm(range(num_games)):
-    try:
-      game_result = game.play_game()
-    except (TooManyActions, RecursionError) as e:
-      game_result = None
-      print(e)
-    game_results.append(game_result)
-    game.reset_game()
-    game.start_game()
-  # print(game_results)
-  winrate = 0
-  turns = 0
-  diff = 0
-  for result in game_results:
-    winrate += result[0]
-    turns += result[1]
-    diff += result[2]
-  winrate /= num_games
-  turns /= num_games
-  diff /= num_games
-
-  print((winrate, turns, diff))
 
 def main():
   test_decklist_vs_decklist()
