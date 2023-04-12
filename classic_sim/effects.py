@@ -111,7 +111,7 @@ class Destroy():
 class ChangeStats():
   available_methods = [m for m in Methods]
   param_type = ParamTypes.XY
-  available_targets = [Targets.MINION, Targets.WEAPON]
+  available_targets = [Targets.MINION, Targets.WEAPON, Targets.HERO]
   available_owner_filters = [f for f in OwnerFilters]
   available_type_filters = [c for c in CreatureTypes]
   available_durations = [d for d in Durations]

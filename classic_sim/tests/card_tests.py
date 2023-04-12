@@ -42,8 +42,8 @@ def test_coin():
   game_manager = GameManager()
   game_manager.create_player_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER, CardSets.TEST_CARDS])
   game_manager.create_enemy_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_MAGE, CardSets.TEST_CARDS])
-  game_manager.create_player(Classes.HUNTER, Deck.generate_random, GreedyAction)
-  game_manager.create_enemy(Classes.MAGE, Deck.generate_random, GreedyAction)
+  game_manager.create_player(Classes.HUNTER, Deck.generate_random, GreedyAction())
+  game_manager.create_enemy(Classes.MAGE, Deck.generate_random, GreedyAction())
   game = game_manager.create_game()
 
   coin_card = None
@@ -454,8 +454,8 @@ def test_loot_hoarder():
   game_manager = GameManager()
   game_manager.create_player_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER, CardSets.TEST_CARDS])
   game_manager.create_enemy_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_MAGE, CardSets.TEST_CARDS])
-  game_manager.create_player(Classes.HUNTER, Deck.generate_random, GreedyAction)
-  game_manager.create_enemy(Classes.MAGE, Deck.generate_random, GreedyAction)
+  game_manager.create_player(Classes.HUNTER, Deck.generate_random, GreedyAction())
+  game_manager.create_enemy(Classes.MAGE, Deck.generate_random, GreedyAction())
   game = game_manager.create_game()
 
   new_hoarder = game.game_manager.get_card('Loot Hoarder', game.current_player.board)
@@ -470,8 +470,8 @@ def test_hexproof():
   game_manager = GameManager()
   game_manager.create_player_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER, CardSets.TEST_CARDS])
   game_manager.create_enemy_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_MAGE, CardSets.TEST_CARDS])
-  game_manager.create_player(Classes.HUNTER, Deck.generate_random, GreedyAction)
-  game_manager.create_enemy(Classes.MAGE, Deck.generate_random, GreedyAction)
+  game_manager.create_player(Classes.HUNTER, Deck.generate_random, GreedyAction())
+  game_manager.create_enemy(Classes.MAGE, Deck.generate_random, GreedyAction())
   game = game_manager.create_game()
   game.player.hand.clear()
   game.enemy.hand.clear()
@@ -1019,8 +1019,8 @@ def test_arcane_golem():
   game_manager = GameManager()
   game_manager.create_player_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER, CardSets.TEST_CARDS])
   game_manager.create_enemy_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_MAGE, CardSets.TEST_CARDS])
-  game_manager.create_player(Classes.HUNTER, Deck.generate_random, RandomNoEarlyPassing)
-  game_manager.create_enemy(Classes.MAGE, Deck.generate_random, RandomNoEarlyPassing)
+  game_manager.create_player(Classes.HUNTER, Deck.generate_random, RandomNoEarlyPassing())
+  game_manager.create_enemy(Classes.MAGE, Deck.generate_random, RandomNoEarlyPassing())
   game = game_manager.create_game()
   game.current_player.current_mana = 3
   assert game.current_player.other_player.max_mana == 0
@@ -3003,8 +3003,8 @@ def test_fatigue():
   game_manager = GameManager()
   game_manager.create_player_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER, CardSets.TEST_CARDS])
   game_manager.create_enemy_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_MAGE, CardSets.TEST_CARDS])
-  game_manager.create_player(Classes.HUNTER, Deck.generate_random, RandomNoEarlyPassing)
-  game_manager.create_enemy(Classes.MAGE, Deck.generate_random, RandomNoEarlyPassing)
+  game_manager.create_player(Classes.HUNTER, Deck.generate_random, RandomNoEarlyPassing())
+  game_manager.create_enemy(Classes.MAGE, Deck.generate_random, RandomNoEarlyPassing())
   game = game_manager.create_game()
 
   assert game.current_player.get_health() == 30

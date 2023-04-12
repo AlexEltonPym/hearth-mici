@@ -85,6 +85,7 @@ def make_random_card(id, random_state):
 def check_card_effect_valid(card):
   effect = card.effect
   assert effect.method in effect.available_methods or effect.method == None
+  print(effect.available_targets)
   assert effect.target in effect.available_targets or effect.target == None
   assert effect.owner_filter in effect.available_owner_filters or effect.owner_filter == None
   assert effect.type_filter in effect.available_type_filters or effect.type_filter == None

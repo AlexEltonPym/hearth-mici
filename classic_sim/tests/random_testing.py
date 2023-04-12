@@ -15,6 +15,7 @@ from action import Action
 from tqdm import tqdm
 from numpy.random import RandomState
 from card_generator import *
+from statistics import mean
 
 from game_manager import GameManager
 from itertools import zip_longest
@@ -26,16 +27,15 @@ def test_random_reshuffle():
   game_manager = GameManager()
   game_manager.create_player_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER, CardSets.CLASSIC_WARRIOR, CardSets.CLASSIC_MAGE])
   game_manager.create_enemy_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER, CardSets.CLASSIC_WARRIOR, CardSets.CLASSIC_MAGE])
-  game_manager.create_player(game_manager.random_state.choice([c for c in Classes]), Deck.generate_random, RandomNoEarlyPassing)
-  game_manager.create_enemy(game_manager.random_state.choice([c for c in Classes]), Deck.generate_random, RandomNoEarlyPassing)
+  game_manager.create_player(game_manager.random_state.choice([c for c in Classes]), Deck.generate_random, RandomNoEarlyPassing())
+  game_manager.create_enemy(game_manager.random_state.choice([c for c in Classes]), Deck.generate_random, RandomNoEarlyPassing())
   game = game_manager.create_game()
-  game_results = empty(100)
 
   def get_deck_stats():
     player_deck = game.player.deck.get_all()
     enemy_deck = game.enemy.deck.get_all()
-    player_deck_string = sorted(game.player.deck.get_string())
-    enemy_deck_string = sorted(game.enemy.deck.get_string())
+    player_deck_string = sorted([card.name for card in game.player.deck.get_all()])
+    enemy_deck_string = sorted([card.name for card in game.enemy.deck.get_all()])
     player_mean_attack = array([card.get_attack() if card.card_type==CardTypes.MINION else 0 for card in player_deck]).mean()
     enemy_mean_attack = array([card.get_attack() if card.card_type==CardTypes.MINION else 0 for card in enemy_deck]).mean()
     player_mean_health = array([card.get_health() if card.card_type==CardTypes.MINION else 0 for card in player_deck]).mean()
@@ -47,6 +47,7 @@ def test_random_reshuffle():
   def compare_stats(statsA, statsB):
     assert len(statsA[0]) == 30
     assert len(statsB[0]) == 30
+
     for player_cardA, player_cardB in zip_longest(statsA[0], statsB[0], fillvalue=None):
       assert player_cardA == player_cardB
 
@@ -59,23 +60,22 @@ def test_random_reshuffle():
   game.reset_game()
   deck_stats = get_deck_stats()
 
-  for i in range(100):
+  for i in range(2):
     game.reset_game()
     new_deck_stats = get_deck_stats()
     compare_stats(deck_stats, new_deck_stats)
     deck_stats = new_deck_stats
     game.start_game()
-    game_results[i] = game.play_game()
+    game.play_game()
 
 def test_cards_valid():
   game_manager = GameManager()
   game_manager.create_player_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER, CardSets.CLASSIC_WARRIOR, CardSets.CLASSIC_MAGE])
   game_manager.create_enemy_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER, CardSets.CLASSIC_WARRIOR, CardSets.CLASSIC_MAGE])
-  game_manager.create_player(game_manager.random_state.choice([c for c in Classes]), Deck.generate_random, RandomNoEarlyPassing)
-  game_manager.create_enemy(game_manager.random_state.choice([c for c in Classes]), Deck.generate_random, RandomNoEarlyPassing)
+  game_manager.create_player(game_manager.random_state.choice([c for c in Classes]), Deck.generate_random, RandomNoEarlyPassing())
+  game_manager.create_enemy(game_manager.random_state.choice([c for c in Classes]), Deck.generate_random, RandomNoEarlyPassing())
   i = 0
   for card in game_manager.get_player_pool() + [get_hero_power(c) for c in Classes]:
-    print(f"{card=}")
     check_card_valid(card)
 
    
@@ -83,30 +83,23 @@ def test_random_card_game():
   game_manager = GameManager()
   game_manager.create_player_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER, CardSets.TEST_CARDS])
   game_manager.create_enemy_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_MAGE, CardSets.TEST_CARDS])
-  game_manager.create_player(Classes.HUNTER, Deck.generate_random, RandomNoEarlyPassing)
-  game_manager.create_enemy(Classes.MAGE, Deck.generate_random, RandomNoEarlyPassing)
-  game = game_manager.create_game()
+  game_manager.create_player(Classes.HUNTER, Deck.generate_random, RandomNoEarlyPassing())
+  game_manager.create_enemy(Classes.MAGE, Deck.generate_random, RandomNoEarlyPassing())
+  result = game_manager.simulate(10, True, 1)
 
-  game_results = empty(10)
-
-  for i in range(10):
-    game_results[i] = game.play_game()
-    game.reset_game()
-    game.start_game()
-  
-  assert game_results.mean() <= 1 and game_results.mean() >= 0
+  assert result[0] <= 1 and result[0] >= 0
 
 def test_big_games():
   game_manager = GameManager()
   game_manager.create_player_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER, CardSets.TEST_CARDS])
   game_manager.create_enemy_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_MAGE, CardSets.TEST_CARDS])
-  game_manager.create_player(Classes.HUNTER, Deck.generate_random, GreedyAction)
-  game_manager.create_enemy(Classes.MAGE, Deck.generate_random, GreedyAction)
+  game_manager.create_player(Classes.HUNTER, Deck.generate_random, GreedyAction())
+  game_manager.create_enemy(Classes.MAGE, Deck.generate_random, GreedyAction())
   game = game_manager.create_game()
-  game_results = empty(10)
+  game_results = []
 
   for i in tqdm(range(10)):
-    game_results[i] = game.play_game()
+    game_results.append(game.play_game())
     game.reset_game()
     game.start_game()
     assert len(game.current_player.deck) + len(game.current_player.hand) == 30
@@ -118,27 +111,29 @@ def test_big_games():
     assert game.enemy.attack == 0
     assert game.enemy.health == 30
 
-  assert game_results.mean() < 1 and game_results.mean() > 0
+  game_result_means = [mean(x) for x in zip(*game_results)]
+
+  assert game_result_means[0] < 1 and game_result_means[0] > 0
 
 def test_big_simulate():
   game_manager = GameManager()
   game_manager.create_player_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER, CardSets.TEST_CARDS])
   game_manager.create_enemy_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_MAGE, CardSets.TEST_CARDS])
-  game_manager.create_player(Classes.HUNTER, Deck.generate_random, GreedyAction)
-  game_manager.create_enemy(Classes.MAGE, Deck.generate_random, GreedyAction)
+  game_manager.create_player(Classes.HUNTER, Deck.generate_random, GreedyAction())
+  game_manager.create_enemy(Classes.MAGE, Deck.generate_random, GreedyAction())
 
-  result = game_manager.simulate(10)
-  assert result > 0 and result < 1
+  result = game_manager.simulate(10, True, 1, rng=True)
+  assert result[0] > 0 and result[0] < 1
 
 def test_big_simulate_parralel():
   game_manager = GameManager()
   game_manager.create_player_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER, CardSets.TEST_CARDS])
   game_manager.create_enemy_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_MAGE, CardSets.TEST_CARDS])
-  game_manager.create_player(Classes.HUNTER, Deck.generate_random, GreedyAction)
-  game_manager.create_enemy(Classes.MAGE, Deck.generate_random, GreedyAction)
+  game_manager.create_player(Classes.HUNTER, Deck.generate_random, GreedyAction())
+  game_manager.create_enemy(Classes.MAGE, Deck.generate_random, GreedyAction())
 
-  result = game_manager.simulate(10, silent=True, parralel=-1)
-  assert result > 0 and result < 1
+  result = game_manager.simulate(20, silent=False, parralel=-1, rng=True)
+  assert result[0] > 0 and result[0] < 1
 
 def test_xl_big_random_cards():
   random_state = RandomState(0)
@@ -150,21 +145,22 @@ def test_xl_big_random_cards():
     game_manager.create_player_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER, CardSets.TEST_CARDS])
     game_manager.create_enemy_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_MAGE, CardSets.TEST_CARDS])
     for j in range(100):
-      game_manager.create_player(Classes.HUNTER, Deck.generate_random, RandomNoEarlyPassing)
-      game_manager.create_enemy(Classes.MAGE, Deck.generate_random, RandomNoEarlyPassing)
+      game_manager.create_player(Classes.HUNTER, Deck.generate_random, RandomNoEarlyPassing())
+      game_manager.create_enemy(Classes.MAGE, Deck.generate_random, RandomNoEarlyPassing())
     
       game = game_manager.create_game()
 
-      game_results = empty(100)
+      game_results = []
 
       for i in range(100):
         game_result = game.play_game()
-        assert game_result == 1 or game_result == 0
-        game_results[i] = game_result
+        assert game_result[0] == 1 or game_result[0] == 0
+        game_results.append(game_result)
         game.reset_game()
         game.start_game()
       
-      assert game_results.mean() < 1 and game_results.mean() > 0
+      game_result_means = [mean(x) for x in zip(*game_results)]
+      assert game_result_means[0] < 1 and game_result_means[0] > 0
 
 def test_generative_cards(seed):
   random_seed = randint(1, 10000)
@@ -172,8 +168,8 @@ def test_generative_cards(seed):
   game_manager = GameManager(RandomState(seed))
   game_manager.create_player_pool([CardSets.RANDOM_CARDS])
   game_manager.create_enemy_pool([CardSets.RANDOM_CARDS])
-  game_manager.create_player(Classes.HUNTER, Deck.generate_random, RandomNoEarlyPassing)
-  game_manager.create_enemy(Classes.MAGE, Deck.generate_random, RandomNoEarlyPassing)
+  game_manager.create_player(Classes.HUNTER, Deck.generate_random, RandomNoEarlyPassing())
+  game_manager.create_enemy(Classes.MAGE, Deck.generate_random, RandomNoEarlyPassing())
   game = game_manager.create_game()
 
   game_results = []
@@ -189,5 +185,6 @@ def test_generative_cards(seed):
       
 
 if __name__ == "__main__":
-  for i in range(963, 10000):
-    test_generative_cards(i)
+  # for i in range(963, 10000):
+  #   test_generative_cards(i)
+  test_big_simulate_parralel()

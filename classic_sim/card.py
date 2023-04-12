@@ -214,6 +214,7 @@ class Card():
     else:
       return str((self.name, self.parent, self.manacost, self.effect))
 
+  
     # if(self.card_type == CardTypes.MINION):
     #   return str((id(self), self.owner.name if self.owner else None, self.parent.name if self.parent else None, self.name, self.manacost, self.effect, str(self.attack+self.temp_attack)+"/"+str(self.health+self.temp_health)))
     # else:

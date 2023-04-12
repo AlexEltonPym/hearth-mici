@@ -59,8 +59,8 @@ class GameManager():
   def create_test_game(self):
     self.create_player_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_MAGE, CardSets.CLASSIC_HUNTER, CardSets.CLASSIC_WARRIOR, CardSets.TEST_CARDS])
     self.create_enemy_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_MAGE, CardSets.CLASSIC_HUNTER, CardSets.CLASSIC_WARRIOR, CardSets.TEST_CARDS])
-    self.create_player(Classes.WARRIOR, Deck.generate_random, GreedyAction)
-    self.create_enemy(Classes.HUNTER, Deck.generate_random, GreedyAction)
+    self.create_player(Classes.WARRIOR, Deck.generate_random, GreedyAction())
+    self.create_enemy(Classes.HUNTER, Deck.generate_random, GreedyAction())
     self.create_game()
     self.game.player.hand.clear()
     self.game.enemy.hand.clear()
@@ -68,13 +68,13 @@ class GameManager():
     self.game.enemy.current_mana = 10
     return self.game
 
-  def simulate(self, num_games, silent=False, parralel=1):
+  def simulate(self, num_games, silent=False, parralel=1, rng=True):
     game_results = []
 
     if parralel == 1:
       if not silent:
         print(f"Running {num_games} games on single core")
-      game_results = self.run_games(num_games, silent)
+      game_results = self.run_games(num_games, silent, rng)
     else:
       num_processors = multiprocessing.cpu_count() if parralel == -1 else parralel
       num_games_per_processor = 1 if num_games < num_processors else num_games // num_processors
@@ -83,14 +83,18 @@ class GameManager():
         print(f'Spliting {num_games} games across {num_processors} cores, {num_games_per_processor} games per core.')
         print(f'{num_jobs_to_run} total jobs to run')
 
-      parralel_game_results = Parallel(n_jobs=parralel, verbose=0 if silent else 100)(delayed(self.run_games)(num_games_per_processor, silent) for i in range(num_jobs_to_run))
+      parralel_game_results = Parallel(n_jobs=parralel, verbose=0 if silent else 100)(delayed(self.run_games)(num_games_per_processor, silent, rng) for i in range(num_jobs_to_run))
       for processors_result in parralel_game_results:
         game_results.extend(processors_result)
+      print(game_results)
     return [mean(x) for x in zip(*game_results)] #average the stats
 
 
-  def run_games(self, num_games, silent):
+  def run_games(self, num_games, silent, rng):
     game_results = []
+    if rng:
+      self.random_state = RandomState()
+
     self.create_game()
 
     for i in trange(num_games, disable=silent):
