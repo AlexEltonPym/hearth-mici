@@ -18,6 +18,17 @@ class GameManager():
     self.enemy = None
     self.game = None
 
+  def build_full_game_manager(self, player_sets, enemy_sets, player_class, player_deck_constuctor, player_strategy, enemy_class, enemy_deck_constructor, enemy_strategy, random_state=RandomState(0)):
+    self.random_state = random_state
+    self.player = None
+    self.enemy = None
+    self.game = None
+    self.create_player_pool(player_sets)
+    self.create_enemy_pool(enemy_sets)
+    self.create_player(player_class, player_deck_constuctor, player_strategy)
+    self.create_enemy(enemy_class, enemy_deck_constructor, enemy_strategy)
+    
+
   def create_player_pool(self, sets):
     self.player_pool_sets = sets
 
@@ -33,8 +44,8 @@ class GameManager():
   def create_player(self, player_class, deck_constructor, strategy):
     self.player = Player("player", self, player_class, deck_constructor, strategy)
 
-  def create_enemy(self, player_class, deck_constructor, strategy):
-    self.enemy = Player("enemy", self, player_class, deck_constructor, strategy)
+  def create_enemy(self, enemy_class, deck_constructor, strategy):
+    self.enemy = Player("enemy", self, enemy_class, deck_constructor, strategy)
 
   def find_card(self, name):
     for card in self.get_player_pool() + self.get_enemy_pool():
@@ -83,10 +94,9 @@ class GameManager():
         print(f'Spliting {num_games} games across {num_processors} cores, {num_games_per_processor} games per core.')
         print(f'{num_jobs_to_run} total jobs to run')
 
-      parralel_game_results = Parallel(n_jobs=parralel, verbose=0 if silent else 100)(delayed(self.run_games)(num_games_per_processor, silent, rng) for i in range(num_jobs_to_run))
+      parralel_game_results = Parallel(timeout=None, n_jobs=parralel, verbose=0 if silent else 100)(delayed(self.run_games)(num_games_per_processor, silent, rng) for i in range(num_jobs_to_run))
       for processors_result in parralel_game_results:
         game_results.extend(processors_result)
-      print(game_results)
     return [mean(x) for x in zip(*game_results)] #average the stats
 
 
