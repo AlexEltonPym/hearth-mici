@@ -18,6 +18,8 @@ from statistics import mean
 from joblib import Parallel, delayed
 from multiprocessing import cpu_count
 from tqdm import tqdm
+import time
+
 
 
 from mpi4py import MPI
@@ -230,7 +232,7 @@ def get_sublist(lst, num_cores, core_num):
   end_index = start_index + (len(lst) // num_cores) + (1 if core_num < (len(lst) % num_cores) else 0)
   return lst[start_index:end_index]
 
-def evaluate(agent, agent_class):
+def evaluate(agent, agent_class, silent):
   enemy_agent = [-0.1, 1, -1, 1, 1, 2, 2, 1.5, 3, -3, 1, -1, 1, -1, 1, -1, 1, -1, -1, 0, 1]
 
   class_setups = {"mage": ([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_MAGE], Classes.MAGE, Deck.generate_from_decklist(basic_mage)),
@@ -247,7 +249,7 @@ def evaluate(agent, agent_class):
     game_manager.build_full_game_manager(player_cardset, enemy_cardset,
                                         player_class_enum, player_decklist, GreedyActionSmart(agent),
                                         enemy_class_enum, enemy_decklist, GreedyActionSmart(enemy_agent))
-    game_results.append(game_manager.simulate(2, silent=True, parralel=1, rng=True))
+    game_results.append(game_manager.simulate(8, silent=silent, parralel=1, rng=True))
 
   winrate = sum([game_results[i][0] for i in range(3)])/3
   turns = sum([game_results[i][1] for i in range(3)])/3
@@ -260,42 +262,51 @@ def peturb_agent(agent):
     if uniform(0, 1) < 0.5:
       weight = weight+gauss(0, 1)
 
-def evolve(agent):
+def evolve(agent, silent):
   peturb_agent(agent)
-  return evaluate(agent, "mage")  
+  return evaluate(agent, "mage", silent)  
 
 def main():
   comm = MPI.COMM_WORLD
   num_cores = comm.Get_size()
   rank = comm.Get_rank()
 
+  number_of_generations = 10
+
   if rank == 0:
-    initial_population_size = 2
-    number_of_generations = 10
+    initial_population_size = 16
     map_archive = Archive("Winrate difference", "Turns", x_range=(0, 1), y_range=(5, 25), num_buckets=40)
 
   for i in range(number_of_generations+1):
-    print(f"Starting generation {i}")
     if rank == 0:
+      start = time.time()
+      print(f"\nStarting generation {i}")
+      time.sleep(1)
       if i==0:
         population = [[gauss(0, 2.5) for i in range(21)] for j in range(initial_population_size)]
       else:
         population = [elite['sample'] for elite in map_archive.get_elites()]
-    
+      print(f"Population size: {len(population)}")
+    else:
+      population = None
     population = comm.bcast(population, root=0)
 
     my_population_subset = get_sublist(population, num_cores, rank)
-    my_results = [evolve(agent) for agent in my_population_subset]
+    print(f"Core {rank} has {len(my_population_subset)} agents to evaluate")
+    my_results = [evolve(agent, rank==(num_cores-1)) for agent in my_population_subset]
     all_results = comm.gather(my_results, root=0)
-
+    
     if rank == 0:
-      for (winrate, turns, health_difference, winrate_range), agent in zip(all_results, population):
+      flattened_results = [result for individual_core_reponses in all_results for result in individual_core_reponses]
+      print(f"Total agent results received {len(flattened_results)}")
+      for (winrate, turns, health_difference, winrate_range), agent in zip(flattened_results, population):
         map_archive.add_sample(winrate_range, turns, fitness=health_difference, sample=agent)
       map_archive.save()
       map_archive.display(save_file=f'data/generation{i}.png')
+      end = time.time()
+      print(f"Finished generation {i} total {end-start} taken")
       print(f'Most fit: {map_archive.get_most_fit()}')
       print(f'Average fitness {map_archive.get_average_fitness()}')
-      print(f'Population size: {len(population)}')
 
 if __name__ == '__main__':
   main()
