@@ -20,6 +20,9 @@ from multiprocessing import cpu_count
 from tqdm import tqdm
 
 
+from mpi4py import MPI
+
+
 class Archive():
   def __init__(self, x_title, y_title, x_range, y_range, num_buckets=10):
     self.x_title = x_title
@@ -222,21 +225,12 @@ basic_hunter = [
     "Core Hound"
 ]
 
+def get_sublist(lst, num_cores, core_num):
+  start_index = core_num * (len(lst) // num_cores) + min(core_num, (len(lst) % num_cores))
+  end_index = start_index + (len(lst) // num_cores) + (1 if core_num < (len(lst) % num_cores) else 0)
+  return lst[start_index:end_index]
 
-def evaluate(agent):
-  game_manager = GameManager()
-  
-  game_manager.create_player_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_MAGE])
-  game_manager.create_enemy_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_MAGE])
-  game_manager.create_player(Classes.MAGE, Deck.generate_from_decklist(basic_mage), GreedyActionSmart(agent))
-  game_manager.create_enemy(Classes.MAGE, Deck.generate_from_decklist(basic_mage), GreedyActionSmart([-0.1, 1, -1, 1, 1, 2, 2, 1.5, 3, -3, 1, -1, 1, -1, 1, -1, 1, -1, -1, 0, 1]))
-  result = game_manager.simulate(8, silent=True, parralel=1, rng=True)
-
-  agent_complexity = sum([abs(weight) for weight in agent])
-  return (result[0], result[1], agent_complexity)
-
-
-def evaluate_vs_all(agent, agent_class):
+def evaluate(agent, agent_class):
   enemy_agent = [-0.1, 1, -1, 1, 1, 2, 2, 1.5, 3, -3, 1, -1, 1, -1, 1, -1, 1, -1, -1, 0, 1]
 
   class_setups = {"mage": ([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_MAGE], Classes.MAGE, Deck.generate_from_decklist(basic_mage)),
@@ -250,8 +244,6 @@ def evaluate_vs_all(agent, agent_class):
   game_results = []
   for enemy_class in class_setups:
     enemy_cardset, enemy_class_enum, enemy_decklist = class_setups[enemy_class]
-    # print(f"Playing {agent_class} vs {enemy_class_enum}")
-
     game_manager.build_full_game_manager(player_cardset, enemy_cardset,
                                         player_class_enum, player_decklist, GreedyActionSmart(agent),
                                         enemy_class_enum, enemy_decklist, GreedyActionSmart(enemy_agent))
@@ -263,7 +255,6 @@ def evaluate_vs_all(agent, agent_class):
   winrate_range = max([game_results[i][0] for i in range(3)])-min([game_results[i][0] for i in range(3)])
   return (winrate, turns, health_difference, winrate_range)
 
-
 def peturb_agent(agent):
   for weight in agent:
     if uniform(0, 1) < 0.5:
@@ -271,21 +262,34 @@ def peturb_agent(agent):
 
 def evolve(agent):
   peturb_agent(agent)
-  return evaluate_vs_all(agent, "mage")  
+  return evaluate(agent, "mage")  
 
 def main():
-  initial_population_size = 2
-  number_of_generations = 10
-  map_archive = Archive("Winrate difference", "Turns", x_range=(0, 1), y_range=(5, 25), num_buckets=40)
-  with Parallel(n_jobs=-1, verbose=0) as parallel:
-    for i in tqdm(range(number_of_generations+1)):
-      print(f"Starting generation {i}")
+  comm = MPI.COMM_WORLD
+  num_cores = comm.Get_size()
+  rank = comm.Get_rank()
+
+  if rank == 0:
+    initial_population_size = 2
+    number_of_generations = 10
+    map_archive = Archive("Winrate difference", "Turns", x_range=(0, 1), y_range=(5, 25), num_buckets=40)
+
+  for i in range(number_of_generations+1):
+    print(f"Starting generation {i}")
+    if rank == 0:
       if i==0:
         population = [[gauss(0, 2.5) for i in range(21)] for j in range(initial_population_size)]
       else:
         population = [elite['sample'] for elite in map_archive.get_elites()]
-      parallel_results = parallel(delayed(evolve)(agent) for agent in population)
-      for (winrate, turns, health_difference, winrate_range), agent in zip(parallel_results, population):
+    
+    population = comm.bcast(population, root=0)
+
+    my_population_subset = get_sublist(population, num_cores, rank)
+    my_results = [evolve(agent) for agent in my_population_subset]
+    all_results = comm.gather(my_results, root=0)
+
+    if rank == 0:
+      for (winrate, turns, health_difference, winrate_range), agent in zip(all_results, population):
         map_archive.add_sample(winrate_range, turns, fitness=health_difference, sample=agent)
       map_archive.save()
       map_archive.display(save_file=f'data/generation{i}.png')
