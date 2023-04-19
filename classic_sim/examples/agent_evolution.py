@@ -260,10 +260,10 @@ def main():
   num_cores = comm.Get_size()
   rank = comm.Get_rank()
 
-  number_of_generations = 5
+  number_of_generations = 30
 
   if rank == 0:
-    initial_population_size = 3 #max 96
+    initial_population_size = 32 #max 96
     map_archive = Archive("Hand size", "Turns", x_range=(0, 10), y_range=(5, 25), num_buckets=40)
 
   for generation_number in range(number_of_generations):
