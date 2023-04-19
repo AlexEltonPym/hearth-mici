@@ -115,7 +115,7 @@ class Archive():
     if attribute_to_display == 'winrate':
       im = ax.pcolormesh(x, y, Zm.T[:-1, :-1], vmin=0, vmax=1, shading='flat')
     else:
-      im = ax.pcolormesh(x, y, Zm.T[:-1, :-1], shading='flat')
+      im = ax.pcolormesh(x, y, Zm.T[:-1, :-1], vmin=-30, vmax=30, shading='flat')
     fig.colorbar(im, ax=ax)
     ax.set_xlabel(self.x_title)
     ax.set_ylabel(self.y_title)
@@ -246,9 +246,9 @@ def evaluate(agent, agent_class, enemy_class, rank):
   game_manager.build_full_game_manager(player_cardset, enemy_cardset,
                                       player_class_enum, player_decklist, GreedyActionSmart(agent),
                                       enemy_class_enum, enemy_decklist, GreedyActionSmart(enemy_agent))
-  winrate, turns, health_difference, cards_in_hand = game_manager.simulate(3, silent=True, parralel=1, rng=True, rank=rank)
+  winrate, health_difference, cards_in_hand, turns = game_manager.simulate(3, silent=True, parralel=1, rng=True, rank=rank)
 
-  return (winrate, turns, health_difference, cards_in_hand, enemy_class)
+  return (winrate, health_difference, cards_in_hand, turns, enemy_class)
 
 def peturb_agent(agent):
   for weight in agent:
@@ -260,17 +260,17 @@ def main():
   num_cores = comm.Get_size()
   rank = comm.Get_rank()
 
-  number_of_generations = 30
+  number_of_generations = 5
 
   if rank == 0:
-    initial_population_size = 64 #max 96
+    initial_population_size = 3 #max 96
     map_archive = Archive("Hand size", "Turns", x_range=(0, 10), y_range=(5, 25), num_buckets=40)
 
-  for i in range(number_of_generations):
+  for generation_number in range(number_of_generations):
     if rank == 0:
       start = time.time()
-      print(f"\nStarting generation {i}")
-      if i==0:
+      print(f"\nStarting generation {generation_number}")
+      if generation_number==0:
         population = [[gauss(0, 2.5) for i in range(21)] for j in range(initial_population_size)]
         print(f"Selecting {len(population)} of {initial_population_size}")
       else:
@@ -290,16 +290,15 @@ def main():
     all_results = comm.gather(my_results, root=0)
     
     if rank == 0:
-      flattened_results = [result for individual_core_reponses in all_results for result in individual_core_reponses]
-      recombined_results = [((flattened_results[i][j] + flattened_results[i+1][j] + flattened_results[i+2][j])/3 for j in range(4)) for i in range(0, len(flattened_results), 3)]
-
-      print(f"Total agent results received {len(flattened_results)}, recombined to {len(recombined_results)}")
-      for (winrate, turns, health_difference, cards_in_hand), agent in zip(recombined_results, population):
+      flat_res = [result for individual_core_reponses in all_results for result in individual_core_reponses]
+      recombined_results = [((flat_res[i][0] + flat_res[i+1][0] + flat_res[i+2][0])/3, (flat_res[i][1] + flat_res[i+1][1] + flat_res[i+2][1])/3, (flat_res[i][2] + flat_res[i+1][2] + flat_res[i+2][2])/3, (flat_res[i][3] + flat_res[i+1][3] + flat_res[i+2][3])/3) for i in range(0, len(flat_res), 3)]
+      print(f"Total agent results received {len(flat_res)}, recombined to {len(recombined_results)}")
+      for (winrate, health_difference, cards_in_hand, turns), agent in zip(recombined_results, population):
         map_archive.add_sample(cards_in_hand, turns, fitness=health_difference, sample=agent)
       map_archive.save()
-      map_archive.display(save_file=f'data/generation{i}.png')
+      map_archive.display(save_file=f'data/generation{generation_number}.png')
       end = time.time()
-      print(f"Finished generation {i} total {end-start} taken")
+      print(f"Finished generation {generation_number} total {end-start} taken")
       print(f'Most fit: {map_archive.get_most_fit()}')
       print(f'Average fitness {map_archive.get_average_fitness()}')
 

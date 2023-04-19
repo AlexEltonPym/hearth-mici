@@ -13,8 +13,6 @@ def main():
   results.append(class_card_all_combinations())
   print(results)
 
-
-
   return True
 
 def class_card_all_combinations():
@@ -30,9 +28,9 @@ def class_card_all_combinations():
     game_manager.create_player(mini_meta_classes[player_index], Deck.generate_random, GreedyAction)
     game_manager.create_enemy(mini_meta_classes[enemy_index], Deck.generate_random, GreedyAction)
 
-    winrate = game_manager.simulate(num_games=10, parralel=-1, silent=False)
+    result = game_manager.simulate(num_games=10, parralel=-1, silent=False)
     matchup_string = f"{mini_meta_names[player_index]} vs {mini_meta_names[enemy_index]}"
-    results.append((matchup_string, winrate))
+    results.append((matchup_string, result))
   return results
 
 def class_cards_mage_vs_hunter():

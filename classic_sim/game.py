@@ -757,4 +757,4 @@ class Game():
 
     player_cards_in_hand = mean(player_cards_in_hand)
       
-    return (game_status, turn, self.player.health-self.enemy.health, player_cards_in_hand)
+    return (game_status, self.player.health-self.enemy.health, player_cards_in_hand, turn)
