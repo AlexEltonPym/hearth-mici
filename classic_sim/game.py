@@ -3,6 +3,7 @@ from player import Player
 from card_sets import get_utility_card, get_hero_power
 from effects import *
 import copy
+from random import uniform
 from action import Action
 
 class TooManyActions(Exception):
@@ -755,4 +756,4 @@ class Game():
       # print(f"{self.enemy.health}")
 
       
-    return (game_status, turn, self.player.health-self.enemy.health)
+    return (game_status, turn, self.player.health-self.enemy.health, uniform(1, 10))

@@ -1,1 +1,1 @@
-rm results.out err.log outputs.*
+rm -rf results.out err.log outputs.* data

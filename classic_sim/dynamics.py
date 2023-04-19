@@ -1,6 +1,6 @@
 from enums import *
 
-from collections.abc import Callable
+from typing import Callable
 CARD = "CARD"
 ## Operators
 

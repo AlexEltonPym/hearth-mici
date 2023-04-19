@@ -17,7 +17,6 @@ import numpy.ma as ma
 from statistics import mean
 from joblib import Parallel, delayed
 from multiprocessing import cpu_count
-from tqdm import tqdm
 import time
 
 
@@ -101,6 +100,8 @@ class Archive():
     return mean([elite['fitness'] for elite in self.get_elites()])
   def get_random(self):
     return choice(self.get_elites())
+  def get_total_population_count(self):
+    return len(self.get_elites())
 
   def display(self, attribute_to_display='fitness', save_file=None):
     
@@ -127,8 +128,6 @@ class Archive():
     with open(save_file, 'w', encoding='utf-8') as f:
       archive_bins_as_bag = self.get_bins_as_string()
       json.dump(archive_bins_as_bag, f, ensure_ascii=False)
-
-
 
 basic_mage = [
     "Arcane Missiles",
@@ -232,75 +231,71 @@ def get_sublist(lst, num_cores, core_num):
   end_index = start_index + (len(lst) // num_cores) + (1 if core_num < (len(lst) % num_cores) else 0)
   return lst[start_index:end_index]
 
-def evaluate(agent, agent_class, silent):
+def evaluate(agent, agent_class, enemy_class, rank):
   enemy_agent = [-0.1, 1, -1, 1, 1, 2, 2, 1.5, 3, -3, 1, -1, 1, -1, 1, -1, 1, -1, -1, 0, 1]
 
-  class_setups = {"mage": ([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_MAGE], Classes.MAGE, Deck.generate_from_decklist(basic_mage)),
-  "hunter": ([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER], Classes.HUNTER, Deck.generate_from_decklist(basic_hunter)),
-  "warrior": ([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_WARRIOR], Classes.WARRIOR, Deck.generate_from_decklist(basic_warrior))}
+  class_setups = {
+    "M": (Classes.MAGE, [CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_MAGE], Deck.generate_from_decklist(basic_mage)),
+    "H": (Classes.HUNTER, [CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER], Deck.generate_from_decklist(basic_hunter)),
+    "W": (Classes.WARRIOR, [CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_WARRIOR], Deck.generate_from_decklist(basic_warrior))
+  }
 
-  player_cardset, player_class_enum, player_decklist = class_setups[agent_class]
-  
   game_manager = GameManager()
+  player_class_enum, player_cardset, player_decklist = class_setups[agent_class]
+  enemy_class_enum, enemy_cardset, enemy_decklist = class_setups[enemy_class]
+  game_manager.build_full_game_manager(player_cardset, enemy_cardset,
+                                      player_class_enum, player_decklist, GreedyActionSmart(agent),
+                                      enemy_class_enum, enemy_decklist, GreedyActionSmart(enemy_agent))
+  winrate, turns, health_difference, cards_in_hand = game_manager.simulate(2, silent=True, parralel=1, rng=True, rank=rank)
 
-  game_results = []
-  for enemy_class in class_setups:
-    enemy_cardset, enemy_class_enum, enemy_decklist = class_setups[enemy_class]
-    game_manager.build_full_game_manager(player_cardset, enemy_cardset,
-                                        player_class_enum, player_decklist, GreedyActionSmart(agent),
-                                        enemy_class_enum, enemy_decklist, GreedyActionSmart(enemy_agent))
-    game_results.append(game_manager.simulate(8, silent=silent, parralel=1, rng=True))
-
-  winrate = sum([game_results[i][0] for i in range(3)])/3
-  turns = sum([game_results[i][1] for i in range(3)])/3
-  health_difference = sum([game_results[i][2] for i in range(3)])/3
-  winrate_range = max([game_results[i][0] for i in range(3)])-min([game_results[i][0] for i in range(3)])
-  return (winrate, turns, health_difference, winrate_range)
+  return (winrate, turns, health_difference, cards_in_hand, enemy_class)
 
 def peturb_agent(agent):
   for weight in agent:
     if uniform(0, 1) < 0.5:
       weight = weight+gauss(0, 1)
 
-def evolve(agent, silent):
-  peturb_agent(agent)
-  return evaluate(agent, "mage", silent)  
-
 def main():
   comm = MPI.COMM_WORLD
   num_cores = comm.Get_size()
   rank = comm.Get_rank()
 
-  number_of_generations = 10
+  number_of_generations = 3
 
   if rank == 0:
-    initial_population_size = 16
-    map_archive = Archive("Winrate difference", "Turns", x_range=(0, 1), y_range=(5, 25), num_buckets=40)
+    initial_population_size = 2
+    map_archive = Archive("Winrate difference", "Turns", x_range=(0, 10), y_range=(5, 25), num_buckets=40)
 
-  for i in range(number_of_generations+1):
+  for i in range(number_of_generations):
     if rank == 0:
       start = time.time()
       print(f"\nStarting generation {i}")
-      time.sleep(1)
       if i==0:
         population = [[gauss(0, 2.5) for i in range(21)] for j in range(initial_population_size)]
+        print(f"Selecting {len(population)} of {initial_population_size}")
       else:
-        population = [elite['sample'] for elite in map_archive.get_elites()]
-      print(f"Population size: {len(population)}")
+        population = [elite['sample'] for elite in map_archive.get_elites(96)]
+        print(f"Selecting {len(population)} of {map_archive.get_total_population_count()}")
+      [peturb_agent(agent) for agent in population]
+      tripled_population = [(elite, enemy_class) for elite in population for enemy_class in ('M', 'H', 'W')]
+      print(f"Spread to {len(tripled_population)} agents")
+      time.sleep(0.5)
     else:
-      population = None
-    population = comm.bcast(population, root=0)
+      tripled_population = None
+    tripled_population = comm.bcast(tripled_population, root=0)
 
-    my_population_subset = get_sublist(population, num_cores, rank)
+    my_population_subset = get_sublist(tripled_population, num_cores, rank)
     print(f"Core {rank} has {len(my_population_subset)} agents to evaluate")
-    my_results = [evolve(agent, rank==(num_cores-1)) for agent in my_population_subset]
+    my_results = [evaluate(agent, "M", enemy_class, rank) for (agent, enemy_class) in my_population_subset]
     all_results = comm.gather(my_results, root=0)
     
     if rank == 0:
       flattened_results = [result for individual_core_reponses in all_results for result in individual_core_reponses]
-      print(f"Total agent results received {len(flattened_results)}")
-      for (winrate, turns, health_difference, winrate_range), agent in zip(flattened_results, population):
-        map_archive.add_sample(winrate_range, turns, fitness=health_difference, sample=agent)
+      recombined_results = [((flattened_results[i][j] + flattened_results[i+1][j] + flattened_results[i+2][j])/3 for j in range(4)) for i in range(0, len(flattened_results), 3)]
+
+      print(f"Total agent results received {len(flattened_results)}, recombined to {len(recombined_results)}")
+      for (winrate, turns, health_difference, cards_in_hand), agent in zip(recombined_results, population):
+        map_archive.add_sample(cards_in_hand, turns, fitness=health_difference, sample=agent)
       map_archive.save()
       map_archive.display(save_file=f'data/generation{i}.png')
       end = time.time()
