@@ -246,7 +246,7 @@ def evaluate(agent, agent_class, enemy_class, rank):
   game_manager.build_full_game_manager(player_cardset, enemy_cardset,
                                       player_class_enum, player_decklist, GreedyActionSmart(agent),
                                       enemy_class_enum, enemy_decklist, GreedyActionSmart(enemy_agent))
-  winrate, turns, health_difference, cards_in_hand = game_manager.simulate(2, silent=True, parralel=1, rng=True, rank=rank)
+  winrate, turns, health_difference, cards_in_hand = game_manager.simulate(3, silent=True, parralel=1, rng=True, rank=rank)
 
   return (winrate, turns, health_difference, cards_in_hand, enemy_class)
 
@@ -260,11 +260,11 @@ def main():
   num_cores = comm.Get_size()
   rank = comm.Get_rank()
 
-  number_of_generations = 3
+  number_of_generations = 30
 
   if rank == 0:
-    initial_population_size = 2
-    map_archive = Archive("Winrate difference", "Turns", x_range=(0, 10), y_range=(5, 25), num_buckets=40)
+    initial_population_size = 64 #max 96
+    map_archive = Archive("Hand size", "Turns", x_range=(0, 10), y_range=(5, 25), num_buckets=40)
 
   for i in range(number_of_generations):
     if rank == 0:

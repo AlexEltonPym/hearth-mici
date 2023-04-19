@@ -5,6 +5,7 @@ from effects import *
 import copy
 from random import uniform
 from action import Action
+from statistics import mean
 
 class TooManyActions(Exception):
   pass
@@ -748,12 +749,12 @@ class Game():
   def play_game(self):
     game_status = -1
     turn = 0
+    player_cards_in_hand = []
     while game_status == -1:
-      # print(f"taking turn {turn}")
       turn+=1
       game_status = self.take_turn()
-      # print(f"{self.player.health}")
-      # print(f"{self.enemy.health}")
+      player_cards_in_hand.append(len(self.player.hand))
 
+    player_cards_in_hand = mean(player_cards_in_hand)
       
-    return (game_status, turn, self.player.health-self.enemy.health, uniform(1, 10))
+    return (game_status, turn, self.player.health-self.enemy.health, player_cards_in_hand)
