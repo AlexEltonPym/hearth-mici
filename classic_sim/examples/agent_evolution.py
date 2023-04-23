@@ -19,7 +19,7 @@ from joblib import Parallel, delayed
 from multiprocessing import cpu_count
 import time
 
-
+import csv
 
 from mpi4py import MPI
 
@@ -123,6 +123,7 @@ class Archive():
       plt.savefig(save_file)
     else:
       plt.show()
+    plt.close()
 
   def save(self, save_file="data/map_archive.json"):
     with open(save_file, 'w', encoding='utf-8') as f:
@@ -232,46 +233,54 @@ def get_sublist(lst, num_cores, core_num):
   return lst[start_index:end_index]
 
 def evaluate(agent, agent_class, enemy_class, rank):
-  enemy_agent = [-0.1, 1, -1, 1, 1, 2, 2, 1.5, 3, -3, 1, -1, 1, -1, 1, -1, 1, -1, -1, 0, 1]
+  handmade_agent = [-0.1, 1, -1, 1, 1, 2, 2, 1.5, 3, -3, 1, -1, 1, -1, 1, -1, 1, -1, -1, 0, 1]
+  mage_agent = [-6.30930064220375, 3.091874348044037, -6.790822546926796, -4.378467750148789, -0.8574207485421077, 9.089306035290257, 8.03074509395254, 6.504327063311184, 9.965734991863016, -4.592153540775539, -2.6633526968654087, -9.440514068705866, -9.354643495575266, -0.6833605761973534, 3.761689862095949, 6.369749949507067, -1.1518607311441968, 0.5478485048174786, 1.548645735116839, -3.437208480581903, -7.424767157011272]
+  hunter_agent = [-4.058971271031244, 2.1097634416195774, -1.8912384626642584, -0.05767500466243369, -1.6842945838523846, 7.262959220816892, 3.1318965653591295, 3.99463564279354, 9.901794307893734, 2.0026365717083667, 4.506207187306231, 9.159092434572809, 0.39961053565188465, -2.7335121257341033, 0.43248792231032773, -2.713591214930224, -1.0126169802546432, 6.444766518351983, 9.434699741664662, 3.6748772341665, 5.300157254256423]
+  warrior_agent = [-9.206668925240766, 0.46439987693736207, -4.243421070296598, 2.500776867990586, -0.3650013841396067, -0.9365588564010352, 9.169870100641706, 8.554686947411533, 6.498323223590283, 7.535773901931282, -0.5256028433840054, -1.793645091119327, 4.7372734059884625, -6.217831834179792, -5.484159837998648, 5.732531168240643, -6.268097913929314, 1.5790775714886767, -2.0947944907594866, -7.590179691483694, 5.289212641484882]
+  
+
 
   class_setups = {
-    "M": (Classes.MAGE, [CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_MAGE], Deck.generate_from_decklist(basic_mage)),
-    "H": (Classes.HUNTER, [CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER], Deck.generate_from_decklist(basic_hunter)),
-    "W": (Classes.WARRIOR, [CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_WARRIOR], Deck.generate_from_decklist(basic_warrior))
+    "M": (Classes.MAGE, [CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_MAGE], Deck.generate_from_decklist(basic_mage), mage_agent),
+    "H": (Classes.HUNTER, [CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER], Deck.generate_from_decklist(basic_hunter), hunter_agent),
+    "W": (Classes.WARRIOR, [CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_WARRIOR], Deck.generate_from_decklist(basic_warrior), warrior_agent)
   }
 
   game_manager = GameManager()
-  player_class_enum, player_cardset, player_decklist = class_setups[agent_class]
-  enemy_class_enum, enemy_cardset, enemy_decklist = class_setups[enemy_class]
+  player_class_enum, player_cardset, player_decklist, _ = class_setups[agent_class]
+  enemy_class_enum, enemy_cardset, enemy_decklist, enemy_agent = class_setups[enemy_class]
   game_manager.build_full_game_manager(player_cardset, enemy_cardset,
                                       player_class_enum, player_decklist, GreedyActionSmart(agent),
                                       enemy_class_enum, enemy_decklist, GreedyActionSmart(enemy_agent))
-  winrate, health_difference, cards_in_hand, turns = game_manager.simulate(3, silent=True, parralel=1, rng=True, rank=rank)
+  winrate, health_difference, cards_in_hand, turns = game_manager.simulate(8, silent=True, parralel=1, rng=True, rank=rank)
 
   return (winrate, health_difference, cards_in_hand, turns, enemy_class)
 
 def peturb_agent(agent):
   for weight in agent:
-    if uniform(0, 1) < 0.5:
-      weight = weight+gauss(0, 1)
+    weight = weight+gauss(0, 0.5)
 
 def main():
   comm = MPI.COMM_WORLD
   num_cores = comm.Get_size()
   rank = comm.Get_rank()
 
-  number_of_generations = 30
+  number_of_generations = 101
 
   if rank == 0:
-    initial_population_size = 32 #max 96
-    map_archive = Archive("Hand size", "Turns", x_range=(0, 10), y_range=(5, 25), num_buckets=40)
+    with open('data/generations.csv', 'w', encoding='UTF8', newline='') as f:
+      writer = csv.writer(f)
+      writer.writerow(["generation", "time_elapsed", "population", "mean_fitness", "best_fitness", "best_sample"])
+
+    initial_population_size = 96 #max 96
+    map_archive = Archive("Hand size", "Turns", x_range=(1, 9), y_range=(9, 35), num_buckets=40)
 
   for generation_number in range(number_of_generations):
     if rank == 0:
       start = time.time()
       print(f"\nStarting generation {generation_number}")
       if generation_number==0:
-        population = [[gauss(0, 2.5) for i in range(21)] for j in range(initial_population_size)]
+        population = [[uniform(-10, 10) for i in range(21)] for j in range(initial_population_size)]
         print(f"Selecting {len(population)} of {initial_population_size}")
       else:
         population = [elite['sample'] for elite in map_archive.get_elites(96)]
@@ -285,8 +294,9 @@ def main():
     tripled_population = comm.bcast(tripled_population, root=0)
 
     my_population_subset = get_sublist(tripled_population, num_cores, rank)
-    print(f"Core {rank} has {len(my_population_subset)} agents to evaluate")
-    my_results = [evaluate(agent, "M", enemy_class, rank) for (agent, enemy_class) in my_population_subset]
+    if rank < 10:
+      print(f"Core {rank} has {len(my_population_subset)} agents to evaluate")
+    my_results = [evaluate(agent, "W", enemy_class, rank) for (agent, enemy_class) in my_population_subset]
     all_results = comm.gather(my_results, root=0)
     
     if rank == 0:
@@ -301,6 +311,9 @@ def main():
       print(f"Finished generation {generation_number} total {end-start} taken")
       print(f'Most fit: {map_archive.get_most_fit()}')
       print(f'Average fitness {map_archive.get_average_fitness()}')
+      with open('data/generations.csv', 'a', encoding='UTF8', newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow([generation_number, end-start, map_archive.get_total_population_count(), map_archive.get_average_fitness(), map_archive.get_most_fit()['fitness'],  map_archive.get_most_fit()['sample']])
 
 if __name__ == '__main__':
   main()

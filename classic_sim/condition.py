@@ -9,3 +9,4 @@ class Condition():
   
   def __srt__(self):
     return str((self.requirement, self.result))
+

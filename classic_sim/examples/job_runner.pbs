@@ -1,8 +1,8 @@
 #!/bin/bash
 #PBS -P RDS-SADP-PQE-RW
 #PBS -N outputs
-#PBS -l select=4:ncpus=4:mpiprocs=4:mem=4GB
-#PBS -l walltime=00:10:00
+#PBS -l select=72:ncpus=4:mpiprocs=4:mem=1GB
+#PBS -l walltime=10:00:00
 #PBS -q defaultQ
 
 cd $PBS_O_WORKDIR
