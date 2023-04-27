@@ -112,6 +112,24 @@ class Deck(Zone):
       new_deck.add(rand_card)
       id += 1
     return new_deck
+  
+
+  def generate_random_n_copies(n):
+    def generate_random_n_copies_and_player(player):
+      new_deck = Deck(player)
+      available_cards = player.game_manager.get_player_pool() if player.name == "player" else player.game_manager.get_enemy_pool()
+      
+      id = 0
+      while len(new_deck) < 30:
+        source_card = player.game_manager.random_state.choice(available_cards)
+        for i in range(n):
+          rand_card = deepcopy(source_card)
+          rand_card.parent = new_deck
+          rand_card.id = id
+          new_deck.add(rand_card)
+          id += 1
+      return new_deck
+    return generate_random_n_copies_and_player
 
   def generate_random_from_fixed_seed(player):
     rs = RandomState(0)
