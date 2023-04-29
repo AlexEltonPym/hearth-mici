@@ -14,7 +14,7 @@ def load_population(filename):
 
     return [elite for elite in population if elite[2] != None]
 
-population = load_population("mage_smarter_archive.json")
+population = load_population("data/map_archive.json")
 
 for elite in population:
   print(elite[3])

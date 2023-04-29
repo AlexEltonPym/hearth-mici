@@ -1,1 +1,1 @@
-rsync -vzr --delete --progress ../../classic_sim aelt7654@hpc.sydney.edu.au:/home/aelt7654
+rsync -vzr --progress --exclude 'archive' --exclude 'data' ../../classic_sim aelt7654@hpc.sydney.edu.au:/home/aelt7654

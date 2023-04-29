@@ -278,26 +278,27 @@ def evaluate(elite, agent_class, enemy_class, rank, agent_only):
   # turns = uniform(10, 20)
   return (winrate, health_difference, cards_in_hand, turns, enemy_class)
 
-def peturb_agent_and_deck(individual, player_class):
+def peturb_agent_and_deck(individual, player_class, agent_only):
   agent, deck = individual
   for weight in agent:
     weight = weight+gauss(0, 0.5)
 
-  num_to_remove = 0
-  rand = random()
-  for exponent in range(4):
-    if rand < 1/(2**exponent):
-      num_to_remove = exponent
+  if not agent_only:
+    num_to_remove = 0
+    rand = random()
+    for exponent in range(4):
+      if rand < 1/(2**exponent):
+        num_to_remove = exponent
 
-  pool = get_available_cards(player_class)
+    pool = get_available_cards(player_class)
 
-  for i in range(num_to_remove):
-    selected_card = randint(0, 14)
-    selected_card_name = deck[selected_card*2]
-    new_card = choice([card for card in pool if card != selected_card_name])
+    for i in range(num_to_remove):
+      selected_card = randint(0, 14)
+      selected_card_name = deck[selected_card*2]
+      new_card = choice([card for card in pool if card != selected_card_name])
 
-    deck[selected_card*2] = new_card
-    deck[selected_card*2+1] = new_card
+      deck[selected_card*2] = new_card
+      deck[selected_card*2+1] = new_card
 
 def get_available_cards(player_class):
   class_pools = {
@@ -330,11 +331,11 @@ def main():
   # num_cores = 1
 
   start_generation = 0
-  end_generation = 3
+  end_generation = 151
   player_class = "M"
-  load_from_file = False
+  load_from_file = True
   agent_only = True
-  initial_population_size = 1 #max 96
+  initial_population_size = 64 #max 96
 
 
   if rank == 0:
@@ -365,7 +366,7 @@ def main():
       else:
         population = [elite['sample'] for elite in map_archive.get_elites(96)]
         print(f"Selecting {len(population)} of {map_archive.get_total_population_count()}")
-      [peturb_agent_and_deck(individual, player_class) for individual in population]
+      [peturb_agent_and_deck(individual, player_class, agent_only) for individual in population]
       tripled_population = [(elite, enemy_class) for elite in population for enemy_class in ('M', 'H', 'W')]
       print(f"Spread to {len(tripled_population)} agents")
       time.sleep(0.5)
