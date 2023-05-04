@@ -10,6 +10,7 @@ from joblib import Parallel, delayed
 from numpy.random import RandomState
 import numpy as np
 from statistics import mean
+from random import randint
 
 class GameManager():
   def __init__(self, random_state=RandomState(0)):
@@ -103,8 +104,10 @@ class GameManager():
 
   def run_games(self, num_games, silent, rng, rank):
     game_results = []
+    seed = randint(1, 1000)
+    seed = 740
     if rng:
-      self.random_state = RandomState()
+      self.random_state = RandomState(seed)
 
     self.create_game()
 
@@ -113,8 +116,16 @@ class GameManager():
         game_result = self.game.play_game()
       except (TooManyActions, RecursionError) as e:
         game_result = None
-        if not silent:
-          print(e)
+        # if not silent:
+        print(e)
+      except Exception as e:
+        game_result = None
+        # if not silent:
+        print(seed)
+        print(e)
+        print(self.player.deck.names())
+        print(self.enemy.deck.names())
+        raise e
       game_results.append(game_result)
       self.game.reset_game()
       self.game.start_game()

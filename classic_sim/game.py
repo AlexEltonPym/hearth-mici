@@ -662,7 +662,7 @@ class Game():
    
     for possible_target in possible_targets:
       # print(f"{possible_target=}")
-      # # print(possible_target.matches_card_requirements(card))
+      # print(possible_target.matches_card_requirements(card))
       # print(possible_target.owner)
       # print(card.owner)
       if possible_target.matches_card_requirements(card):

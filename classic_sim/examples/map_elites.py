@@ -49,17 +49,33 @@ class Archive():
   def clear(self):
     self.bins = [[{"x": x, "y": y, "fitness": None, "sample": None} for x in range(self.num_buckets)] for y in range(self.num_buckets)] 
 
-  def get_elites(self, num_to_get=-1):
+  def get_elites(self, num_to_get=-1, unique_only=False, only_consider_policy=False):
     all_elites = []
     for row in self.bins:
       for elite in row:
         if(elite['fitness'] != None):
           all_elites.append(elite)
+
+    if unique_only:
+      shuffle(all_elites)
+      unique_elites = []
+      keys_set = set()
+      for elite in all_elites:
+        if only_consider_policy:
+          key = tuple(elite['sample'][0])
+        else:
+          key = tuple(elite['sample'][0]+elite['sample'][1])
+
+        if key not in keys_set:
+          keys_set.add(key)
+          unique_elites.append(elite)
+
     if num_to_get == -1:
-      return all_elites
+      return unique_elites if unique_only else all_elites 
     else:
       shuffle(all_elites)
-      return all_elites[:num_to_get]
+      return unique_elites[:num_to_get] if unique_only else all_elites[:num_to_get]
+
 
   def get_bins(self):
     all_bins = []

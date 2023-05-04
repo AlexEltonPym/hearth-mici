@@ -8,6 +8,7 @@
 cd $PBS_O_WORKDIR
 module load python/3.8.2
 module load openmpi-gcc/3.1.5
-# ./cleanup.sh
+./cleanup.sh
 mkdir data && touch data/map_archive.json
+python3 -m pip install colorhash
 mpirun python3 coevolution.py > results.out 2> err.log

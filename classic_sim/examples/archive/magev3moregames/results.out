@@ -1,0 +1,1818 @@
+
+Starting generation 0
+Selecting 96 of 96
+Spread to 288 agents
+Core 0 has 1 agents to evaluate
+Core 1 has 1 agents to evaluate
+Core 2 has 1 agents to evaluate
+Core 3 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 0 total 156.97740817070007 taken
+Most fit: {'x': 29, 'y': 5, 'fitness': -3.125, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -24.755681818181817
+
+Starting generation 1
+Selecting 66 of 66
+Spread to 198 agents
+Core 3 has 1 agents to evaluate
+Core 1 has 1 agents to evaluate
+Core 2 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Total agent results received 198, recombined to 66
+Finished generation 1 total 168.17923164367676 taken
+Most fit: {'x': 32, 'y': 5, 'fitness': -2.0, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -24.080882352941178
+
+Starting generation 2
+Selecting 96 of 102
+Spread to 288 agents
+Core 2 has 1 agents to evaluate
+Core 3 has 1 agents to evaluate
+Core 1 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 2 total 166.21447801589966 taken
+Most fit: {'x': 32, 'y': 5, 'fitness': -2.0, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -23.669940476190476
+
+Starting generation 3
+Selecting 96 of 140
+Spread to 288 agents
+Core 1 has 1 agents to evaluate
+Core 2 has 1 agents to evaluate
+Core 3 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 3 total 271.78628158569336 taken
+Most fit: {'x': 32, 'y': 5, 'fitness': -2.0, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -22.980679702048416
+
+Starting generation 4
+Selecting 96 of 179
+Spread to 288 agents
+Core 3 has 1 agents to evaluate
+Core 1 has 1 agents to evaluate
+Core 2 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 4 total 244.4376413822174 taken
+Most fit: {'x': 19, 'y': 7, 'fitness': 1.625, 'sample': [-9.372469509322347, 0.46368505725981635, 2.808982504187675, 1.7899462602846867, -7.27161456987877, 7.7946244891532785, 2.7661241305627353, 5.984294457553375, -9.64638299103629, -3.697821497969973, -6.523501212656551, 4.451042109162016, -0.6129829968588467, -0.05324704241989231, -0.8156763826990918, -8.261953808910203, -4.122209196379938, 8.062161570960061, 1.1356860763085166, 6.009802532035888, -4.587725943574781]}
+Average fitness -22.45414673046252
+
+Starting generation 5
+Selecting 96 of 209
+Spread to 288 agents
+Core 2 has 1 agents to evaluate
+Core 3 has 1 agents to evaluate
+Core 1 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 5 total 371.19340348243713 taken
+Most fit: {'x': 19, 'y': 7, 'fitness': 1.625, 'sample': [-9.372469509322347, 0.46368505725981635, 2.808982504187675, 1.7899462602846867, -7.27161456987877, 7.7946244891532785, 2.7661241305627353, 5.984294457553375, -9.64638299103629, -3.697821497969973, -6.523501212656551, 4.451042109162016, -0.6129829968588467, -0.05324704241989231, -0.8156763826990918, -8.261953808910203, -4.122209196379938, 8.062161570960061, 1.1356860763085166, 6.009802532035888, -4.587725943574781]}
+Average fitness -22.18444683908046
+
+Starting generation 6
+Selecting 96 of 232
+Spread to 288 agents
+Core 1 has 1 agents to evaluate
+Core 2 has 1 agents to evaluate
+Core 3 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 6 total 256.1441128253937 taken
+Most fit: {'x': 19, 'y': 7, 'fitness': 1.625, 'sample': [-9.372469509322347, 0.46368505725981635, 2.808982504187675, 1.7899462602846867, -7.27161456987877, 7.7946244891532785, 2.7661241305627353, 5.984294457553375, -9.64638299103629, -3.697821497969973, -6.523501212656551, 4.451042109162016, -0.6129829968588467, -0.05324704241989231, -0.8156763826990918, -8.261953808910203, -4.122209196379938, 8.062161570960061, 1.1356860763085166, 6.009802532035888, -4.587725943574781]}
+Average fitness -21.981589147286822
+
+Starting generation 7
+Selecting 96 of 258
+Spread to 288 agents
+Core 3 has 1 agents to evaluate
+Core 1 has 1 agents to evaluate
+Core 2 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 7 total 196.02055478096008 taken
+Most fit: {'x': 19, 'y': 7, 'fitness': 1.625, 'sample': [-9.372469509322347, 0.46368505725981635, 2.808982504187675, 1.7899462602846867, -7.27161456987877, 7.7946244891532785, 2.7661241305627353, 5.984294457553375, -9.64638299103629, -3.697821497969973, -6.523501212656551, 4.451042109162016, -0.6129829968588467, -0.05324704241989231, -0.8156763826990918, -8.261953808910203, -4.122209196379938, 8.062161570960061, 1.1356860763085166, 6.009802532035888, -4.587725943574781]}
+Average fitness -21.721198830409357
+
+Starting generation 8
+Selecting 96 of 285
+Spread to 288 agents
+Core 2 has 1 agents to evaluate
+Core 3 has 1 agents to evaluate
+Core 1 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 8 total 255.31862807273865 taken
+Most fit: {'x': 19, 'y': 7, 'fitness': 1.625, 'sample': [-9.372469509322347, 0.46368505725981635, 2.808982504187675, 1.7899462602846867, -7.27161456987877, 7.7946244891532785, 2.7661241305627353, 5.984294457553375, -9.64638299103629, -3.697821497969973, -6.523501212656551, 4.451042109162016, -0.6129829968588467, -0.05324704241989231, -0.8156763826990918, -8.261953808910203, -4.122209196379938, 8.062161570960061, 1.1356860763085166, 6.009802532035888, -4.587725943574781]}
+Average fitness -21.595888520971304
+
+Starting generation 9
+Selecting 96 of 302
+Spread to 288 agents
+Core 1 has 1 agents to evaluate
+Core 2 has 1 agents to evaluate
+Core 3 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 9 total 381.53195810317993 taken
+Most fit: {'x': 19, 'y': 7, 'fitness': 1.625, 'sample': [-9.372469509322347, 0.46368505725981635, 2.808982504187675, 1.7899462602846867, -7.27161456987877, 7.7946244891532785, 2.7661241305627353, 5.984294457553375, -9.64638299103629, -3.697821497969973, -6.523501212656551, 4.451042109162016, -0.6129829968588467, -0.05324704241989231, -0.8156763826990918, -8.261953808910203, -4.122209196379938, 8.062161570960061, 1.1356860763085166, 6.009802532035888, -4.587725943574781]}
+Average fitness -21.466376582278482
+
+Starting generation 10
+Selecting 96 of 316
+Spread to 288 agents
+Core 3 has 1 agents to evaluate
+Core 1 has 1 agents to evaluate
+Core 2 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 10 total 340.73817706108093 taken
+Most fit: {'x': 19, 'y': 7, 'fitness': 1.625, 'sample': [-9.372469509322347, 0.46368505725981635, 2.808982504187675, 1.7899462602846867, -7.27161456987877, 7.7946244891532785, 2.7661241305627353, 5.984294457553375, -9.64638299103629, -3.697821497969973, -6.523501212656551, 4.451042109162016, -0.6129829968588467, -0.05324704241989231, -0.8156763826990918, -8.261953808910203, -4.122209196379938, 8.062161570960061, 1.1356860763085166, 6.009802532035888, -4.587725943574781]}
+Average fitness -21.17472306143001
+
+Starting generation 11
+Selecting 96 of 331
+Spread to 288 agents
+Core 2 has 1 agents to evaluate
+Core 3 has 1 agents to evaluate
+Core 1 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 11 total 398.90226554870605 taken
+Most fit: {'x': 19, 'y': 7, 'fitness': 1.625, 'sample': [-9.372469509322347, 0.46368505725981635, 2.808982504187675, 1.7899462602846867, -7.27161456987877, 7.7946244891532785, 2.7661241305627353, 5.984294457553375, -9.64638299103629, -3.697821497969973, -6.523501212656551, 4.451042109162016, -0.6129829968588467, -0.05324704241989231, -0.8156763826990918, -8.261953808910203, -4.122209196379938, 8.062161570960061, 1.1356860763085166, 6.009802532035888, -4.587725943574781]}
+Average fitness -21.185778727445395
+
+Starting generation 12
+Selecting 96 of 351
+Spread to 288 agents
+Core 1 has 1 agents to evaluate
+Core 2 has 1 agents to evaluate
+Core 3 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 12 total 198.84658861160278 taken
+Most fit: {'x': 19, 'y': 7, 'fitness': 1.625, 'sample': [-9.372469509322347, 0.46368505725981635, 2.808982504187675, 1.7899462602846867, -7.27161456987877, 7.7946244891532785, 2.7661241305627353, 5.984294457553375, -9.64638299103629, -3.697821497969973, -6.523501212656551, 4.451042109162016, -0.6129829968588467, -0.05324704241989231, -0.8156763826990918, -8.261953808910203, -4.122209196379938, 8.062161570960061, 1.1356860763085166, 6.009802532035888, -4.587725943574781]}
+Average fitness -21.017857142857142
+
+Starting generation 13
+Selecting 96 of 364
+Spread to 288 agents
+Core 3 has 1 agents to evaluate
+Core 1 has 1 agents to evaluate
+Core 2 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 13 total 350.45607018470764 taken
+Most fit: {'x': 19, 'y': 7, 'fitness': 1.625, 'sample': [-9.372469509322347, 0.46368505725981635, 2.808982504187675, 1.7899462602846867, -7.27161456987877, 7.7946244891532785, 2.7661241305627353, 5.984294457553375, -9.64638299103629, -3.697821497969973, -6.523501212656551, 4.451042109162016, -0.6129829968588467, -0.05324704241989231, -0.8156763826990918, -8.261953808910203, -4.122209196379938, 8.062161570960061, 1.1356860763085166, 6.009802532035888, -4.587725943574781]}
+Average fitness -20.74966307277628
+
+Starting generation 14
+Selecting 96 of 371
+Spread to 288 agents
+Core 2 has 1 agents to evaluate
+Core 3 has 1 agents to evaluate
+Core 1 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 14 total 248.32650113105774 taken
+Most fit: {'x': 19, 'y': 7, 'fitness': 1.625, 'sample': [-9.372469509322347, 0.46368505725981635, 2.808982504187675, 1.7899462602846867, -7.27161456987877, 7.7946244891532785, 2.7661241305627353, 5.984294457553375, -9.64638299103629, -3.697821497969973, -6.523501212656551, 4.451042109162016, -0.6129829968588467, -0.05324704241989231, -0.8156763826990918, -8.261953808910203, -4.122209196379938, 8.062161570960061, 1.1356860763085166, 6.009802532035888, -4.587725943574781]}
+Average fitness -20.57569808027923
+
+Starting generation 15
+Selecting 96 of 382
+Spread to 288 agents
+Core 1 has 1 agents to evaluate
+Core 2 has 1 agents to evaluate
+Core 3 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 15 total 185.39166474342346 taken
+Most fit: {'x': 19, 'y': 7, 'fitness': 1.625, 'sample': [-9.372469509322347, 0.46368505725981635, 2.808982504187675, 1.7899462602846867, -7.27161456987877, 7.7946244891532785, 2.7661241305627353, 5.984294457553375, -9.64638299103629, -3.697821497969973, -6.523501212656551, 4.451042109162016, -0.6129829968588467, -0.05324704241989231, -0.8156763826990918, -8.261953808910203, -4.122209196379938, 8.062161570960061, 1.1356860763085166, 6.009802532035888, -4.587725943574781]}
+Average fitness -20.37136752136752
+
+Starting generation 16
+Selecting 96 of 390
+Spread to 288 agents
+Core 3 has 1 agents to evaluate
+Core 1 has 1 agents to evaluate
+Core 2 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 16 total 245.3667802810669 taken
+Most fit: {'x': 19, 'y': 7, 'fitness': 1.625, 'sample': [-9.372469509322347, 0.46368505725981635, 2.808982504187675, 1.7899462602846867, -7.27161456987877, 7.7946244891532785, 2.7661241305627353, 5.984294457553375, -9.64638299103629, -3.697821497969973, -6.523501212656551, 4.451042109162016, -0.6129829968588467, -0.05324704241989231, -0.8156763826990918, -8.261953808910203, -4.122209196379938, 8.062161570960061, 1.1356860763085166, 6.009802532035888, -4.587725943574781]}
+Average fitness -20.297291666666666
+
+Starting generation 17
+Selecting 96 of 400
+Spread to 288 agents
+Core 2 has 1 agents to evaluate
+Core 3 has 1 agents to evaluate
+Core 1 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 17 total 259.9455180168152 taken
+Most fit: {'x': 19, 'y': 7, 'fitness': 1.625, 'sample': [-9.372469509322347, 0.46368505725981635, 2.808982504187675, 1.7899462602846867, -7.27161456987877, 7.7946244891532785, 2.7661241305627353, 5.984294457553375, -9.64638299103629, -3.697821497969973, -6.523501212656551, 4.451042109162016, -0.6129829968588467, -0.05324704241989231, -0.8156763826990918, -8.261953808910203, -4.122209196379938, 8.062161570960061, 1.1356860763085166, 6.009802532035888, -4.587725943574781]}
+Average fitness -20.211925287356323
+
+Starting generation 18
+Selecting 96 of 406
+Spread to 288 agents
+Core 1 has 1 agents to evaluate
+Core 2 has 1 agents to evaluate
+Core 3 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 18 total 202.74793672561646 taken
+Most fit: {'x': 19, 'y': 7, 'fitness': 1.625, 'sample': [-9.372469509322347, 0.46368505725981635, 2.808982504187675, 1.7899462602846867, -7.27161456987877, 7.7946244891532785, 2.7661241305627353, 5.984294457553375, -9.64638299103629, -3.697821497969973, -6.523501212656551, 4.451042109162016, -0.6129829968588467, -0.05324704241989231, -0.8156763826990918, -8.261953808910203, -4.122209196379938, 8.062161570960061, 1.1356860763085166, 6.009802532035888, -4.587725943574781]}
+Average fitness -20.10230024213075
+
+Starting generation 19
+Selecting 96 of 413
+Spread to 288 agents
+Core 3 has 1 agents to evaluate
+Core 1 has 1 agents to evaluate
+Core 2 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 19 total 344.82037925720215 taken
+Most fit: {'x': 35, 'y': 3, 'fitness': 1.625, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -19.989212193190816
+
+Starting generation 20
+Selecting 96 of 421
+Spread to 288 agents
+Core 2 has 1 agents to evaluate
+Core 3 has 1 agents to evaluate
+Core 1 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 20 total 190.24659419059753 taken
+Most fit: {'x': 35, 'y': 3, 'fitness': 1.625, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -19.762283805031448
+
+Starting generation 21
+Selecting 96 of 424
+Spread to 288 agents
+Core 1 has 1 agents to evaluate
+Core 2 has 1 agents to evaluate
+Core 3 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 21 total 343.4410228729248 taken
+Most fit: {'x': 35, 'y': 3, 'fitness': 1.625, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -19.688622170179546
+
+Starting generation 22
+Selecting 96 of 427
+Spread to 288 agents
+Core 3 has 1 agents to evaluate
+Core 1 has 1 agents to evaluate
+Core 2 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 22 total 209.6268322467804 taken
+Most fit: {'x': 35, 'y': 3, 'fitness': 1.625, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -19.52433800623053
+
+Starting generation 23
+Selecting 96 of 428
+Spread to 288 agents
+Core 2 has 1 agents to evaluate
+Core 3 has 1 agents to evaluate
+Core 1 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 23 total 488.6885371208191 taken
+Most fit: {'x': 35, 'y': 3, 'fitness': 1.625, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -19.48903002309469
+
+Starting generation 24
+Selecting 96 of 433
+Spread to 288 agents
+Core 1 has 1 agents to evaluate
+Core 2 has 1 agents to evaluate
+Core 3 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 24 total 233.69918489456177 taken
+Most fit: {'x': 35, 'y': 3, 'fitness': 1.625, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -19.41849078341014
+
+Starting generation 25
+Selecting 96 of 434
+Spread to 288 agents
+Core 3 has 1 agents to evaluate
+Core 1 has 1 agents to evaluate
+Core 2 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 25 total 291.95778465270996 taken
+Most fit: {'x': 35, 'y': 3, 'fitness': 1.625, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -19.349810606060608
+
+Starting generation 26
+Selecting 96 of 440
+Spread to 288 agents
+Core 2 has 1 agents to evaluate
+Core 3 has 1 agents to evaluate
+Core 1 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 26 total 192.2654972076416 taken
+Most fit: {'x': 35, 'y': 3, 'fitness': 1.625, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -19.29007132132132
+
+Starting generation 27
+Selecting 96 of 444
+Spread to 288 agents
+Core 1 has 1 agents to evaluate
+Core 2 has 1 agents to evaluate
+Core 3 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 27 total 227.01642632484436 taken
+Most fit: {'x': 35, 'y': 3, 'fitness': 1.625, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -19.253619153674833
+
+Starting generation 28
+Selecting 96 of 449
+Spread to 288 agents
+Core 3 has 1 agents to evaluate
+Core 1 has 1 agents to evaluate
+Core 2 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 28 total 188.97079968452454 taken
+Most fit: {'x': 35, 'y': 3, 'fitness': 1.625, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -19.274504405286343
+
+Starting generation 29
+Selecting 96 of 454
+Spread to 288 agents
+Core 2 has 1 agents to evaluate
+Core 3 has 1 agents to evaluate
+Core 1 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 29 total 359.87954330444336 taken
+Most fit: {'x': 35, 'y': 3, 'fitness': 1.625, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -19.217633114514953
+
+Starting generation 30
+Selecting 96 of 457
+Spread to 288 agents
+Core 1 has 1 agents to evaluate
+Core 2 has 1 agents to evaluate
+Core 3 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 30 total 274.74730157852173 taken
+Most fit: {'x': 35, 'y': 3, 'fitness': 1.625, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -19.207062454611474
+
+Starting generation 31
+Selecting 96 of 459
+Spread to 288 agents
+Core 3 has 1 agents to evaluate
+Core 1 has 1 agents to evaluate
+Core 2 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 31 total 234.31421828269958 taken
+Most fit: {'x': 35, 'y': 3, 'fitness': 1.625, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -19.16081713462923
+
+Starting generation 32
+Selecting 96 of 463
+Spread to 288 agents
+Core 2 has 1 agents to evaluate
+Core 3 has 1 agents to evaluate
+Core 1 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 32 total 190.22430968284607 taken
+Most fit: {'x': 35, 'y': 3, 'fitness': 1.625, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -19.140625
+
+Starting generation 33
+Selecting 96 of 464
+Spread to 288 agents
+Core 1 has 1 agents to evaluate
+Core 2 has 1 agents to evaluate
+Core 3 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 33 total 293.07205033302307 taken
+Most fit: {'x': 35, 'y': 3, 'fitness': 1.625, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -19.03163082437276
+
+Starting generation 34
+Selecting 96 of 465
+Spread to 288 agents
+Core 3 has 1 agents to evaluate
+Core 1 has 1 agents to evaluate
+Core 2 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 34 total 390.0993905067444 taken
+Most fit: {'x': 35, 'y': 3, 'fitness': 1.625, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -19.018508583690988
+
+Starting generation 35
+Selecting 96 of 466
+Spread to 288 agents
+Core 2 has 1 agents to evaluate
+Core 3 has 1 agents to evaluate
+Core 1 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 35 total 175.50619506835938 taken
+Most fit: {'x': 35, 'y': 3, 'fitness': 1.625, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -19.042999289267946
+
+Starting generation 36
+Selecting 96 of 469
+Spread to 288 agents
+Core 1 has 1 agents to evaluate
+Core 2 has 1 agents to evaluate
+Core 3 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 36 total 237.02106523513794 taken
+Most fit: {'x': 35, 'y': 3, 'fitness': 1.625, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -19.054351656095843
+
+Starting generation 37
+Selecting 96 of 473
+Spread to 288 agents
+Core 3 has 1 agents to evaluate
+Core 1 has 1 agents to evaluate
+Core 2 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 37 total 276.81393218040466 taken
+Most fit: {'x': 35, 'y': 3, 'fitness': 1.625, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -19.055263157894736
+
+Starting generation 38
+Selecting 96 of 475
+Spread to 288 agents
+Core 2 has 1 agents to evaluate
+Core 3 has 1 agents to evaluate
+Core 1 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 38 total 202.65221190452576 taken
+Most fit: {'x': 35, 'y': 3, 'fitness': 1.625, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -18.986197916666665
+
+Starting generation 39
+Selecting 96 of 480
+Spread to 288 agents
+Core 1 has 1 agents to evaluate
+Core 2 has 1 agents to evaluate
+Core 3 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 39 total 205.6391727924347 taken
+Most fit: {'x': 35, 'y': 3, 'fitness': 1.625, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -18.981327800829874
+
+Starting generation 40
+Selecting 96 of 482
+Spread to 288 agents
+Core 3 has 1 agents to evaluate
+Core 1 has 1 agents to evaluate
+Core 2 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 40 total 192.06818795204163 taken
+Most fit: {'x': 35, 'y': 3, 'fitness': 1.625, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -18.919851928374655
+
+Starting generation 41
+Selecting 96 of 484
+Spread to 288 agents
+Core 2 has 1 agents to evaluate
+Core 3 has 1 agents to evaluate
+Core 1 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 41 total 208.2466492652893 taken
+Most fit: {'x': 35, 'y': 3, 'fitness': 1.625, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -18.84259259259259
+
+Starting generation 42
+Selecting 96 of 486
+Spread to 288 agents
+Core 1 has 1 agents to evaluate
+Core 2 has 1 agents to evaluate
+Core 3 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 42 total 246.0925223827362 taken
+Most fit: {'x': 35, 'y': 3, 'fitness': 1.625, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -18.813268442622952
+
+Starting generation 43
+Selecting 96 of 488
+Spread to 288 agents
+Core 3 has 1 agents to evaluate
+Core 1 has 1 agents to evaluate
+Core 2 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 43 total 206.85522770881653 taken
+Most fit: {'x': 32, 'y': 5, 'fitness': 1.875, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -18.81045918367347
+
+Starting generation 44
+Selecting 96 of 490
+Spread to 288 agents
+Core 2 has 1 agents to evaluate
+Core 3 has 1 agents to evaluate
+Core 1 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 44 total 289.2662441730499 taken
+Most fit: {'x': 32, 'y': 5, 'fitness': 1.875, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -18.758097165991902
+
+Starting generation 45
+Selecting 96 of 494
+Spread to 288 agents
+Core 1 has 1 agents to evaluate
+Core 2 has 1 agents to evaluate
+Core 3 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 45 total 414.7667877674103 taken
+Most fit: {'x': 32, 'y': 5, 'fitness': 1.875, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -18.69770580296896
+
+Starting generation 46
+Selecting 96 of 494
+Spread to 288 agents
+Core 3 has 1 agents to evaluate
+Core 1 has 1 agents to evaluate
+Core 2 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 46 total 362.38102746009827 taken
+Most fit: {'x': 32, 'y': 5, 'fitness': 1.875, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -18.662533738191634
+
+Starting generation 47
+Selecting 96 of 494
+Spread to 288 agents
+Core 2 has 1 agents to evaluate
+Core 3 has 1 agents to evaluate
+Core 1 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 47 total 292.0677499771118 taken
+Most fit: {'x': 32, 'y': 5, 'fitness': 1.875, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -18.633064516129032
+
+Starting generation 48
+Selecting 96 of 496
+Spread to 288 agents
+Core 1 has 1 agents to evaluate
+Core 2 has 1 agents to evaluate
+Core 3 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 48 total 198.99129939079285 taken
+Most fit: {'x': 32, 'y': 5, 'fitness': 1.875, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -18.61359825620389
+
+Starting generation 49
+Selecting 96 of 497
+Spread to 288 agents
+Core 3 has 1 agents to evaluate
+Core 1 has 1 agents to evaluate
+Core 2 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 49 total 205.22266006469727 taken
+Most fit: {'x': 32, 'y': 5, 'fitness': 1.875, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -18.58258032128514
+
+Starting generation 50
+Selecting 96 of 498
+Spread to 288 agents
+Core 2 has 1 agents to evaluate
+Core 3 has 1 agents to evaluate
+Core 1 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 50 total 249.11649680137634 taken
+Most fit: {'x': 32, 'y': 5, 'fitness': 1.875, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -18.578583333333334
+
+Starting generation 51
+Selecting 96 of 500
+Spread to 288 agents
+Core 1 has 1 agents to evaluate
+Core 2 has 1 agents to evaluate
+Core 3 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 51 total 223.35405325889587 taken
+Most fit: {'x': 32, 'y': 5, 'fitness': 1.875, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -18.597360557768923
+
+Starting generation 52
+Selecting 96 of 502
+Spread to 288 agents
+Core 3 has 1 agents to evaluate
+Core 1 has 1 agents to evaluate
+Core 2 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 52 total 280.5858223438263 taken
+Most fit: {'x': 32, 'y': 5, 'fitness': 1.875, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -18.570493704440025
+
+Starting generation 53
+Selecting 96 of 503
+Spread to 288 agents
+Core 2 has 1 agents to evaluate
+Core 3 has 1 agents to evaluate
+Core 1 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 53 total 288.5242717266083 taken
+Most fit: {'x': 32, 'y': 5, 'fitness': 1.875, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -18.521329365079364
+
+Starting generation 54
+Selecting 96 of 504
+Spread to 288 agents
+Core 1 has 1 agents to evaluate
+Core 2 has 1 agents to evaluate
+Core 3 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 54 total 202.15019583702087 taken
+Most fit: {'x': 32, 'y': 5, 'fitness': 1.875, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -18.441617259552043
+
+Starting generation 55
+Selecting 96 of 506
+Spread to 288 agents
+Core 3 has 1 agents to evaluate
+Core 1 has 1 agents to evaluate
+Core 2 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 55 total 322.1782124042511 taken
+Most fit: {'x': 32, 'y': 5, 'fitness': 1.875, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -18.37697238658777
+
+Starting generation 56
+Selecting 96 of 507
+Spread to 288 agents
+Core 2 has 1 agents to evaluate
+Core 3 has 1 agents to evaluate
+Core 1 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 56 total 197.701758146286 taken
+Most fit: {'x': 32, 'y': 5, 'fitness': 1.875, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -18.40359477124183
+
+Starting generation 57
+Selecting 96 of 510
+Spread to 288 agents
+Core 1 has 1 agents to evaluate
+Core 2 has 1 agents to evaluate
+Core 3 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 57 total 393.2474489212036 taken
+Most fit: {'x': 32, 'y': 5, 'fitness': 1.875, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -18.391634050880626
+
+Starting generation 58
+Selecting 96 of 511
+Spread to 288 agents
+Core 3 has 1 agents to evaluate
+Core 1 has 1 agents to evaluate
+Core 2 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 58 total 183.3420000076294 taken
+Most fit: {'x': 32, 'y': 5, 'fitness': 1.875, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -18.420890188434047
+
+Starting generation 59
+Selecting 96 of 513
+Spread to 288 agents
+Core 2 has 1 agents to evaluate
+Core 3 has 1 agents to evaluate
+Core 1 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 59 total 223.21327805519104 taken
+Most fit: {'x': 32, 'y': 5, 'fitness': 1.875, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -18.357814526588847
+
+Starting generation 60
+Selecting 96 of 514
+Spread to 288 agents
+Core 1 has 1 agents to evaluate
+Core 2 has 1 agents to evaluate
+Core 3 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 60 total 362.3716938495636 taken
+Most fit: {'x': 32, 'y': 5, 'fitness': 1.875, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -18.325999355254673
+
+Starting generation 61
+Selecting 96 of 517
+Spread to 288 agents
+Core 3 has 1 agents to evaluate
+Core 1 has 1 agents to evaluate
+Core 2 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 61 total 220.7944314479828 taken
+Most fit: {'x': 32, 'y': 5, 'fitness': 1.875, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -18.273407335907336
+
+Starting generation 62
+Selecting 96 of 518
+Spread to 288 agents
+Core 2 has 1 agents to evaluate
+Core 3 has 1 agents to evaluate
+Core 1 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 62 total 290.34107208251953 taken
+Most fit: {'x': 32, 'y': 5, 'fitness': 1.875, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -18.218349358974358
+
+Starting generation 63
+Selecting 96 of 520
+Spread to 288 agents
+Core 1 has 1 agents to evaluate
+Core 2 has 1 agents to evaluate
+Core 3 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 63 total 293.7037703990936 taken
+Most fit: {'x': 32, 'y': 5, 'fitness': 1.875, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -18.175721153846155
+
+Starting generation 64
+Selecting 96 of 520
+Spread to 288 agents
+Core 3 has 1 agents to evaluate
+Core 1 has 1 agents to evaluate
+Core 2 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 64 total 204.50870323181152 taken
+Most fit: {'x': 32, 'y': 5, 'fitness': 1.875, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -18.162515964240104
+
+Starting generation 65
+Selecting 96 of 522
+Spread to 288 agents
+Core 2 has 1 agents to evaluate
+Core 3 has 1 agents to evaluate
+Core 1 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 65 total 224.11184072494507 taken
+Most fit: {'x': 32, 'y': 5, 'fitness': 1.875, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -18.15227417302799
+
+Starting generation 66
+Selecting 96 of 524
+Spread to 288 agents
+Core 1 has 1 agents to evaluate
+Core 2 has 1 agents to evaluate
+Core 3 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 66 total 343.3483638763428 taken
+Most fit: {'x': 32, 'y': 5, 'fitness': 1.875, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -18.152142857142856
+
+Starting generation 67
+Selecting 96 of 525
+Spread to 288 agents
+Core 3 has 1 agents to evaluate
+Core 1 has 1 agents to evaluate
+Core 2 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 67 total 245.9851758480072 taken
+Most fit: {'x': 32, 'y': 5, 'fitness': 1.875, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -18.126584283903675
+
+Starting generation 68
+Selecting 96 of 526
+Spread to 288 agents
+Core 2 has 1 agents to evaluate
+Core 3 has 1 agents to evaluate
+Core 1 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 68 total 223.37314438819885 taken
+Most fit: {'x': 32, 'y': 5, 'fitness': 1.875, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -18.104958808618505
+
+Starting generation 69
+Selecting 96 of 526
+Spread to 288 agents
+Core 1 has 1 agents to evaluate
+Core 2 has 1 agents to evaluate
+Core 3 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 69 total 183.4177758693695 taken
+Most fit: {'x': 32, 'y': 5, 'fitness': 1.875, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -18.044744318181817
+
+Starting generation 70
+Selecting 96 of 528
+Spread to 288 agents
+Core 3 has 1 agents to evaluate
+Core 1 has 1 agents to evaluate
+Core 2 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 70 total 349.73801136016846 taken
+Most fit: {'x': 32, 'y': 5, 'fitness': 1.875, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -18.0419029615627
+
+Starting generation 71
+Selecting 96 of 529
+Spread to 288 agents
+Core 2 has 1 agents to evaluate
+Core 3 has 1 agents to evaluate
+Core 1 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 71 total 330.8721594810486 taken
+Most fit: {'x': 32, 'y': 5, 'fitness': 1.875, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -18.05196540880503
+
+Starting generation 72
+Selecting 96 of 530
+Spread to 288 agents
+Core 1 has 1 agents to evaluate
+Core 2 has 1 agents to evaluate
+Core 3 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 72 total 240.11413145065308 taken
+Most fit: {'x': 32, 'y': 5, 'fitness': 1.875, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -18.016007532956685
+
+Starting generation 73
+Selecting 96 of 531
+Spread to 288 agents
+Core 3 has 1 agents to evaluate
+Core 1 has 1 agents to evaluate
+Core 2 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 73 total 181.93364906311035 taken
+Most fit: {'x': 32, 'y': 5, 'fitness': 1.875, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -17.971202134337727
+
+Starting generation 74
+Selecting 96 of 531
+Spread to 288 agents
+Core 2 has 1 agents to evaluate
+Core 3 has 1 agents to evaluate
+Core 1 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 74 total 306.00856494903564 taken
+Most fit: {'x': 32, 'y': 5, 'fitness': 1.875, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -17.96875
+
+Starting generation 75
+Selecting 96 of 532
+Spread to 288 agents
+Core 1 has 1 agents to evaluate
+Core 2 has 1 agents to evaluate
+Core 3 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 75 total 422.7307164669037 taken
+Most fit: {'x': 32, 'y': 5, 'fitness': 1.875, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -17.88061797752809
+
+Starting generation 76
+Selecting 96 of 534
+Spread to 288 agents
+Core 3 has 1 agents to evaluate
+Core 1 has 1 agents to evaluate
+Core 2 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 76 total 227.37061190605164 taken
+Most fit: {'x': 32, 'y': 5, 'fitness': 1.875, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -17.87234706616729
+
+Starting generation 77
+Selecting 96 of 534
+Spread to 288 agents
+Core 2 has 1 agents to evaluate
+Core 3 has 1 agents to evaluate
+Core 1 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 77 total 357.1380412578583 taken
+Most fit: {'x': 32, 'y': 5, 'fitness': 1.875, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -17.88309968847352
+
+Starting generation 78
+Selecting 96 of 535
+Spread to 288 agents
+Core 1 has 1 agents to evaluate
+Core 2 has 1 agents to evaluate
+Core 3 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 78 total 176.44771599769592 taken
+Most fit: {'x': 32, 'y': 5, 'fitness': 1.875, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -17.884794776119403
+
+Starting generation 79
+Selecting 96 of 536
+Spread to 288 agents
+Core 3 has 1 agents to evaluate
+Core 1 has 1 agents to evaluate
+Core 2 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 79 total 189.52678179740906 taken
+Most fit: {'x': 32, 'y': 5, 'fitness': 1.875, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -17.866371268656717
+
+Starting generation 80
+Selecting 96 of 536
+Spread to 288 agents
+Core 2 has 1 agents to evaluate
+Core 3 has 1 agents to evaluate
+Core 1 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 80 total 346.85777258872986 taken
+Most fit: {'x': 32, 'y': 5, 'fitness': 1.875, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -17.8574643078833
+
+Starting generation 81
+Selecting 96 of 537
+Spread to 288 agents
+Core 1 has 1 agents to evaluate
+Core 2 has 1 agents to evaluate
+Core 3 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 81 total 198.69455432891846 taken
+Most fit: {'x': 32, 'y': 5, 'fitness': 1.875, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -17.848463687150836
+
+Starting generation 82
+Selecting 96 of 537
+Spread to 288 agents
+Core 3 has 1 agents to evaluate
+Core 1 has 1 agents to evaluate
+Core 2 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 82 total 189.73449110984802 taken
+Most fit: {'x': 32, 'y': 5, 'fitness': 1.875, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -17.828686493184634
+
+Starting generation 83
+Selecting 96 of 538
+Spread to 288 agents
+Core 2 has 1 agents to evaluate
+Core 3 has 1 agents to evaluate
+Core 1 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 83 total 442.11078572273254 taken
+Most fit: {'x': 32, 'y': 5, 'fitness': 1.875, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -17.81060606060606
+
+Starting generation 84
+Selecting 96 of 539
+Spread to 288 agents
+Core 1 has 1 agents to evaluate
+Core 2 has 1 agents to evaluate
+Core 3 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 84 total 330.95323514938354 taken
+Most fit: {'x': 32, 'y': 5, 'fitness': 1.875, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -17.80751391465677
+
+Starting generation 85
+Selecting 96 of 539
+Spread to 288 agents
+Core 3 has 1 agents to evaluate
+Core 1 has 1 agents to evaluate
+Core 2 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 85 total 305.641446352005 taken
+Most fit: {'x': 32, 'y': 5, 'fitness': 1.875, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -17.786660505237215
+
+Starting generation 86
+Selecting 96 of 541
+Spread to 288 agents
+Core 2 has 1 agents to evaluate
+Core 3 has 1 agents to evaluate
+Core 1 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 86 total 209.6935350894928 taken
+Most fit: {'x': 32, 'y': 5, 'fitness': 1.875, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -17.75908810844116
+
+Starting generation 87
+Selecting 96 of 541
+Spread to 288 agents
+Core 1 has 1 agents to evaluate
+Core 2 has 1 agents to evaluate
+Core 3 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 87 total 186.71737384796143 taken
+Most fit: {'x': 32, 'y': 5, 'fitness': 1.875, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -17.719192852741838
+
+Starting generation 88
+Selecting 96 of 541
+Spread to 288 agents
+Core 3 has 1 agents to evaluate
+Core 1 has 1 agents to evaluate
+Core 2 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 88 total 223.66514658927917 taken
+Most fit: {'x': 32, 'y': 5, 'fitness': 1.875, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -17.676045510455104
+
+Starting generation 89
+Selecting 96 of 542
+Spread to 288 agents
+Core 2 has 1 agents to evaluate
+Core 3 has 1 agents to evaluate
+Core 1 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 89 total 181.94976425170898 taken
+Most fit: {'x': 32, 'y': 5, 'fitness': 1.875, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -17.623154981549817
+
+Starting generation 90
+Selecting 96 of 542
+Spread to 288 agents
+Core 1 has 1 agents to evaluate
+Core 2 has 1 agents to evaluate
+Core 3 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 90 total 334.897775888443 taken
+Most fit: {'x': 32, 'y': 5, 'fitness': 1.875, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -17.578575813382443
+
+Starting generation 91
+Selecting 96 of 543
+Spread to 288 agents
+Core 3 has 1 agents to evaluate
+Core 1 has 1 agents to evaluate
+Core 2 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 91 total 228.98390412330627 taken
+Most fit: {'x': 32, 'y': 5, 'fitness': 1.875, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -17.564686924493554
+
+Starting generation 92
+Selecting 96 of 543
+Spread to 288 agents
+Core 2 has 1 agents to evaluate
+Core 3 has 1 agents to evaluate
+Core 1 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 92 total 359.25362515449524 taken
+Most fit: {'x': 32, 'y': 5, 'fitness': 1.875, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -17.59847094801223
+
+Starting generation 93
+Selecting 96 of 545
+Spread to 288 agents
+Core 1 has 1 agents to evaluate
+Core 2 has 1 agents to evaluate
+Core 3 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 93 total 269.90016984939575 taken
+Most fit: {'x': 32, 'y': 5, 'fitness': 1.875, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -17.585703363914373
+
+Starting generation 94
+Selecting 96 of 545
+Spread to 288 agents
+Core 3 has 1 agents to evaluate
+Core 1 has 1 agents to evaluate
+Core 2 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 94 total 286.4473223686218 taken
+Most fit: {'x': 32, 'y': 5, 'fitness': 1.875, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -17.566896024464832
+
+Starting generation 95
+Selecting 96 of 545
+Spread to 288 agents
+Core 2 has 1 agents to evaluate
+Core 3 has 1 agents to evaluate
+Core 1 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 95 total 194.98517537117004 taken
+Most fit: {'x': 32, 'y': 5, 'fitness': 1.875, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -17.593312004875077
+
+Starting generation 96
+Selecting 96 of 547
+Spread to 288 agents
+Core 1 has 1 agents to evaluate
+Core 2 has 1 agents to evaluate
+Core 3 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 96 total 278.866247177124 taken
+Most fit: {'x': 32, 'y': 5, 'fitness': 1.875, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -17.599224452554743
+
+Starting generation 97
+Selecting 96 of 548
+Spread to 288 agents
+Core 3 has 1 agents to evaluate
+Core 1 has 1 agents to evaluate
+Core 2 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 97 total 191.24193501472473 taken
+Most fit: {'x': 32, 'y': 5, 'fitness': 1.875, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -17.58447384428224
+
+Starting generation 98
+Selecting 96 of 548
+Spread to 288 agents
+Core 2 has 1 agents to evaluate
+Core 3 has 1 agents to evaluate
+Core 1 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 98 total 224.6672806739807 taken
+Most fit: {'x': 32, 'y': 5, 'fitness': 1.875, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -17.55995749848209
+
+Starting generation 99
+Selecting 96 of 549
+Spread to 288 agents
+Core 1 has 1 agents to evaluate
+Core 2 has 1 agents to evaluate
+Core 3 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 99 total 260.81958746910095 taken
+Most fit: {'x': 32, 'y': 5, 'fitness': 1.875, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -17.51130843958713
+
+Starting generation 100
+Selecting 96 of 549
+Spread to 288 agents
+Core 3 has 1 agents to evaluate
+Core 1 has 1 agents to evaluate
+Core 2 has 1 agents to evaluate
+Core 0 has 1 agents to evaluate
+Core 6 has 1 agents to evaluate
+Core 7 has 1 agents to evaluate
+Core 4 has 1 agents to evaluate
+Core 8 has 1 agents to evaluate
+Core 9 has 1 agents to evaluate
+Core 5 has 1 agents to evaluate
+Total agent results received 288, recombined to 96
+Finished generation 100 total 286.8347215652466 taken
+Most fit: {'x': 32, 'y': 5, 'fitness': 1.875, 'sample': [-7.636410158099602, -5.289945697148861, -1.882124283690505, -4.975148150421651, -1.701047943799317, 7.868744892576615, 3.9166519184732103, 6.337684467437011, 4.4234049016361325, 1.2589507924678962, 6.401783861312502, -7.543752886934783, -1.8591074526400497, -8.928997965329588, -6.43569418290501, -4.530507363337004, 8.699927098013287, -6.509241118388016, -7.206145512039443, 0.07572489321879772, 6.291185934210294]}
+Average fitness -17.500986642380084

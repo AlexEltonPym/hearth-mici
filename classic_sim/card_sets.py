@@ -9,7 +9,7 @@ from dynamics import *
 
 def get_utility_card(utility_card):
   the_coin = Card(name="The Coin", collectable=False, card_type=CardTypes.SPELL, manacost=0,
-          effect=GainMana(value=ConstantInt(1), method=Methods.TARGETED,
+          effect=GainMana(value=ConstantInt(1), method=Methods.ALL,
                   duration=Durations.TURN, target=Targets.HERO, owner_filter=OwnerFilters.FRIENDLY))
   excess_mana = Card(name="Excess Mana", collectable=False, card_type=CardTypes.SPELL, manacost=0,
           effect=DrawCards(value=ConstantInt(1), method=Methods.ALL, owner_filter=OwnerFilters.FRIENDLY))

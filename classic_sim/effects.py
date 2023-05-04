@@ -6,7 +6,7 @@ from player import Player
 import inspect
 
 class GainMana():
-  available_methods = [Methods.TARGETED, Methods.RANDOMLY, Methods.ALL]
+  available_methods = [Methods.RANDOMLY, Methods.ALL]
   param_type = ParamTypes.X
   available_targets = [Targets.HERO]
   available_owner_filters = [f for f in OwnerFilters]
