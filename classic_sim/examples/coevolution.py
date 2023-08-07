@@ -26,7 +26,7 @@ import csv
 from map_elites import Archive
 
 
-from mpi4py import MPI
+# from mpi4py import MPI
 
 
 basic_mage = [
@@ -146,54 +146,6 @@ def get_sublist(lst, num_cores, core_num):
   end_index = start_index + (len(lst) // num_cores) + (1 if core_num < (len(lst) % num_cores) else 0)
   return lst[start_index:end_index]
 
-def evaluate(elite, agent_class, enemy_class, enemy_niche, enemy_policy, rank, agent_only):
-  agent, deck = elite
-  class_setups = {
-    "M": (Classes.MAGE, [CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_MAGE], Deck.generate_from_decklist(basic_mage), agents['handmade_agent']),
-    "H": (Classes.HUNTER, [CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER], Deck.generate_from_decklist(basic_hunter), agents['handmade_agent']),
-    "W": (Classes.WARRIOR, [CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_WARRIOR], Deck.generate_from_decklist(basic_warrior), agents['handmade_agent'])
-  }
-
-  game_manager = GameManager()
-  player_class_enum, player_cardset, player_default_deck, _ = class_setups[agent_class]
-  if agent_only:
-    player_decklist = player_default_deck
-  else:
-    player_decklist = Deck.generate_from_decklist(deck)
-  enemy_class_enum, enemy_cardset, enemy_decklist, _ = class_setups[enemy_class]
-  enemy_agent = enemy_policy
-  game_manager.build_full_game_manager(player_cardset, enemy_cardset,
-                                      player_class_enum, player_decklist, GreedyActionSmart(agent),
-                                      enemy_class_enum, enemy_decklist, GreedyActionSmart(enemy_agent))
-  winrate, health_difference, cards_in_hand, turns = game_manager.simulate(5, silent=True, parralel=1, rng=True, rank=rank)
-  # winrate = random()
-  # health_difference = uniform(-30, 30)
-  # cards_in_hand = uniform(0, 9)
-  # turns = uniform(10, 20)
-  return (winrate, health_difference, cards_in_hand, turns)
-
-def peturb_agent_and_deck(individual, player_class, agent_only):
-  agent, deck = individual
-  for weight in agent:
-    weight = weight+gauss(0, 0.5)
-
-  if not agent_only:
-    num_to_remove = 0
-    rand = random()
-    for exponent in range(4):
-      if rand < 1/(2**exponent):
-        num_to_remove = exponent
-
-    pool = get_available_cards(player_class)
-
-    for i in range(num_to_remove):
-      selected_card = randint(0, 14)
-      selected_card_name = deck[selected_card*2]
-      new_card = choice([card for card in pool if card != selected_card_name])
-
-      deck[selected_card*2] = new_card
-      deck[selected_card*2+1] = new_card
-
 def get_available_cards(player_class):
   class_pools = {
     "M": [CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_MAGE],
@@ -216,9 +168,68 @@ def generate_random_deck(player_class):
 
   return new_deck
 
+def evaluate(elite, agent_class, enemy_class, enemy_niche, enemy_policy, rank, agent_only, num_games_per_matchup):
+  agent, deck = elite
+  class_setups = {
+    "M": (Classes.MAGE, [CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_MAGE], Deck.generate_from_decklist(basic_mage), agents['handmade_agent']),
+    "H": (Classes.HUNTER, [CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER], Deck.generate_from_decklist(basic_hunter), agents['handmade_agent']),
+    "W": (Classes.WARRIOR, [CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_WARRIOR], Deck.generate_from_decklist(basic_warrior), agents['handmade_agent'])
+  }
+
+  game_manager = GameManager()
+  player_class_enum, player_cardset, player_default_deck, _ = class_setups[agent_class]
+  if agent_only:
+    player_decklist = player_default_deck
+  else:
+    player_decklist = Deck.generate_from_decklist(deck)
+  enemy_class_enum, enemy_cardset, enemy_decklist, _ = class_setups[enemy_class]
+  enemy_agent = enemy_policy
+  if num_games_per_matchup == -1:
+    winrate = random()
+    health_difference = uniform(-30, 30)
+    cards_in_hand = uniform(0, 9)
+    turns = uniform(10, 20)
+  else:
+    game_manager.build_full_game_manager(player_cardset, enemy_cardset,
+                                      player_class_enum, player_decklist, GreedyActionSmart(agent),
+                                      enemy_class_enum, enemy_decklist, GreedyActionSmart(enemy_agent))
+    winrate, health_difference, cards_in_hand, turns = game_manager.simulate(num_games_per_matchup, silent=True, parralel=1, rng=True, rank=rank)
+
+  return (winrate, health_difference, cards_in_hand, turns)
+
+def peturb_agent_and_deck(individual, player_class, agent_only):
+  agent, deck = individual
+  
+  agent = list(map(lambda weight: weight+gauss(0, 0.5), agent))
+
+  if not agent_only:
+    num_to_remove = 0
+    rand = random()
+    for exponent in range(4):
+      if rand < 1/(2**exponent):
+        num_to_remove = exponent
+
+    pool = get_available_cards(player_class)
+
+    for i in range(num_to_remove):
+      selected_card = randint(0, 14)
+      selected_card_name = deck[selected_card*2]
+      new_card = choice([card for card in pool if card != selected_card_name])
+
+      deck[selected_card*2] = new_card
+      deck[selected_card*2+1] = new_card
+  return (agent, deck)
 
 def main():
-  using_mpi = True
+  using_mpi = False #also comment out mpi import when False ^
+  start_generation = 0
+  end_generation = 135
+  player_class = "W"
+  load_from_file = True
+  agent_only = False
+  initial_population_size = 38 #max 96/38
+  num_games_per_matchup = 5 #if -1, dummy games are played
+
   if using_mpi:
     comm = MPI.COMM_WORLD
     num_cores = comm.Get_size()
@@ -226,14 +237,6 @@ def main():
   else:
     rank = 0
     num_cores = 1
-
-  start_generation = 0
-  end_generation = 151
-  player_class = "M"
-  load_from_file = False
-  agent_only = True
-  initial_population_size = 38 #max 96/38
-
 
   if rank == 0:
     if load_from_file:
@@ -251,7 +254,12 @@ def main():
     map_archive = Archive("Hand size", "Turns", x_range=(1, 9), y_range=(9, 35), num_buckets=40)
 
     if load_from_file:
-      map_archive.load('data/map_archive.json')
+      try:
+        map_archive.load(f'data/generation{start_generation-1}_archive.json')
+      except:
+        map_archive.load('data/map_archive.json')
+
+
 
     gauntlet = []
     with open('gauntlet.csv', 'r', encoding='utf-8') as f:
@@ -272,31 +280,28 @@ def main():
       else:
         population = [elite['sample'] for elite in map_archive.get_elites(38, unique_only=True, only_consider_policy=agent_only)]
         print(f"Selecting {len(population)} of {map_archive.get_total_population_count()}")
-      [peturb_agent_and_deck(individual, player_class, agent_only) for individual in population]
-
+      population = [peturb_agent_and_deck(individual, player_class, agent_only) for individual in population]
       spread_population = [(elite, enemy['agent_class'], enemy['niche'], enemy['sample']) for elite in population for enemy in gauntlet]
       print(f"Spread to {len(spread_population)} agents")
       time.sleep(0.5)
     else:
       spread_population = None
-    if using_mpi:
-      spread_population = comm.bcast(spread_population, root=0)
+    if using_mpi: spread_population = comm.bcast(spread_population, root=0)
 
     my_population_subset = get_sublist(spread_population, num_cores, rank)
     if rank < 3:
       print(f"Core {rank} has {len(my_population_subset)} agents to evaluate")
-    my_results = [evaluate(elite, player_class, enemy_class, enemy_niche, enemy_policy, rank, agent_only) for (elite, enemy_class, enemy_niche, enemy_policy) in my_population_subset]
-    all_results = comm.gather(my_results, root=0)
-    # all_results = [my_results]
+    my_results = [evaluate(elite, player_class, enemy_class, enemy_niche, enemy_policy, rank, agent_only, num_games_per_matchup) for (elite, enemy_class, enemy_niche, enemy_policy) in my_population_subset]
+    all_results = comm.gather(my_results, root=0) if using_mpi else [my_results]
     if rank == 0:
       flat_res = [result for individual_core_reponses in all_results for result in individual_core_reponses]
       recombined_results = [flat_res[i:i+15]for i in range(0, len(flat_res), 15)]
       recombined_results = [(mean(column) for column in list(zip(*result))) for result in recombined_results]
 
-      # recombined_results = [((flat_res[i][0] + flat_res[i+1][0] + flat_res[i+2][0])/3, (flat_res[i][1] + flat_res[i+1][1] + flat_res[i+2][1])/3, (flat_res[i][2] + flat_res[i+1][2] + flat_res[i+2][2])/3, (flat_res[i][3] + flat_res[i+1][3] + flat_res[i+2][3])/3) for i in range(0, len(flat_res), 3)]
       print(f"Total agent results received {len(flat_res)}, recombined to {len(recombined_results)}")
       for (winrate, health_difference, cards_in_hand, turns), agent in zip(recombined_results, population):
         map_archive.add_sample(cards_in_hand, turns, fitness=health_difference, sample=agent)
+      map_archive.save(save_file=f'data/generation{generation_number}_archive.json')
       map_archive.save()
       map_archive.display(save_file=f'data/generation{generation_number}.png')
       end = time.time()

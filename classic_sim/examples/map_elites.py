@@ -11,7 +11,8 @@ from colorhash import ColorHash
 
 
 class Archive():
-  def __init__(self, x_title, y_title, x_range, y_range, num_buckets=10):
+  def __init__(self, x_title, y_title, x_range, y_range, num_buckets=10, archive_name=""):
+    self.archive_name = archive_name
     self.x_title = x_title
     self.y_title = y_title
     self.num_buckets = num_buckets
@@ -105,7 +106,7 @@ class Archive():
   def get_total_population_count(self):
     return len(self.get_elites())
 
-  def display(self, attribute_to_display='fitness', save_file=None):
+  def display(self, attribute_to_display='fitness', save_file=None, fig=None, ax=None, dont_show=False):
     if attribute_to_display == 'colorhash':
       z = [[tuple(np.uint8(np.array(ColorHash(elite['sample']).rgb))) if elite['sample'] != None else tuple(np.uint8(np.array((255, 255, 255)))) for elite in row] for row in self.bins]
     else:
@@ -113,7 +114,8 @@ class Archive():
     x = self.x_bin_ranges
     y = self.y_bin_ranges
 
-    fig, ax = plt.subplots()
+    if fig == None or ax == None:
+      fig, ax = plt.subplots()
  
     if attribute_to_display == 'winrate':
       Zm = ma.masked_invalid(z)
@@ -129,13 +131,19 @@ class Archive():
       fig.colorbar(im, ax=ax)
     ax.set_xlabel(self.x_title)
     ax.set_ylabel(self.y_title)
-    fig.set_figheight(5)
-    fig.set_figwidth(5)
+    ax.set_title(self.archive_name.capitalize())
+
     if save_file:
+      fig.set_figheight(4)
+      fig.set_figwidth(5)
       plt.savefig(save_file)
-    else:
+      plt.close()
+
+    elif not dont_show:
+      fig.set_figheight(4)
+      fig.set_figwidth(5)
       plt.show()
-    plt.close()
+      plt.close()
 
   def save(self, save_file="data/map_archive.json"):
     with open(save_file, 'w', encoding='utf-8') as f:
@@ -146,6 +154,8 @@ class Archive():
     with open(save_file, 'r', encoding='utf-8') as f:
       archive_json = json.load(f)
       for entry in archive_json:
+        # self.add_sample(x=entry['x'], y=entry['y'], fitness=entry['fitness'], sample=entry['sample'])
+
         self.bins[entry['x']][entry['y']]['fitness'] = entry['fitness']
         self.bins[entry['x']][entry['y']]['sample'] = entry['sample']
 

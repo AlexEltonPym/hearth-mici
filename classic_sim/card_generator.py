@@ -73,7 +73,7 @@ def make_random_minion(id, random_state):
   return rand_minion
 
 def make_random_card(id, random_state):
-  np.warnings.filterwarnings('ignore', category=np.VisibleDeprecationWarning) 
+  # np.warnings.filterwarnings('ignore', category=np.VisibleDeprecationWarning) 
 
   card_type = random_state.choice([CardTypes.MINION, CardTypes.SPELL, CardTypes.WEAPON, CardTypes.SECRET]) #not creating random hero powers
   card_type = CardTypes.MINION
@@ -127,4 +127,5 @@ def check_card_valid(card):
 
 if __name__ == "__main__":
   card = make_random_card(0, RandomState())
+  print(check_card_valid(card))
   print(card)
