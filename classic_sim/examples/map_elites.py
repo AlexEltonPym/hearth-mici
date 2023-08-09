@@ -105,6 +105,16 @@ class Archive():
     return choice(self.get_elites())
   def get_total_population_count(self):
     return len(self.get_elites())
+  def get_range(self):
+    return self.x_min, self.x_max, self.y_min, self.y_max
+
+  def get_graph(self):
+    z = [[el['fitness'] if el['fitness'] != None else np.NaN for el in row] for row in self.bins]
+    x = self.x_bin_ranges
+    y = self.y_bin_ranges
+    Zm = ma.masked_invalid(z)
+    return x, y, Zm
+   
 
   def display(self, attribute_to_display='fitness', save_file=None, fig=None, ax=None, dont_show=False):
     if attribute_to_display == 'colorhash':
@@ -144,6 +154,7 @@ class Archive():
       fig.set_figwidth(5)
       plt.show()
       plt.close()
+      
 
   def save(self, save_file="data/map_archive.json"):
     with open(save_file, 'w', encoding='utf-8') as f:
@@ -154,8 +165,7 @@ class Archive():
     with open(save_file, 'r', encoding='utf-8') as f:
       archive_json = json.load(f)
       for entry in archive_json:
-        # self.add_sample(x=entry['x'], y=entry['y'], fitness=entry['fitness'], sample=entry['sample'])
-
-        self.bins[entry['x']][entry['y']]['fitness'] = entry['fitness']
-        self.bins[entry['x']][entry['y']]['sample'] = entry['sample']
+        
+        self.bins[entry['y']][entry['x']]['fitness'] = entry['fitness']
+        self.bins[entry['y']][entry['x']]['sample'] = entry['sample']
 
