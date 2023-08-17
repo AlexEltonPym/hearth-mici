@@ -8,7 +8,11 @@ from statistics import mean
 import numpy as np
 import numpy.ma as ma
 from colorhash import ColorHash
+from math import dist
 
+
+def stretch(n, start1, stop1, start2, stop2):
+  return (n - start1) / (stop1 - start1) * (stop2 - start2) + start2
 
 class Archive():
   def __init__(self, x_title, y_title, x_range, y_range, num_buckets=10, archive_name=""):
@@ -20,35 +24,74 @@ class Archive():
     self.y_bin_ranges = []
     self.x_min, self.x_max = x_range
     self.y_min, self.y_max = y_range
-    self.bins = [[{"x": x, "y": y, "fitness": None, "sample": None} for x in range(self.num_buckets)] for y in range(self.num_buckets)] 
+    self.bins = [[{"x_index": x, "y_index": y, "x_value": None, "y_value": None, "fitness": None, "sample": None} for y in range(self.num_buckets)] for x in range(self.num_buckets)] 
     
     for i in range(num_buckets):
       self.x_bin_ranges.append(self.x_min+(i/num_buckets)*(self.x_max-self.x_min))
       self.y_bin_ranges.append(self.y_min+(i/num_buckets)*(self.y_max-self.y_min))
 
-  def val_to_bin_index(self, value, dimension):
-    if dimension == 0:
-      for index, x in enumerate(self.x_bin_ranges):
-        if value < x:
-          return index-1
-      return len(self.x_bin_ranges)-1
-    elif dimension == 1:
-      for index, y in enumerate(self.y_bin_ranges):
-        if value < y:
-          return index-1
-      return len(self.y_bin_ranges)-1
+  def x_value_to_bin_index(self, x_value):
+    for index, x in enumerate(self.x_bin_ranges):
+      if x_value < x:
+        return index-1
+    return len(self.x_bin_ranges)-1
+
+  def y_value_to_bin_index(self, y_value):
+    for index, y in enumerate(self.y_bin_ranges):
+      if y_value < y:
+        return index-1
+    return len(self.y_bin_ranges)-1
+  
+  def values_to_bin_index(self, value_x, value_y):
+    x_index = self.x_value_to_bin_index(value_x)
+    y_index = self.y_value_to_bin_index(value_y)
+    return x_index, y_index
     
-  def add_sample(self, x, y, fitness, sample):
-    x_index = self.val_to_bin_index(x, 0)
-    y_index = self.val_to_bin_index(y, 1)
+  def indices_to_value(self, indices):
+    x_value = self.x_bin_ranges[indices[0]]
+    y_value = self.y_bin_ranges[indices[1]]
+    return x_value, y_value
+
+  def vals_to_entry(self, x_value, y_value, missing_behaviour="none"):
+    x_index, y_index = self.values_to_bin_index(x_value, y_value)
+    found_value = self.bins[x_index][y_index]
+    if missing_behaviour == "none":
+      return found_value
+    elif missing_behaviour == "closest":
+      elites = self.get_elites()
+      shortest_distance, closest_elite = sys.maxsize, None
+      for elite in elites:
+        current_distance = dist((x_index, y_index), (elite['x_index'], elite['y_index']))
+        if current_distance < shortest_distance:
+          shortest_distance, closest_elite = current_distance, elite
+      return closest_elite
+    
+  def transform_from_real_space(self, x_value, y_value):
+    x_min, x_max, y_min, y_max = self.get_range()
+
+    transformed_x = stretch(x_value, 0, 20, x_min, x_max)
+    transformed_y = stretch(y_value, 0, 20, y_min, y_max)
+    return transformed_x, transformed_y
+
+  def transform_from_real_space_to_scale(self, x_value, y_value):
+    x_min, x_max, y_min, y_max = self.get_range()
+
+    transformed_x = stretch(x_value, 0, 20, x_min, x_max) - x_min
+    transformed_y = stretch(y_value, 0, 20, y_min, y_max) - y_min
+    return transformed_x, transformed_y
+
+  def add_sample(self, x_value, y_value, fitness, sample):
+    x_index, y_index = self.values_to_bin_index(x_value, y_value)
 
     bin_fitness = self.bins[x_index][y_index]['fitness']
     if bin_fitness == None or bin_fitness < fitness:
       self.bins[x_index][y_index]['fitness'] = fitness
       self.bins[x_index][y_index]['sample'] = sample
+      self.bins[x_index][y_index]['x_value'] = x_value
+      self.bins[x_index][y_index]['y_value'] = y_value
 
   def clear(self):
-    self.bins = [[{"x": x, "y": y, "fitness": None, "sample": None} for x in range(self.num_buckets)] for y in range(self.num_buckets)] 
+    self.bins = [[{"x_index": x, "y_index": y, "x_value": None, "y_value": None, "fitness": None, "sample": None} for y in range(self.num_buckets)] for x in range(self.num_buckets)] 
 
   def get_elites(self, num_to_get=-1, unique_only=False, only_consider_policy=False):
     all_elites = []
@@ -82,23 +125,13 @@ class Archive():
     all_bins = []
     for row in self.bins:
       for elite in row:
-        all_bins.append({'x': elite['x'], 'y': elite['y'],\
-                         'fitness': elite['fitness'], \
-                         'sample': elite['sample']})
+        all_bins.append({'x_index': elite['x_index'], 'y_index': elite['y_index'],\
+                         'x_value': elite['x_value'], 'y_value': elite['y_value'],\
+                         'fitness': elite['fitness'], 'sample': elite['sample']})
     return all_bins
   
-  def get_bins_as_string(self):
-    all_bins = []
-    for row in self.bins:
-      for elite in row:
-        
-        all_bins.append({'x': elite['x'], 'y': elite['y'],\
-                         'fitness': elite['fitness'], \
-                         'sample': elite['sample']})
-    return all_bins
-
   def get_most_fit(self):
-    return max(self.get_elites(), key = lambda x: x['fitness'])
+    return max(self.get_elites(), key=lambda elite: elite['fitness'])
   def get_average_fitness(self):
     return mean([elite['fitness'] for elite in self.get_elites()])
   def get_random(self):
@@ -114,7 +147,6 @@ class Archive():
     y = self.y_bin_ranges
     Zm = ma.masked_invalid(z)
     return x, y, Zm
-   
 
   def display(self, attribute_to_display='fitness', save_file=None, fig=None, ax=None, dont_show=False):
     if attribute_to_display == 'colorhash':
@@ -158,14 +190,24 @@ class Archive():
 
   def save(self, save_file="data/map_archive.json"):
     with open(save_file, 'w', encoding='utf-8') as f:
-      archive_bins_as_bag = self.get_bins_as_string()
-      json.dump(archive_bins_as_bag, f, ensure_ascii=False)
+      archive_bins = self.get_bins()
+      json.dump(archive_bins, f, ensure_ascii=False)
 
   def load(self, save_file="data/map_archive.json"):
     with open(save_file, 'r', encoding='utf-8') as f:
       archive_json = json.load(f)
       for entry in archive_json:
-        
-        self.bins[entry['y']][entry['x']]['fitness'] = entry['fitness']
-        self.bins[entry['y']][entry['x']]['sample'] = entry['sample']
+        self.bins[entry['x_index']][entry['y_index']]['fitness'] = entry['fitness']
+        self.bins[entry['x_index']][entry['y_index']]['sample'] = entry['sample']
+        self.bins[entry['x_index']][entry['y_index']]['x_value'] = entry['x_value']
+        self.bins[entry['x_index']][entry['y_index']]['y_value'] = entry['y_value']
 
+  def compatability_load(self, save_file="data/map_archive.json"):
+    with open(save_file, 'r', encoding='utf-8') as f:
+      archive_json = json.load(f)
+      for entry in archive_json:
+        self.bins[entry['x']][entry['y']]['fitness'] = entry['fitness']
+        self.bins[entry['x']][entry['y']]['sample'] = entry['sample']
+        x_value, y_value = self.indices_to_value((entry['x'], entry['y']))
+        self.bins[entry['x']][entry['y']]['x_value'] = x_value
+        self.bins[entry['x']][entry['y']]['y_value'] = y_value

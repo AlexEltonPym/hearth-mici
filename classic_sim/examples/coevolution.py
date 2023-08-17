@@ -25,9 +25,10 @@ import ast
 import csv
 from map_elites import Archive
 
-
-# from mpi4py import MPI
-
+try:
+  from mpi4py import MPI
+except ModuleNotFoundError:
+  pass
 
 basic_mage = [
     "Arcane Missiles",
@@ -221,11 +222,11 @@ def peturb_agent_and_deck(individual, player_class, agent_only):
   return (agent, deck)
 
 def main():
-  using_mpi = False #also comment out mpi import when False ^
+  using_mpi = True #also comment out mpi import when False ^
   start_generation = 0
-  end_generation = 135
-  player_class = "W"
-  load_from_file = True
+  end_generation = 301
+  player_class = "M"
+  load_from_file = False
   agent_only = False
   initial_population_size = 38 #max 96/38
   num_games_per_matchup = 5 #if -1, dummy games are played
