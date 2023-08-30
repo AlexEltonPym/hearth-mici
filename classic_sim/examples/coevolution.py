@@ -215,7 +215,7 @@ def peturb_agent_and_deck(individual, player_class, agent_only):
     for i in range(num_to_remove):
       selected_card = randint(0, 14)
       selected_card_name = deck[selected_card*2]
-      new_card = choice([card for card in pool if card != selected_card_name])
+      new_card = choice([card for card in pool if card != selected_card_name and card not in deck])
 
       deck[selected_card*2] = new_card
       deck[selected_card*2+1] = new_card

@@ -69,15 +69,15 @@ class Archive():
   def transform_from_real_space(self, x_value, y_value):
     x_min, x_max, y_min, y_max = self.get_range()
 
-    transformed_x = stretch(x_value, 0, 20, x_min, x_max)
-    transformed_y = stretch(y_value, 0, 20, y_min, y_max)
+    transformed_x = stretch(x_value, 0, 40, x_min, x_max)
+    transformed_y = stretch(y_value, 0, 40, y_min, y_max)
     return transformed_x, transformed_y
 
   def transform_from_real_space_to_scale(self, x_value, y_value):
     x_min, x_max, y_min, y_max = self.get_range()
 
-    transformed_x = stretch(x_value, 0, 20, x_min, x_max) - x_min
-    transformed_y = stretch(y_value, 0, 20, y_min, y_max) - y_min
+    transformed_x = stretch(x_value, 0, 40, x_min, x_max) - x_min
+    transformed_y = stretch(y_value, 0, 40, y_min, y_max) - y_min
     return transformed_x, transformed_y
 
   def add_sample(self, x_value, y_value, fitness, sample):
