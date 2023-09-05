@@ -750,11 +750,11 @@ class Game():
     game_status = -1
     turn = 0
     player_cards_in_hand = []
+    enemy_cards_in_hand = []
     while game_status == -1:
       turn+=1
       game_status = self.take_turn()
       player_cards_in_hand.append(len(self.player.hand))
+      enemy_cards_in_hand.append(len(self.enemy.hand))
 
-    player_cards_in_hand = mean(player_cards_in_hand)
-      
-    return (game_status, self.player.health-self.enemy.health, player_cards_in_hand, turn)
+    return (game_status, self.player.health-self.enemy.health, mean(player_cards_in_hand), turn, self.enemy.health-self.player.health, mean(enemy_cards_in_hand))

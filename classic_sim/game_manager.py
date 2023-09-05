@@ -105,7 +105,6 @@ class GameManager():
   def run_games(self, num_games, silent, rng, rank):
     game_results = []
     seed = randint(1, 1000)
-    seed = 740
     if rng:
       self.random_state = RandomState(seed)
 
@@ -120,11 +119,11 @@ class GameManager():
         print(e)
       except Exception as e:
         game_result = None
-        # if not silent:
-        print(seed)
-        print(e)
-        print(self.player.deck.names())
-        print(self.enemy.deck.names())
+        if not silent:
+          print(seed)
+          print(e)
+          print(self.player.deck.names())
+          print(self.enemy.deck.names())
         raise e
       game_results.append(game_result)
       self.game.reset_game()

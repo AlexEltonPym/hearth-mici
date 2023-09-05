@@ -259,7 +259,7 @@ def evaluate(agent, agent_class, enemy_class, rank):
   game_manager.build_full_game_manager(player_cardset, enemy_cardset,
                                       player_class_enum, player_decklist, GreedyActionSmart(agent),
                                       enemy_class_enum, enemy_decklist, GreedyActionSmart(enemy_agent))
-  winrate, health_difference, cards_in_hand, turns = game_manager.simulate(8, silent=True, parralel=1, rng=True, rank=rank)
+  winrate, health_difference, cards_in_hand, turns, _, _ = game_manager.simulate(8, silent=True, parralel=1, rng=True, rank=rank)
 
   return (winrate, health_difference, cards_in_hand, turns, enemy_class)
 
