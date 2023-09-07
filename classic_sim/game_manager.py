@@ -104,7 +104,7 @@ class GameManager():
 
   def run_games(self, num_games, silent, rng, rank):
     game_results = []
-    seed = randint(1, 1000)
+    seed = randint(1, 1000000)
     if rng:
       self.random_state = RandomState(seed)
 

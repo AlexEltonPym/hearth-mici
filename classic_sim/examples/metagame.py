@@ -1,4 +1,11 @@
 from map_elites import Archive
+from game_manager import GameManager
+from strategy import GreedyActionSmart
+from zones import Deck
+from enums import Classes, CardSets
+
+
+
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 from matplotlib.patches import Ellipse
@@ -66,10 +73,12 @@ class MetaArchive():
     agent_contestant_updates = [[] for _ in range(self.num_agents)]
     agent_fitness_updates = [[] for _ in range(self.num_agents)]
     for (agent, sample, cma_sample), fitness in zip(contestants, fitnesses):
+      if not agent.still_learning: continue
       agent_contestant_updates[agent.agent_number].append(cma_sample)
       agent_fitness_updates[agent.agent_number].append(stretch(fitness, -30, 30, 1, 0))
 
     for agent in self.agents:
+      if not agent.still_learning: continue
       agent.es.tell(agent_contestant_updates[agent.agent_number], agent_fitness_updates[agent.agent_number])
       agent.es.manage_plateaus(2, 0.99)
       agent.x, agent.y = agent.es.result[0]
@@ -216,6 +225,9 @@ def get_matchups(contestants, num_matchups_per_evaluation):
 def compile_fitnesses(num_matchups_per_evaluation, contestants, matchups, match_results):
   fitnesses = []
   for contestant_agent, contestant_elite, contestant_original_sample in contestants:
+    if not contestant_agent.still_learning:
+      fitnesses.append(None)
+      continue
     if contestant_elite['sample'] == None:
       fitnesses.append(-30)
     else:
@@ -227,7 +239,6 @@ def compile_fitnesses(num_matchups_per_evaluation, contestants, matchups, match_
           running_average += opponent_result/num_matchups_per_evaluation
       fitnesses.append(running_average)
   return fitnesses
-
 
 def init_archives(unpickle_if_available, num_agents, num_samples_per_agent):
   if unpickle_if_available:
@@ -265,7 +276,31 @@ def pprint_matchup(matchup):
   print(f"{player[0], player[1]['x_index'], player[1]['y_index'], player[1]['fitness']} vs {opponent[0], opponent[1]['x_index'], opponent[1]['y_index'], opponent[1]['fitness']}")
 
 
-def run_tournament(using_mpi, max_iterations, num_matchups_per_evaluation, comm, num_cores, rank, meta_archive, meta_archives, memoizer):
+def play_games(matchups, num_games_per_matchup):
+  results = []
+  game_manager = GameManager()
+  class_setups = {
+    "mage": (Classes.MAGE, [CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_MAGE]),
+    "hunter": (Classes.HUNTER, [CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER]),
+    "warrior": (Classes.WARRIOR, [CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_WARRIOR]),
+  }
+  for matchup in matchups:
+    (player_agent, player_sample, _), (opponent_agent, opponent_sample, _) = matchup
+    if not player_agent.still_learning and not opponent_agent.still_learning:
+      results.append((None, None))
+      continue
+    player_strategy = GreedyActionSmart(player_sample['sample'][0])
+    player_decklist = Deck.generate_from_decklist(player_sample['sample'][1])
+    opponent_strategy = GreedyActionSmart(opponent_sample['sample'][0])
+    opponent_decklist = Deck.generate_from_decklist(opponent_sample['sample'][1])
+    player_class_enum, player_cardset = class_setups[player_agent.parent_archive.archive_name]
+    opponent_class_enum, opponent_cardset = class_setups[opponent_agent.parent_archive.archive_name]
+    game_manager.build_full_game_manager(player_cardset, opponent_cardset, player_class_enum, player_decklist, player_strategy, opponent_class_enum, opponent_decklist, opponent_strategy)
+    winrate, player_health_difference, player_cards, turns, opponent_health_difference, opponent_cards = game_manager.simulate(num_games_per_matchup, silent=True, parralel=1, rng=True, rank=0)
+    results.append((player_health_difference, opponent_health_difference))
+  return results
+
+def run_tournament(using_mpi, max_iterations, num_matchups_per_evaluation, num_games_per_matchup, comm, num_cores, rank, meta_archive, meta_archives, memoizer):
   iter_num = 0
   while iter_num < max_iterations:
     if rank == 0:
@@ -282,7 +317,10 @@ def run_tournament(using_mpi, max_iterations, num_matchups_per_evaluation, comm,
     cores_matchups_to_simulate = comm.scatter(spread, root=0) if using_mpi else new_matchups_to_simulate
 
     print(f"Core #{rank} has {len(cores_matchups_to_simulate)} matchups to simulate")
-    results = [(matchup[0][1]['fitness'], matchup[1][1]['fitness']) for matchup in cores_matchups_to_simulate]
+    if num_games_per_matchup == -1:
+      results = [(matchup[0][1]['fitness'], matchup[1][1]['fitness']) for matchup in cores_matchups_to_simulate]
+    else:
+      results = play_games(cores_matchups_to_simulate, num_games_per_matchup)
     non_flat_results = comm.gather(results, root=0) if using_mpi else [results]
 
     if rank == 0:
@@ -302,14 +340,15 @@ def run_tournament(using_mpi, max_iterations, num_matchups_per_evaluation, comm,
 
 def meta_evaluation():
   try_unpickle = True
-  max_iterations = 3
+  max_iterations = 30
   num_agents = 30
-  num_samples_per_agent = 6
+  num_samples_per_agent = 6 #seems like must be >= 3
   num_matchups_per_evaluation = 6 #must be even
+  num_games_per_matchup = 10
 
   comm, num_cores, rank = (MPI.COMM_WORLD, MPI.COMM_WORLD.Get_size(), MPI.COMM_WORLD.Get_rank()) if using_mpi else (None, 1, 0)
   meta_archive, meta_archives, memoizer = init_archives(try_unpickle, num_agents, num_samples_per_agent) if rank == 0 else (None, None, None)
-  meta_archives = run_tournament(using_mpi, max_iterations, num_matchups_per_evaluation, comm, num_cores, rank, meta_archive, meta_archives, memoizer)
+  meta_archives = run_tournament(using_mpi, max_iterations, num_matchups_per_evaluation, num_games_per_matchup, comm, num_cores, rank, meta_archive, meta_archives, memoizer)
   if rank == 0: render_animation(meta_archives)
 
 if __name__ == "__main__":

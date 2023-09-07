@@ -260,8 +260,6 @@ def main():
       except:
         map_archive.load('data/map_archive.json')
 
-
-
     gauntlet = []
     with open('gauntlet.csv', 'r', encoding='utf-8') as f:
       reader = csv.reader(f)
