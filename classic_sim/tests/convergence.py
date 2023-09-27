@@ -163,6 +163,7 @@ agents = {
 
 
 def play_games_stoppage(num_games, verbose_interval):
+  print("Running games with p-value early stoppage")
   run_games_random(num_games, 0, verbose_interval)
 
 
