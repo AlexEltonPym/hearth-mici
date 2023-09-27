@@ -757,4 +757,4 @@ class Game():
       player_cards_in_hand.append(len(self.player.hand))
       enemy_cards_in_hand.append(len(self.enemy.hand))
 
-    return (game_status, self.player.health-self.enemy.health, mean(player_cards_in_hand), turn, self.enemy.health-self.player.health, mean(enemy_cards_in_hand))
+    return (game_status, self.player.health, mean(player_cards_in_hand), turn, self.enemy.health, mean(enemy_cards_in_hand))

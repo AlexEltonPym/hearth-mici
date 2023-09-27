@@ -16,6 +16,9 @@ from time import strftime
 from multiprocessing import cpu_count
 from joblib import Parallel, delayed
 
+from scipy.stats import ttest_ind
+
+
 
 try:
   from mpi4py import MPI
@@ -158,16 +161,102 @@ agents = {
 
 
 
-def play_games_parralel(num_games_per_core, verbose_interval=10):
+
+def play_games_stoppage(num_games, verbose_interval):
+  run_games_random(num_games, 0, verbose_interval)
+
+
+def play_games_parralel(num_repeats, num_games_per_core, verbose_interval=10):
   num_processors = cpu_count()
-  parralel_game_results = Parallel(timeout=None, n_jobs=num_processors, verbose=100)(delayed(run_games)(num_games_per_core, i, verbose_interval) for i in range(num_processors))
-  with open("convergence_results.csv", "w+") as f:
+  parralel_game_results = Parallel(timeout=None, n_jobs=num_processors, verbose=100)(delayed(run_games_fixed)(num_games_per_core, i, verbose_interval) for i in range(num_repeats))
+  with open("convergence_results.csv", "a+") as f:
     writer = csv.writer(f)
-    writer.writerow(("match_id", "player_deck", "player_strategy", "opponent_deck", "opponent_strategy", "status", "player_health_diff", "player_cards", "turn", "enemy_health_diff", "enemy_turns"))
+    # writer.writerow(("match_id", "player_deck", "player_strategy", "opponent_deck", "opponent_strategy", "status", "player_health_diff", "player_cards", "turn", "enemy_health_diff", "enemy_cards"))
     for core_result in parralel_game_results: writer.writerows(core_result)
 
 
-def run_games(num_games_per_core, rank, verbose_interval):
+
+def run_games_fixed_stoppage(num_games_per_core, rank, verbose_interval):
+  class_setups = {
+    "M": (Classes.MAGE, [CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_MAGE]),
+    "H": (Classes.HUNTER, [CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER]),
+    "W": (Classes.WARRIOR, [CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_WARRIOR])
+  }
+  player_class, opponent_class = "M", "W"
+  player_agent_weights, opponent_agent_weights = agents['handmade_agent'], agents['handmade_agent']
+  player_agent, opponent_agent = GreedyActionSmart(player_agent_weights), GreedyActionSmart(opponent_agent_weights)
+  player_deck = Deck.generate_from_decklist(basic_mage)
+  opponent_deck = Deck.generate_from_decklist(basic_warrior)
+
+  (player_class_enum, player_cardset), (opponent_class_enum, opponent_cardset) = class_setups[player_class], class_setups[opponent_class]
+
+
+  game_manager = GameManager()
+  game_manager.build_full_game_manager(player_cardset, opponent_cardset, player_class_enum, player_deck, player_agent, opponent_class_enum, opponent_deck, opponent_agent, RandomState(None))
+
+  game_results = []
+  game_manager.create_game()
+  for i in range(num_games_per_core):
+    try:
+      game_result = game_manager.game.play_game()
+      game_results.append((rank,game_manager.player.deck.names(), player_agent_weights, game_manager.enemy.deck.names(), opponent_agent_weights)+game_result)
+      player_healths = [result[6] for result in game_results]
+      enemy_healths =  [result[9] for result in game_results]
+      if i > 1:
+        tstat, pvalue = ttest_ind(player_healths, enemy_healths, equal_var=False)
+        print(f"{pvalue=}")
+        if pvalue < 0.05:
+          print(f"Reached alpha significance at game {i}")
+    except (TooManyActions, RecursionError) as e:
+      game_result = None
+    except Exception as e:
+      print(e)
+      game_result = None
+    if i % verbose_interval == 0 and verbose_interval != 0:  
+      print(f"{strftime('%X')}-#{rank}: {i}/{num_games_per_core} games, ({len(game_results)} success)")
+    game_manager.game.reset_game()
+    game_manager.game.start_game()
+  return game_results
+
+
+
+def run_games_fixed(num_games_per_core, rank, verbose_interval):
+  class_setups = {
+    "M": (Classes.MAGE, [CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_MAGE]),
+    "H": (Classes.HUNTER, [CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER]),
+    "W": (Classes.WARRIOR, [CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_WARRIOR])
+  }
+  player_class, opponent_class = "M", "W"
+  player_agent_weights, opponent_agent_weights = agents['handmade_agent'], agents['handmade_agent']
+  player_agent, opponent_agent = GreedyActionSmart(player_agent_weights), GreedyActionSmart(opponent_agent_weights)
+  player_deck = Deck.generate_from_decklist(basic_mage)
+  opponent_deck = Deck.generate_from_decklist(basic_warrior)
+
+  (player_class_enum, player_cardset), (opponent_class_enum, opponent_cardset) = class_setups[player_class], class_setups[opponent_class]
+
+
+  game_manager = GameManager()
+  game_manager.build_full_game_manager(player_cardset, opponent_cardset, player_class_enum, player_deck, player_agent, opponent_class_enum, opponent_deck, opponent_agent, RandomState(None))
+
+  game_results = []
+  game_manager.create_game()
+  for i in range(num_games_per_core):
+    try:
+      game_result = game_manager.game.play_game()
+      game_results.append((rank,game_manager.player.deck.names(), player_agent_weights, game_manager.enemy.deck.names(), opponent_agent_weights)+game_result)
+    except (TooManyActions, RecursionError) as e:
+      game_result = None
+    except Exception as e:
+      print(e)
+      game_result = None
+    if i % verbose_interval == 0 and verbose_interval != 0:  
+      print(f"{strftime('%X')}-#{rank}: {i}/{num_games_per_core} games, ({len(game_results)} success)")
+    game_manager.game.reset_game()
+    game_manager.game.start_game()
+  return game_results
+
+
+def run_games_random(num_games_per_core, rank, verbose_interval):
   class_setups = {
     "M": (Classes.MAGE, [CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_MAGE]),
     "H": (Classes.HUNTER, [CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER]),
@@ -188,13 +277,18 @@ def run_games(num_games_per_core, rank, verbose_interval):
     try:
       game_result = game_manager.game.play_game()
       game_results.append((rank,game_manager.player.deck.names(), player_agent_weights, game_manager.enemy.deck.names(), opponent_agent_weights)+game_result)
+      if i > 1:
+        player_healths = [result[6] for result in game_results]
+        enemy_healths =  [result[9] for result in game_results]
+        tstat, pvalue = ttest_ind(player_healths, enemy_healths, equal_var=False)
+        print(f"{pvalue=}")
     except (TooManyActions, RecursionError) as e:
       game_result = None
     except Exception as e:
       print(e)
       game_result = None
     if i % verbose_interval == 0 and verbose_interval != 0:  
-      print(f"{strftime('%X')}-#{rank}: {i+1}/{num_games_per_core} games, ({len(game_results)} success)")
+      print(f"{strftime('%X')}-#{rank}: {i}/{num_games_per_core} games, ({len(game_results)} success)")
     game_manager.game.reset_game()
     game_manager.game.start_game()
   return game_results
@@ -232,7 +326,7 @@ def play_games_mpi(num_games_per_core, verbose_interval=10):
       print(e)
       game_result = None
     if i % verbose_interval == 0 and verbose_interval != 0:  
-      print(f"{strftime('%X')}-#{rank}: {i+1}/{num_games_per_core} games, ({len(game_results)} success)")
+      print(f"{strftime('%X')}-#{rank}: {i}/{num_games_per_core} games, ({len(game_results)} success)")
     game_manager.game.reset_game()
     game_manager.game.start_game()
 
@@ -245,4 +339,5 @@ def play_games_mpi(num_games_per_core, verbose_interval=10):
       for core_result in non_flat_results: writer.writerows(core_result)
 
 if __name__ == '__main__':
-  play_games_parralel(num_games_per_core=1000, verbose_interval=10)
+  # play_games_parralel(num_repeats=16, num_games_per_core=562, verbose_interval=10)
+  play_games_stoppage(50, 1)
