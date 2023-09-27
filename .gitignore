@@ -42,6 +42,8 @@
 /classic_sim/build
 /classic_sim/__pychache__/*
 
+/classic_sim/tests/*.csv
+
 /deck_evolution/env
 
 
