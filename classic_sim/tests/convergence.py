@@ -164,7 +164,7 @@ agents = {
 
 def play_games_stoppage(num_games, verbose_interval):
   print("Running games with p-value early stoppage")
-  run_games_random(num_games, 0, verbose_interval)
+  run_games_fixed_stoppage(num_games, 0, verbose_interval)
 
 
 def play_games_parralel(num_repeats, num_games_per_core, verbose_interval=10):
@@ -202,7 +202,7 @@ def run_games_fixed_stoppage(num_games_per_core, rank, verbose_interval):
       game_result = game_manager.game.play_game()
       game_results.append((rank,game_manager.player.deck.names(), player_agent_weights, game_manager.enemy.deck.names(), opponent_agent_weights)+game_result)
       player_healths = [result[6] for result in game_results]
-      enemy_healths =  [result[9] for result in game_results]
+      enemy_healths = [result[9] for result in game_results]
       if i > 1:
         tstat, pvalue = ttest_ind(player_healths, enemy_healths, equal_var=False)
         print(f"{pvalue=}")

@@ -11,7 +11,6 @@ decorator==5.1.1
 et-xmlfile==1.1.0
 executing==1.2.0
 filelock==3.9.0
-fireplace2 @ file:///Users/aep/phd/hearth-mici/fireplace2
 fonttools==4.39.3
 fpdf==1.7.2
 hearthstone==5.67.0
