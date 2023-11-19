@@ -11,7 +11,7 @@ from matplotlib.animation import FuncAnimation
 from matplotlib.patches import Ellipse
 
 from coevolution import generate_random_deck, get_sublist
-from random import gauss, randint, uniform, shuffle
+from random import gauss, randint, uniform, shuffle, seed
 from copy import deepcopy
 
 import cma
@@ -19,7 +19,7 @@ import cma
 
 from statistics import mean
 from scipy.stats import ttest_ind
-from numpy.random import choice as choice_with_replacement
+from numpy.random import choice as choice_with_replacement, RandomState
 
 import json
 from atomicwrites import atomic_write
@@ -68,6 +68,7 @@ class MetaArchive():
       parent_archive_index = int(agent_number/self.num_agents * self.num_archives)
       x_min, x_max, y_min, y_max = self.archives[parent_archive_index].get_range()
       self.agents.append(Agent(agent_number, uniform(x_min, x_max-0.4), uniform(y_min, y_max-1.3), self.archives[parent_archive_index], self.num_samples_per_agent))
+  
   def load_archives(self, archiveA, archiveB, archiveC):
     self.archives[0].load(archiveA)
     self.archives[1].load(archiveB)
@@ -146,7 +147,8 @@ class Agent():
           # 'minstd': self.parent_archive.transform_from_real_space_to_scale(1, 1),
           # 'maxstd': self.parent_archive.transform_from_real_space_to_scale(2, 2),
           # 'verbose': 10, 'verb_disp': 1,
-          'verbose': 0, 'verb_disp': 0
+          'verbose': 0, 'verb_disp': 0,
+          'seed': 1,
 
       }
     )
@@ -300,7 +302,7 @@ def play_games_till_stoppage(matchups, min_games, max_games, pvalue_alpha, min_s
     opponent_decklist = Deck.generate_from_decklist(opponent_sample['sample'][1])
     player_class_enum, player_cardset = class_setups[player_agent.parent_archive.archive_name]
     opponent_class_enum, opponent_cardset = class_setups[opponent_agent.parent_archive.archive_name]
-    game_manager.build_full_game_manager(player_cardset, opponent_cardset, player_class_enum, player_decklist, player_strategy, opponent_class_enum, opponent_decklist, opponent_strategy)
+    game_manager.build_full_game_manager(player_cardset, opponent_cardset, player_class_enum, player_decklist, player_strategy, opponent_class_enum, opponent_decklist, opponent_strategy, RandomState(0))
     game_results = []
     game_manager.create_game()
 
@@ -342,7 +344,6 @@ def run_tournament(using_mpi, max_iterations, num_matchups_per_evaluation, fake_
         contestants = get_contestants(meta_archive)
         if not any([agent.still_learning for agent,_,_ in contestants]): break
         matchups = get_matchups(contestants, num_matchups_per_evaluation)
-        print(len(matchups))
         new_matchups_to_simulate = [match for match in matchups if not memoizer.remembers(match)]
         print(f"Remembered: {len(matchups) - len(new_matchups_to_simulate)}/{len(matchups)}, simulating {len(new_matchups_to_simulate)} total")
       else:
@@ -364,8 +365,6 @@ def run_tournament(using_mpi, max_iterations, num_matchups_per_evaluation, fake_
 
 
       non_flat_results = comm.gather(results, root=0) if using_mpi else results
-      print(f"{non_flat_results=}")
-      print(len(non_flat_results))
       if rank == 0:
         results = [result for individual_core_reponses in non_flat_results for result in individual_core_reponses]
         memoizer.memoize_all(zip(new_matchups_to_simulate, results))
@@ -383,18 +382,19 @@ def run_tournament(using_mpi, max_iterations, num_matchups_per_evaluation, fake_
 
 def meta_evaluation():
   try_unpickle = False #should we continue from a saved pickle checkpoint
-  max_iterations = 1 #override max iterations that simulation will run regardless of CMA covnergence
-  num_agents = 9 #how many total agents divided between the three classes
+  max_iterations = 10 #override max iterations that simulation will run regardless of CMA covnergence
+  num_agents = 30 #how many total agents divided between the three classes
   num_samples_per_agent = 3 #seems like must be >= 3, how many samples should each agent draw from their search space to test
   num_matchups_per_evaluation = 2 #must be even, how many other players each agent plays against
-  min_games = 1 #min games to play even if streak triggers
-  max_games = 1 #max games to play if pvalue doesnt converge
+  min_games = 10 #min games to play even if streak triggers
+  max_games = 100 #max games to play if pvalue doesnt converge
   pvalue_alpha = 0.05 #the p-value threshold for significance
-  min_streak = 1 #how many p<alpha in a row before early stoppage
+  min_streak = 3 #how many p<alpha in a row before early stoppage
   num_cores_to_use_if_not_mpi = cpu_count() #how many cores should we use if not using mpi
   fake_games = False #Generate game results from general fitness
   core_spread_multiplier = 4 #spread the total matchups between extra cores
 
+  seed(1)
 
   comm, num_cores, rank = (MPI.COMM_WORLD, MPI.COMM_WORLD.Get_size(), MPI.COMM_WORLD.Get_rank()) if using_mpi else (None, num_cores_to_use_if_not_mpi, 0)
   meta_archive, meta_archives, memoizer = init_archives(try_unpickle, num_agents, num_samples_per_agent) if rank == 0 else (None, None, None)

@@ -13,13 +13,13 @@ from statistics import mean
 from random import randint
 
 class GameManager():
-  def __init__(self, random_state=RandomState(0)):
+  def __init__(self, random_state=RandomState(None)):
     self.random_state = random_state
     self.player = None
     self.enemy = None
     self.game = None
 
-  def build_full_game_manager(self, player_sets, enemy_sets, player_class, player_deck_constuctor, player_strategy, enemy_class, enemy_deck_constructor, enemy_strategy, random_state=RandomState(0)):
+  def build_full_game_manager(self, player_sets, enemy_sets, player_class, player_deck_constuctor, player_strategy, enemy_class, enemy_deck_constructor, enemy_strategy, random_state=RandomState(None)):
     self.random_state = random_state
     self.player = None
     self.enemy = None
