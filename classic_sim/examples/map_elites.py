@@ -10,15 +10,36 @@ import numpy.ma as ma
 from colorhash import ColorHash
 from math import dist
 
+from sklearn.cluster import HDBSCAN
+from enums import CardSets
+from card_sets import build_pool
+
+def get_pool():
+  pool = build_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_MAGE, CardSets.CLASSIC_HUNTER, CardSets.CLASSIC_WARRIOR], None)
+  pool = [card.name for card in pool]
+  return pool
+
+def bags_from_decks(decks):
+  pool = get_pool()
+
+  bags = []
+  for deck in decks:
+    bag = np.zeros(len(pool))
+    for card in deck:
+      index = pool.index(card)
+      bag[index] = 1
+    bags.append(bag)
+  return bags
 
 def stretch(n, start1, stop1, start2, stop2):
   return (n - start1) / (stop1 - start1) * (stop2 - start2) + start2
 
 class Archive():
-  def __init__(self, x_title, y_title, x_range, y_range, num_buckets=10, archive_name=""):
+  def __init__(self, x_title, y_title,  x_range, y_range, num_buckets=10, archive_name="", title_color="black"):
     self.archive_name = archive_name
     self.x_title = x_title
     self.y_title = y_title
+    self.title_color = title_color
     self.num_buckets = num_buckets
     self.x_bin_ranges = []
     self.y_bin_ranges = []
@@ -141,6 +162,19 @@ class Archive():
   def get_range(self):
     return self.x_min, self.x_max, self.y_min, self.y_max
 
+  def assign_clusters(self):
+    elites = self.get_elites(-1, False)
+    elites = sorted(elites, key=lambda elite: elite['fitness']) #for anti-randomness
+    strats = np.array([elite['sample'][0] for elite in elites])
+    decks = np.array([elite['sample'][1] for elite in elites])
+    bags = bags_from_decks(decks)
+    x = np.array([np.append(strat, deck) for (strat, deck) in zip(strats, bags)])
+    hdbscan_clusters = HDBSCAN(min_cluster_size=20).fit(x).labels_
+    for elite, cluster_label in zip(elites, hdbscan_clusters):
+      elite['hdbscan'] = cluster_label
+
+
+
   def get_graph(self):
     z = [[el['fitness'] if el['fitness'] != None else np.NaN for el in row] for row in self.bins]
     x = self.x_bin_ranges
@@ -151,6 +185,9 @@ class Archive():
   def display(self, attribute_to_display='fitness', save_file=None, fig=None, ax=None, dont_show=False):
     if attribute_to_display == 'colorhash':
       z = [[tuple(np.uint8(np.array(ColorHash(elite['sample']).rgb))) if elite['sample'] != None else tuple(np.uint8(np.array((255, 255, 255)))) for elite in row] for row in self.bins]
+    elif attribute_to_display == 'hdbscan':
+      self.assign_clusters()
+      z = [[elite['hdbscan'] if elite['sample'] != None else np.NaN for elite in row] for row in self.bins]
     else:
       z = [[el[attribute_to_display] if el[attribute_to_display] != None else np.NaN for el in row] for row in self.bins]
     x = self.x_bin_ranges
@@ -168,6 +205,10 @@ class Archive():
     elif attribute_to_display == 'colorhash':
       z = np.array(z)
       im = ax.pcolormesh(x, y, np.transpose(z, (1, 0, 2))[:-1, :-1,:])
+    elif attribute_to_display == 'hdbscan':
+      Zm = ma.masked_invalid(z)
+      im = ax.pcolormesh(x, y, Zm.T[:-1, :-1], cmap="tab20", shading='flat')
+
     
     if attribute_to_display != 'colorhash':
       fig.colorbar(im, ax=ax)

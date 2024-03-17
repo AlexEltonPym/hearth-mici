@@ -1,3 +1,4 @@
+import warnings
 from map_elites import Archive
 from game_manager import GameManager
 from strategy import GreedyActionSmart
@@ -9,9 +10,10 @@ from game import TooManyActions
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 from matplotlib.patches import Ellipse
+from matplotlib.colors import ListedColormap
 
 from coevolution import generate_random_deck, get_sublist
-from random import gauss, randint, uniform, shuffle, seed
+from random import gauss, randint, uniform, shuffle, choice, seed, random
 from copy import deepcopy
 
 import cma
@@ -24,10 +26,13 @@ from numpy.random import choice as choice_with_replacement, RandomState
 import json
 from atomicwrites import atomic_write
 import pickle
+import csv
 
 from joblib import Parallel, delayed
 from multiprocessing import cpu_count
 from contextlib import nullcontext
+
+warnings.simplefilter("ignore", cma.evolution_strategy.InjectionWarning)
 
 try:
   from mpi4py import MPI
@@ -40,17 +45,18 @@ def stretch(n, start1, stop1, start2, stop2):
   return (n - start1) / (stop1 - start1) * (stop2 - start2) + start2
 
 class MetaArchive():
-  def __init__(self, x_title, y_title, x_range, y_range, num_buckets, archive_names, num_agents, num_samples_per_agent):
+  def __init__(self, x_title, y_title, x_range, y_range, num_buckets, archive_names, num_agents, num_samples_per_agent, archive_colors):
     self.x_title = x_title
     self.y_title = y_title
     self.x_range = x_range
     self.y_range = y_range
     self.num_buckets = num_buckets
     self.archive_names = archive_names
+    self.archive_colors = archive_colors
     self.num_archives = len(archive_names)
     self.num_agents = num_agents    
     self.num_samples_per_agent = num_samples_per_agent
-    self.archives = [(Archive(self.x_title, self.y_title, self.x_range, self.y_range, self.num_buckets, archive_name)) for archive_name in self.archive_names]
+    self.archives = [(Archive(self.x_title, self.y_title, self.x_range, self.y_range, self.num_buckets, archive_name, archive_color)) for archive_name, archive_color in zip(self.archive_names, self.archive_colors)]
   
   @classmethod
   def unpickle_from_file(cls, filename="metagame/meta.pickle"):
@@ -67,7 +73,7 @@ class MetaArchive():
     for agent_number in range(self.num_agents):
       parent_archive_index = int(agent_number/self.num_agents * self.num_archives)
       x_min, x_max, y_min, y_max = self.archives[parent_archive_index].get_range()
-      self.agents.append(Agent(agent_number, uniform(x_min, x_max-0.4), uniform(y_min, y_max-1.3), self.archives[parent_archive_index], self.num_samples_per_agent))
+      self.agents.append(Agent(agent_number, uniform(x_min, x_max-0.4), uniform(y_min, y_max-1.3), self, parent_archive_index, self.num_samples_per_agent))
   
   def load_archives(self, archiveA, archiveB, archiveC):
     self.archives[0].load(archiveA)
@@ -85,10 +91,15 @@ class MetaArchive():
 
     for agent in self.agents:
       if not agent.still_learning: continue
+      agent.latest_fitness = 0.6*agent.latest_fitness + 0.2*mean(agent_fitness_updates[agent.agent_number]) + 0.2*0.5
       agent.es.tell(agent_contestant_updates[agent.agent_number], agent_fitness_updates[agent.agent_number])
       agent.es.manage_plateaus(2, 0.99)
       agent.x, agent.y = agent.es.result[0]
       agent.x_deviation, agent.y_deviation = agent.es.result[6]
+
+  def change_classes_if_struggling(self):
+    for agent in self.agents:
+      agent.class_switch_if_underperforming()
 
   def display(self, fig, axis):
     fig.set_figheight(3.5)
@@ -101,7 +112,7 @@ class MetaArchive():
       current_ax.set_xlabel(archive.x_title)
       current_ax.set_ylabel(archive.y_title)
 
-      current_ax.set_title(archive.archive_name.capitalize())
+      current_ax.set_title(archive.archive_name.capitalize(), color=archive.title_color)
       trim_x, trim_y = archive.transform_from_real_space_to_scale(1, 1)
       current_ax.set_xlim(archive.x_min, archive.x_max-trim_x)
       current_ax.set_ylim(archive.y_min, archive.y_max-trim_y)
@@ -113,13 +124,15 @@ class MetaArchive():
 
       agent_x = [agent.x for agent in agents_in_this_archive]
       agent_y = [agent.y for agent in agents_in_this_archive]
-      current_ax.scatter(agent_x, agent_y, c='red', s=4)
-
+      custom_cmap =["#eb4034", "#ebab34", "#f700ff"]
+      agent_original_parent_id = [custom_cmap[agent.original_parent_archive_id] for agent in agents_in_this_archive]
       draw_condifence_ellipses(current_ax, agents_in_this_archive)
+      current_ax.scatter(agent_x, agent_y, c=agent_original_parent_id, s=8)
+
     return im
 
 def draw_condifence_ellipses(ax, agents):
-  draw_confidence(ax, agents, 1, 'red', 'black', 0.2, '--')
+  draw_confidence(ax, agents, 1, 'grey', 'black', 0.2, '--')
   # draw_confidence(ax, agents, 2, 'red', 'black', 0.1, '--')
   # draw_confidence(ax, agents, 3, 'red', 'black', 0.1, '--')
 
@@ -129,14 +142,17 @@ def draw_confidence(ax, agents, n_stds, facecolor, edgecolor, alpha, linestyle):
     ax.add_patch(ellipse)
 
 class Agent():
-  def __init__(self, agent_number, x, y, parent_archive, num_samples_per_agent):
+  def __init__(self, agent_number, x, y, grandparent_meta_archive, parent_archive_id, num_samples_per_agent):
     self.agent_number = agent_number
-    self.parent_archive = parent_archive
+    self.grandparent_meta_archive = grandparent_meta_archive
+    self.parent_archive_id = parent_archive_id
+    self.original_parent_archive_id = parent_archive_id
+    self.parent_archive = grandparent_meta_archive.archives[parent_archive_id]
     self.x = x
     self.y = y
     self.x_deviation, self.y_deviation = self.parent_archive.transform_from_real_space_to_scale(1, 1)
-
     x_min, x_max, y_min, y_max = self.parent_archive.get_range()
+    self.latest_fitness = 0.5
     self.es = cma.CMAEvolutionStrategy(x0=[self.x, self.y], sigma0=1,
       inopts={
           'bounds': [[x_min, y_min], [x_max-0.4, y_max-1.3]],
@@ -152,6 +168,19 @@ class Agent():
 
       }
     )
+
+  def scale_covariance(self, scale):
+    self.es.sigma *= scale
+
+  def class_switch_if_underperforming(self):
+    chance = (0.5-self.latest_fitness)*2 if self.latest_fitness < 0.5 else 0
+    print(self.latest_fitness)
+    if random() < chance:
+      alternative_classes = [0, 1, 2]
+      alternative_classes.remove(self.parent_archive_id)
+      new_parent_id = choice(alternative_classes)
+      self.parent_archive = self.grandparent_meta_archive.archives[new_parent_id]
+      self.scale_covariance(4)
 
   def __repr__(self):
     return f"\nAgent {self.agent_number} ({self.parent_archive.archive_name}@{self.x:.2f},{self.y:.2f})"
@@ -262,12 +291,14 @@ def init_archives(unpickle_if_available, num_agents, num_samples_per_agent):
       unpickle_if_available = False
 
   if not unpickle_if_available:
-    meta_archive = MetaArchive(x_title="Hand size", y_title="Turns", x_range=(1, 9), y_range=(9, 35), num_buckets=40, archive_names=["mage", "hunter", "warrior"], num_agents=num_agents, num_samples_per_agent=num_samples_per_agent)
+    meta_archive = MetaArchive(x_title="Hand size", y_title="Turns", x_range=(1, 9), y_range=(9, 35), num_buckets=40, archive_names=["mage", "hunter", "warrior"], num_agents=num_agents, num_samples_per_agent=num_samples_per_agent, archive_colors=["#eb4034", "#ebab34", "#f700ff"])
     meta_archive.load_archives("metagame/mage.json", "metagame/hunter.json", "metagame/warrior.json")
     meta_archives = []
   
   memoizer = Memoizer("metagame/memoizer.json")
   
+  [meta_archive.archives[i].assign_clusters() for i in range(meta_archive.num_archives)]
+
   return meta_archive,meta_archives,memoizer
 
 
@@ -344,18 +375,28 @@ def run_tournament(using_mpi, max_iterations, num_matchups_per_evaluation, fake_
         contestants = get_contestants(meta_archive)
         if not any([agent.still_learning for agent,_,_ in contestants]): break
         matchups = get_matchups(contestants, num_matchups_per_evaluation)
+
         new_matchups_to_simulate = [match for match in matchups if not memoizer.remembers(match)]
+        for matchup in new_matchups_to_simulate:
+          print(memoizer.match_to_key(matchup))
         print(f"Remembered: {len(matchups) - len(new_matchups_to_simulate)}/{len(matchups)}, simulating {len(new_matchups_to_simulate)} total")
       else:
         new_matchups_to_simulate = None
-
-      spread = [get_sublist(new_matchups_to_simulate, num_cores, core) for core in range(num_cores*(core_spread_multiplier if not using_mpi else 1))] if rank == 0 else None
+      if(len(new_matchups_to_simulate) == 0):
+        spread = []
+      else:
+        spread = [get_sublist(new_matchups_to_simulate, num_cores, core) for core in range(num_cores*(core_spread_multiplier if not using_mpi else 1))] if rank == 0 else None
+        spread = [core_matches for core_matches in spread if core_matches != []]
       cores_matchups_to_simulate = comm.scatter(spread, root=0) if using_mpi else spread
-
-      
-
       if fake_games:
-        results = [(matchup[0][1]['fitness'], matchup[1][1]['fitness']) for matchup in cores_matchups_to_simulate]
+        results = []
+        for core in cores_matchups_to_simulate:
+          for matchup in core:
+            (player_agent, player_sample, _), (opponent_agent, opponent_sample, _) = matchup
+            # if not player_agent.still_learning and not opponent_agent.still_learning:
+            #   results.append((None, None))
+            # else:
+            results.append((player_sample['fitness'], opponent_sample['fitness']))
       else:
         if using_mpi:
           print(f"Core #{rank} has {len(cores_matchups_to_simulate)} matchups to simulate")
@@ -363,27 +404,38 @@ def run_tournament(using_mpi, max_iterations, num_matchups_per_evaluation, fake_
         else:
           results = parallel(delayed(play_games_till_stoppage)(cores_matchups_to_simulate[i], min_games, max_games, pvalue_alpha, min_streak) for i in range(len(cores_matchups_to_simulate)))
 
-
       non_flat_results = comm.gather(results, root=0) if using_mpi else results
       if rank == 0:
-        results = [result for individual_core_reponses in non_flat_results for result in individual_core_reponses]
+        results = [result for individual_core_reponses in non_flat_results for result in individual_core_reponses] if not fake_games else results
         memoizer.memoize_all(zip(new_matchups_to_simulate, results))
         match_results = [memoizer.fetch(match) for match in matchups]
         fitnesses = compile_fitnesses(num_matchups_per_evaluation, contestants, matchups, match_results)
         meta_archive.tell_agents(contestants, fitnesses)
+        meta_archive.change_classes_if_struggling()
         meta_archives.append(deepcopy(meta_archive))
 
         meta_archive.pickle_to_file()
         with atomic_write("metagame/meta_history.pickle", overwrite=True, mode='wb') as f:
           pickle.dump(meta_archives, f)
 
+        with open("metagame/agent_history.csv", mode='a+') as f:
+          writer = csv.writer(f)
+          generation = []
+          for agent in meta_archive.agents:
+            try:
+              cluster = agent.parent_archive.vals_to_entry(agent.x, agent.y, missing_behaviour="none")['hdbscan']
+            except KeyError:
+              cluster = -1
+            generation.extend((agent.x, agent.y, agent.parent_archive.archive_name, cluster))
+          writer.writerow(generation)
+
       iter_num += 1
     return meta_archives
 
 def meta_evaluation():
   try_unpickle = False #should we continue from a saved pickle checkpoint
-  max_iterations = 10 #override max iterations that simulation will run regardless of CMA covnergence
-  num_agents = 30 #how many total agents divided between the three classes
+  max_iterations = 100 #override max iterations that simulation will run regardless of CMA covnergence
+  num_agents = 3 #how many total agents divided between the three classes
   num_samples_per_agent = 3 #seems like must be >= 3, how many samples should each agent draw from their search space to test
   num_matchups_per_evaluation = 2 #must be even, how many other players each agent plays against
   min_games = 10 #min games to play even if streak triggers
@@ -391,15 +443,23 @@ def meta_evaluation():
   pvalue_alpha = 0.05 #the p-value threshold for significance
   min_streak = 3 #how many p<alpha in a row before early stoppage
   num_cores_to_use_if_not_mpi = cpu_count() #how many cores should we use if not using mpi
-  fake_games = False #Generate game results from general fitness
+  fake_games = True #Generate game results from general fitness
   core_spread_multiplier = 4 #spread the total matchups between extra cores
 
-  seed(1)
+  seed(1) 
+
+  if not try_unpickle:
+    with open('metagame/agent_history.csv', 'w') as f:
+      writer = csv.writer(f)
+      headers = []
+      [(headers.append(f"agent_{agent_id}_x"), headers.append(f"agent_{agent_id}_y"), headers.append(f"agent_{agent_id}_archive"), headers.append(f"agent_{agent_id}_cluster")) for agent_id in range(num_agents)]
+      writer.writerow(headers)
+
+
 
   comm, num_cores, rank = (MPI.COMM_WORLD, MPI.COMM_WORLD.Get_size(), MPI.COMM_WORLD.Get_rank()) if using_mpi else (None, num_cores_to_use_if_not_mpi, 0)
   meta_archive, meta_archives, memoizer = init_archives(try_unpickle, num_agents, num_samples_per_agent) if rank == 0 else (None, None, None)
   meta_archives = run_tournament(using_mpi, max_iterations, num_matchups_per_evaluation, fake_games, min_games, max_games, pvalue_alpha, min_streak, core_spread_multiplier, comm, num_cores, rank, meta_archive, meta_archives, memoizer)
   if rank == 0: render_animation(meta_archives)
-
 if __name__ == "__main__":
   meta_evaluation()

@@ -1,4 +1,4 @@
-from map_elites import Archive
+from map_elites import Archive, bags_from_decks, get_pool
 import numpy as np
 from sklearn.manifold import TSNE
 from sklearn.cluster import HDBSCAN, KMeans
@@ -9,8 +9,11 @@ from matplotlib import cm, colors, colormaps, widgets, pylab
 from statistics import mean, stdev
 # import sys
 # sys.path.append('../')
-from enums import CardSets
-from card_sets import build_pool
+
+import sys
+
+
+plot_cluster = -1
 
 
 class PlotController:
@@ -18,7 +21,7 @@ class PlotController:
   #  ("Mage", 156, 180), ("Hunter", 180, 204),
   selections = [("All", 0, 228), ("Clusters", 0, 2), ("Strategy", 2, 26), ("Basics", 26, 69), ("Commons", 69, 109), ("Rares", 109, 145), ("Epics", 145, 156), ("Warrior", 204, 228)]
   
-  def __init__(self, points, title, color_values, subtitles, color_maps, cluster_data, important_groups, current_cluster):
+  def __init__(self, points, title, color_values, subtitles, color_maps, cluster_data, important_groups):
     self.points = points
     self.title = title
     self.color_values = color_values
@@ -26,28 +29,46 @@ class PlotController:
     self.color_maps = color_maps
     self.cluster_data = cluster_data
     self.important_groups = important_groups
-    self.current_cluster = current_cluster
 
-    if self.current_cluster < 0 and self.index == 0: self.index = 1
+    if plot_cluster < 0 and self.index == 0: self.index = 1
     selection_title, fro, to = self.selections[self.index]
-    plot_2d(self.points, self.title, selection_title, self.color_values[fro:to], self.subtitles[fro:to], self.color_maps[fro:to], self.cluster_data, self.important_groups, self.current_cluster, self)
+    plot_2d(self.points, self.title, selection_title, self.color_values[fro:to], self.subtitles[fro:to], self.color_maps[fro:to], self.cluster_data, self.important_groups, self)
 
   def next(self, event):
     self.index = (self.index+1) % len(self.selections)
-    if self.current_cluster < 0 and self.index == 0: self.index = 1
+    if plot_cluster < 0 and self.index == 0: self.index = 1
 
     plt.close()
 
     selection_title, fro, to = self.selections[self.index]
-    plot_2d(self.points, self.title, selection_title, self.color_values[fro:to], self.subtitles[fro:to], self.color_maps[fro:to], self.cluster_data,self.important_groups, self.current_cluster, self)
+    plot_2d(self.points, self.title, selection_title, self.color_values[fro:to], self.subtitles[fro:to], self.color_maps[fro:to], self.cluster_data,self.important_groups, self)
 
   def prev(self, event):
     self.index = (self.index-1) % len(self.selections)
-    if self.current_cluster < 0 and self.index == 0: self.index = len(self.selections)-1
+    if plot_cluster < 0 and self.index == 0: self.index = len(self.selections)-1
 
     plt.close()
     selection_title, fro, to = self.selections[self.index]
-    plot_2d(self.points, self.title, selection_title, self.color_values[fro:to], self.subtitles[fro:to], self.color_maps[fro:to],  self.cluster_data, self.important_groups,self.current_cluster, self)
+    plot_2d(self.points, self.title, selection_title, self.color_values[fro:to], self.subtitles[fro:to], self.color_maps[fro:to],  self.cluster_data, self.important_groups, self)
+
+
+  def on_press(self, event):
+    global plot_cluster
+    if event.key == 'up':
+      try:
+        plot_cluster+=1
+      except IndexError:
+        plot_cluster-=1
+    elif event.key == 'down':
+      plot_cluster = max(plot_cluster-1, -1)
+    plt.close()
+
+    if plot_cluster < 0 and self.index == 0: self.index = 1
+    selection_title, fro, to = self.selections[self.index]
+    plot_2d(self.points, self.title, selection_title, self.color_values[fro:to], self.subtitles[fro:to], self.color_maps[fro:to],  self.cluster_data, self.important_groups, self)
+
+
+
 
 def check_group(text, groups):
   for group_text, group_zscore in groups:
@@ -59,18 +80,20 @@ def get_zscore(text, groups):
     if text == group_text: return group_zscore
   return 0
 
-def plot_2d(points, title, selection_title, color_values, subtitles, color_maps, cluster_data, important_groups, current_cluster, callback):
-  print(f"{current_cluster=}")
-  if current_cluster > -1:
-    color_values = [color_value for color_value, subtitle in zip(color_values, subtitles) if check_group(subtitle, important_groups[current_cluster])]
-    color_maps = [color_maps for color_maps, subtitle in zip(color_maps, subtitles) if check_group(subtitle, important_groups[current_cluster])]
-    subtitles = [f"{subtitle}\n({get_zscore(subtitle, important_groups[current_cluster]):+.2f})" for subtitle in subtitles if check_group(subtitle, important_groups[current_cluster])]
+
+def plot_2d(points, title, selection_title, color_values, subtitles, color_maps, cluster_data, important_groups, callback):
+  if plot_cluster > -1:
+    color_values = [color_value for color_value, subtitle in zip(color_values, subtitles) if check_group(subtitle, important_groups[plot_cluster])]
+    color_maps = [color_maps for color_maps, subtitle in zip(color_maps, subtitles) if check_group(subtitle, important_groups[plot_cluster])]
+    subtitles = [f"{subtitle}\n({get_zscore(subtitle, important_groups[plot_cluster]):+.2f})" for subtitle in subtitles if check_group(subtitle, important_groups[plot_cluster])]
   
 
 
   w, h = {2: (2, 1), 11: (4, 3), 24: (6, 4), 40: (8, 5), 43: (9, 5), 36: (9, 4)}.get(len(color_values), (6, 4))
   fig, axes = plt.subplots(h, w, facecolor="white", constrained_layout=False, squeeze=False)
-  fig.suptitle(selection_title, size=12)
+  fig.canvas.mpl_connect('key_press_event', callback.on_press)
+
+  fig.suptitle(f"{selection_title} (Cluster {plot_cluster})" if plot_cluster > -1 else selection_title, size=12)
   fig = pylab.gcf()
   fig.canvas.manager.set_window_title(title)
   # axes = np.array(axes)
@@ -89,11 +112,12 @@ def plot_2d(points, title, selection_title, color_values, subtitles, color_maps,
       norm = colors.Normalize(min(color_value), max(color_value))
       color_value = cmap(color_value/2) if color_map == "twilight" else cmap(norm(color_value)) 
       
-      # a = [0 if cluster != current_cluster else 0.9 for cluster in cluster_data]
+      # a = [0.0 if cluster != plot_cluster else 0.75 for cluster in cluster_data]
+      a = [0.8 for cluster in cluster_data]
       x = [_x for _x, cluster in zip(unfiltered_x, cluster_data) if True]
       y = [_y for _y, cluster in zip(unfiltered_y, cluster_data) if True]
 
-      ax.scatter(x, y, c=color_value, s=14, alpha=0.75, edgecolors=None, marker='.')
+      ax.scatter(x, y, c=color_value, s=14, alpha=a if plot_cluster > -1 else 0.8, edgecolors=None, marker='.')
       ax.set_title(subtitle, size=10)
       ax.set_aspect('equal')
       ax.tick_params(axis='both',which='both', bottom=False, top=False, labelbottom=False, left=False, right=False, labeltop=False, labelleft=False, labelright=False) 
@@ -117,38 +141,24 @@ def plot_2d(points, title, selection_title, color_values, subtitles, color_maps,
   plt.show()
 
 
-def get_pool():
-  pool = build_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_MAGE, CardSets.CLASSIC_HUNTER, CardSets.CLASSIC_WARRIOR], None)
-  pool = [card.name for card in pool]
-  return pool
 
-def bags_from_decks(decks):
-  pool = get_pool()
 
-  bags = []
-  for deck in decks:
-    bag = np.zeros(len(pool))
-    for card in deck:
-      index = pool.index(card)
-      bag[index] = 1
-    bags.append(bag)
-  return bags
-
-def view_archive(class_name, plot_cluster_only, plot_strat, plot_deck,plot_cluster, seed):
+def view_archive(class_name, plot_cluster_only, plot_strat, plot_deck, seed):
   supertitle = f"{class_name} tSNE"
   map_archive = Archive("Hand size", "Turns", x_range=(1, 9), y_range=(9, 35), num_buckets=40)
 
   map_archive.load(f'metagame/{class_name}.json')
+  map_archive.display('hdbscan')
   elites = map_archive.get_elites(unique_only=True)
   elites = sorted(elites, key=lambda elite: elite['fitness'])
-  x = np.array([elite['sample'][0] for elite in elites])
+  strats = np.array([elite['sample'][0] for elite in elites])
   decks = np.array([elite['sample'][1] for elite in elites])
 
   bags = bags_from_decks(decks)
 
-  x = np.array([np.append(strat, deck) for (strat, deck) in zip(x, bags)])
+  x = np.array([np.append(strat, deck) for (strat, deck) in zip(strats, bags)])
   
-  hdbscan_clusters = HDBSCAN(min_cluster_size=10).fit(x).labels_
+  hdbscan_clusters = HDBSCAN(min_cluster_size=20).fit(x).labels_
   kmeans_clusters = KMeans(n_clusters=12, random_state=seed, n_init="auto").fit(x).labels_
 
 
@@ -203,7 +213,9 @@ def view_archive(class_name, plot_cluster_only, plot_strat, plot_deck,plot_clust
 
 
 
-  PlotController(X_embedded, supertitle, colors, titles, color_maps, hdbscan_clusters, important_groups, plot_cluster)
+  PlotController(X_embedded, supertitle, colors, titles, color_maps, hdbscan_clusters, important_groups)
+
+
 
 
 if __name__ == '__main__':
@@ -211,8 +223,7 @@ if __name__ == '__main__':
   plot_cluster_only = False
   plot_strat = True
   plot_deck = True
-  plot_cluster = 12
   class_name = "warrior"
   seed = 0
   
-  view_archive(class_name, plot_cluster_only, plot_strat, plot_deck, plot_cluster, seed)
+  view_archive(class_name, plot_cluster_only, plot_strat, plot_deck, seed)
