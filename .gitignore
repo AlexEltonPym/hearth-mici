@@ -28,11 +28,17 @@
 /hearth-mici/config.json
 /hearth-mici/functions/config.json
 
+*/env
+*/__pychache__
+*/.vscode
+
+
 *.mp4
 *.zip
 
 /deck_evolution/results.out
 /deck_evolution/data
+/deck_evolution/env
 
 /classic_sim/env
 
@@ -44,9 +50,12 @@
 
 /classic_sim/tests/*.csv
 
-/deck_evolution/env
+/classic_sim/examples/*.csv
+/classic_sim/examples/*.png
+/classic_sim/examples/*.json
+/classic_sim/examples/*.pickle
+/classic_sim/examples/*.gif
 
-
-*/env
-*/__pychache__
-*/.vscode
+/classic_sim/examples/metagame_analysis/data/
+/classic_sim/examples/metaspace_generation/experiments/
+/classic_sim/examples/metaspace_generation/data/
