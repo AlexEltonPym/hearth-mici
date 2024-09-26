@@ -99,7 +99,7 @@ def get_function_set():
   internals = []
   terminals = []
   near_terminals = []
-  near_terminal_classes = [ConstantInt, ConstantBool, ConstantCard, ConstantAttribute, NumOtherMinions, CardsInHand, DamageTaken, PlayerArmor, WeaponAttack, HasWeapon, MinionsPlayed, NumCardsInHand, NumWithCreatureType, NumDamaged, HasSecret]
+  near_terminal_classes = [RandomInt, ConstantInt, ConstantBool, ConstantCard, ConstantAttribute, NumOtherMinions, CardsInHand, DamageTaken, PlayerArmor, WeaponAttack, HasWeapon, MinionsPlayed, NumCardsInHand, NumWithCreatureType, NumDamaged, HasSecret]
   for dynamic_class in map(dynamics.__dict__.get, dynamics.__all__):
     inputs, output = get_input_output_signature(dynamic_class)
     if(len(inputs)==0):
@@ -114,6 +114,7 @@ def get_function_set():
   for class_value in class_values:
     terminals.append((class_value, [], (type(class_value),), True))
   terminals.append((oneone, [], ('CARD',), True))
+
 
   return (internals, terminals, near_terminals)
 
@@ -156,5 +157,26 @@ def get_input_output_signature(dynamic_class):
     if isinstance(output, ForwardRef):
       output = classes[output.__forward_arg__]
     output = tuple([output])
+
+
+  class_name = str(dynamic_class.__name__)
+  input_strings = []
+  output_strings = []
+  for _input in inputs:
+    if(type(_input) == Callable):
+      i = str(_input)
+      print(i)
+      bits = i.split("..., ")[1].split("]")[0]
+      input_strings.append(bits)
+    else:
+      print(type(_input))
+      input_strings.append((str(_input)))
+  for _output in output:
+    o = str(_output)
+    bits = o.split("..., ")[1].split("]")[0]
+    output_strings.append(bits)
+  
+  print(class_name, input_strings, output_strings)
+
 
   return (inputs, output)

@@ -1,8 +1,18 @@
 from enums import *
 
 from typing import Callable
+from random import randint
 CARD = "CARD"
 ## Operators
+
+#todo: breaks random seed because it doenst use right random class
+class RandomInt(object):
+  def __init__(self, A: Callable[..., int], B: Callable[..., int]):
+    self.A = A
+    self.B = B
+  def __call__(self, action) -> Callable[..., int]:
+    return randint(self.A(action), self.B(action))
+
 
 class ConstantInt(object):
   def __init__(self, constant:int):
@@ -357,4 +367,4 @@ class TargetAlive(object):
     return len(action.targets) > 0 and action.targets[0].get_health() > 0
 
 
-__all__ = ["ConstantInt", "ConstantBool", "ConstantCard", "ConstantAttribute", "Multiply", "Add", "Equals", "LessThan", "GreaterThan", "Not", "And", "Or", "Minimum", "Maximum", "IfInt", "IfCard", "IfAttribute", "Source", "Target", "NumOtherMinions", "CardsInHand", "DamageTaken", "PlayerArmor", "WeaponAttack", "HasWeapon", "MinionsPlayed", "NumCardsInHand", "AttackValue", "HealthValue", "Damaged", "NumWithAttribute", "NumWithCreatureType", "NumDamaged", "TargetFrozen", "PlayerHasAttribute", "SourceHasAttribute", "HasSecret", "TargetAlive"]
+__all__ = ["RandomInt", "ConstantInt", "ConstantBool", "ConstantCard", "ConstantAttribute", "Multiply", "Add", "Equals", "LessThan", "GreaterThan", "Not", "And", "Or", "Minimum", "Maximum", "IfInt", "IfCard", "IfAttribute", "Source", "Target", "NumOtherMinions", "CardsInHand", "DamageTaken", "PlayerArmor", "WeaponAttack", "HasWeapon", "MinionsPlayed", "NumCardsInHand", "AttackValue", "HealthValue", "Damaged", "NumWithAttribute", "NumWithCreatureType", "NumDamaged", "TargetFrozen", "PlayerHasAttribute", "SourceHasAttribute", "HasSecret", "TargetAlive"]
