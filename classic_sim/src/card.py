@@ -209,6 +209,7 @@ class Card():
     self.manacost = self.original_manacost #when reseting for making new games, mana must be reset
 
   def get_string(self):
+    # return str(self.name)
     if(self.card_type == CardTypes.MINION):
       return str((self.name, self.owner, self.manacost, self.attack+self.temp_attack+self.perm_attack, self.health+self.temp_health+self.perm_attack, self.attributes, self.effect, self.effect.trigger if self.effect else "", self.effect.value if self.effect else ""))
     else:

@@ -127,5 +127,5 @@ def check_card_valid(card):
 
 if __name__ == "__main__":
   card = make_random_card(0, RandomState())
-  print(check_card_valid(card))
-  print(card)
+  # print(check_card_valid(card))
+  # print(card)

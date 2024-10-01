@@ -165,11 +165,9 @@ def get_input_output_signature(dynamic_class):
   for _input in inputs:
     if(type(_input) == Callable):
       i = str(_input)
-      print(i)
       bits = i.split("..., ")[1].split("]")[0]
       input_strings.append(bits)
     else:
-      print(type(_input))
       input_strings.append((str(_input)))
   for _output in output:
     o = str(_output)

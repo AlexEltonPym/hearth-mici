@@ -5,13 +5,12 @@ from random import randint
 CARD = "CARD"
 ## Operators
 
-#todo: breaks random seed because it doenst use right random class
 class RandomInt(object):
   def __init__(self, A: Callable[..., int], B: Callable[..., int]):
     self.A = A
     self.B = B
   def __call__(self, action) -> Callable[..., int]:
-    return randint(self.A(action), self.B(action))
+    return action.owner.game.game_manager.random_state.randint(self.A(action), self.B(action))
 
 
 class ConstantInt(object):

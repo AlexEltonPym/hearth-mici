@@ -172,7 +172,7 @@ def generate_random_deck(player_class):
 
   return new_deck
 
-def evaluate(elite, agent_class, enemy_class, enemy_niche, enemy_policy, rank, agent_only, num_games_per_matchup):
+def evaluate(elite, agent_class, enemy_class, enemy_policy, agent_only, num_games_per_matchup):
   agent, deck = elite
   class_setups = {
     "M": (Classes.MAGE, [CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_MAGE], Deck.generate_from_decklist(basic_mage), agents['handmade_agent']),
@@ -197,7 +197,7 @@ def evaluate(elite, agent_class, enemy_class, enemy_niche, enemy_policy, rank, a
     game_manager.build_full_game_manager(player_cardset, enemy_cardset,
                                       player_class_enum, player_decklist, GreedyActionSmart(agent),
                                       enemy_class_enum, enemy_decklist, GreedyActionSmart(enemy_agent))
-    winrate, player_health, cards_in_hand, turns, enemy_health, enemy_cards_in_hand = game_manager.simulate(num_games_per_matchup, silent=True, parralel=-1, rng=True, rank=rank)
+    winrate, player_health, cards_in_hand, turns, enemy_health, enemy_cards_in_hand = game_manager.simulate(num_games_per_matchup, silent=True, parralel=1, rng=True)
     health_difference = player_health - enemy_health
   return (winrate, health_difference, cards_in_hand, turns)
 
@@ -225,83 +225,64 @@ def peturb_agent_and_deck(individual, player_class, agent_only):
   return (agent, deck)
 
 def main():
-  using_mpi = False #also comment out mpi import when False ^
-  num_non_mpi_cores = cpu_count()
   start_generation = 0
   end_generation = 301
-  player_class = "W"
+  player_class = "H"
   load_from_file = False
   agent_only = False
   initial_population_size = 38 #max 96/38
-  num_games_per_matchup = 5 #if -1, dummy games are played
+  max_selection_count = 38
+  num_games_per_matchup = 3 #if -1, dummy games are played
 
-  if using_mpi:
-    comm = MPI.COMM_WORLD
-    num_cores = comm.Get_size()
-    rank = comm.Get_rank()
-  else:
-    rank = 0
-    num_cores = num_non_mpi_cores
-
-  if rank == 0:
-    if load_from_file:
-      with open('data/generations.csv', 'r', encoding='UTF8') as f:
-        reader = csv.reader(f, delimiter=',')
-        for row in reader:
-          generation_offset = row[0]
-        start_generation += int(generation_offset)+1
-        end_generation += int(generation_offset)+1
-    else:
-      with open('data/generations.csv', 'w', encoding='UTF8', newline='') as f:
-        writer = csv.writer(f)
-        writer.writerow(["generation", "time_elapsed", "population", "mean_fitness", "best_fitness", "best_sample"])
-
-    map_archive = Archive("Hand size", "Turns", x_range=(1, 9), y_range=(9, 35), num_buckets=40)
-
-    if load_from_file:
-      try:
-        map_archive.load(f'data/generation{start_generation-1}_archive.json')
-      except:
-        map_archive.load('data/map_archive.json')
-
-    gauntlet = []
-    with open('gauntlet.csv', 'r', encoding='utf-8') as f:
-      reader = csv.reader(f)
-      headers = next(reader)
+  if load_from_file:
+    with open('data/generations.csv', 'r', encoding='UTF8') as f:
+      reader = csv.reader(f, delimiter=',')
       for row in reader:
-        sample = ast.literal_eval(str(row[6:])[1:-1].replace(" ","").replace("[", "").replace("]", ""))
-        sample = [float(value) for value in sample]
-        gauntlet.append({headers[0]: row[0], headers[1]: row[1], headers[2]: row[2], headers[3]: row[3], headers[4]: row[4], headers[5]: row[5], headers[6]: sample})
+        generation_offset = row[0]
+      start_generation += int(generation_offset)+1
+  else:
+    with open('data/generations.csv', 'w', encoding='UTF8', newline='') as f:
+      writer = csv.writer(f)
+      writer.writerow(["generation", "time_elapsed", "population", "mean_fitness", "best_fitness", "best_sample"])
 
-  for generation_number in range(start_generation, end_generation):
-    if rank == 0:
+  map_archive = Archive("Hand size", "Turns", x_range=(1, 9), y_range=(9, 35), num_buckets=40)
+
+  if load_from_file:
+    try:
+      map_archive.load(f'data/generation{start_generation-1}_archive.json')
+    except:
+      map_archive.load('data/map_archive.json')
+
+  gauntlet = []
+  with open('gauntlet.csv', 'r', encoding='utf-8') as f:
+    reader = csv.reader(f)
+    headers = next(reader)
+    for row in reader:
+      sample = ast.literal_eval(str(row[6:])[1:-1].replace(" ","").replace("[", "").replace("]", ""))
+      sample = [float(value) for value in sample]
+      gauntlet.append({headers[0]: row[0], headers[1]: row[1], headers[2]: row[2], headers[3]: row[3], headers[4]: row[4], headers[5]: row[5], headers[6]: sample})
+
+  with Parallel(timeout=None, n_jobs=10, verbose=100) as para:
+    for generation_number in range(start_generation, end_generation):
       start = time.time()
       print(f"\nStarting generation {generation_number}")
       if generation_number==0:
         population = [([gauss(0, 10) for i in range(21)], generate_random_deck(player_class)) for j in range(initial_population_size)]
         print(f"Selecting {len(population)} of {initial_population_size}")
       else:
-        population = [elite['sample'] for elite in map_archive.get_elites(38, unique_only=True, only_consider_policy=agent_only)]
+        population = [elite['sample'] for elite in map_archive.get_elites(max_selection_count, unique_only=True, only_consider_policy=agent_only)]
         print(f"Selecting {len(population)} of {map_archive.get_total_population_count()}")
       population = [peturb_agent_and_deck(individual, player_class, agent_only) for individual in population]
-      spread_population = [(elite, enemy['agent_class'], enemy['niche'], enemy['sample']) for elite in population for enemy in gauntlet]
-      print(f"Spread to {len(spread_population)} agents")
-      time.sleep(0.5)
-    else:
-      spread_population = None
-    if using_mpi: spread_population = comm.bcast(spread_population, root=0)
+      matchups = [(elite, enemy['agent_class'], enemy['sample']) for elite in population for enemy in gauntlet]
+      print(f"Spread to {len(matchups)} matchups")
+      # my_results = [evaluate(elite, player_class, enemy_class, enemy_policy, agent_only, num_games_per_matchup) for (elite, enemy_class, enemy_policy) in matchups]
+      my_results = para(delayed(evaluate)(elite, player_class, enemy_class, enemy_policy, agent_only, num_games_per_matchup) for (elite, enemy_class, enemy_policy) in matchups)
 
-    my_population_subset = get_sublist(spread_population, num_cores, rank)
-    if rank < 3:
-      print(f"Core {rank} has {len(my_population_subset)} agents to evaluate")
-    my_results = [evaluate(elite, player_class, enemy_class, enemy_niche, enemy_policy, rank, agent_only, num_games_per_matchup) for (elite, enemy_class, enemy_niche, enemy_policy) in my_population_subset]
-    all_results = comm.gather(my_results, root=0) if using_mpi else [my_results]
-    if rank == 0:
-      flat_res = [result for individual_core_reponses in all_results for result in individual_core_reponses]
-      recombined_results = [flat_res[i:i+15]for i in range(0, len(flat_res), 15)]
+      recombined_results = [my_results[i:i+15]for i in range(0, len(my_results), 15)] #there are 15 agents in the gauntlet
       recombined_results = [(mean(column) for column in list(zip(*result))) for result in recombined_results]
 
-      print(f"Total agent results received {len(flat_res)}, recombined to {len(recombined_results)}")
+      print(f"Total agent results received {len(my_results)}, recombined to {len(recombined_results)}")
+
       for (winrate, health_difference, cards_in_hand, turns), agent in zip(recombined_results, population):
         map_archive.add_sample(cards_in_hand, turns, fitness=health_difference, sample=agent)
       map_archive.save(save_file=f'data/generation{generation_number}_archive.json')

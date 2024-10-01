@@ -104,10 +104,10 @@ class GameManager():
 
   def run_games(self, num_games, silent, rng, rank):
     game_results = []
-    seed = randint(1, 1000000)
     if rng:
-      self.random_state = RandomState(seed)
-
+      self.random_state = RandomState(None)
+    else:
+      self.random_state = RandomState(0)
     self.create_game()
 
     for i in trange(num_games, disable=silent, position=1, leave=True, desc=f"Core {rank} playing {self.game.player.player_class} vs {self.game.enemy.player_class}"):
@@ -120,7 +120,6 @@ class GameManager():
       except Exception as e:
         game_result = None
         if not silent:
-          print(seed)
           print(e)
           print(self.player.deck.names())
           print(self.enemy.deck.names())

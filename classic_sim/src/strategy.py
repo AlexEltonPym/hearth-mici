@@ -121,7 +121,7 @@ class GreedyActionSmart():
       possible_actions.append((action_index, state_score, turn_passed))
 
     best_action = sorted(possible_actions, key=lambda x: x[1])[-1]
-    # print("v2: " + str(available_actions[best_action[0]]))
+    # print("gas: " + str(available_actions[best_action[0]]))
     state.perform_action(available_actions[best_action[0]])
     return best_action[2]
 
