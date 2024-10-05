@@ -455,8 +455,6 @@ def meta_evaluation():
       [(headers.append(f"agent_{agent_id}_x"), headers.append(f"agent_{agent_id}_y"), headers.append(f"agent_{agent_id}_archive"), headers.append(f"agent_{agent_id}_cluster")) for agent_id in range(num_agents)]
       writer.writerow(headers)
 
-
-
   comm, num_cores, rank = (MPI.COMM_WORLD, MPI.COMM_WORLD.Get_size(), MPI.COMM_WORLD.Get_rank()) if using_mpi else (None, num_cores_to_use_if_not_mpi, 0)
   meta_archive, meta_archives, memoizer = init_archives(try_unpickle, num_agents, num_samples_per_agent) if rank == 0 else (None, None, None)
   meta_archives = run_tournament(using_mpi, max_iterations, num_matchups_per_evaluation, fake_games, min_games, max_games, pvalue_alpha, min_streak, core_spread_multiplier, comm, num_cores, rank, meta_archive, meta_archives, memoizer)

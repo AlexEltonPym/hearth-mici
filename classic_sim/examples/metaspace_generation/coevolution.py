@@ -3,34 +3,21 @@ sys.path.append('../../src/')
 sys.path.append('../map_elites')
 
 from enums import *
-from copy import deepcopy
-from tqdm import tqdm
-from strategy import GreedyAction, GreedyActionSmart, RandomNoEarlyPassing, RandomAction, GreedyActionSmartv1
+from strategy import GreedyActionSmart
 from game_manager import GameManager
 from zones import Deck
 from random import uniform, gauss, shuffle, choice, random, randint
-import matplotlib.pyplot as plt
-from IPython import display
-import json
 
-import numpy as np
-import numpy.ma as ma
 from statistics import mean
 from joblib import Parallel, delayed
-from multiprocessing import cpu_count
 import time
 
 import ast
-
 
 import csv
 
 from map_elites import Archive
 
-try:
-  from mpi4py import MPI
-except ModuleNotFoundError:
-  pass
 
 basic_mage = [
     "Arcane Missiles",
@@ -172,7 +159,8 @@ def generate_random_deck(player_class):
 
   return new_deck
 
-def evaluate(elite, agent_class, enemy_class, enemy_policy, agent_only, num_games_per_matchup):
+def evaluate(args):
+  elite, agent_class, enemy_class, enemy_policy, agent_only, num_games_per_matchup = args
   agent, deck = elite
   class_setups = {
     "M": (Classes.MAGE, [CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_MAGE], Deck.generate_from_decklist(basic_mage), agents['handmade_agent']),
@@ -227,8 +215,8 @@ def peturb_agent_and_deck(individual, player_class, agent_only):
 def main():
   start_generation = 0
   end_generation = 301
-  player_class = "W"
-  load_from_file = False
+  player_class = "H"
+  load_from_file = True
   agent_only = False
   initial_population_size = 38 #max 96/38
   max_selection_count = 38
@@ -276,8 +264,9 @@ def main():
       matchups = [(elite, enemy['agent_class'], enemy['sample']) for elite in population for enemy in gauntlet]
       print(f"Spread to {len(matchups)} matchups")
       # my_results = [evaluate(elite, player_class, enemy_class, enemy_policy, agent_only, num_games_per_matchup) for (elite, enemy_class, enemy_policy) in matchups]
-      my_results = para(delayed(evaluate)(elite, player_class, enemy_class, enemy_policy, agent_only, num_games_per_matchup) for (elite, enemy_class, enemy_policy) in matchups)
-
+      evaluation_inputs = [(elite, player_class, enemy_class, enemy_policy, agent_only, num_games_per_matchup) for (elite, enemy_class, enemy_policy) in matchups]
+      my_results = para(delayed(evaluate)(input) for input in evaluation_inputs)
+  
       recombined_results = [my_results[i:i+15]for i in range(0, len(my_results), 15)] #there are 15 agents in the gauntlet
       recombined_results = [(mean(column) for column in list(zip(*result))) for result in recombined_results]
 
