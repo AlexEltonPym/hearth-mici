@@ -1,1 +1,1 @@
-rsync -vzr --progress --exclude 'examples/archive' --exclude 'examples/experiment_results'  --exclude 'examples/metaspace_generation/data_archive' ../classic_sim dwail2:/home/alex
+rsync -vzr --progress --exclude 'examples/archive' --exclude 'examples/experiment_results'  --exclude 'examples/metaspace_generation/data' --exclude 'examples/metaspace_generation/data_archive'  --exclude 'examples/metagame_analysis/metagame' ../classic_sim dwail1:/home/alex

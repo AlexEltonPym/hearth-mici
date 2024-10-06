@@ -1,3 +1,8 @@
+from sys import path
+
+path.append('../../src/')
+path.append('../map_elites')
+
 import warnings
 from map_elites import Archive
 from game_manager import GameManager
@@ -12,13 +17,13 @@ from matplotlib.animation import FuncAnimation
 from matplotlib.patches import Ellipse
 from matplotlib.colors import ListedColormap
 
-from examples.metaspace_generation.coevolution import generate_random_deck, get_sublist
+from metaspace_generation.coevolution import generate_random_deck, get_sublist
 from random import gauss, randint, uniform, shuffle, choice, seed, random
 from copy import deepcopy
 
 import cma
 
-
+from numpy import shape
 from statistics import mean
 from scipy.stats import ttest_ind
 from numpy.random import choice as choice_with_replacement, RandomState
@@ -27,19 +32,22 @@ import json
 from atomicwrites import atomic_write
 import pickle
 import csv
+import dill
+import ast
 
 from joblib import Parallel, delayed
 from multiprocessing import cpu_count
 from contextlib import nullcontext
+
+import subprocess
 
 warnings.simplefilter("ignore", cma.evolution_strategy.InjectionWarning)
 
 try:
   from mpi4py import MPI
   MPI.Errhandler(MPI.ERRORS_ARE_FATAL)
-  using_mpi = True
 except ModuleNotFoundError:
-  using_mpi = False
+  pass
 
 def stretch(n, start1, stop1, start2, stop2):
   return (n - start1) / (stop1 - start1) * (stop2 - start2) + start2
@@ -174,7 +182,6 @@ class Agent():
 
   def class_switch_if_underperforming(self):
     chance = (0.5-self.latest_fitness)*2 if self.latest_fitness < 0.5 else 0
-    print(self.latest_fitness)
     if random() < chance:
       alternative_classes = [0, 1, 2]
       alternative_classes.remove(self.parent_archive_id)
@@ -314,8 +321,34 @@ def pprint_matchup(matchup):
   print(f"{player[0]}, sample_index: {player[1]['x_index'], player[1]['y_index']}, sample_fitness: {player[1]['fitness']} vs {opponent[0]}, sample_index: {opponent[1]['x_index'], opponent[1]['y_index']}, sample_fitness: {opponent[1]['fitness']}")
 
 
+def run_ssh_tournament(cores_assigned_matchups, hosts):
+  matchup_host_data = []
+  for core_id, core_matchups in enumerate(cores_assigned_matchups):
+    matchup_host_data.append((core_matchups, hosts[core_id], core_id))
+  results = Parallel(n_jobs=len(hosts))(delayed(run_host)(matchups, host, core_id) for (matchups, host, core_id) in matchup_host_data)
+  return results
+
+def run_host(matchups, host, core_id):
+  print(f"Starting host {host}-{core_id} with {len(matchups)} matchups...")
+  serial_matchups = dill.dumps(matchups)
+  dir = "~/phd/hearth-mici/classic_sim/examples/metagame_analysis/" if host=="laptop" else "~/classic_sim/examples/metagame_analysis/"
+  command = f'cd {dir} && source ../../venv/bin/activate && python3 remote_simulator.py'
+  ssh = subprocess.Popen(["ssh", host, command], shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
+  result, err = ssh.communicate(input=serial_matchups)
+  if err: print(f"{host}-{core_id} error> {err}")
+  result = result.decode().splitlines()
+  for line in result:
+    if line[:3] == ">>>":
+      result = ast.literal_eval(line[3:])
+      print(f"Closing host {host}-{core_id}.")
+      return result
+    else:
+      print(f"{host}-{core_id}> {str(result)}")
+
+
 def play_games_till_stoppage(matchups, min_games, max_games, pvalue_alpha, min_streak):
   results = []
+
   game_manager = GameManager()
   class_setups = {
     "mage": (Classes.MAGE, [CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_MAGE]),
@@ -366,9 +399,9 @@ def play_games_till_stoppage(matchups, min_games, max_games, pvalue_alpha, min_s
     
 
 
-def run_tournament(using_mpi, max_iterations, num_matchups_per_evaluation, fake_games, min_games, max_games, pvalue_alpha, min_streak, core_spread_multiplier, comm, num_cores, rank, meta_archive, meta_archives, memoizer):
-  with Parallel(n_jobs=num_cores, verbose=50) if not using_mpi else nullcontext() as parallel:
-    iter_num = 0
+def run_tournament(backend, hosts, starting_iteration, max_iterations, num_matchups_per_evaluation, fake_games, min_games, max_games, pvalue_alpha, min_streak, core_spread_multiplier, comm, num_cores, rank, meta_archive, meta_archives, memoizer):
+  with Parallel(n_jobs=num_cores, verbose=50) if backend=="joblib" else nullcontext() as parallel:
+    iter_num = starting_iteration
     while iter_num < max_iterations:
       if rank == 0:
         print(f"Starting iteration {iter_num}")
@@ -377,34 +410,32 @@ def run_tournament(using_mpi, max_iterations, num_matchups_per_evaluation, fake_
         matchups = get_matchups(contestants, num_matchups_per_evaluation)
 
         new_matchups_to_simulate = [match for match in matchups if not memoizer.remembers(match)]
-        for matchup in new_matchups_to_simulate:
-          print(memoizer.match_to_key(matchup))
         print(f"Remembered: {len(matchups) - len(new_matchups_to_simulate)}/{len(matchups)}, simulating {len(new_matchups_to_simulate)} total")
       else:
         new_matchups_to_simulate = None
       if(len(new_matchups_to_simulate) == 0):
         spread = []
       else:
-        spread = [get_sublist(new_matchups_to_simulate, num_cores, core) for core in range(num_cores*(core_spread_multiplier if not using_mpi else 1))] if rank == 0 else None
+        spread = [get_sublist(new_matchups_to_simulate, num_cores, core) for core in range(num_cores*(core_spread_multiplier if backend=="joblib" else 1))] if rank == 0 else None
         spread = [core_matches for core_matches in spread if core_matches != []]
-      cores_matchups_to_simulate = comm.scatter(spread, root=0) if using_mpi else spread
+      cores_matchups_to_simulate = comm.scatter(spread, root=0) if backend=="mpi" else spread
       if fake_games:
         results = []
         for core in cores_matchups_to_simulate:
           for matchup in core:
             (player_agent, player_sample, _), (opponent_agent, opponent_sample, _) = matchup
-            # if not player_agent.still_learning and not opponent_agent.still_learning:
-            #   results.append((None, None))
-            # else:
             results.append((player_sample['fitness'], opponent_sample['fitness']))
       else:
-        if using_mpi:
+        if backend=="mpi":
           print(f"Core #{rank} has {len(cores_matchups_to_simulate)} matchups to simulate")
           results = play_games_till_stoppage(cores_matchups_to_simulate, min_games, max_games, pvalue_alpha, min_streak)
+        elif backend=="ssh":
+          results = run_ssh_tournament(cores_matchups_to_simulate, hosts)
         else:
+          assert backend=="joblib"
           results = parallel(delayed(play_games_till_stoppage)(cores_matchups_to_simulate[i], min_games, max_games, pvalue_alpha, min_streak) for i in range(len(cores_matchups_to_simulate)))
 
-      non_flat_results = comm.gather(results, root=0) if using_mpi else results
+      non_flat_results = comm.gather(results, root=0) if backend=="mpi" else results
       if rank == 0:
         results = [result for individual_core_reponses in non_flat_results for result in individual_core_reponses] if not fake_games else results
         memoizer.memoize_all(zip(new_matchups_to_simulate, results))
@@ -433,31 +464,38 @@ def run_tournament(using_mpi, max_iterations, num_matchups_per_evaluation, fake_
     return meta_archives
 
 def meta_evaluation():
-  try_unpickle = False #should we continue from a saved pickle checkpoint
-  max_iterations = 10 #override max iterations that simulation will run regardless of CMA covnergence
-  num_agents = 48 #how many total agents divided between the three classes
-  num_samples_per_agent = 9 #seems like must be >= 3, how many samples should each agent draw from their search space to test
-  num_matchups_per_evaluation = 10 #must be even, how many other players each agent plays against
-  min_games = 10 #min games to play even if streak triggers
-  max_games = 100 #max games to play if pvalue doesnt converge
+  backend = "ssh" #mpi for hpc, ssh for distributed, joblib for parralel/serial
+  try_unpickle = True #should we continue from a saved pickle checkpoint
+  max_iterations = 11 #override max iterations that simulation will run regardless of CMA non-convergence
+  num_agents = 9 #how many total agents divided between the three classes
+  num_samples_per_agent = 3 #seems like must be >= 3, how many samples should each agent draw from their search space to test
+  num_matchups_per_evaluation = 2 #must be even, how many other players each agent plays against
+  min_games = 3 #min games to play even if streak triggers
+  max_games = 3 #max games to play if pvalue doesnt converge
   pvalue_alpha = 0.05 #the p-value threshold for significance
-  min_streak = 3 #how many p<alpha in a row before early stoppage
-  num_cores_to_use_if_not_mpi = cpu_count() #how many cores should we use if not using mpi
+  min_streak = 1 #how many p<alpha in a row before early stoppage
+  num_cores_to_use_if_not_mpi = 1 #how many cores should we use if not using mpi
   fake_games = False #Generate game results from general fitness
   core_spread_multiplier = 4 #spread the total matchups between extra cores
+  hosts = ["dwail1"]
 
   seed(0) 
 
-  if not try_unpickle:
+   
+  try:
+    with open('metagame/agent_history.csv', 'r') as f:
+      starting_iteration = sum(1 for row in f)-1
+  except FileNotFoundError:
     with open('metagame/agent_history.csv', 'w') as f:
       writer = csv.writer(f)
       headers = []
       [(headers.append(f"agent_{agent_id}_x"), headers.append(f"agent_{agent_id}_y"), headers.append(f"agent_{agent_id}_archive"), headers.append(f"agent_{agent_id}_cluster")) for agent_id in range(num_agents)]
       writer.writerow(headers)
+      starting_iteration = 0
 
-  comm, num_cores, rank = (MPI.COMM_WORLD, MPI.COMM_WORLD.Get_size(), MPI.COMM_WORLD.Get_rank()) if using_mpi else (None, num_cores_to_use_if_not_mpi, 0)
+  comm, num_cores, rank = (MPI.COMM_WORLD, MPI.COMM_WORLD.Get_size(), MPI.COMM_WORLD.Get_rank()) if backend=="mpi" else (None, num_cores_to_use_if_not_mpi, 0)
   meta_archive, meta_archives, memoizer = init_archives(try_unpickle, num_agents, num_samples_per_agent) if rank == 0 else (None, None, None)
-  meta_archives = run_tournament(using_mpi, max_iterations, num_matchups_per_evaluation, fake_games, min_games, max_games, pvalue_alpha, min_streak, core_spread_multiplier, comm, num_cores, rank, meta_archive, meta_archives, memoizer)
+  meta_archives = run_tournament(backend, hosts, starting_iteration, max_iterations, num_matchups_per_evaluation, fake_games, min_games, max_games, pvalue_alpha, min_streak, core_spread_multiplier, comm, num_cores, rank, meta_archive, meta_archives, memoizer)
   if rank == 0: render_animation(meta_archives)
 if __name__ == "__main__":
   meta_evaluation()
