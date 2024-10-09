@@ -176,7 +176,7 @@ class Archive():
 
 
   def get_graph(self):
-    z = [[el['fitness'] if el['fitness'] != None else np.NaN for el in row] for row in self.bins]
+    z = [[el['fitness'] if el['fitness'] != None else np.nan for el in row] for row in self.bins]
     x = self.x_bin_ranges
     y = self.y_bin_ranges
     Zm = ma.masked_invalid(z)
@@ -187,9 +187,9 @@ class Archive():
       z = [[tuple(np.uint8(np.array(ColorHash(elite['sample']).rgb))) if elite['sample'] != None else tuple(np.uint8(np.array((255, 255, 255)))) for elite in row] for row in self.bins]
     elif attribute_to_display == 'hdbscan':
       self.assign_clusters()
-      z = [[elite['hdbscan'] if elite['sample'] != None else np.NaN for elite in row] for row in self.bins]
+      z = [[elite['hdbscan'] if elite['sample'] != None else np.nan for elite in row] for row in self.bins]
     else:
-      z = [[el[attribute_to_display] if el[attribute_to_display] != None else np.NaN for el in row] for row in self.bins]
+      z = [[el[attribute_to_display] if el[attribute_to_display] != None else np.nan for el in row] for row in self.bins]
     x = self.x_bin_ranges
     y = self.y_bin_ranges
 

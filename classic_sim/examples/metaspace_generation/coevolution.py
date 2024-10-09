@@ -215,8 +215,8 @@ def peturb_agent_and_deck(individual, player_class, agent_only):
 def main():
   start_generation = 0
   end_generation = 301
-  player_class = "H"
-  load_from_file = True
+  player_class = "M"
+  load_from_file = False
   agent_only = False
   initial_population_size = 38 #max 96/38
   max_selection_count = 38
@@ -250,7 +250,7 @@ def main():
       sample = [float(value) for value in sample]
       gauntlet.append({headers[0]: row[0], headers[1]: row[1], headers[2]: row[2], headers[3]: row[3], headers[4]: row[4], headers[5]: row[5], headers[6]: sample})
 
-  with Parallel(timeout=None, n_jobs=-1, verbose=100) as para:
+  with Parallel(timeout=None, n_jobs=-1, verbose=1) as para:
     for generation_number in range(start_generation, end_generation):
       start = time.time()
       print(f"\nStarting generation {generation_number}")

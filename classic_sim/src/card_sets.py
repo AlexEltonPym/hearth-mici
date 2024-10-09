@@ -21,7 +21,7 @@ def get_hero_power(hero_class):
   steady_shot = Card(name="Steady Shot", collectable=False, card_type=CardTypes.HERO_POWER, manacost=2,
               effect=DealDamage(value=ConstantInt(2), method=Methods.ALL,
                         target=Targets.HERO, owner_filter=OwnerFilters.ENEMY))
-  fireblast = Card(name="Fireblast", collectable=False, card_type=CardTypes.HERO_POWER, manacost=4,
+  fireblast = Card(name="Fireblast", collectable=False, card_type=CardTypes.HERO_POWER, manacost=2,
            effect=DealDamage(value=ConstantInt(1), method=Methods.TARGETED, target=Targets.MINION_OR_HERO,
                      owner_filter=OwnerFilters.ALL))
   armor_up = Card(name="Armor Up!", card_type=CardTypes.HERO_POWER, collectable=False, manacost=2,\

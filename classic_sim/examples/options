@@ -33,7 +33,7 @@
 'fixed_variables': 'None  # dictionary with index-value pairs like {0:1.1, 2:0.1} that are not optimized',
 'ftarget': '-inf  #v target function value, minimization',
 'integer_variables': '[]  # index list, invokes basic integer handling: prevent std dev to become too small in the given variables',
-'is_feasible': 'is_feasible  #v a function that computes feasibility, by default lambda x, f: f not in (None, np.NaN)',
+'is_feasible': 'is_feasible  #v a function that computes feasibility, by default lambda x, f: f not in (None, np.nan)',
 'maxfevals': 'inf  #v maximum number of function evaluations',
 'maxiter': '100 + 150 * (N+3)**2 // popsize**0.5  #v maximum number of iterations',
 'mean_shift_line_samples': 'False #v sample two new solutions colinear to previous mean shift',

@@ -105,7 +105,7 @@ class Archive():
 
   def display(self, attribute_to_display='fitness', save_file=None):
     
-    z = [[el[attribute_to_display] if el[attribute_to_display] != None else np.NaN for el in row] for row in self.bins]
+    z = [[el[attribute_to_display] if el[attribute_to_display] != None else np.nan for el in row] for row in self.bins]
     x = self.x_bin_ranges
     y = self.y_bin_ranges
     Zm = ma.masked_invalid(z)

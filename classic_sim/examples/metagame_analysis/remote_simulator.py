@@ -64,7 +64,7 @@ def play_games_till_stoppage(matchup):
   return (mean(player_healths), mean(enemy_healths))
     
 if __name__ == "__main__":
-  with Parallel() as parallel:
+  with Parallel(n_jobs=-1) as parallel:
     raw = sys.stdin.buffer.read()
     matchups = dill.loads(raw)
     results = parallel(delayed(play_games_till_stoppage)(matchup) for matchup in matchups)
