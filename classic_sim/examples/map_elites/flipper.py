@@ -1,7 +1,7 @@
 import sys
 sys.path.append('../')
 
-from map_elites import Archive
+from map_elites.map_elites import Archive
 import matplotlib.pyplot as plt
 from examples.metaspace_generation.coevolution import generate_random_deck
 from random import gauss

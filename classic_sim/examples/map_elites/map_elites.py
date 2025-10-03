@@ -1,6 +1,5 @@
-import sys
-sys.path.append('../')
-
+from sys import path, maxsize
+path.append('../../src/')
 from random import shuffle, choice
 import matplotlib.pyplot as plt
 import json
@@ -9,6 +8,7 @@ import numpy as np
 import numpy.ma as ma
 from colorhash import ColorHash
 from math import dist
+from numpy import argmax
 
 from sklearn.cluster import HDBSCAN
 from enums import CardSets
@@ -80,7 +80,7 @@ class Archive():
       return found_value
     elif missing_behaviour == "closest":
       elites = self.get_elites()
-      shortest_distance, closest_elite = sys.maxsize, None
+      shortest_distance, closest_elite = maxsize, None
       for elite in elites:
         current_distance = dist((x_index, y_index), (elite['x_index'], elite['y_index']))
         if current_distance < shortest_distance:
@@ -155,12 +155,20 @@ class Archive():
     return max(self.get_elites(), key=lambda elite: elite['fitness'])
   def get_average_fitness(self):
     return mean([elite['fitness'] for elite in self.get_elites()])
+  def get_sum_fitness(self):
+    return sum([elite['fitness'] for elite in self.get_elites()])
   def get_random(self):
     return choice(self.get_elites())
   def get_total_population_count(self):
     return len(self.get_elites())
   def get_range(self):
     return self.x_min, self.x_max, self.y_min, self.y_max
+  def get_n_fittest(self, n):
+    return sorted(self.get_elites(), key=lambda elite: elite['fitness'], reverse=True)[0:n]
+  def get_by_threshold_fitness(self, threshold):
+    return filter(lambda elite: elite['fitness'] >= threshold, self.get_elites())
+
+
 
   def assign_clusters(self):
     elites = self.get_elites(-1, False)
@@ -210,7 +218,7 @@ class Archive():
       im = ax.pcolormesh(x, y, Zm.T[:-1, :-1], cmap="tab20", shading='flat')
 
     
-    if attribute_to_display != 'colorhash':
+    if attribute_to_display != 'colorhash' and attribute_to_display != 'hdbscan':
       fig.colorbar(im, ax=ax)
     ax.set_xlabel(self.x_title)
     ax.set_ylabel(self.y_title)
@@ -224,7 +232,7 @@ class Archive():
 
     elif not dont_show:
       fig.set_figheight(4)
-      fig.set_figwidth(5)
+      fig.set_figwidth(5) #5 for key
       plt.show()
       plt.close()
       
@@ -252,3 +260,5 @@ class Archive():
         x_value, y_value = self.indices_to_value((entry['x'], entry['y']))
         self.bins[entry['x']][entry['y']]['x_value'] = x_value
         self.bins[entry['x']][entry['y']]['y_value'] = y_value
+
+        

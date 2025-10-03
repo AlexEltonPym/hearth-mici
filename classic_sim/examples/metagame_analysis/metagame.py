@@ -2,6 +2,7 @@ from sys import path
 
 path.append('../../src/')
 path.append('../map_elites')
+path.append('../')
 
 import warnings
 from map_elites import Archive
@@ -9,7 +10,7 @@ from game_manager import GameManager
 from strategy import GreedyActionSmart
 from zones import Deck
 from enums import Classes, CardSets
-from game import TooManyActions
+from exceptions import TooManyActions
 
 
 import matplotlib.pyplot as plt
@@ -330,11 +331,16 @@ def run_ssh_tournament(cores_assigned_matchups, hosts):
 
 def run_host(matchups, host, core_id):
   print(f"Starting host {host}-{core_id} with {len(matchups)} matchups...")
-  serial_matchups = dill.dumps(matchups)
+  serial_matchups = dill.dumps(matchups, fmode='wb')
+  with open('serial_matchups.bin', 'wb') as dump_file:
+    dill.dump(matchups, dump_file)
+ 
   dir = "~/phd/hearth-mici/classic_sim/examples/metagame_analysis/" if host=="laptop" else "~/classic_sim/examples/metagame_analysis/"
-  command = f'cd {dir} && source ../../venv/bin/activate && python3 remote_simulator.py'
+  command = f'cd {dir} && source ~/.profile && pyenv activate venv && python3 remote_simulator.py'
   ssh = subprocess.Popen(["ssh", host, command], shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
   result, err = ssh.communicate(input=serial_matchups)
+  print(result)
+  print(err)
   if err: print(f"{host}-{core_id} error> {err}")
   result = result.decode().splitlines()
   for line in result:
@@ -465,21 +471,21 @@ def run_tournament(backend, hosts, starting_iteration, max_iterations, num_match
 
 def meta_evaluation():
   backend = "ssh" #mpi for hpc, ssh for distributed, joblib for parralel/serial
-  try_unpickle = True #should we continue from a saved pickle checkpoint
-  max_iterations = 11 #override max iterations that simulation will run regardless of CMA non-convergence
-  num_agents = 9 #how many total agents divided between the three classes
-  num_samples_per_agent = 3 #seems like must be >= 3, how many samples should each agent draw from their search space to test
-  num_matchups_per_evaluation = 2 #must be even, how many other players each agent plays against
+  try_unpickle = False #should we continue from a saved pickle checkpoint
+  max_iterations = 150 #override max iterations that simulation will run regardless of CMA non-convergence
+  num_agents = 30 #how many total agents divided between the three classes
+  num_samples_per_agent = 5 #seems like must be >= 3, how many samples should each agent draw from their search space to test
+  num_matchups_per_evaluation = 4 #must be even, how many other players each agent plays against
   min_games = 3 #min games to play even if streak triggers
-  max_games = 3 #max games to play if pvalue doesnt converge
+  max_games = 10 #max games to play if pvalue doesnt converge
   pvalue_alpha = 0.05 #the p-value threshold for significance
-  min_streak = 1 #how many p<alpha in a row before early stoppage
+  min_streak = 3 #how many p<alpha in a row before early stoppage
   num_cores_to_use_if_not_mpi = 1 #how many cores should we use if not using mpi
   fake_games = False #Generate game results from general fitness
   core_spread_multiplier = 4 #spread the total matchups between extra cores
-  hosts = ["dwail1"]
+  hosts = ["dwail1", "dwail2"]
 
-  seed(0) 
+  seed(1) 
 
    
   try:

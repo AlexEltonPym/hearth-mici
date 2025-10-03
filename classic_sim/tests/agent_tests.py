@@ -1,15 +1,41 @@
 import sys
   
 # appending the parent directory path
-sys.path.append('../')
+sys.path.append('../src/')
 
 from game_manager import GameManager
-from strategy import GreedyAction, GreedyActionSmart, RandomNoEarlyPassing, RandomAction, GreedyActionSmartv1
+from strategy import GreedyAction, GreedyActionSmart, RandomNoEarlyPassing, RandomAction, GreedyActionSmartv1, MCTS
 from enums import *
 from zones import Deck
 from tqdm import tqdm
-from game import TooManyActions
+from exceptions import TooManyActions
 from copy import deepcopy
+from timeit import timeit
+
+
+def test_copy_speeds():
+  cpickle = timeit(stmt="cpy=cPickle.loads(cPickle.dumps(game, -1))", setup="import _pickle as cPickle; from game_manager import GameManager; game=GameManager().create_test_game()", number=100)
+  pickle = timeit(stmt="cpy=pickle.loads(pickle.dumps(game, -1))", setup="import pickle; from game_manager import GameManager; game=GameManager().create_test_game()", number=100)
+  dc = timeit(stmt="cpy=deepcopy(game)", setup="from copy import deepcopy; from game_manager import GameManager; game=GameManager().create_test_game()", number=100)
+  
+  print(cpickle, pickle, dc)
+
+
+
+
+def test_mcts_vs_greedy():
+
+  mage_player = ['Gadgetzan Auctioneer', 'Gadgetzan Auctioneer', 'Dire Wolf Alpha', 'Dire Wolf Alpha', 'Raging Worgen', 'Raging Worgen', 'Arcane Missiles', 'Arcane Missiles', 'Fen Creeper', 'Fen Creeper', 'Big Game Hunter', 'Big Game Hunter', 'Spellbender', 'Spellbender', 'Silvermoon Guardian', 'Silvermoon Guardian', 'Thrallmar Farseer', 'Thrallmar Farseer', 'Etherial Arcanist', 'Etherial Arcanist', 'Frostbolt', 'Frostbolt', 'Nightblade', 'Nightblade', 'Spellbreaker', 'Spellbreaker', 'Abusive Sergeant', 'Abusive Sergeant', 'Frost Nova', 'Frost Nova']
+  mage_enemy = ['Arcane Missiles', 'Arcane Missiles', 'Murloc Raider', 'Murloc Raider', 'Arcane Explosion', 'Arcane Explosion', 'Bloodfen Raptor', 'Bloodfen Raptor', 'Novice Engineer', 'Novice Engineer', 'River Crocolisk', 'River Crocolisk', 'Arcane Intellect', 'Arcane Intellect', 'Raid Leader', 'Raid Leader', 'Wolfrider', 'Wolfrider', 'Fireball', 'Fireball', 'Oasis Snapjaw', 'Oasis Snapjaw', 'Polymorph', 'Polymorph', "Sen'jin Shieldmasta", "Sen'jin Shieldmasta", 'Nightblade', 'Nightblade', 'Boulderfist Ogre', 'Boulderfist Ogre']
+
+  game_manager = GameManager()
+  game_manager.create_player_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_MAGE])
+  game_manager.create_enemy_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_MAGE])
+  game_manager.create_player(Classes.MAGE, Deck.generate_from_decklist(mage_player), MCTS())
+  game_manager.create_enemy(Classes.MAGE, Deck.generate_from_decklist(mage_enemy), GreedyActionSmart())
+  game_results = game_manager.simulate(10, False, 1, True)
+
+  print(game_results)
 
 
 def test_smart_greedy_vs_greedy():
@@ -20,7 +46,6 @@ def test_smart_greedy_vs_greedy():
   game_manager.create_enemy(Classes.HUNTER, Deck.generate_random_from_fixed_seed, GreedyAction())
   game_results = game_manager.simulate(20, False, -1)
   print(game_results)
-
 
 def test_decklist_vs_decklist():
   basic_mage = [
@@ -130,9 +155,8 @@ def test_decklist_vs_decklist():
   results = game_manager.simulate(17, False, -1)
   print(results)
   
-
 def main():
-  test_decklist_vs_decklist()
+  test_mcts_vs_greedy()
 
 if __name__ == '__main__':
   main()

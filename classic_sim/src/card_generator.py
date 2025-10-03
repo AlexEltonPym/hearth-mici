@@ -6,7 +6,7 @@ from card import Card
 from condition import Condition
 import numpy as np
 from action import Action
-from dynamics_generator import create_dynamics_tree
+from dynamics_generator import create_dynamics_tree, print_tree
 from numpy.random import RandomState
 
 def make_dynamic_param(param_type, random_state):
@@ -39,7 +39,7 @@ def make_random_condition(random_state):
 
 def make_random_effect(random_state, card_type):
   all_effects = get_classes(effects)
-  special_effects = [effects.ReplaceWithToken, effects.Cantrip, effects.DualEffect, effects.DualEffectSelf, effects.DualEffectSecrets, effects.DualEffectBoard, effects.DynamicChoice, effects.MultiEffectRandom]
+  special_effects = [effects.Effect, effects.ReplaceWithToken, effects.Cantrip, effects.DualEffect, effects.DualEffectSelf, effects.DualEffectSecrets, effects.DualEffectBoard, effects.DynamicChoice, effects.MultiEffectRandom]
   secret_effects = [effects.Redirect, effects.Counterspell, effects.RedirectToToken]
   minion_effects = list(filter(lambda e: e not in special_effects+secret_effects, get_classes(effects)))
  
@@ -47,6 +47,7 @@ def make_random_effect(random_state, card_type):
     EffectType = choice_with_none(minion_effects+secret_effects, random_state)
   else:
     EffectType = choice_with_none(minion_effects, random_state)
+  # print(EffectType)
   method = choice_with_none(EffectType.available_methods, random_state)
   target = choice_with_none(EffectType.available_targets, random_state)
   owner_filter = choice_with_none(EffectType.available_owner_filters, random_state)
@@ -62,10 +63,9 @@ def make_random_minion(id, random_state):
   attack = random_state.randint(0, 10)
   health = random_state.randint(1, 10)
   minion_attributes = list(filter(lambda a: a not in [Attributes.FREE_SECRET, Attributes.ATTACK_AS_DURABILITY, Attributes.MINIONS_UNKILLABLE], [a for a in Attributes]))
-  if random_state.choice([0, 1]) == 0:
-    attributes = [random_state.choice(minion_attributes)]
-  else:
-    attributes = []
+
+  attributes = [choice_with_none(minion_attributes, random_state) for i in range(random_state.choice([0,0,0,0,1,1,1,2,2,3]))]
+
   effect = make_random_effect(random_state, CardTypes.MINION)
   # condition = make_random_condition(random_state)
   creature_type = choice_with_none([c for c in CreatureTypes], random_state)
@@ -85,7 +85,6 @@ def make_random_card(id, random_state):
 def check_card_effect_valid(card):
   effect = card.effect
   assert effect.method in effect.available_methods or effect.method == None
-  print(effect.available_targets)
   assert effect.target in effect.available_targets or effect.target == None
   assert effect.owner_filter in effect.available_owner_filters or effect.owner_filter == None
   assert effect.type_filter in effect.available_type_filters or effect.type_filter == None
@@ -126,6 +125,9 @@ def check_card_valid(card):
 
 
 if __name__ == "__main__":
-  card = make_random_card(0, RandomState())
-  # print(check_card_valid(card))
-  # print(card)
+  for i in range(10):
+    card = make_random_minion(i, RandomState(i))
+    print(card)
+    print("\n")
+  # tree = make_random_minion(4, RandomState(4))
+  # print(tree)

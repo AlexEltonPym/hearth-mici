@@ -6,7 +6,7 @@ from strategy import GreedyActionSmart
 from enums import *
 from zones import Deck
 from random import uniform, gauss, choice, shuffle
-from game import TooManyActions
+from exceptions import TooManyActions
 
 from numpy.random import RandomState
 

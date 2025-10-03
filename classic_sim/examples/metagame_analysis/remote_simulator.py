@@ -8,7 +8,7 @@ from game_manager import GameManager
 from strategy import GreedyActionSmart
 from zones import Deck
 from enums import Classes, CardSets
-from game import TooManyActions
+from exceptions import TooManyActions
 
 import cma
 
@@ -21,7 +21,7 @@ import dill
 import sys
 
 def play_games_till_stoppage(matchup):
-  min_games, max_games, pvalue_alpha, min_streak = 3, 3, 0.05, 1
+  min_games, max_games, pvalue_alpha, min_streak = 3, 10, 0.05, 3
   game_manager = GameManager()
   class_setups = {
     "mage": (Classes.MAGE, [CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_MAGE]),
@@ -65,7 +65,6 @@ def play_games_till_stoppage(matchup):
     
 if __name__ == "__main__":
   with Parallel(n_jobs=-1) as parallel:
-    raw = sys.stdin.buffer.read()
-    matchups = dill.loads(raw)
+    matchups = dill.load(sys.stdin.buffer)
     results = parallel(delayed(play_games_till_stoppage)(matchup) for matchup in matchups)
     print(">>>"+str(results))

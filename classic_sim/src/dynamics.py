@@ -1,11 +1,22 @@
 from enums import *
 
 from typing import Callable
-from random import randint
 CARD = "CARD"
 ## Operators
 
-class RandomInt(object):
+class Dynamics(object):
+  def __repr__(self):
+    try:
+      return f"{self.__class__.__name__}({self.constant})"
+    except AttributeError:
+      try:
+        return f"{self.__class__.__name__}({self.A}, {self.B})"
+      except AttributeError:
+        try:
+          return f"{self.__class__.__name__}({self.condition}, {self.result}, {self.alternative})"
+        except AttributeError as e:
+          return f"{self.__class__.__name__}()"
+class RandomInt(Dynamics):
   def __init__(self, A: Callable[..., int], B: Callable[..., int]):
     self.A = A
     self.B = B
@@ -13,52 +24,62 @@ class RandomInt(object):
     return action.owner.game.game_manager.random_state.randint(self.A(action), self.B(action))
 
 
-class ConstantInt(object):
+class ConstantInt(Dynamics):
   def __init__(self, constant:int):
     self.constant = constant
   def __call__(self, action)->Callable[..., int]:
     return self.constant
 
-class ConstantBool(object):
+class ConstantBool(Dynamics):
   def __init__(self, constant:bool):
     self.constant = constant
   def __call__(self, action)->Callable[..., bool]:
     return self.constant
 
-class ConstantCard(object):
+class ConstantCard(Dynamics):
   def __init__(self, constant:CARD):
     self.constant = constant
   def __call__(self, action)->Callable[..., CARD]:
     return self.constant
+  
 
-class ConstantAttribute(object):
+class ConstantAttribute(Dynamics):
   def __init__(self, constant:Attributes):
     self.constant = constant
   def __call__(self, action)->Callable[..., Attributes]:
     return self.constant
+  # def __repr__(self):
+  #   return f"{self.__class__.__name__}ConstantAttribute({self.constant})"
 
-class Multiply(object):
+
+class ConstantCreatureTypes(Dynamics):
+  def __init__(self, constant:CreatureTypes):
+    self.constant = constant
+  def __call__(self, action)->Callable[..., CreatureTypes]:
+    return self.constant
+
+class Multiply(Dynamics):
   def __init__(self, A: Callable[..., int], B: Callable[..., int]):
     self.A = A
     self.B = B
   def __call__(self, action) -> Callable[..., int]:
     return self.A(action) * self.B(action)
 
-class Add(object):
+class Add(Dynamics):
   def __init__(self, A: Callable[..., int], B: Callable[..., int]):
     self.A = A
     self.B = B
   def __call__(self, action) -> Callable[..., int]:
     return self.A(action) + self.B(action)
 
-class Minimum(object):
+class Minimum(Dynamics):
   def __init__(self, A: Callable[..., int], B: Callable[..., int]):
     self.A = A
     self.B = B
   def __call__(self, action) -> Callable[..., int]:
     return min(self.A(action), self.B(action))
 
-class Maximum(object):
+class Maximum(Dynamics):
   def __init__(self, A: Callable[..., int], B: Callable[..., int]):
     self.A = A
     self.B = B
@@ -66,21 +87,21 @@ class Maximum(object):
     return max(self.A(action), self.B(action))
 
 
-class Equals(object):
+class Equals(Dynamics):
   def __init__(self, A: Callable[..., int], B: Callable[..., int]): #in theoery we could support CONSTANT
     self.A = A
     self.B = B
   def __call__(self, action) ->  Callable[..., bool]:
     return self.A(action) == self.B(action)
 
-class LessThan(object):
+class LessThan(Dynamics):
   def __init__(self, A: Callable[..., int], B: Callable[..., int]):
     self.A = A
     self.B = B
   def __call__(self, action) -> Callable[..., bool]:
     return self.A(action) < self.B(action)
 
-class GreaterThan(object):
+class GreaterThan(Dynamics):
   def __init__(self, A: Callable[..., int], B: Callable[..., int]):
     self.A = A
     self.B = B
@@ -88,20 +109,20 @@ class GreaterThan(object):
 
     return self.A(action) > self.B(action)
   
-class Not(object):
+class Not(Dynamics):
   def __init__(self, A: Callable[..., bool]):
     self.A = A
   def __call__(self, action) -> Callable[..., bool]:
     return not self.A(action)
 
-class And(object):
+class And(Dynamics):
   def __init__(self, A: Callable[..., bool], B: Callable[..., bool]):
     self.A = A
     self.B = B
   def __call__(self, action) -> Callable[..., bool]:
     return self.A(action) and self.B(action)
 
-class Or(object):
+class Or(Dynamics):
   def __init__(self, A: Callable[..., bool], B: Callable[..., bool]):
     self.A = A
     self.B = B
@@ -109,7 +130,7 @@ class Or(object):
     return self.A(action) or self.B(action)
 
 
-class IfInt(object):
+class IfInt(Dynamics):
   def __init__(self, condition: Callable[..., bool], result: Callable[..., int], alternative: Callable[..., int]):
     self.condition = condition
     self.result = result
@@ -120,7 +141,7 @@ class IfInt(object):
     else: 
       return self.alternative(action)
 
-class IfCard(object):
+class IfCard(Dynamics):
   def __init__(self, condition: Callable[..., bool], result: Callable[..., CARD], alternative: Callable[..., CARD]):
     self.condition = condition
     self.result = result
@@ -131,7 +152,7 @@ class IfCard(object):
     else: 
       return self.alternative(action)
 
-class IfAttribute(object):
+class IfAttribute(Dynamics):
   def __init__(self, condition: Callable[..., bool], result: Callable[..., Attributes], alternative: Callable[..., Attributes]):
     self.condition = condition
     self.result = result
@@ -142,9 +163,18 @@ class IfAttribute(object):
     else: 
       return self.alternative(action)
 
-
-
-class Source(object):
+class IfCreatureType(Dynamics):
+  def __init__(self, condition: Callable[..., bool], result: Callable[..., CreatureTypes], alternative: Callable[..., CreatureTypes]):
+    self.condition = condition
+    self.result = result
+    self.alternative = alternative
+  def __call__(self, action) -> Callable[..., CreatureTypes]:
+    if self.condition(action):
+      return self.result(action)
+    else: 
+      return self.alternative(action)
+    
+class Source(Dynamics):
   def __init__(self):
     pass
   def __call__(self, action) -> Callable[..., CARD]:
@@ -157,7 +187,7 @@ class Source(object):
       return None
     
 
-class Target(object):
+class Target(Dynamics):
   def __init__(self):
     pass
   def __call__(self, action) -> Callable[..., CARD]:
@@ -171,199 +201,201 @@ class Target(object):
     
 ## Dynamic values
 
-class NumOtherMinions(object):
-  def __init__(self, owner_filter:OwnerFilters):
-    self.owner_filter = owner_filter
+class NumOtherMinions(Dynamics):
+  def __init__(self, constant:OwnerFilters):
+    self.constant = constant
   def __call__(self, action) -> Callable[..., int]:
     count = 0
-    if self.owner_filter == OwnerFilters.FRIENDLY or self.owner_filter == OwnerFilters.ALL:
+    if self.constant == OwnerFilters.FRIENDLY or self.constant == OwnerFilters.ALL:
       count += len(action.source.owner.board) - 1
-    if self.owner_filter == OwnerFilters.ENEMY or self.owner_filter == OwnerFilters.ALL:
+    if self.constant == OwnerFilters.ENEMY or self.constant == OwnerFilters.ALL:
       count += len(action.source.owner.other_player.board)
     return count
 
-class CardsInHand(object):
-  def __init__(self, owner_filter:OwnerFilters):
-    self.owner_filter = owner_filter
+class CardsInHand(Dynamics):
+  def __init__(self, constant:OwnerFilters):
+    self.constant = constant
   def __call__(self, action) -> Callable[..., int]:
     count = 0
-    if self.owner_filter == OwnerFilters.FRIENDLY or self.owner_filter == OwnerFilters.ALL:
+    if self.constant == OwnerFilters.FRIENDLY or self.constant == OwnerFilters.ALL:
       count += len(action.source.owner.hand)
-    if self.owner_filter == OwnerFilters.ENEMY or self.owner_filter == OwnerFilters.ALL:
+    if self.constant == OwnerFilters.ENEMY or self.constant == OwnerFilters.ALL:
       count += len(action.source.owner.other_player.hand)
     return count
 
-class DamageTaken(object):
-  def __init__(self, owner_filter:OwnerFilters):
-    self.owner_filter = owner_filter
+class DamageTaken(Dynamics):
+  def __init__(self, constant:OwnerFilters):
+    self.constant = constant
   def __call__(self, action) -> Callable[..., int]:
     count = 0
-    if self.owner_filter == OwnerFilters.FRIENDLY or self.owner_filter == OwnerFilters.ALL:
+    if self.constant == OwnerFilters.FRIENDLY or self.constant == OwnerFilters.ALL:
       count += 30 - action.source.owner.get_health()
-    if self.owner_filter == OwnerFilters.ENEMY or self.owner_filter == OwnerFilters.ALL:
+    if self.constant == OwnerFilters.ENEMY or self.constant == OwnerFilters.ALL:
       count += 30 - action.source.owner.other_player.get_health()
     return count
 
-class PlayerArmor(object):
-  def __init__(self, owner_filter:OwnerFilters):
-    self.owner_filter = owner_filter
+class PlayerArmor(Dynamics):
+  def __init__(self, constant:OwnerFilters):
+    self.constant = constant
   def __call__(self, action) -> Callable[..., int]:
     count = 0
-    if self.owner_filter == OwnerFilters.FRIENDLY or self.owner_filter == OwnerFilters.ALL:
+    if self.constant == OwnerFilters.FRIENDLY or self.constant == OwnerFilters.ALL:
       count += action.source.owner.armor
-    if self.owner_filter == OwnerFilters.ENEMY or self.owner_filter == OwnerFilters.ALL:
+    if self.constant == OwnerFilters.ENEMY or self.constant == OwnerFilters.ALL:
       count += action.source.owner.other_player.armor
     return count
 
-class WeaponAttack(object):
-  def __init__(self, owner_filter:OwnerFilters):
-    self.owner_filter = owner_filter
+class WeaponAttack(Dynamics):
+  def __init__(self, constant:OwnerFilters):
+    self.constant = constant
   def __call__(self, action) -> Callable[..., int]:
     count = 0
-    if self.owner_filter == OwnerFilters.FRIENDLY or self.owner_filter == OwnerFilters.ALL:
+    if self.constant == OwnerFilters.FRIENDLY or self.constant == OwnerFilters.ALL:
       count += action.source.owner.weapon.get_attack() if action.source.owner.weapon else 0
-    if self.owner_filter == OwnerFilters.ENEMY or self.owner_filter == OwnerFilters.ALL:
+    if self.constant == OwnerFilters.ENEMY or self.constant == OwnerFilters.ALL:
       count += action.source.owner.other_player.weapon.get_attack() if action.source.owner.other_player.weapon else 0
     return count
 
-class HasWeapon(object):
-  def __init__(self, owner_filter:OwnerFilters):
-    self.owner_filter = owner_filter
+class HasWeapon(Dynamics):
+  def __init__(self, constant:OwnerFilters):
+    self.constant = constant
   def __call__(self, action) -> Callable[..., bool]:
-    if self.owner_filter == OwnerFilters.FRIENDLY or self.owner_filter == OwnerFilters.ALL:
+    if self.constant == OwnerFilters.FRIENDLY or self.constant == OwnerFilters.ALL:
       return action.source.owner.weapon != None
-    if self.owner_filter == OwnerFilters.ENEMY or self.owner_filter == OwnerFilters.ALL:
+    if self.constant == OwnerFilters.ENEMY or self.constant == OwnerFilters.ALL:
       return action.source.owner.other_player.weapon != None
 
-class MinionsPlayed(object):
-  def __init__(self, owner_filter:OwnerFilters):
-    self.owner_filter = owner_filter
+class MinionsPlayed(Dynamics):
+  def __init__(self, constant:OwnerFilters):
+    self.constant = constant
 
   def __call__(self, action) -> Callable[..., int]:
     count = 0
-    if self.owner_filter == OwnerFilters.FRIENDLY or self.owner_filter == OwnerFilters.ALL:
+    if self.constant == OwnerFilters.FRIENDLY or self.constant == OwnerFilters.ALL:
       count += action.source.owner.minions_played_this_turn
-    if self.owner_filter == OwnerFilters.ENEMY or self.owner_filter == OwnerFilters.ALL:
+    if self.constant == OwnerFilters.ENEMY or self.constant == OwnerFilters.ALL:
       count += action.source.owner.other_player.minions_played_this_turn
     return count
 
-class NumCardsInHand(object):
-  def __init__(self, owner_filter:OwnerFilters):
-    self.owner_filter=owner_filter
+class NumCardsInHand(Dynamics):
+  def __init__(self, constant:OwnerFilters):
+    self.constant=constant
   def __call__(self, action) -> Callable[..., int]:
     count = 0
-    if self.owner_filter == OwnerFilters.FRIENDLY or self.owner_filter == OwnerFilters.ALL:
+    if self.constant == OwnerFilters.FRIENDLY or self.constant == OwnerFilters.ALL:
       count += len(action.source.owner.hand)
-    if self.owner_filter == OwnerFilters.ENEMY or self.owner_filter == OwnerFilters.ALL:
+    if self.constant == OwnerFilters.ENEMY or self.constant == OwnerFilters.ALL:
       count += len(action.source.owner.other_player.hand)
     return count
 
-class AttackValue(object):
+class AttackValue(Dynamics):
   def __init__(self):
     pass
   def __call__(self, action) -> Callable[..., int]:
     return action.source.get_attack()
 
-class HealthValue(object):
+
+
+class HealthValue(Dynamics):
   def __init__(self):
     pass
   def __call__(self, action) -> Callable[..., int]:
     return action.source.get_health()
 
-class Damaged(object):
+class Damaged(Dynamics):
   def __init__(self):
     pass
   def __call__(self, action) -> Callable[..., bool]:
     return action.source.get_health() < action.source.get_max_health()
 
-class NumWithAttribute(object):
-  def __init__(self, attribute: Callable[..., Attributes], owner_filter:OwnerFilters):
-    self.attribute = attribute
-    self.owner_filter = owner_filter
+class NumWithAttribute(Dynamics):
+  def __init__(self, A: Callable[..., Attributes], B:OwnerFilters):
+    self.A = A
+    self.B = B
   def __call__(self, action) -> Callable[..., int]:
     count = 0
-    if self.owner_filter == OwnerFilters.FRIENDLY or self.owner_filter == OwnerFilters.ALL:
+    if self.B == OwnerFilters.FRIENDLY or self.B == OwnerFilters.ALL:
       for minion in action.source.owner.board:
-        if minion.has_attribute(self.attribute(action)):
+        if minion.has_attribute(self.A(action)):
           count += 1
-    if self.owner_filter == OwnerFilters.ENEMY or self.owner_filter == OwnerFilters.ALL:
+    if self.B == OwnerFilters.ENEMY or self.B == OwnerFilters.ALL:
       for minion in action.source.owner.other_player.board:
-        if minion.has_attribute(self.attribute(action)):
+        if minion.has_attribute(self.A(action)):
           count += 1
     return count
 
-class NumWithCreatureType(object):
-  def __init__(self, creature_type:CreatureTypes, owner_filter:OwnerFilters):
-    self.creature_type = creature_type
-    self.owner_filter = owner_filter
+class NumWithCreatureType(Dynamics):
+  def __init__(self, A:CreatureTypes, B:OwnerFilters):
+    self.A = A
+    self.B = B
   def __call__(self, action) -> Callable[..., int]:
     count = 0
-    if self.owner_filter == OwnerFilters.FRIENDLY or self.owner_filter == OwnerFilters.ALL:
+    if self.B == OwnerFilters.FRIENDLY or self.B == OwnerFilters.ALL:
       for minion in action.source.owner.board:
-        if minion.creature_type == self.creature_type:
+        if minion.creature_type == self.A:
           count += 1
-    if self.owner_filter == OwnerFilters.ENEMY or self.owner_filter == OwnerFilters.ALL:
+    if self.B == OwnerFilters.ENEMY or self.B == OwnerFilters.ALL:
       for minion in action.source.owner.other_player.board:
-        if minion.creature_type == self.creature_type:
+        if minion.creature_type == self.A:
           count += 1
     return count
 
-class NumDamaged(object):
-  def __init__(self, owner_filter:OwnerFilters):
-    self.owner_filter = owner_filter
+class NumDamaged(Dynamics):
+  def __init__(self, constant:OwnerFilters):
+    self.constant = constant
   def __call__(self, action) -> Callable[..., int]:
     count = 0
-    if self.owner_filter == OwnerFilters.FRIENDLY or self.owner_filter == OwnerFilters.ALL:
+    if self.constant == OwnerFilters.FRIENDLY or self.constant == OwnerFilters.ALL:
       for minion in action.source.owner.board:
         if minion.get_health() < minion.get_max_health():
           count += 1
-    if self.owner_filter == OwnerFilters.ENEMY or self.owner_filter == OwnerFilters.ALL:
+    if self.constant == OwnerFilters.ENEMY or self.constant == OwnerFilters.ALL:
       for minion in action.source.owner.other_player.board:
         if minion.get_health() < minion.get_max_health():
           count += 1
     return count
 
-class TargetFrozen(object):
+class TargetFrozen(Dynamics):
   def __init__(self):
     pass
   def __call__(self, action) -> Callable[..., bool]:
     return len(action.targets) > 0 and action.targets[0].has_attribute(Attributes.FROZEN)
 
-class PlayerHasAttribute(object):
-  def __init__(self, attribute:Callable[..., Attributes], owner_filter:OwnerFilters):
-    self.attribute = attribute
-    self.owner_filter = owner_filter
+class PlayerHasAttribute(Dynamics):
+  def __init__(self, A:Callable[..., Attributes], B:OwnerFilters):
+    self.A = A
+    self.B = B
   def __call__(self, action) -> Callable[..., bool]:
-    if self.owner_filter == OwnerFilters.FRIENDLY:
-      return action.source.owner.has_attribute(self.attribute(action))
-    elif self.owner_filter == OwnerFilters.ENEMY:
-      return action.source.owner.other_player.has_attribute(self.attribute(action))
-    elif self.owner_filter == OwnerFilters.ALL:
-      return action.source.owner.has_attribute(self.attribute(action)) or action.source.owner.other_player.has_attribute(self.attribute(action))
+    if self.B == OwnerFilters.FRIENDLY:
+      return action.source.owner.has_attribute(self.A(action))
+    elif self.B == OwnerFilters.ENEMY:
+      return action.source.owner.other_player.has_attribute(self.A(action))
+    elif self.B == OwnerFilters.ALL:
+      return action.source.owner.has_attribute(self.A(action)) or action.source.owner.other_player.has_attribute(self.A(action))
 
-class SourceHasAttribute(object):
-  def __init__(self, attribute:Callable[..., Attributes]):
-    self.attribute = attribute
+class SourceHasAttribute(Dynamics):
+  def __init__(self, constant:Callable[..., Attributes]):
+    self.constant = constant
   def __call__(self, action) -> Callable[..., bool]:
-    return action.source.has_attribute(self.attribute(action))
+    return action.source.has_attribute(self.constant(action))
 
 
-class HasSecret(object):
-  def __init__(self, owner_filter:OwnerFilters):
-    self.owner_filter = owner_filter
+class HasSecret(Dynamics):
+  def __init__(self, constant:OwnerFilters):
+    self.constant = constant
   def __call__(self, action) -> Callable[..., bool]:
-    if self.owner_filter == OwnerFilters.FRIENDLY:
+    if self.constant == OwnerFilters.FRIENDLY:
       return len(action.source.owner.secrets_zone) > 0
-    elif self.owner_filter == OwnerFilters.ENEMY:
+    elif self.constant == OwnerFilters.ENEMY:
       return len(action.source.owner.other_player.secrets_zone) > 0
-    elif self.owner_filter == OwnerFilters.ALL:
+    elif self.constant == OwnerFilters.ALL:
       return (len(action.source.owner.secrets_zone) + len(action.source.owner.other_player.secrets_zone)) > 0
 
-class TargetAlive(object):
+class TargetAlive(Dynamics):
   def __init__(self):
     pass
   def __call__(self, action) -> Callable[..., bool]:
     return len(action.targets) > 0 and action.targets[0].get_health() > 0
 
 
-__all__ = ["RandomInt", "ConstantInt", "ConstantBool", "ConstantCard", "ConstantAttribute", "Multiply", "Add", "Equals", "LessThan", "GreaterThan", "Not", "And", "Or", "Minimum", "Maximum", "IfInt", "IfCard", "IfAttribute", "Source", "Target", "NumOtherMinions", "CardsInHand", "DamageTaken", "PlayerArmor", "WeaponAttack", "HasWeapon", "MinionsPlayed", "NumCardsInHand", "AttackValue", "HealthValue", "Damaged", "NumWithAttribute", "NumWithCreatureType", "NumDamaged", "TargetFrozen", "PlayerHasAttribute", "SourceHasAttribute", "HasSecret", "TargetAlive"]
+__all__ = ["RandomInt", "ConstantInt", "ConstantBool", "ConstantCard", "ConstantAttribute", "ConstantCreatureTypes", "Multiply", "Add", "Equals", "LessThan", "GreaterThan", "Not", "And", "Or", "Minimum", "Maximum", "IfInt", "IfCard", "IfAttribute", "IfCreatureType", "Source", "Target", "NumOtherMinions", "CardsInHand", "DamageTaken", "PlayerArmor", "WeaponAttack", "HasWeapon", "MinionsPlayed", "NumCardsInHand", "AttackValue", "HealthValue", "Damaged", "NumWithAttribute", "NumWithCreatureType", "NumDamaged", "TargetFrozen", "PlayerHasAttribute", "SourceHasAttribute", "HasSecret", "TargetAlive"]

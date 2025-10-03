@@ -400,7 +400,7 @@ class Archive():
 
   def display(self, display='winrate'):
     
-    z = [[el[display] if el[display] != None else np.NaN for el in row] for row in self.bins]
+    z = [[el[display] if el[display] != None else np.nan for el in row] for row in self.bins]
     x = self.x_bin_ranges
     y = self.y_bin_ranges
     Zm = ma.masked_invalid(z)

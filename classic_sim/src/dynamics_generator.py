@@ -11,14 +11,12 @@ from typing import Callable
 
 
 def create_dynamics_tree(return_type, max_depth, internals_ratio, random_state, is_condition=False):
-  CARD="CARD"
   result_type = Callable[..., return_type]
   internals, terminals, near_terminals = get_function_set()
   if is_condition:
     for index, terminal in enumerate(terminals):
       if terminal[0] == dynamics.AttackValue:
         terminals.pop(index)
-
   tree = generate_tree(result_type, 0, max_depth, internals_ratio, internals, terminals, near_terminals, random_state)
 
   return tree
@@ -43,20 +41,29 @@ def print_tree(tree, depth, action):
   
 
 def generate_tree(root_type, depth, MAX_DEPTH, internals_ratio, internals, terminals, near_terminals, random_state):
-
+  # print(f"{root_type=}")
+  # print(f"{depth=}")
+  # print("\n All Internals")
+  # for internal in internals:
+  #   print(internal)
+  # print("\n All Terminals")
+  # for terminal in terminals:
+  #   print(terminal)
+  # print("\n All Near Terminals")
+  # for terminal in near_terminals:
+  #   print(terminal)
+  
   valid_internals = list(filter(lambda internal: root_type in internal[2], internals))
   valid_terminals = list(filter(lambda terminal: root_type in terminal[2], terminals))
   valid_near_terminals = list(filter(lambda internal: root_type in internal[2], near_terminals))
 
-  # print(f"{root_type=}")
-  # print(f"{depth=}")
-  # print("\n Internals")
+  # print("\n Valid Internals")
   # for internal in valid_internals:
   #   print(internal)
-  # print("\n Terminals")
+  # print("\n Valid Terminals")
   # for terminal in valid_terminals:
   #   print(terminal)
-  # print("\n Near Terminals")
+  # print("\n Valid Near Terminals")
   # for terminal in valid_near_terminals:
   #   print(terminal)
 
@@ -83,7 +90,7 @@ def generate_tree(root_type, depth, MAX_DEPTH, internals_ratio, internals, termi
       pickset = valid_internals if random_state.random() < internals_ratio else valid_terminals
 
       chosen_function = pickset[random_state.randint(len(pickset))]
-    if chosen_function[3]:
+    if chosen_function[3]: #is a leaf node
       if(callable(chosen_function[0])):
         return chosen_function[0]()
       else:
@@ -99,7 +106,7 @@ def get_function_set():
   internals = []
   terminals = []
   near_terminals = []
-  near_terminal_classes = [RandomInt, ConstantInt, ConstantBool, ConstantCard, ConstantAttribute, NumOtherMinions, CardsInHand, DamageTaken, PlayerArmor, WeaponAttack, HasWeapon, MinionsPlayed, NumCardsInHand, NumWithCreatureType, NumDamaged, HasSecret]
+  near_terminal_classes = [RandomInt, ConstantInt, ConstantBool, ConstantCard, ConstantAttribute, ConstantCreatureTypes, NumOtherMinions, CardsInHand, DamageTaken, PlayerArmor, WeaponAttack, HasWeapon, MinionsPlayed, NumCardsInHand, NumWithCreatureType, NumDamaged, HasSecret]
   for dynamic_class in map(dynamics.__dict__.get, dynamics.__all__):
     inputs, output = get_input_output_signature(dynamic_class)
     if(len(inputs)==0):
@@ -110,21 +117,25 @@ def get_function_set():
         near_terminals.append((dynamic_class, inputs, output, False))
 
   oneone = Card(name="OneOne", collectable=False, card_type=CardTypes.MINION, manacost=1, attack=1, health=1)
-  class_values = list(range(-20, 21)) + [True, False] + [o for o in OwnerFilters] + [a for a in Attributes] + [c for c in CreatureTypes]
+  class_values = list(range(-20, 21)) + [True, False] + [o for o in OwnerFilters] + [a for a in Attributes] + ([CreatureTypes.MURLOC] * 100)
   for class_value in class_values:
     terminals.append((class_value, [], (type(class_value),), True))
   terminals.append((oneone, [], ('CARD',), True))
 
-
   return (internals, terminals, near_terminals)
 
-    
+def is_builtin_class_instance(obj):
+  return obj.__module__ == 'builtins'
 
 def get_input_output_signature(dynamic_class):
   classes = {"CARD": Card}
   inputs = []
   output = None
-
+  if is_builtin_class_instance(dynamic_class):
+    print(dynamic_class)
+    inputs = []
+    output = [dynamic_class]
+    return (inputs, output)
   parameters = signature(dynamic_class).parameters
   for parameter in parameters:
     try:
@@ -171,10 +182,13 @@ def get_input_output_signature(dynamic_class):
       input_strings.append((str(_input)))
   for _output in output:
     o = str(_output)
-    bits = o.split("..., ")[1].split("]")[0]
+    try:
+      bits = o.split("..., ")[1].split("]")[0]
+    except IndexError:
+      bits = "Empty"
     output_strings.append(bits)
   
-  print(class_name, input_strings, output_strings)
+  # print(class_name, input_strings, output_strings)
 
 
   return (inputs, output)

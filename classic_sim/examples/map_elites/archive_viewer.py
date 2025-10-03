@@ -90,7 +90,7 @@ def plot_2d(points, title, selection_title, color_values, subtitles, color_maps,
 
 
   w, h = {2: (2, 1), 11: (4, 3), 24: (6, 4), 40: (8, 5), 43: (9, 5), 36: (9, 4)}.get(len(color_values), (6, 4))
-  fig, axes = plt.subplots(h, w, facecolor="white", constrained_layout=False, squeeze=False)
+  fig, axes = plt.subplots(h, w, facecolor="white", constrained_layout=False, squeeze=True)
   fig.canvas.mpl_connect('key_press_event', callback.on_press)
 
   fig.suptitle(f"{selection_title} (Cluster {plot_cluster})" if plot_cluster > -1 else selection_title, size=12)
@@ -147,8 +147,8 @@ def view_archive(class_name, plot_cluster_only, plot_strat, plot_deck, seed):
   supertitle = f"{class_name} tSNE"
   map_archive = Archive("Hand size", "Turns", x_range=(1, 9), y_range=(9, 35), num_buckets=40)
 
-  map_archive.load(f'metagame/{class_name}.json')
-  map_archive.display('hdbscan')
+  map_archive.load(f'../metagame_analysis/compare/{class_name}.json')
+  map_archive.display('fitness')
   elites = map_archive.get_elites(unique_only=True)
   elites = sorted(elites, key=lambda elite: elite['fitness'])
   strats = np.array([elite['sample'][0] for elite in elites])
@@ -171,7 +171,7 @@ def view_archive(class_name, plot_cluster_only, plot_strat, plot_deck, seed):
   samples = x.T
   colors.extend(samples)
 
-  titles = ["hdbscan", "kmeans", "fitness (behavior)", "hand size (behavior)", "turns (behavior)"]#+[f"Component {n}" for n in range(21)]
+  titles = ["hdbscan", "kmeans", "fitness (phenotype)", "hand size (phenotype)", "turns (phenotype)"]#+[f"Component {n}" for n in range(21)]
   heuristics = ["pass early", "hp", "enemy hp", "health diff", "armor diff", "minions diff", "minion attack diff", "minion health diff", "taunt minions", "enemy taunt minions", "divine shield minions ", "enemy divine shield minions", "lifesteal minions", "enemy lifesteal minions", "spell damage minions", "enemy spell damage minions", "other attributes", "enemy other attributes", "hand diff", "library diff", "secrets diff"]
   cards = get_pool()
   titles.extend(heuristics)
@@ -183,7 +183,8 @@ def view_archive(class_name, plot_cluster_only, plot_strat, plot_deck, seed):
   X_embedded = TSNE(n_components=2, learning_rate='auto', init='pca', perplexity=30, random_state=seed).fit_transform(x)
 
   important_groups = []
-  for checking_cluster in range(max(hdbscan_clusters)):
+  for checking_cluster in range(-1, max(hdbscan_clusters)+1):
+    
     cluster_important_groups = []
     print(f"\nCluster {checking_cluster} defined by:")
     for signal, group in zip(samples, titles[5:]):
@@ -223,7 +224,7 @@ if __name__ == '__main__':
   plot_cluster_only = False
   plot_strat = True
   plot_deck = True
-  class_name = "warrior"
+  class_name = "hunter_nerf"
   seed = 0
   
   view_archive(class_name, plot_cluster_only, plot_strat, plot_deck, seed)

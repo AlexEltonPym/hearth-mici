@@ -6,7 +6,8 @@ sys.path.append('../')
 from card import Card
 from zones import Deck
 from player import Player
-from game import Game, PlayerDead
+from game import Game
+from exceptions import PlayerDead
 from enums import *
 from card_sets import *
 from strategy import GreedyAction, RandomAction, RandomNoEarlyPassing

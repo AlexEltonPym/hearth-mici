@@ -5,7 +5,14 @@ from dynamics import *
 from player import Player
 import inspect
 
-class GainMana():
+
+class Effect():
+  def __repr__(self):
+    return f"{self.__class__.__name__}({self.method}, {self.target}, {self.owner_filter}, {self.type_filter}, {self.trigger}, value={self.value})"
+  def __str__(self):
+    return self.__repr__()
+
+class GainMana(Effect):
   available_methods = [Methods.RANDOMLY, Methods.ALL]
   param_type = ParamTypes.X
   available_targets = [Targets.HERO]
@@ -42,7 +49,7 @@ class GainMana():
         target.current_mana += self.value(action)
         target.current_mana = min(target.current_mana, 10)
 
-class DealDamage():
+class DealDamage(Effect):
   available_methods = [Methods.TARGETED, Methods.RANDOMLY, Methods.ALL, Methods.SELF, Methods.TRIGGERER]
   param_type = ParamTypes.X
   available_targets = [Targets.MINION, Targets.HERO, Targets.MINION_OR_HERO, Targets.WEAPON]
@@ -76,7 +83,7 @@ class DealDamage():
       game.deal_damage(target, damage_amount)
 
 
-class Destroy():
+class Destroy(Effect):
   available_methods = [Methods.TARGETED, Methods.RANDOMLY, Methods.ALL, Methods.SELF, Methods.TRIGGERER]
   param_type = ParamTypes.DYNAMICS
   available_targets = [Targets.MINION, Targets.WEAPON, Targets.SECRET]
@@ -108,7 +115,7 @@ class Destroy():
         game.handle_death(target)
       
 
-class ChangeStats():
+class ChangeStats(Effect):
   available_methods = [m for m in Methods]
   param_type = ParamTypes.XY
   available_targets = [Targets.MINION, Targets.WEAPON, Targets.HERO]
@@ -148,7 +155,7 @@ class ChangeStats():
         target.perm_attack += self.value[0](action)
         target.perm_health += self.value[1](action)
 
-class SetStats():
+class SetStats(Effect):
   available_methods = [m for m in Methods]
   param_type = ParamTypes.XY
   available_targets = [t for t in Targets]
@@ -194,7 +201,7 @@ class SetStats():
         target.max_health = target.health
 
 
-class SwapStats():
+class SwapStats(Effect):
   available_methods = [m for m in Methods]
   param_type = ParamTypes.NONE
   available_targets = [Targets.MINION, Targets.WEAPON]
@@ -229,7 +236,7 @@ class SwapStats():
       target.health = temp
       target.max_health = temp
 
-class GainArmor():
+class GainArmor(Effect):
   available_methods = [Methods.TARGETED, Methods.RANDOMLY, Methods.ALL]
   param_type = ParamTypes.X
   available_targets = [Targets.HERO]
@@ -257,7 +264,7 @@ class GainArmor():
       # print(f"{target} gaining {self.value(action)} armor")
       target.armor = max(target.armor, 0) #prevent negative armor
 
-class DrawCards():
+class DrawCards(Effect):
   available_methods = [Methods.TARGETED, Methods.RANDOMLY, Methods.ALL]
   param_type = ParamTypes.X
   available_targets = [t for t in Targets]
@@ -287,7 +294,7 @@ class DrawCards():
         game.draw(action.source.owner, self.value(action))
 
 
-class Tutor():
+class Tutor(Effect):
   available_methods = [Methods.RANDOMLY, Methods.ALL]
   param_type = ParamTypes.NONE
   available_targets = [Targets.MINION, Targets.SPELL, Targets.MINION_OR_SPELL, Targets.SECRET, Targets.WEAPON]
@@ -316,7 +323,7 @@ class Tutor():
       else:
         target.change_parent(action.source.owner.graveyard) #mill if hand is full, need to playtest this
 
-class ReturnToHand():
+class ReturnToHand(Effect):
   available_methods = [Methods.TARGETED, Methods.RANDOMLY, Methods.ALL, Methods.TRIGGERER]
   param_type = ParamTypes.NONE
   available_targets = [Targets.MINION] #could theoreticaly do weapons too
@@ -350,7 +357,7 @@ class ReturnToHand():
         target.change_parent(target.parent.parent.hand) #return to targets parent's player's hand (the parent of the board is the player)
         target.return_to_hand_reset()
 
-class RestoreHealth():
+class RestoreHealth(Effect):
   available_methods = [Methods.TARGETED, Methods.RANDOMLY, Methods.ALL, Methods.SELF]
   param_type = ParamTypes.X
   available_targets = [t for t in Targets]
@@ -392,7 +399,7 @@ class RestoreHealth():
         game.trigger(target, Triggers.FRIENDLY_HEALED)
         game.trigger(target, Triggers.ENEMY_HEALED)
 
-class GiveAttribute():
+class GiveAttribute(Effect):
   available_methods = [m for m in Methods]
   param_type = ParamTypes.KEYWORD
   available_targets = [t for t in Targets]
@@ -427,7 +434,7 @@ class GiveAttribute():
       elif self.duration == Durations.PERMANENTLY and not self.value in target.perm_attributes:
         target.perm_attributes.append(self.value(action))
 
-class RemoveAttribute():
+class RemoveAttribute(Effect):
   available_methods = [m for m in Methods]
   param_type = ParamTypes.KEYWORD
   available_targets = [t for t in Targets]
@@ -455,10 +462,9 @@ class RemoveAttribute():
         for adjacent_target in adjacent_targets:
           adjacent_target.remove_attribute(self.value(action))
       target.remove_attribute(self.value(action))
+  
 
-
-
-class SummonToken(): #summon minion for target player
+class SummonToken(Effect): #summon minion for target player
   available_methods = [Methods.TARGETED, Methods.RANDOMLY, Methods.ALL, Methods.TRIGGERER]
   param_type = ParamTypes.X_TOKENS
   available_targets = [Targets.HERO]
@@ -503,7 +509,7 @@ class SummonToken(): #summon minion for target player
         new_weapon_token.set_owner(new_owner)
         new_weapon_token.set_parent(new_owner) #Doesn't trigger battlecry
 
-class ReplaceWithToken(): #replace minion with summoned token
+class ReplaceWithToken(Effect): #replace minion with summoned token
   available_methods = [Methods.TARGETED, Methods.RANDOMLY, Methods.ALL]
   param_type = ParamTypes.X_TOKENS
   available_targets = [Targets.MINION]
@@ -541,7 +547,7 @@ class ReplaceWithToken(): #replace minion with summoned token
         new_token.set_parent(target.owner.board) #Doesn't trigger battlecry
         new_token.attacks_this_turn = 2 #prevent infinite attacks, new summon should have SS
 
-class RedirectToToken(): #change the target of spell to summoned token 
+class RedirectToToken(Effect): #change the target of spell to summoned token 
   available_methods = [Methods.ALL]
   param_type = ParamTypes.X_TOKENS
   available_targets = [Targets.HERO]
@@ -565,7 +571,7 @@ class RedirectToToken(): #change the target of spell to summoned token
   def resolve_action(self, game, action):
     pass
 
-class Silence():
+class Silence(Effect):
   available_methods = [Methods.TARGETED, Methods.RANDOMLY, Methods.ALL]
   param_type = ParamTypes.NONE
   available_targets = [Targets.MINION, Targets.WEAPON]
@@ -611,7 +617,7 @@ class Silence():
       target.effect = None
       target.condition = None
       
-class ChangeCost():
+class ChangeCost(Effect):
   available_methods = [Methods.SELF, Methods.ALL, Methods.TARGETED]
   param_type = ParamTypes.X
   available_targets = [Targets.MINION, Targets.WEAPON, Targets.SPELL, Targets.SECRET]
@@ -637,7 +643,7 @@ class ChangeCost():
     for target in action.targets:
       target.manacost += self.value(action)
 
-class SwapWithMinion():
+class SwapWithMinion(Effect):
   available_methods = [Methods.RANDOMLY, Methods.ALL]
   param_type = ParamTypes.NONE
   available_targets = [Targets.MINION]
@@ -664,7 +670,7 @@ class SwapWithMinion():
       target.change_parent(target.owner.board)
       action.source.change_parent(action.source.owner.hand)
 
-class CopyMinion():
+class CopyMinion(Effect):
   available_methods = [Methods.RANDOMLY, Methods.TARGETED]
   param_type = ParamTypes.NONE
   available_targets = [Targets.MINION]
@@ -703,7 +709,7 @@ class CopyMinion():
       action.source.temp_attributes = deepcopy(target.temp_attributes)
       action.source.perm_attributes = deepcopy(target.perm_attributes)
 
-class Redirect():
+class Redirect(Effect):
   available_methods = [Methods.ALL]
   param_type = ParamTypes.NONE
   available_targets = [Targets.MINION]
@@ -729,7 +735,7 @@ class Redirect():
   def resolve_action(self, game, action): #handled seperatly in attack action resolver
     return
 
-class Counterspell():
+class Counterspell(Effect):
   available_methods = [Methods.ALL]
   param_type = ParamTypes.NONE
   available_targets = [Targets.SPELL]
@@ -755,7 +761,7 @@ class Counterspell():
   def resolve_action(self, game, action): #handled seperatly in spell action resolver
     return
 
-class Cantrip(): #performs first effect + draw a card
+class Cantrip(Effect): #performs first effect + draw a card
   def __init__(self, first_effect):
     self.available_methods = first_effect.available_methods
     self.param_type = first_effect.param_type
@@ -783,7 +789,7 @@ class Cantrip(): #performs first effect + draw a card
     self.first_effect.resolve_action(game, action)
     self.second_effect.resolve_action(game, Action(action_type=Actions.CAST_EFFECT, source=action.source, targets=[action.source.owner]))
 
-class DualEffect(): #second effect will recieve the same action as the first effect
+class DualEffect(Effect): #second effect will recieve the same action as the first effect
   def __init__(self, first_effect, second_effect):
     self.available_methods = first_effect.available_methods
     self.param_type = first_effect.param_type
@@ -811,7 +817,7 @@ class DualEffect(): #second effect will recieve the same action as the first eff
     self.first_effect.resolve_action(game, action)
     self.second_effect.resolve_action(game, action)
 
-class DualEffectSelf(): #second effect will target self
+class DualEffectSelf(Effect): #second effect will target self
   def __init__(self, first_effect, second_effect, first_effect_first=True):
     self.available_methods = first_effect.available_methods
     self.param_type = first_effect.param_type
@@ -844,7 +850,7 @@ class DualEffectSelf(): #second effect will target self
       self.second_effect.resolve_action(game, Action(action_type=Actions.CAST_EFFECT, source=action.source, targets=[action.source]))
       self.first_effect.resolve_action(game, action)
 
-class DualEffectSecrets(): #second effect will target all enemy secrets
+class DualEffectSecrets(Effect): #second effect will target all enemy secrets
   def __init__(self, first_effect, second_effect):
     self.available_methods = first_effect.available_methods
     self.param_type = first_effect.param_type
@@ -872,7 +878,7 @@ class DualEffectSecrets(): #second effect will target all enemy secrets
     self.first_effect.resolve_action(game, action)
     self.second_effect.resolve_action(game, Action(action_type=Actions.CAST_EFFECT, source=action.source, targets=action.source.owner.other_player.secrets_zone.get_all()))
 
-class DualEffectBoard(): #second effect will target all minions
+class DualEffectBoard(Effect): #second effect will target all minions
   def __init__(self, first_effect, second_effect):
     self.available_methods = first_effect.available_methods
     self.param_type = first_effect.param_type
@@ -902,7 +908,7 @@ class DualEffectBoard(): #second effect will target all minions
     self.second_effect.resolve_action(game, Action(action_type=Actions.CAST_EFFECT, source=action.source, targets=board))
 
 
-class DynamicChoice(): #second effect will target all enemy secrets
+class DynamicChoice(Effect): #second effect will target all enemy secrets
   def __init__(self, condition, first_effect, second_effect):
     self.available_methods = first_effect.available_methods
     self.param_type = first_effect.param_type
@@ -934,7 +940,7 @@ class DynamicChoice(): #second effect will target all enemy secrets
       self.second_effect.resolve_action(game, action)
 
 
-class MultiEffectRandom(): #one effect from list is chosen, same target as first effect
+class MultiEffectRandom(Effect): #one effect from list is chosen, same target as first effect
   def __init__(self, effects):
     self.available_methods = effects[0].available_methods
     self.param_type = effects[0].param_type

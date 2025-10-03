@@ -1,8 +1,12 @@
 from enums import *
 from effects import *
+from typing import Optional, TypeVar, Generic, Union, Self
+from condition import Condition
+from effects import Effect
+
 
 class Card():
-  def __init__(self, name, card_type, manacost, collectable=True, creature_type=None, attack=None, health=None, attributes=[], effect=None, condition=None):
+  def __init__(self, name: str, card_type: CardTypes, manacost: int, collectable: bool = True, creature_type: Optional[CreatureTypes] = None, attack: Optional[int]=None, health: Optional[int]=None, attributes: Optional[list[Attributes]]=[], effect:Optional[Effect]=None, condition:Optional[Condition]=None) -> Self:
     self.name = name
     self.card_type = card_type
     self.creature_type = creature_type
@@ -209,9 +213,10 @@ class Card():
     self.manacost = self.original_manacost #when reseting for making new games, mana must be reset
 
   def get_string(self):
-    # return str(self.name)
     if(self.card_type == CardTypes.MINION):
-      return str((self.name, self.owner, self.manacost, self.attack+self.temp_attack+self.perm_attack, self.health+self.temp_health+self.perm_attack, self.attributes, self.effect, self.effect.trigger if self.effect else "", self.effect.value if self.effect else ""))
+      # return str((self.name, self.owner, self.manacost, self.attack+self.temp_attack+self.perm_attack, self.health+self.temp_health+self.perm_attack, self.attributes, self.effect))
+      return str((self.name, f"({self.manacost}): {self.attack}/{self.health} [{self.creature_type}]", self.attributes, self.effect if self.effect else ""))
+
     else:
       return str((self.name, self.parent, self.manacost, self.effect))
 
