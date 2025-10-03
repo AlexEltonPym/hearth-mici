@@ -1,14 +1,24 @@
-# Dependencies
+# Wish for the perfect card: Exploring Computational Metagame Design for Competetive Strategy Games
 
- ./gradlew spellsource-server:shadowJar
-git submodule update --init --recursive 
+## CardLab
 
- 1. Source your virtual environment.
- 2. Install the Spellsource package using python setup.py install from the 
-Spellsource/python directory.
- 3. Install the remaining dependencies:
-# on macOS
-pip install scoop matplotlib deap fpdf pyfiglet
-brew install graphviz
-pip install --global-option=build_ext --global-option="-I/opt/homebrew/Cellar/graphviz/3.0.0/include/" \
-          --global-option="-L/opt/homebrew/Cellar/graphviz/3.0.0/lib" pygraphviz
+The user interface prototype we built for this thesis, hosted at:
+
+http://hearth-mici.web.app
+
+
+## classic_sim
+
+The Hearthstone simulation engine prototype we built for the thesis, also contains metagame modelling in the examples sub-directory
+
+## deck_evolution
+
+An experiment with deep surrogate map elites
+
+## reports
+
+Experiments with code for generating user reports based on card performances
+
+## SabberStone
+
+A fork of the SabberStone project, used as simulator for CardLab
