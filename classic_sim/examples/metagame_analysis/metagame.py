@@ -4,6 +4,7 @@ path.append('../../src/')
 path.append('../map_elites')
 path.append('../')
 
+import time
 import warnings
 from map_elites import Archive
 from game_manager import GameManager
@@ -325,31 +326,34 @@ def pprint_matchup(matchup):
 def run_ssh_tournament(cores_assigned_matchups, hosts):
   matchup_host_data = []
   for core_id, core_matchups in enumerate(cores_assigned_matchups):
-    matchup_host_data.append((core_matchups, hosts[core_id], core_id))
-  results = Parallel(n_jobs=len(hosts))(delayed(run_host)(matchups, host, core_id) for (matchups, host, core_id) in matchup_host_data)
+    matchup_host_data.append((core_matchups, hosts[core_id]))
+  print(f"Running SSH tournament with {len(hosts)} hosts...")
+  assert len(hosts) == len(matchup_host_data), f"Number of hosts {len(hosts)} must match number of matchup_host_data {len(matchup_host_data)}"
+  results = Parallel(n_jobs=len(hosts))(delayed(run_host)(matchups, host) for (matchups, host) in matchup_host_data)
   return results
 
-def run_host(matchups, host, core_id):
-  print(f"Starting host {host}-{core_id} with {len(matchups)} matchups...")
+def run_host(matchups, host):
+  print(f"Starting host {host} with {len(matchups)} matchups...")
   serial_matchups = dill.dumps(matchups, fmode='wb')
-  with open('serial_matchups.bin', 'wb') as dump_file:
-    dill.dump(matchups, dump_file)
+  # with open('serial_matchups.bin', 'wb') as dump_file:
+  #   dill.dump(matchups, dump_file)
  
   dir = "~/phd/hearth-mici/classic_sim/examples/metagame_analysis/" if host=="laptop" else "~/classic_sim/examples/metagame_analysis/"
   command = f'cd {dir} && source ~/.profile && pyenv activate venv && python3 remote_simulator.py'
   ssh = subprocess.Popen(["ssh", host, command], shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
   result, err = ssh.communicate(input=serial_matchups)
-  print(result)
-  print(err)
-  if err: print(f"{host}-{core_id} error> {err}")
+
+  if err: print(f"{host} error: {err}")
+
   result = result.decode().splitlines()
   for line in result:
     if line[:3] == ">>>":
       result = ast.literal_eval(line[3:])
-      print(f"Closing host {host}-{core_id}.")
+      print(f"Closing host {host}.")
       return result
     else:
-      print(f"{host}-{core_id}> {str(result)}")
+      print(f"{host}> {str(line)}")
+
 
 
 def play_games_till_stoppage(matchups, min_games, max_games, pvalue_alpha, min_streak):
@@ -406,6 +410,7 @@ def play_games_till_stoppage(matchups, min_games, max_games, pvalue_alpha, min_s
 
 
 def run_tournament(backend, hosts, starting_iteration, max_iterations, num_matchups_per_evaluation, fake_games, min_games, max_games, pvalue_alpha, min_streak, core_spread_multiplier, comm, num_cores, rank, meta_archive, meta_archives, memoizer):
+  if backend=="ssh": num_cores = len(hosts)
   with Parallel(n_jobs=num_cores, verbose=50) if backend=="joblib" else nullcontext() as parallel:
     iter_num = starting_iteration
     while iter_num < max_iterations:
@@ -422,6 +427,7 @@ def run_tournament(backend, hosts, starting_iteration, max_iterations, num_match
       if(len(new_matchups_to_simulate) == 0):
         spread = []
       else:
+        print(f"Spreading {len(new_matchups_to_simulate)} matchups across {num_cores} cores...")
         spread = [get_sublist(new_matchups_to_simulate, num_cores, core) for core in range(num_cores*(core_spread_multiplier if backend=="joblib" else 1))] if rank == 0 else None
         spread = [core_matches for core_matches in spread if core_matches != []]
       cores_matchups_to_simulate = comm.scatter(spread, root=0) if backend=="mpi" else spread
@@ -436,6 +442,7 @@ def run_tournament(backend, hosts, starting_iteration, max_iterations, num_match
           print(f"Core #{rank} has {len(cores_matchups_to_simulate)} matchups to simulate")
           results = play_games_till_stoppage(cores_matchups_to_simulate, min_games, max_games, pvalue_alpha, min_streak)
         elif backend=="ssh":
+          print(f"Number of core matchups: {len(cores_matchups_to_simulate)}")
           results = run_ssh_tournament(cores_matchups_to_simulate, hosts)
         else:
           assert backend=="joblib"
@@ -471,15 +478,15 @@ def run_tournament(backend, hosts, starting_iteration, max_iterations, num_match
 
 def meta_evaluation():
   backend = "ssh" #mpi for hpc, ssh for distributed, joblib for parralel/serial
-  try_unpickle = False #should we continue from a saved pickle checkpoint
+  try_unpickle = True #should we continue from a saved pickle checkpoint
   max_iterations = 150 #override max iterations that simulation will run regardless of CMA non-convergence
-  num_agents = 30 #how many total agents divided between the three classes
-  num_samples_per_agent = 5 #seems like must be >= 3, how many samples should each agent draw from their search space to test
-  num_matchups_per_evaluation = 4 #must be even, how many other players each agent plays against
-  min_games = 3 #min games to play even if streak triggers
-  max_games = 10 #max games to play if pvalue doesnt converge
+  num_agents = 3 #30 how many total agents divided between the three classes
+  num_samples_per_agent = 3 #5 seems like must be >= 3, how many samples should each agent draw from their search space to test
+  num_matchups_per_evaluation = 2 #must be even, how many other players each agent plays against
+  min_games = 2 #1min games to play even if streak triggers
+  max_games = 2 #10max games to play if pvalue doesnt converge
   pvalue_alpha = 0.05 #the p-value threshold for significance
-  min_streak = 3 #how many p<alpha in a row before early stoppage
+  min_streak = 1 #how many p<alpha in a row before early stoppage
   num_cores_to_use_if_not_mpi = 1 #how many cores should we use if not using mpi
   fake_games = False #Generate game results from general fitness
   core_spread_multiplier = 4 #spread the total matchups between extra cores
