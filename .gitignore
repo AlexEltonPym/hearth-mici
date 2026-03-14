@@ -57,9 +57,9 @@
 /classic_sim/examples/*.pickle
 /classic_sim/examples/*.gif
 
-/classic_sim/dwailmeta/*
-/classic_sim/dwailmeta/
-classic_sim/dwailmeta/
+/classic_sim/dwailmeta_0/
+/classic_sim/dwailmeta_1/
+/classic_sim/dwailmeta_2/
 
 /classic_sim/examples/archive/
 /classic_sim/examples/experiment_results/
