@@ -1,6 +1,39 @@
-from numpy import log, sqrt, argmax
+from numpy import log, sqrt, argmax, tanh
+from enums import Attributes
 from exceptions import PlayerDead
 from utilities import BoundCloner
+
+#GreedyActionSmart's default weights with the turn_passed term dropped
+_EVAL_WEIGHTS = [10, -10, 10, 10, 1, 1, 1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1, 1, 1]
+_OTHER_POSITIVE = [Attributes.CHARGE, Attributes.STEALTH, Attributes.WINDFURY, Attributes.HEXPROOF,
+                   Attributes.POISONOUS, Attributes.IMMUNE, Attributes.FREEZER]
+
+def evaluate_position(state):
+  #the 21-feature linear evaluation from state.player's perspective, squashed to [-1, 1]
+  me, them = state.player, state.enemy
+  my_attrs = [minion.get_all_attributes() for minion in me.board]
+  their_attrs = [minion.get_all_attributes() for minion in them.board]
+  features = [
+    me.health, them.health, me.health - them.health,
+    me.armor - them.armor,
+    len(me.board) - len(them.board),
+    sum(minion.get_attack() for minion in me.board) - sum(minion.get_attack() for minion in them.board),
+    sum(minion.get_health() for minion in me.board) - sum(minion.get_health() for minion in them.board),
+    sum(1 for attrs in my_attrs if Attributes.TAUNT in attrs),
+    sum(1 for attrs in their_attrs if Attributes.TAUNT in attrs),
+    sum(1 for attrs in my_attrs if Attributes.DIVINE_SHIELD in attrs),
+    sum(1 for attrs in their_attrs if Attributes.DIVINE_SHIELD in attrs),
+    sum(1 for attrs in my_attrs if Attributes.LIFESTEAL in attrs),
+    sum(1 for attrs in their_attrs if Attributes.LIFESTEAL in attrs),
+    sum(1 for attrs in my_attrs if Attributes.SPELL_DAMAGE in attrs),
+    sum(1 for attrs in their_attrs if Attributes.SPELL_DAMAGE in attrs),
+    sum(sum(1 for attrs in my_attrs if attribute in attrs) for attribute in _OTHER_POSITIVE),
+    sum(sum(1 for attrs in their_attrs if attribute in attrs) for attribute in _OTHER_POSITIVE),
+    len(me.hand) - len(them.hand),
+    len(me.deck) - len(them.deck),
+    len(me.secrets_zone) - len(them.secrets_zone),
+  ]
+  return float(tanh(sum(feature * weight for feature, weight in zip(features, _EVAL_WEIGHTS)) / 100.0))
 
 #UCT search for two-player games with multiple actions per turn.
 #Action objects hold references to the state they were generated from, so
@@ -49,15 +82,19 @@ class MonteCarloTreeSearchNode():
   def is_terminal_node(self):
     return self.is_game_over(self.state)
 
-  def rollout(self, random_state, turn_limit):
+  def rollout(self, random_state, turn_limit, guided):
     if self.is_terminal_node():
-      return self.winner_name(self.state)
+      return self.state_value(self.state, guided)
     rollout_state, _ = self._get_cloner().clone()
     turns = 0
     try:
       while not self.is_game_over(rollout_state) and turns < turn_limit:
         possible_moves = rollout_state.get_available_actions(rollout_state.current_player)
-        action = possible_moves[random_state.randint(len(possible_moves))]
+        if guided and len(possible_moves) > 1:
+          #END_TURN is always the last action; don't pass while plays remain
+          action = possible_moves[random_state.randint(len(possible_moves) - 1)]
+        else:
+          action = possible_moves[random_state.randint(len(possible_moves))]
         turn_end = rollout_state.perform_action(action)
         if turn_end:
           rollout_state.end_turn()
@@ -65,14 +102,15 @@ class MonteCarloTreeSearchNode():
           turns += 1
     except PlayerDead:
       pass
-    return self.winner_name(rollout_state)
+    return self.state_value(rollout_state, guided)
 
-  def backpropagate(self, winner_name):
+  def backpropagate(self, value):
+    #value is from the "player" side's perspective
     node = self
     while node is not None:
       node._number_of_visits += 1
-      if winner_name is not None and node.acting_player_name is not None:
-        node._score += 1.0 if node.acting_player_name == winner_name else -1.0
+      if node.acting_player_name is not None:
+        node._score += value if node.acting_player_name == "player" else -value
       node = node.parent
 
   def is_fully_expanded(self):
@@ -91,11 +129,11 @@ class MonteCarloTreeSearchNode():
         current_node = current_node.best_child(c_param)
     return current_node
 
-  def best_action(self, random_state, simulations, c_param, rollout_turn_limit):
+  def best_action(self, random_state, simulations, c_param, rollout_turn_limit, guided):
     for i in range(simulations):
       v = self._tree_policy(random_state, c_param)
-      winner_name = v.rollout(random_state, rollout_turn_limit)
-      v.backpropagate(winner_name)
+      value = v.rollout(random_state, rollout_turn_limit, guided)
+      v.backpropagate(value)
     return self.children[argmax([child.n() for child in self.children])]
 
   def move(self, action_index):
@@ -112,21 +150,24 @@ class MonteCarloTreeSearchNode():
   def is_game_over(self, state):
     return state.player.health <= 0 or state.enemy.health <= 0
 
-  def winner_name(self, state):
-    #true terminals decide by death; rollouts cut off early decide by health lead
+  def state_value(self, state, guided):
+    #true terminals decide by death; rollouts cut off early are evaluated by
+    #the feature evaluator (guided) or by raw health lead
     player_dead = state.player.health <= 0
     enemy_dead = state.enemy.health <= 0
     if player_dead and enemy_dead:
-      return None
+      return 0.0
     if enemy_dead:
-      return "player"
+      return 1.0
     if player_dead:
-      return "enemy"
+      return -1.0
+    if guided:
+      return evaluate_position(state)
     if state.player.health > state.enemy.health:
-      return "player"
+      return 1.0
     if state.enemy.health > state.player.health:
-      return "enemy"
-    return None
+      return -1.0
+    return 0.0
 
   def __repr__(self):
     return f"{self.q()}/{self.n()}"

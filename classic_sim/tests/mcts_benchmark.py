@@ -68,3 +68,6 @@ if __name__ == "__main__":
   if matchup == "iters":
     iterations = int(sys.argv[3]) if len(sys.argv) > 3 else 150
     run_match(MCTS(iterations=iterations), GreedyActionSmart(), games, f"mcts{iterations}_vs_smartgreedy")
+  if matchup == "guided":
+    iterations = int(sys.argv[3]) if len(sys.argv) > 3 else 150
+    run_match(MCTS(iterations=iterations, guided=True), GreedyActionSmart(), games, f"guided{iterations}_vs_smartgreedy")
