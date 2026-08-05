@@ -10,10 +10,30 @@ into the simulator and compare simulated matchup outcomes against real data.
 Ground truth: Vicious Syndicate Classic Data Reaper #1/#2 (2021 Classic format =
 exact June-2014 card pool, ~90k games) with a full archetype matchup matrix
 including our six in-scope archetypes: Freeze Mage, Burn Mage, Face Hunter,
-Sunshine (Midrange) Hunter, Aggro Warrior, Control Warrior. Directional prose
-claims already extracted (e.g. Control Warrior dominates Face Hunter; Freeze Mage
-loses badly to Control Warrior). Numeric matrix pending Tableau crosstab extraction
-(workbook: ClassicDataReaper2-MatchupWinRates on Tableau Public).
+Sunshine (Midrange) Hunter, Aggro Warrior, Control Warrior. The matrix is
+extracted: `extract_vs_matchups.py` reads the Tableau SVG export and recovers 172
+matchups (38 more fell below vS's 100-game reporting threshold).
+
+The export has no numeric labels, so winrates are decoded from the 9-step diverging
+colour scale as BANDED estimates (band midpoints, +/- ~2.5pp) plus an exact ordinal
+rank - use the ordinals for rank correlation. The decoding is validated by
+complementarity: all 86 reciprocal pairs sum to exactly 100.0%, and it reproduces
+the reports' prose (Control Warrior beats Face Hunter 67.5%, Freeze Mage 32.5%).
+Output: `data/vs_classic/matchup_matrix.csv`.
+
+In-scope submatrix (row winrate vs column; n/a = under threshold):
+
+|                 | Face Hunter | Sunshine Hunter | Burn Mage | Freeze Mage | Aggro Warrior | Control Warrior |
+|-----------------|------|------|------|------|------|------|
+| Face Hunter     |  --  | 62.5 | 53.0 | 57.5 | 42.5 | 32.5 |
+| Sunshine Hunter | 37.5 |  --  | n/a  | n/a  | n/a  | 37.5 |
+| Burn Mage       | 47.0 | n/a  |  --  | 50.0 | n/a  | 32.5 |
+| Freeze Mage     | 42.5 | n/a  | 50.0 |  --  | n/a  | 32.5 |
+| Aggro Warrior   | 57.5 | n/a  | n/a  | n/a  |  --  | 37.5 |
+| Control Warrior | 67.5 | 62.5 | 67.5 | 67.5 | 62.5 |  --  |
+
+Control Warrior beats every in-scope archetype, which makes it the sharpest single
+prediction for the simulator to reproduce (or fail to).
 Secondary ground truth: HSReplay RANKED_CLASSIC per-deck winrates + decklists
 (Wayback capture 2021-05-04, 88 Mage/Hunter/Warrior decks).
 
