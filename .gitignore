@@ -77,3 +77,4 @@
 __pycache__/
 /classic_sim/tests/*.log
 /classic_sim/examples/validation/data/decks/
+/CardLab/node_modules
