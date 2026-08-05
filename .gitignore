@@ -57,9 +57,9 @@
 /classic_sim/examples/*.pickle
 /classic_sim/examples/*.gif
 
-/classic_sim/dwailmeta_0/
-/classic_sim/dwailmeta_1/
-/classic_sim/dwailmeta_2/
+# run dirs stay local (big gifs/pickles); agent_history.csv per run is force-added
+/classic_sim/dwailmeta_*/
+/classic_sim/archive_dwailmeta_*/
 
 /classic_sim/examples/archive/
 /classic_sim/examples/experiment_results/

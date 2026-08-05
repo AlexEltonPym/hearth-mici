@@ -22,7 +22,7 @@ import sys
 
 def play_games_till_stoppage(matchup):
   # min_games, max_games, pvalue_alpha, min_streak = 3, 10, 0.05, 3
-  min_games, max_games, pvalue_alpha, min_streak = 2, 2, 0.05, 1
+  min_games, max_games, pvalue_alpha, min_streak = 3, 10, 0.05, 3
 
   game_manager = GameManager()
   class_setups = {

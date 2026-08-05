@@ -45,6 +45,9 @@ import subprocess
 
 warnings.simplefilter("ignore", cma.evolution_strategy.InjectionWarning)
 
+
+nerfed = True
+
 try:
   from mpi4py import MPI
   MPI.Errhandler(MPI.ERRORS_ARE_FATAL)
@@ -301,7 +304,10 @@ def init_archives(unpickle_if_available, num_agents, num_samples_per_agent):
 
   if not unpickle_if_available:
     meta_archive = MetaArchive(x_title="Hand size", y_title="Turns", x_range=(1, 9), y_range=(9, 35), num_buckets=40, archive_names=["mage", "hunter", "warrior"], num_agents=num_agents, num_samples_per_agent=num_samples_per_agent, archive_colors=["#eb4034", "#ebab34", "#f700ff"])
-    meta_archive.load_archives("metagame/mage.json", "metagame/hunter.json", "metagame/warrior.json")
+    if nerfed:
+      meta_archive.load_archives("metagame/mage_nerf.json", "metagame/hunter_nerf.json", "metagame/warrior_nerf.json")
+    else:
+      meta_archive.load_archives("metagame/mage.json", "metagame/hunter.json", "metagame/warrior.json")
     meta_archives = []
   
   memoizer = Memoizer("metagame/memoizer.json")
@@ -328,7 +334,6 @@ def run_ssh_tournament(cores_assigned_matchups, hosts):
   for core_id, core_matchups in enumerate(cores_assigned_matchups):
     matchup_host_data.append((core_matchups, hosts[core_id]))
   print(f"Running SSH tournament with {len(hosts)} hosts...")
-  assert len(hosts) == len(matchup_host_data), f"Number of hosts {len(hosts)} must match number of matchup_host_data {len(matchup_host_data)}"
   results = Parallel(n_jobs=len(hosts))(delayed(run_host)(matchups, host) for (matchups, host) in matchup_host_data)
   return results
 
@@ -480,19 +485,19 @@ def meta_evaluation():
   backend = "ssh" #mpi for hpc, ssh for distributed, joblib for parralel/serial
   try_unpickle = True #should we continue from a saved pickle checkpoint
   max_iterations = 150 #override max iterations that simulation will run regardless of CMA non-convergence
-  num_agents = 3 #30 how many total agents divided between the three classes
-  num_samples_per_agent = 3 #5 seems like must be >= 3, how many samples should each agent draw from their search space to test
-  num_matchups_per_evaluation = 2 #must be even, how many other players each agent plays against
-  min_games = 2 #1min games to play even if streak triggers
-  max_games = 2 #10max games to play if pvalue doesnt converge
+  num_agents = 30 #30 how many total agents divided between the three classes
+  num_samples_per_agent = 5 #5 seems like must be >= 3, how many samples should each agent draw from their search space to test
+  num_matchups_per_evaluation = 2 # 2? must be even, how many other players each agent plays against
+  min_games = 3 #3min games to play even if streak triggers
+  max_games = 10 #10max games to play if pvalue doesnt converge
   pvalue_alpha = 0.05 #the p-value threshold for significance
-  min_streak = 1 #how many p<alpha in a row before early stoppage
+  min_streak = 3 #how many p<alpha in a row before early stoppage
   num_cores_to_use_if_not_mpi = 1 #how many cores should we use if not using mpi
   fake_games = False #Generate game results from general fitness
   core_spread_multiplier = 4 #spread the total matchups between extra cores
   hosts = ["dwail1", "dwail2"]
 
-  seed(1) 
+  seed(4)
 
    
   try:

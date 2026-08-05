@@ -76,8 +76,11 @@ nerfed =    [("invalid_strategy", "Invalid Strategy", "#708090"),
 # nerfed_colors = mage_tones[0:7] + hunter_tones[0:6] + warrior_tones[0:11] + invalid_tones
 
 
-def get_histogram(history_file):
-    history = list(csv.reader(history_file))[1 if display_nerfed else 19:num_generations+1]
+def get_histogram(history_file, history_file_name):
+    starting_index = 19 if history_file_name in ["dwailmeta_0_pre_nerf", "dwailmeta_1_post_nerf", "dwailmeta_3_post_nerf"] else 1
+    ending_index = 128 if history_file_name == "dwailmeta_1_post_nerf" else 124 if history_file_name == "dwailmeta_2_pre_nerf" else num_generations + 1
+    print(f"Using starting index {starting_index} for file {history_file_name}")
+    history = list(csv.reader(history_file))[starting_index:ending_index]
     histogram = []
     for generation_number, generation in enumerate(history[0:-1]):
       class_names = [name for name in history[generation_number][2:len(generation):4]]
@@ -96,7 +99,7 @@ def get_histogram(history_file):
     hist_df.columns.name = 'cluster_key'
     return hist_df
 
-def plot_stacked_bar_chart(histogram):
+def plot_stacked_bar_chart(histogram, filename):
     tuple_array = nerfed if display_nerfed else unnerfed
     col_keys = list(histogram.columns)
     col_labels = []
@@ -108,28 +111,42 @@ def plot_stacked_bar_chart(histogram):
             col_colors.append(match[2])
         else:
             col_labels.append(k)
-            col_colors.append("#cccccc")
+            col_colors.append("#ff0000")
+
 
     # Reverse columns and colors for plotting (vertical stacking)
     reversed_keys = col_keys[::-1]
     reversed_colors = col_colors[::-1]
     histogram_reversed = histogram[reversed_keys]
 
+
     histogram_reversed.plot(kind='bar', stacked=True, width=1.1, ylim=(0,30), color=reversed_colors)
     plt.xticks(ticks=[i for i in range(len(histogram))][::10], rotation=0, ha='center')
     plt.yticks(ticks=[i for i in range(0, 31)], labels=[""] * 31)
     plt.subplots_adjust(right=0.8, bottom=0.2)
     ax = plt.subplot(111)
-
+    #sets fixed plot size:
+    fig = plt.gcf()
+    fig.set_size_inches(12, 8)
     # Custom legend with correct labels/colors (original order)
     from matplotlib.patches import Patch
     legend_patches = [Patch(facecolor=col_colors[i], label=col_labels[i]) for i in range(len(col_labels))]
     ax.legend(handles=legend_patches, bbox_to_anchor=(1.0, 1.015), fontsize=11)
-    plt.show()
+    plt.savefig("outputs/" + filename + ".pdf", pad_inches=1)
 
 
 
-with open("data/mage_nerf_metagame/agent_history.csv" if display_nerfed else "data/no_nerf_metagame/agent_history.csv") as history_file:
+# with open("data/mage_nerf_metagame/agent_history.csv" if display_nerfed else "data/no_nerf_metagame/agent_history.csv") as history_file:
 # with open("data/agent_history_mage_no_nerf_seed_1.csv") as history_file:
-  histogram = get_histogram(history_file)
-  plot_stacked_bar_chart(histogram)
+#124
+history_files = ["dwailmeta_0_pre_nerf", "dwailmeta_0_post_nerf", "dwailmeta_1_pre_nerf", "dwailmeta_1_post_nerf", "dwailmeta_2_pre_nerf", "dwailmeta_3_post_nerf", "dwailmeta_3_post_nerf_fixed", "dwailmeta_4_post_nerf_fixed"]
+
+for history_file_name in history_files:
+  with open("../../../" + history_file_name + "/agent_history.csv") as history_file:
+    histogram = get_histogram(history_file, history_file_name)
+    plot_stacked_bar_chart(histogram, history_file_name)
+# history_file_name = "dwailmeta_3_post_nerf"
+
+# with open("../../../" + history_file_name + "/agent_history.csv") as history_file:
+#   histogram = get_histogram(history_file, history_file_name)
+#   plot_stacked_bar_chart(histogram)
