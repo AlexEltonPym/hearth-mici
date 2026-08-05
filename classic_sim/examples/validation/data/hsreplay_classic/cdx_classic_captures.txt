@@ -1,0 +1,5 @@
+20210504200343 https://hsreplay.net/analytics/query/list_decks_by_win_rate_v2/?GameType=RANKED_CLASSIC&LeagueRankRange=BRONZE_THROUGH_GOLD&Region=ALL&PlayerInitiative=ALL
+20220805214827 https://hsreplay.net/analytics/query/list_decks_by_win_rate_v2/?TimeRange=CURRENT_EXPANSION&GameType=RANKED_CLASSIC&LeagueRankRange=BRONZE_THROUGH_GOLD&Region=ALL&PlayerInitiative=ALL
+20230529002407 https://hsreplay.net/analytics/query/list_decks_by_win_rate_v2/?TimeRange=CURRENT_PATCH&GameType=RANKED_CLASSIC&LeagueRankRange=BRONZE_THROUGH_GOLD&Region=ALL&PlayerInitiative=ALL
+20230628060250 https://hsreplay.net/analytics/query/list_decks_by_win_rate_v2/?GameType=RANKED_CLASSIC&LeagueRankRange=BRONZE_THROUGH_GOLD&Region=ALL&TimeRange=CURRENT_PATCH
+20230911081243 https://hsreplay.net/analytics/query/list_decks_by_win_rate_v2/?GameType=RANKED_CLASSIC&LeagueRankRange=BRONZE_THROUGH_GOLD&TimeRange=CURRENT_PATCH
