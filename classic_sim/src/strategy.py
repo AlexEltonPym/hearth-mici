@@ -3,6 +3,7 @@ from enums import Actions, Attributes
 import time
 import _pickle as cPickle
 from exceptions import PlayerDead
+from utilities import clone_with_action
 
 from montecarlotreesearch import MonteCarloTreeSearchNode
 
@@ -32,9 +33,9 @@ class GreedyAction():
     available_actions = state.get_available_actions(state.current_player)
     possible_actions = []
     for action_index in range(len(available_actions)):
-      possible_state = cPickle.loads(cPickle.dumps(state, -1))
+      possible_state, possible_action = clone_with_action(state, available_actions[action_index])
       try:
-        turn_passed = possible_state.perform_action(possible_state.get_available_actions(possible_state.current_player)[action_index])
+        turn_passed = possible_state.perform_action(possible_action)
         game_state = 0
       except PlayerDead:
         turn_passed = 0
@@ -70,9 +71,9 @@ class GreedyActionSmartv1():
     available_actions = state.get_available_actions(state.current_player)
     possible_actions = []
     for action_index in range(len(available_actions)):
-      possible_state = cPickle.loads(cPickle.dumps(state, -1))
+      possible_state, possible_action = clone_with_action(state, available_actions[action_index])
       try:
-        turn_passed = possible_state.perform_action(possible_state.get_available_actions(possible_state.current_player)[action_index])
+        turn_passed = possible_state.perform_action(possible_action)
         game_state = 0
       except PlayerDead:
         turn_passed = 0
@@ -126,9 +127,9 @@ class GreedyActionSmart():
     available_actions = state.get_available_actions(state.current_player)
     possible_actions = []
     for action_index in range(len(available_actions)):
-      possible_state = cPickle.loads(cPickle.dumps(state, -1))
+      possible_state, possible_action = clone_with_action(state, available_actions[action_index])
       try:
-        turn_passed = possible_state.perform_action(possible_state.get_available_actions(possible_state.current_player)[action_index])
+        turn_passed = possible_state.perform_action(possible_action)
         game_state = 0
       except PlayerDead:
         turn_passed = 0

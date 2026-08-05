@@ -1,13 +1,14 @@
 from numpy import log, sqrt, argmax
-import _pickle as cPickle
 from exceptions import PlayerDead
+from utilities import fast_clone, clone_with_action
 
 #UCT search for two-player games with multiple actions per turn.
-#Actions are re-derived by index on each cloned state because Action objects
-#hold references to the state they were generated from (see strategy.py GreedyAction).
-#Rewards are stored per-node from the perspective of the player who took the
-#action leading to that node, so best_child maximises correctly for whichever
-#player is choosing, without assuming plies alternate.
+#Action objects hold references to the state they were generated from, so
+#forward moves pickle (state, action) together (clone_with_action) to get an
+#action bound to the clone. Rewards are stored per-node from the perspective
+#of the player who took the action leading to that node, so best_child
+#maximises correctly for whichever player is choosing, without assuming
+#plies alternate.
 
 class MonteCarloTreeSearchNode():
   def __init__(self, state, parent=None, parent_action_index=None, acting_player_name=None):
@@ -33,7 +34,7 @@ class MonteCarloTreeSearchNode():
   def expand(self, random_state):
     untried = random_state.randint(len(self._untried_action_indices))
     action_index = self._untried_action_indices.pop(untried)
-    next_state = self.move(self.state, action_index)
+    next_state = self.move(self.state, self.available_actions[action_index])
     child_node = MonteCarloTreeSearchNode(next_state, parent=self, parent_action_index=action_index,
                                           acting_player_name=self.state.current_player.name)
     self.children.append(child_node)
@@ -43,7 +44,7 @@ class MonteCarloTreeSearchNode():
     return self.is_game_over(self.state)
 
   def rollout(self, random_state, turn_limit):
-    rollout_state = cPickle.loads(cPickle.dumps(self.state, -1))
+    rollout_state = fast_clone(self.state)
     turns = 0
     try:
       while not self.is_game_over(rollout_state) and turns < turn_limit:
@@ -89,13 +90,10 @@ class MonteCarloTreeSearchNode():
       v.backpropagate(winner_name)
     return self.children[argmax([child.n() for child in self.children])]
 
-  def move(self, state, action_index):
-    #the clone carries an identical RandomState, so re-deriving actions on it
-    #yields the same action list with references into the clone, not the parent
-    new_state = cPickle.loads(cPickle.dumps(state, -1))
+  def move(self, state, action):
+    new_state, bound_action = clone_with_action(state, action)
     try:
-      actions = new_state.get_available_actions(new_state.current_player)
-      turn_end = new_state.perform_action(actions[action_index])
+      turn_end = new_state.perform_action(bound_action)
       if turn_end:
         new_state.end_turn()
         new_state.untap()

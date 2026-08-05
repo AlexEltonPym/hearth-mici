@@ -14,8 +14,21 @@ class Game():
     self.game_manager = game_manager
   
   def setup_players(self):
-    self.player = copy.deepcopy(self.game_manager.player)
-    self.enemy = copy.deepcopy(self.game_manager.enemy)
+    #detach the prototypes' game_manager backref before copying, otherwise each
+    #in-game player drags a private deep copy of the whole manager (prototype
+    #players, decks, any previous game) into itself and into every state pickle
+    proto_player, proto_enemy = self.game_manager.player, self.game_manager.enemy
+    proto_player.game_manager = None
+    proto_enemy.game_manager = None
+    try:
+      self.player = copy.deepcopy(proto_player)
+      self.enemy = copy.deepcopy(proto_enemy)
+    finally:
+      proto_player.game_manager = self.game_manager
+      proto_enemy.game_manager = self.game_manager
+
+    self.player.game_manager = self.game_manager
+    self.enemy.game_manager = self.game_manager
 
     self.player.game = self
     self.enemy.game = self

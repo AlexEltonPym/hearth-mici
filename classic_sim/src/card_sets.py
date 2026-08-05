@@ -630,7 +630,7 @@ def get_random_cards(random_state):
   rand_cards = [make_random_card(i, random_state) for i in range(100)]
   return rand_cards
 
-def build_pool(set_names, random_state):
+def _build_pool(set_names, random_state):
   pool = []
   if CardSets.CLASSIC_NEUTRAL in set_names:
     pool.extend(get_basic_cards())
@@ -650,3 +650,16 @@ def build_pool(set_names, random_state):
   if CardSets.RANDOM_CARDS in set_names:
     pool.extend(get_random_cards(random_state))
   return pool
+
+_pool_cache = {}
+
+def build_pool(set_names, random_state):
+  #pool cards are read-only prototypes: every consumer deepcopies the cards it
+  #takes, so deterministic pools are built once and shared. RANDOM_CARDS pools
+  #depend on the random_state and are rebuilt every call.
+  if CardSets.RANDOM_CARDS in set_names:
+    return _build_pool(set_names, random_state)
+  key = tuple(set_names)
+  if key not in _pool_cache:
+    _pool_cache[key] = _build_pool(set_names, random_state)
+  return list(_pool_cache[key])
