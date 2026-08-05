@@ -75,4 +75,4 @@
 /classic_sim/examples/metaspace_generation/data_archive/
 
 __pycache__/
-/classic_sim/tests/mcts_benchmark_results.log
+/classic_sim/tests/*.log

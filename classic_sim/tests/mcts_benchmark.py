@@ -65,3 +65,6 @@ if __name__ == "__main__":
     run_match(MCTS(iterations=50), GreedyAction(), games, "mcts_vs_greedy")
   if matchup in ("all", "mcts_smart"):
     run_match(MCTS(iterations=50), GreedyActionSmart(), games, "mcts_vs_smartgreedy")
+  if matchup == "iters":
+    iterations = int(sys.argv[3]) if len(sys.argv) > 3 else 150
+    run_match(MCTS(iterations=iterations), GreedyActionSmart(), games, f"mcts{iterations}_vs_smartgreedy")
