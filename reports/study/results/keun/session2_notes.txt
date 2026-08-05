@@ -1,0 +1,15 @@
+Card 1: Not surpirsed it didnt help, behaviour expected. Increased attack by 1
+2: Surpised it didnt perform better. Makes sense behaviour wise. Increased health by 2
+3: Bomb, expected it to do well which it did. Somewhat expected behaviour. Reduced attack power by 2 to nerf
+
+4: Performed as well as expected. Expected behaviour. Fine as it is
+5: Performed not as well as expected. Behaved as expected. Decreased manacost, increased health. Added a damage effect instead of divine shield
+6: DIdnt perform as well as epected. Behaved unexpected. Reduced manacost from 10 to 7 to be played.
+
+7: Performed worse than expected, behaved as expected. Increased attack by 1.
+8: Performed worse than expected. Confused. Modified stats, increased health. Redueced manacost. Added taunt
+9: Performed as expected, behaved as expected. Added pirate race
+
+
+
+Wanted to know how long games took to better understand when cards were played and their impact.

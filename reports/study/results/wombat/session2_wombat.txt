@@ -1,0 +1,14 @@
+1: Somewhat surprising performance. Behaved as expected. No changes
+2: Surpised it hasnt done well. Behaved surprising. No changes.
+3: Performed as expected. Behaviour makes sense. No changes.
+
+4: Little bit better than expected, behaviour expected. No changes.
+5: Performed as expected. Behaviour expected. No changes.
+6: Performed as expected. Somewhat expected, some confusion. No changes.
+
+7: Not surpising. Behaviour expected. Increased attack by 2.
+8: Underperformed, makes sense in hindsight. Behaved expected. Increased stats by 2/2
+9: Expected performance. Behaviour expected. No changes.
+
+
+Wanted to see how a card "actually played" in a game to see how it "works, doesnt work or is op"

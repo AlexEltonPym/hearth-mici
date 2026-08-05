@@ -1,0 +1,11 @@
+1 Underperformed, unexpected. Makes sense but not sure if game knowledge enough. Increased stats to match an existing 6-drop.
+2 No expectation as untra-novice - done out of curiosity, behaved as expected. Leave it as is
+3 Surpising performance. Behaved expectadly. No change
+
+4 Performed as expected. Behaviour makes sense if its one of the two reasons hypothesised. No changes
+5 Overperformed, expected. Behaviour makes sense. No changes. 
+6 Performed as expected. Behaviour makes sense. No changes.
+
+7 Overperformed, Performance makes sense. Behaviour makes sense. No changes.
+8 Underperformed, unexpected. Behaviour makes sense. Increased attack by 3 (was 0)
+9 Underperformed, unexpected. Behaviour makes sense. Increased health by 2

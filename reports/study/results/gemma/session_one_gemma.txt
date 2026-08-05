@@ -1,0 +1,24 @@
+Limited experience. One hour of hearthstone
+Last played about 5 minutes ago
+
+
+"Can i design them to go togther"
+Minion version of an existing spell
+Wanted to make one that does damage because the other two cards had low power
+Wanted to make a repeating effect, gain one mana every turn.
+
+"Ill do the next one randomly because that just seems sorta fun"
+Wanted to make a bigger senjin shieldmasta
+Made a pirate that steals
+
+First warrior is to get around taunt
+Big shieldmaster taunt defensive
+Pirate one is for fun and cheap, might backfire
+
+Wanted to make a mage draw card that also added to the board, ended up making novice engineer
+Shield card, 0 attack, 8 health
+Made a high attack, low health because most other cards were designed to be high health low attack.
+
+Wanted to make something that has a constant effect but couldn't.
+Interface worked for someone who hadn't played a lot.
+Wanted more reference minions from each class.

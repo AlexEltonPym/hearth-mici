@@ -1,0 +1,17 @@
+Andrew Session 2
+
+1: Performed as expected. Not sure about behaviour. No changes
+2: Performed as expected. Not sure about behaviour. Increased health by 1
+3: Weaker than expected. Behaviour confusing. Increased power by 1.
+
+4: Overpowered, unexpected. Not sure about behaviour. No changes.
+5: As expected, balanced. Behaviour expected. No changes.
+6: Overpowered, expected. Behaviour expected. Increase mana by 1.
+
+7: Underpowered, surprising. Behaviour expected (surprised by base stats though). Increase stats by 1/1
+8: Underpowered, surprising. Behaviour unexpected. Increased effect stats by +1/+2, gave +1/+1
+9: Underpowered, surprising. Behaviour expected. Reduce manacost by 1, removed beast filter on effect.
+
+
+Didnt want to change because first card did well vs mage but poorly vs others.
+Judge the changes based on the winrate.
