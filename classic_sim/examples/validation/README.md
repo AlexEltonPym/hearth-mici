@@ -45,10 +45,36 @@ legendary win conditions.
 
 **S3 - Historical nerf response (headline).** Re-run the metagame pipeline with the
 real September 22 2014 Starving Buzzard nerf (2-mana 2/1 -> 5-mana 3/2; card is in
-the pool) and compare predicted Hunter archetype-share shift against the documented
-real collapse ("Hunter dead" era). Quantitative real signal: Hunter deck-submission
-share around the nerf date from the Zenodo/HearthPwn deck dataset (75k decks dated
-2014). Note the sim's fixed 3-class world vs the real 9-class meta when interpreting.
+the pool) and compare against the measured real response.
+
+Ground truth is built: `buzzard_nerf_series.py` over 33,697 ranked 2014 decks
+(Zenodo/HearthPwn), classes inferred from signature cards and normalised across
+Mage/Hunter/Warrior only - the same 3-class world the simulator models.
+
+| month | decks | hunter | mage | warrior | buzzard/hunter |
+|---|---|---|---|---|---|
+| 2014-06 |  841 | 31.2% | 39.0% | 29.8% | 61.1% |
+| 2014-07 | 1188 | 30.4% | 39.2% | 30.4% | 76.2% |
+| 2014-08 | 1247 | 27.5% | 38.5% | 34.0% | 74.6% |
+| 2014-09 |  897 | 32.6% | 39.7% | 27.8% | 31.8% <- nerf (22nd) |
+| 2014-10 |  821 | 35.0% | 34.2% | 30.8% | 19.2% |
+| 2014-11 |  890 | 34.7% | 35.3% | 30.0% | 19.7% |
+| 2014-12 | 1570 | 29.4% | 43.4% | 27.1% | 11.9% |
+
+Two distinct predictions to test, and the interesting part is that they diverge:
+
+1. **Card-level: collapse.** Buzzard adoption within Hunter decks falls 67.7% ->
+   16.9% (pre/post monthly mean), visibly starting in the nerf month itself.
+2. **Class-level: no collapse.** Hunter share is *flat to slightly up* (31.6% ->
+   33.0%). The popular "Hunter died" narrative is not supported by submission
+   share - players abandoned the card, not the class, and rebuilt around other
+   packages.
+
+A simulator that reproduces (1) is capturing card-level power; one that also
+reproduces (2) is capturing genuine metagame adaptation. Confound to state
+plainly: the real 2014 ladder ran Classic + Naxxramas, and the Hunter rebuild
+leaned on Naxx cards (Undertaker, Haunted Creeper) the simulator cannot represent,
+so (2) is the weaker of the two comparisons.
 
 ## Deck representability (measured 2026-08-06)
 
