@@ -6,8 +6,6 @@ import copy
 from random import uniform
 from action import Action
 from statistics import mean
-from montecarlotreesearch import MonteCarloTreeSearchNode
-from strategy import MCTS
 
 from exceptions import TooManyActions, PlayerDead
 
@@ -757,25 +755,3 @@ class Game():
 
     return (game_status, self.player.health, mean(player_cards_in_hand), turn, self.enemy.health, mean(enemy_cards_in_hand))
   
-  def play_mcts(self):
-    try:
-      for i in range(1000):
-        if isinstance(self.current_player.strategy, MCTS):
-          print("MCTS action")
-          self.untap()
-          root = MonteCarloTreeSearchNode(state = self)
-          print(f"Available actions for MCTS are: {self.get_available_actions(self.current_player)}")
-          selected_action = root.best_action(self.game_manager.random_state)
-          print(f"MCTS performing {selected_action.parent_action}")
-          turn_ended = self.perform_action(selected_action.parent_action)
-          if turn_ended:
-            self.end_turn()
-        else:
-          print("Normal turn")
-          game_status = self.take_turn()
-          if game_status != -1:
-            raise PlayerDead
-    except PlayerDead:
-      game_status = 0 if self.player.health <= 0 else 1
-      print(f"Game over {game_status}")
-      return (game_status, 0, 0, 0, 0, 0)

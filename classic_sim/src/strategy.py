@@ -7,8 +7,22 @@ from exceptions import PlayerDead
 from montecarlotreesearch import MonteCarloTreeSearchNode
 
 class MCTS():
+  def __init__(self, iterations=50, c_param=1.4, rollout_turn_limit=6):
+    self.iterations = iterations
+    self.c_param = c_param
+    self.rollout_turn_limit = rollout_turn_limit
+
   def mulligan_rule(self, card):
     return card.get_manacost() < 4
+
+  def choose_action(self, state):
+    root = MonteCarloTreeSearchNode(state)
+    if len(root.available_actions) == 1:
+      return state.perform_action(root.available_actions[0])
+
+    best_child = root.best_action(state.game_manager.random_state, self.iterations, self.c_param, self.rollout_turn_limit)
+    #root.available_actions reference this state's objects, so applying directly is safe
+    return state.perform_action(root.available_actions[best_child.parent_action_index])
 
 
 class GreedyAction():

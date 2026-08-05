@@ -3,7 +3,7 @@ from player import Player
 from game import Game
 from exceptions import TooManyActions
 from zones import Deck
-from strategy import GreedyAction, MCTS
+from strategy import GreedyAction
 from numpy import empty
 from tqdm import trange
 import multiprocessing
@@ -113,10 +113,7 @@ class GameManager():
 
     for i in trange(num_games, disable=silent, position=1, leave=True, desc=f"Core {rank} playing {self.game.player.player_class} vs {self.game.enemy.player_class}"):
       try:
-        if isinstance(self.game.player.strategy, MCTS) or isinstance(self.game.enemy.strategy, MCTS):
-          game_result = self.game.play_mcts()
-        else:
-          game_result = self.game.play_game()
+        game_result = self.game.play_game()
       except (TooManyActions, RecursionError) as e:
         game_result = None
         # if not silent:

@@ -1,129 +1,126 @@
-from collections import defaultdict
 from numpy import log, sqrt, argmax
-from numpy.random import RandomState
 import _pickle as cPickle
-from tqdm import trange
-from exceptions import TooManyActions, PlayerDead
+from exceptions import PlayerDead
 
-#from https://ai-boson.github.io/mcts/
+#UCT search for two-player games with multiple actions per turn.
+#Actions are re-derived by index on each cloned state because Action objects
+#hold references to the state they were generated from (see strategy.py GreedyAction).
+#Rewards are stored per-node from the perspective of the player who took the
+#action leading to that node, so best_child maximises correctly for whichever
+#player is choosing, without assuming plies alternate.
 
 class MonteCarloTreeSearchNode():
-  def __init__(self, state, parent=None, parent_action=None):
+  def __init__(self, state, parent=None, parent_action_index=None, acting_player_name=None):
     self.state = state
     self.parent = parent
-    self.parent_action = parent_action
+    self.parent_action_index = parent_action_index #index into parent.available_actions
+    self.acting_player_name = acting_player_name #player who took parent_action; perspective for _score
     self.children = []
     self._number_of_visits = 0
-    self._results = defaultdict(int)
-    self._results[1] = 0
-    self._results[-1] = 0
-    self._untried_actions = None
-    self._untried_actions = self.untried_actions()
-    return
-  
-  def untried_actions(self):
-    self._untried_actions = self.get_legal_actions(self.state)
-    return self._untried_actions
-  
+    self._score = 0.0
+    if self.is_terminal_node():
+      self.available_actions = []
+    else:
+      self.available_actions = self.state.get_available_actions(self.state.current_player)
+    self._untried_action_indices = list(range(len(self.available_actions)))
+
   def q(self):
-    wins = self._results[1]
-    loses = self._results[-1]
-    return wins - loses
-  
+    return self._score
+
   def n(self):
     return self._number_of_visits
 
-  def expand(self):
-	
-    action = self._untried_actions.pop()
-    next_state = self.move(self.state, action)
-    child_node = MonteCarloTreeSearchNode(next_state, parent=self, parent_action=action)
-
+  def expand(self, random_state):
+    untried = random_state.randint(len(self._untried_action_indices))
+    action_index = self._untried_action_indices.pop(untried)
+    next_state = self.move(self.state, action_index)
+    child_node = MonteCarloTreeSearchNode(next_state, parent=self, parent_action_index=action_index,
+                                          acting_player_name=self.state.current_player.name)
     self.children.append(child_node)
-    return child_node 
+    return child_node
 
   def is_terminal_node(self):
     return self.is_game_over(self.state)
-  
-  def rollout(self, random_state):
-    current_rollout_state = self.state
-    
-    while not self.is_game_over(current_rollout_state):
-        
-      possible_moves = self.get_legal_actions(current_rollout_state)
-      action = self.rollout_policy(possible_moves, random_state)
-      current_rollout_state = self.move(current_rollout_state, action)
-    return self.game_result(current_rollout_state)
-  
-  def backpropagate(self, result):
-    self._number_of_visits += 1.
-    self._results[result] += 1.
-    if self.parent:
-      self.parent.backpropagate(result)
+
+  def rollout(self, random_state, turn_limit):
+    rollout_state = cPickle.loads(cPickle.dumps(self.state, -1))
+    turns = 0
+    try:
+      while not self.is_game_over(rollout_state) and turns < turn_limit:
+        possible_moves = rollout_state.get_available_actions(rollout_state.current_player)
+        action = possible_moves[random_state.randint(len(possible_moves))]
+        turn_end = rollout_state.perform_action(action)
+        if turn_end:
+          rollout_state.end_turn()
+          rollout_state.untap()
+          turns += 1
+    except PlayerDead:
+      pass
+    return self.winner_name(rollout_state)
+
+  def backpropagate(self, winner_name):
+    node = self
+    while node is not None:
+      node._number_of_visits += 1
+      if winner_name is not None and node.acting_player_name is not None:
+        node._score += 1.0 if node.acting_player_name == winner_name else -1.0
+      node = node.parent
 
   def is_fully_expanded(self):
-    return len(self._untried_actions) == 0
-  
-  def best_child(self, c_param=0.1): #c_param ~= exploratation percentage
-    #q = node winrate, n = node visits
-    choices_weights = [(c.q() / c.n()) + c_param * sqrt((2 * log(self.n()) / c.n())) for c in self.children]
+    return len(self._untried_action_indices) == 0
+
+  def best_child(self, c_param):
+    choices_weights = [(c.q() / c.n()) + c_param * sqrt(2 * log(self.n()) / c.n()) for c in self.children]
     return self.children[argmax(choices_weights)]
 
-  def rollout_policy(self, possible_moves, random_state):
-  
-    return possible_moves[random_state.randint(len(possible_moves))]
-  
-  def _tree_policy(self):
+  def _tree_policy(self, random_state, c_param):
     current_node = self
     while not current_node.is_terminal_node():
-        
       if not current_node.is_fully_expanded():
-        return current_node.expand()
+        return current_node.expand(random_state)
       else:
-        current_node = current_node.best_child()
+        current_node = current_node.best_child(c_param)
     return current_node
 
+  def best_action(self, random_state, simulations, c_param, rollout_turn_limit):
+    for i in range(simulations):
+      v = self._tree_policy(random_state, c_param)
+      winner_name = v.rollout(random_state, rollout_turn_limit)
+      v.backpropagate(winner_name)
+    return self.children[argmax([child.n() for child in self.children])]
 
-  def best_action(self, random_state):
-    simulation_no = 50
-
-    for i in range(simulation_no):
-      try:
-        print(f"MCTS iteration {i}")
-        v = self._tree_policy()
-        reward = v.rollout(random_state)
-        v.backpropagate(reward)
-      except PlayerDead:
-        print("DEAD")
-        raise PlayerDead
-    
-    return self.best_child(c_param=0.) #c=0 means full exploitation
-
-  def get_legal_actions(self, state): 
-
-    return state.get_available_actions(state.current_player)
-
-  def is_game_over(self, state):
-    return state.player.health <= 0 or state.enemy.health <= 0
-
-
-  def game_result(self, state):
-    return -1 if state.current_player.health <= 0 else 1 if state.current_player.other_player.health <= 0 else 0
-
-  def move(self, state, action):
+  def move(self, state, action_index):
+    #the clone carries an identical RandomState, so re-deriving actions on it
+    #yields the same action list with references into the clone, not the parent
     new_state = cPickle.loads(cPickle.dumps(state, -1))
     try:
-      turn_end = new_state.perform_action(action)
-      
-
+      actions = new_state.get_available_actions(new_state.current_player)
+      turn_end = new_state.perform_action(actions[action_index])
       if turn_end:
         new_state.end_turn()
         new_state.untap()
     except PlayerDead:
       pass
-
     return new_state
-  
+
+  def is_game_over(self, state):
+    return state.player.health <= 0 or state.enemy.health <= 0
+
+  def winner_name(self, state):
+    #true terminals decide by death; rollouts cut off early decide by health lead
+    player_dead = state.player.health <= 0
+    enemy_dead = state.enemy.health <= 0
+    if player_dead and enemy_dead:
+      return None
+    if enemy_dead:
+      return "player"
+    if player_dead:
+      return "enemy"
+    if state.player.health > state.enemy.health:
+      return "player"
+    if state.enemy.health > state.player.health:
+      return "enemy"
+    return None
+
   def __repr__(self):
-    return f"{self.q()}/{self.n()}{[child for child in self.children] if len(self.children) > 0 else ""}"
-  
+    return f"{self.q()}/{self.n()}"
