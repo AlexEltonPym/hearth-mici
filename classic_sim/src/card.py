@@ -105,6 +105,14 @@ class Card():
     return attribute in self.attributes or attribute in self.temp_attributes or attribute in self.perm_attributes\
           or (self.condition and attribute in self.condition.result['attributes'] and self.condition.requirement(Action(Actions.CAST_EFFECT, self, [self])))\
           or attribute in self.get_aura_attributes()
+
+  def get_all_attributes(self):
+    #batch form of has_attribute: one condition/aura evaluation covering every
+    #attribute, for callers that test many attributes on the same card
+    all_attributes = list(self.attributes) + list(self.temp_attributes) + list(self.perm_attributes)
+    if self.condition and self.condition.requirement(Action(Actions.CAST_EFFECT, self, [self])):
+      all_attributes += list(self.condition.result['attributes'])
+    return all_attributes + self.get_aura_attributes()
   
   def remove_attribute(self, attribute):
     if attribute in self.attributes: self.attributes.remove(attribute)

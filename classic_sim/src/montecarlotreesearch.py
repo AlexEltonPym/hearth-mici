@@ -1,6 +1,6 @@
 from numpy import log, sqrt, argmax
 from exceptions import PlayerDead
-from utilities import fast_clone, clone_with_action
+from utilities import BoundCloner
 
 #UCT search for two-player games with multiple actions per turn.
 #Action objects hold references to the state they were generated from, so
@@ -24,6 +24,12 @@ class MonteCarloTreeSearchNode():
     else:
       self.available_actions = self.state.get_available_actions(self.state.current_player)
     self._untried_action_indices = list(range(len(self.available_actions)))
+    self._cloner = None #lazy: one dump per node serves every expand and rollout
+
+  def _get_cloner(self):
+    if self._cloner is None:
+      self._cloner = BoundCloner(self.state, self.available_actions)
+    return self._cloner
 
   def q(self):
     return self._score
@@ -34,7 +40,7 @@ class MonteCarloTreeSearchNode():
   def expand(self, random_state):
     untried = random_state.randint(len(self._untried_action_indices))
     action_index = self._untried_action_indices.pop(untried)
-    next_state = self.move(self.state, self.available_actions[action_index])
+    next_state = self.move(action_index)
     child_node = MonteCarloTreeSearchNode(next_state, parent=self, parent_action_index=action_index,
                                           acting_player_name=self.state.current_player.name)
     self.children.append(child_node)
@@ -44,7 +50,9 @@ class MonteCarloTreeSearchNode():
     return self.is_game_over(self.state)
 
   def rollout(self, random_state, turn_limit):
-    rollout_state = fast_clone(self.state)
+    if self.is_terminal_node():
+      return self.winner_name(self.state)
+    rollout_state, _ = self._get_cloner().clone()
     turns = 0
     try:
       while not self.is_game_over(rollout_state) and turns < turn_limit:
@@ -90,10 +98,10 @@ class MonteCarloTreeSearchNode():
       v.backpropagate(winner_name)
     return self.children[argmax([child.n() for child in self.children])]
 
-  def move(self, state, action):
-    new_state, bound_action = clone_with_action(state, action)
+  def move(self, action_index):
+    new_state, bound_actions = self._get_cloner().clone()
     try:
-      turn_end = new_state.perform_action(bound_action)
+      turn_end = new_state.perform_action(bound_actions[action_index])
       if turn_end:
         new_state.end_turn()
         new_state.untap()

@@ -3,7 +3,7 @@ from enums import Actions, Attributes
 import time
 import _pickle as cPickle
 from exceptions import PlayerDead
-from utilities import clone_with_action
+from utilities import clone_with_action, BoundCloner
 
 from montecarlotreesearch import MonteCarloTreeSearchNode
 
@@ -31,11 +31,12 @@ class GreedyAction():
     return card.get_manacost() < 4
   def choose_action(self, state):
     available_actions = state.get_available_actions(state.current_player)
+    cloner = BoundCloner(state, available_actions)
     possible_actions = []
     for action_index in range(len(available_actions)):
-      possible_state, possible_action = clone_with_action(state, available_actions[action_index])
+      possible_state, cloned_actions = cloner.clone()
       try:
-        turn_passed = possible_state.perform_action(possible_action)
+        turn_passed = possible_state.perform_action(cloned_actions[action_index])
         game_state = 0
       except PlayerDead:
         turn_passed = 0
@@ -69,11 +70,12 @@ class GreedyActionSmartv1():
     return card.get_manacost() < 4
   def choose_action(self, state):
     available_actions = state.get_available_actions(state.current_player)
+    cloner = BoundCloner(state, available_actions)
     possible_actions = []
     for action_index in range(len(available_actions)):
-      possible_state, possible_action = clone_with_action(state, available_actions[action_index])
+      possible_state, cloned_actions = cloner.clone()
       try:
-        turn_passed = possible_state.perform_action(possible_action)
+        turn_passed = possible_state.perform_action(cloned_actions[action_index])
         game_state = 0
       except PlayerDead:
         turn_passed = 0
@@ -125,11 +127,12 @@ class GreedyActionSmart():
     return card.get_manacost() < 4
   def choose_action(self, state):
     available_actions = state.get_available_actions(state.current_player)
+    cloner = BoundCloner(state, available_actions)
     possible_actions = []
     for action_index in range(len(available_actions)):
-      possible_state, possible_action = clone_with_action(state, available_actions[action_index])
+      possible_state, cloned_actions = cloner.clone()
       try:
-        turn_passed = possible_state.perform_action(possible_action)
+        turn_passed = possible_state.perform_action(cloned_actions[action_index])
         game_state = 0
       except PlayerDead:
         turn_passed = 0
@@ -175,21 +178,25 @@ class GreedyActionSmart():
     total_enemy_minion_health = sum([minion.get_health() for minion in possible_state.current_player.other_player.board])
     total_minion_health_difference = total_minion_health - total_enemy_minion_health
 
-    num_minions_with_taunt = sum([1 if minion.has_attribute(Attributes.TAUNT) else 0 for minion in possible_state.current_player.board])
-    num_enemy_minions_with_taunt = sum([1 if minion.has_attribute(Attributes.TAUNT) else 0 for minion in possible_state.current_player.other_player.board])
-    
-    num_minions_with_divine_shield = sum([1 if minion.has_attribute(Attributes.DIVINE_SHIELD) else 0 for minion in possible_state.current_player.board])
-    num_enemy_minions_with_divine_shield = sum([1 if minion.has_attribute(Attributes.DIVINE_SHIELD) else 0 for minion in possible_state.current_player.other_player.board])
-    
-    num_minions_with_lifesteal = sum([1 if minion.has_attribute(Attributes.LIFESTEAL) else 0 for minion in possible_state.current_player.board])
-    num_enemy_minions_with_lifesteal = sum([1 if minion.has_attribute(Attributes.LIFESTEAL) else 0 for minion in possible_state.current_player.other_player.board])
-    
-    num_minions_with_spell_damage = sum([1 if minion.has_attribute(Attributes.SPELL_DAMAGE) else 0 for minion in possible_state.current_player.board])
-    num_enemy_minions_with_spell_damage = sum([1 if minion.has_attribute(Attributes.SPELL_DAMAGE) else 0 for minion in possible_state.current_player.other_player.board])
-    
+    #one attribute snapshot per minion instead of one aura scan per (minion, attribute)
+    minion_attributes = [minion.get_all_attributes() for minion in possible_state.current_player.board]
+    enemy_minion_attributes = [minion.get_all_attributes() for minion in possible_state.current_player.other_player.board]
+
+    num_minions_with_taunt = sum([1 if Attributes.TAUNT in attributes else 0 for attributes in minion_attributes])
+    num_enemy_minions_with_taunt = sum([1 if Attributes.TAUNT in attributes else 0 for attributes in enemy_minion_attributes])
+
+    num_minions_with_divine_shield = sum([1 if Attributes.DIVINE_SHIELD in attributes else 0 for attributes in minion_attributes])
+    num_enemy_minions_with_divine_shield = sum([1 if Attributes.DIVINE_SHIELD in attributes else 0 for attributes in enemy_minion_attributes])
+
+    num_minions_with_lifesteal = sum([1 if Attributes.LIFESTEAL in attributes else 0 for attributes in minion_attributes])
+    num_enemy_minions_with_lifesteal = sum([1 if Attributes.LIFESTEAL in attributes else 0 for attributes in enemy_minion_attributes])
+
+    num_minions_with_spell_damage = sum([1 if Attributes.SPELL_DAMAGE in attributes else 0 for attributes in minion_attributes])
+    num_enemy_minions_with_spell_damage = sum([1 if Attributes.SPELL_DAMAGE in attributes else 0 for attributes in enemy_minion_attributes])
+
     other_positive_attributes = [Attributes.CHARGE, Attributes.STEALTH, Attributes.WINDFURY, Attributes.HEXPROOF, Attributes.POISONOUS, Attributes.IMMUNE, Attributes.FREEZER]
-    num_other_positive_attributes = sum([sum([1 if minion.has_attribute(attribute) else 0 for minion in possible_state.current_player.board]) for attribute in other_positive_attributes])
-    num_other_enemy_positive_attributes = sum([sum([1 if minion.has_attribute(attribute) else 0 for minion in possible_state.current_player.other_player.board]) for attribute in other_positive_attributes])
+    num_other_positive_attributes = sum([sum([1 if attribute in attributes else 0 for attributes in minion_attributes]) for attribute in other_positive_attributes])
+    num_other_enemy_positive_attributes = sum([sum([1 if attribute in attributes else 0 for attributes in enemy_minion_attributes]) for attribute in other_positive_attributes])
 
     num_cards_in_hand = len(possible_state.current_player.hand)
     num_enemy_cards_in_hand = len(possible_state.current_player.other_player.hand)
