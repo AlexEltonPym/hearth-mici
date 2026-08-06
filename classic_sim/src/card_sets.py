@@ -196,7 +196,7 @@ def get_common_cards():
                effect=ChangeStats(value=(ConstantInt(2), ConstantInt(0)), method=Methods.TARGETED, target=Targets.MINION, owner_filter=OwnerFilters.ALL, duration=Durations.TURN, trigger=Triggers.BATTLECRY))
   dread_corsair = Card(name="Dread Corsair", card_type=CardTypes.MINION, manacost=4, attack=3, health=3, creature_type=CreatureTypes.PIRATE,
              effect=ChangeCost(value=Multiply(WeaponAttack(OwnerFilters.FRIENDLY), ConstantInt(-1)), method=Methods.SELF, target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY, trigger=Triggers.AURA))
-  mogushan_warden = Card(name="Mogushan Warden", card_type=CardTypes.MINION,
+  mogushan_warden = Card(name="Mogu'shan Warden", card_type=CardTypes.MINION,
                manacost=4, attack=1, health=7, attributes=[Attributes.TAUNT])
   silvermoon_guardian = Card(name="Silvermoon Guardian", card_type=CardTypes.MINION,
                  manacost=4, attack=3, health=3, attributes=[Attributes.DIVINE_SHIELD])
@@ -388,6 +388,63 @@ def get_epic_cards():
 
   return epic_one_drops + epic_two_drops + epic_three_drops + epic_five_drops + epic_ten_plus_drops
 
+def get_legendary_cards():
+  # Legendaries needed to faithfully reconstruct real archived Classic
+  # Mage/Hunter/Warrior decklists (measured against 88 HSReplay decks, Aug 2026).
+  alexstrasza = Card(name="Alexstrasza", card_type=CardTypes.MINION, manacost=9, attack=8, health=8, creature_type=CreatureTypes.DRAGON,\
+                     effect=SetStats(value=(None, ConstantInt(15)), trigger=Triggers.BATTLECRY, method=Methods.TARGETED, target=Targets.HERO, owner_filter=OwnerFilters.ALL))
+  ragnaros_the_firelord = Card(name="Ragnaros the Firelord", card_type=CardTypes.MINION, manacost=8, attack=8, health=8, attributes=[Attributes.CANT_ATTACK],\
+                     effect=DealDamage(value=ConstantInt(8), trigger=Triggers.FRIENDLY_END_TURN, method=Methods.RANDOMLY, target=Targets.MINION_OR_HERO, owner_filter=OwnerFilters.ENEMY))
+  cairne_bloodhoof = Card(name="Cairne Bloodhoof", card_type=CardTypes.MINION, manacost=6, attack=4, health=5,\
+                     effect=SummonToken(trigger=Triggers.DEATHRATTLE, method=Methods.ALL, owner_filter=OwnerFilters.FRIENDLY,\
+                     value=(ConstantInt(1), ConstantCard(Card(name="Baine Bloodhoof", collectable=False, card_type=CardTypes.MINION, manacost=4, attack=4, health=5)))))
+  bloodmage_thalnos = Card(name="Bloodmage Thalnos", card_type=CardTypes.MINION, manacost=2, attack=1, health=1, attributes=[Attributes.SPELL_DAMAGE],\
+                     effect=DrawCards(value=ConstantInt(1), trigger=Triggers.DEATHRATTLE, method=Methods.ALL, owner_filter=OwnerFilters.FRIENDLY))
+  leeroy_jenkins = Card(name="Leeroy Jenkins", card_type=CardTypes.MINION, manacost=5, attack=6, health=2, attributes=[Attributes.CHARGE],\
+                     effect=SummonToken(trigger=Triggers.BATTLECRY, method=Methods.ALL, owner_filter=OwnerFilters.ENEMY, target=Targets.HERO,\
+                     value=(ConstantInt(2), ConstantCard(Card(name="Whelp", collectable=False, card_type=CardTypes.MINION, manacost=1, attack=1, health=1, creature_type=CreatureTypes.DRAGON)))))
+  baron_geddon = Card(name="Baron Geddon", card_type=CardTypes.MINION, manacost=7, attack=7, health=5,\
+                     effect=DealDamage(value=ConstantInt(2), trigger=Triggers.FRIENDLY_END_TURN, method=Methods.ALL, target=Targets.MINION_OR_HERO, owner_filter=OwnerFilters.ALL))
+  sylvanas_windrunner = Card(name="Sylvanas Windrunner", card_type=CardTypes.MINION, manacost=6, attack=5, health=5,\
+                     effect=TakeControl(trigger=Triggers.DEATHRATTLE, method=Methods.RANDOMLY, target=Targets.MINION, owner_filter=OwnerFilters.ENEMY))
+  harrison_jones = Card(name="Harrison Jones", card_type=CardTypes.MINION, manacost=5, attack=5, health=4,\
+                     effect=DualEffect(DrawCards(value=WeaponHealth(OwnerFilters.ENEMY), trigger=Triggers.BATTLECRY, method=Methods.ALL, owner_filter=OwnerFilters.FRIENDLY),\
+                                       Destroy(trigger=Triggers.BATTLECRY, method=Methods.ALL, target=Targets.WEAPON, owner_filter=OwnerFilters.ENEMY)))
+  the_black_knight = Card(name="The Black Knight", card_type=CardTypes.MINION, manacost=6, attack=4, health=5,\
+                     effect=Destroy(value=SourceHasAttribute(ConstantAttribute(Attributes.TAUNT)), trigger=Triggers.BATTLECRY, method=Methods.TARGETED, target=Targets.MINION, owner_filter=OwnerFilters.ENEMY))
+  tinkmaster_overspark = Card(name="Tinkmaster Overspark", card_type=CardTypes.MINION, manacost=3, attack=3, health=3,\
+                     effect=MultiEffectRandom([
+                       ReplaceWithToken(trigger=Triggers.BATTLECRY, method=Methods.RANDOMLY, owner_filter=OwnerFilters.ALL,\
+                                        value=(ConstantInt(1), ConstantCard(Card(name="Devilsaur", collectable=False, card_type=CardTypes.MINION, manacost=5, attack=5, health=5)))),
+                       ReplaceWithToken(trigger=Triggers.BATTLECRY, method=Methods.RANDOMLY, owner_filter=OwnerFilters.ALL,\
+                                        value=(ConstantInt(1), ConstantCard(Card(name="Squirrel", collectable=False, card_type=CardTypes.MINION, manacost=1, attack=1, health=1))))]))
+  #Ysera's real Dream Cards (5-card randomised subpool) aren't modelled; approximated
+  #as a card-advantage engine so her headline stats are still deckbuilding-relevant.
+  ysera = Card(name="Ysera", card_type=CardTypes.MINION, manacost=9, attack=4, health=12, creature_type=CreatureTypes.DRAGON,\
+                     effect=DrawCards(value=ConstantInt(1), trigger=Triggers.FRIENDLY_END_TURN, method=Methods.ALL, owner_filter=OwnerFilters.FRIENDLY))
+  nat_pagle = Card(name="Nat Pagle", card_type=CardTypes.MINION, manacost=2, attack=0, health=4,\
+                     effect=MultiEffectRandom([
+                       DrawCards(value=ConstantInt(1), trigger=Triggers.FRIENDLY_UNTAP, method=Methods.ALL, owner_filter=OwnerFilters.FRIENDLY),
+                       DrawCards(value=ConstantInt(0), trigger=Triggers.FRIENDLY_UNTAP, method=Methods.ALL, owner_filter=OwnerFilters.FRIENDLY)]))
+  #Nozdormu's real text ("each player only has 15 seconds to take their turn") has no
+  #meaning for a non-realtime simulator, so it's included vanilla, per instruction.
+  nozdormu = Card(name="Nozdormu", card_type=CardTypes.MINION, manacost=9, attack=8, health=8, creature_type=CreatureTypes.DRAGON)
+  lorewalker_cho = Card(name="Lorewalker Cho", card_type=CardTypes.MINION, manacost=2, attack=0, health=4,\
+                     effect=DualEffect(AddCardToHand(value=(ConstantInt(1), CastCard()), trigger=Triggers.FRIENDLY_SPELL_CAST, method=Methods.ALL, owner_filter=OwnerFilters.ENEMY),\
+                                       AddCardToHand(value=(ConstantInt(1), CastCard()), trigger=Triggers.ENEMY_SPELL_CAST, method=Methods.ALL, owner_filter=OwnerFilters.FRIENDLY)))
+  #Elite Tauren Chieftain (hero power swap chain) and Millhouse Manastorm
+  #(temporary, hand-tracking cost reduction) both need mechanics this engine's
+  #effect DSL doesn't support (persistent hero power replacement; "this turn
+  #only" cost changes that revert). Included vanilla for corpus completeness -
+  #real decks never needed either, they're meme/joke cards.
+  elite_tauren_chieftain = Card(name="Elite Tauren Chieftain", card_type=CardTypes.MINION, manacost=5, attack=5, health=5)
+  millhouse_manastorm = Card(name="Millhouse Manastorm", card_type=CardTypes.MINION, manacost=2, attack=4, health=4)
+
+  legendary_cards = [alexstrasza, ragnaros_the_firelord, cairne_bloodhoof, bloodmage_thalnos, leeroy_jenkins,
+                      baron_geddon, sylvanas_windrunner, harrison_jones, the_black_knight, tinkmaster_overspark,
+                      ysera, nat_pagle, nozdormu, lorewalker_cho, elite_tauren_chieftain, millhouse_manastorm]
+  return legendary_cards
+
 def get_hunter_cards():
   #Hunter basic cards
   hunters_mark = Card(name="Hunter's Mark", card_type=CardTypes.SPELL, manacost=0,\
@@ -448,20 +505,25 @@ def get_hunter_cards():
                                              value=(ConstantInt(2), ConstantCard(Card(name="Hyena", collectable=False, card_type=CardTypes.MINION, manacost=2, attack=2, health=2, creature_type=CreatureTypes.BEAST)))))
   
   # Hunter epic cards
-  beastial_wrath = Card(name="Beastial Wrath", card_type=CardTypes.SPELL, manacost=1,\
+  beastial_wrath = Card(name="Bestial Wrath", card_type=CardTypes.SPELL, manacost=1,\
                        effect=DualEffect(ChangeStats(value=(ConstantInt(2), ConstantInt(0)), target=Targets.MINION, owner_filter=OwnerFilters.ALL, method=Methods.TARGETED, duration=Durations.TURN, type_filter=CreatureTypes.BEAST),\
                                           GiveAttribute(value=ConstantAttribute(Attributes.IMMUNE), target=Targets.MINION, owner_filter=OwnerFilters.ALL, method=Methods.TARGETED, duration=Durations.TURN, type_filter=CreatureTypes.BEAST)))
   snake_trap = Card(name="Snake Trap", card_type=CardTypes.SECRET, manacost=2,\
                     effect=SummonToken(owner_filter=OwnerFilters.FRIENDLY, method=Methods.ALL, trigger=Triggers.ENEMY_ATTACKS_MINION,\
                     value=(ConstantInt(3), ConstantCard(Card(name="Snake", collectable=False, card_type=CardTypes.MINION, manacost=0, attack=1, health=1, creature_type=CreatureTypes.BEAST)))))
   gladiators_longbow = Card(name="Gladiator's Longbow", card_type=CardTypes.WEAPON, manacost=7, attack=5, health=2, attributes=[Attributes.IMMUNE])
+
+  # Hunter legendary
+  king_krush = Card(name="King Krush", card_type=CardTypes.MINION, manacost=9, attack=8, health=8, creature_type=CreatureTypes.BEAST, attributes=[Attributes.CHARGE])
+
   # Combine
   basic_hunter_cards = [hunters_mark, arcane_shot, timber_wolf, tracking, starving_buzzard, animal_companion, kill_command, houndmaster, multishot, tundra_rhino]
   common_hunter_cards = [explosive_trap, freezing_trap, scavenging_hyena, snipe, deadly_shot, unleash_the_hounds]
   rare_hunter_cards = [flare, misdirection, eaglehorn_bow, explosive_shot, savannah_highmane]
   epic_hunter_cards = [beastial_wrath, snake_trap, gladiators_longbow]
+  legendary_hunter_cards = [king_krush]
 
-  return basic_hunter_cards + common_hunter_cards + rare_hunter_cards + epic_hunter_cards
+  return basic_hunter_cards + common_hunter_cards + rare_hunter_cards + epic_hunter_cards + legendary_hunter_cards
 
 def get_mage_cards():
   # Mage basic cards
@@ -511,7 +573,7 @@ def get_mage_cards():
                         effect=GiveAttribute(method=Methods.ALL, target=Targets.HERO, trigger=Triggers.BATTLECRY, owner_filter=OwnerFilters.FRIENDLY, duration=Durations.TURN, value=ConstantAttribute(Attributes.FREE_SECRET)))
   vaporize = Card(name="Vaporize", card_type=CardTypes.SECRET, manacost=3,\
                   effect=Destroy(trigger=Triggers.DESTROY_SECRET_REVEALED, method=Methods.TRIGGERER, target=Targets.MINION, owner_filter=OwnerFilters.ENEMY))
-  etherial_arcanist = Card(name="Etherial Arcanist", card_type=CardTypes.MINION, manacost=4, attack=3, health=3,\
+  etherial_arcanist = Card(name="Ethereal Arcanist", card_type=CardTypes.MINION, manacost=4, attack=3, health=3,\
                             effect=ChangeStats(trigger=Triggers.FRIENDLY_END_TURN, value=(IfInt(HasSecret(OwnerFilters.FRIENDLY),ConstantInt(2),ConstantInt(0)), IfInt(HasSecret(OwnerFilters.FRIENDLY),ConstantInt(2),ConstantInt(0))),\
                                                 method=Methods.SELF, target=Targets.MINION, duration=Durations.PERMANENTLY, owner_filter=OwnerFilters.FRIENDLY))
   blizzard = Card(name="Blizzard", card_type=CardTypes.SPELL, manacost=6,\
@@ -527,11 +589,16 @@ def get_mage_cards():
   pyroblast = Card(name="Pyroblast", card_type=CardTypes.SPELL, manacost=10,\
                     effect=DealDamage(value=ConstantInt(10), method=Methods.TARGETED, target=Targets.MINION_OR_HERO, owner_filter=OwnerFilters.ALL))
 
+  # Mage legendary
+  archmage_antonidas = Card(name="Archmage Antonidas", card_type=CardTypes.MINION, manacost=7, attack=5, health=7,\
+                            effect=AddCardToHand(value=(ConstantInt(1), ConstantCard(deepcopy(fireball))), trigger=Triggers.FRIENDLY_SPELL_CAST, method=Methods.ALL, owner_filter=OwnerFilters.FRIENDLY))
+
   basic_mage_cards = [arcane_missiles, mirror_image, arcane_explosion, frostbolt, arcane_intellect, frost_nova, fireball, polymorph, water_elemental, flamestrike]
   common_mage_cards = [ice_lance, mana_wyrm, sorcerers_apprentice, ice_barrier, mirror_entity, cone_of_cold]
   rare_mage_cards = [counterspell, kirin_tor_mage, vaporize, etherial_arcanist, blizzard]
   epic_mage_cards = [ice_block, spellbender, pyroblast]
-  return basic_mage_cards + common_mage_cards + rare_mage_cards + epic_mage_cards
+  legendary_mage_cards = [archmage_antonidas]
+  return basic_mage_cards + common_mage_cards + rare_mage_cards + epic_mage_cards + legendary_mage_cards
 
 def get_warrior_cards():
   #Warrior basic cards
@@ -598,11 +665,16 @@ def get_warrior_cards():
                                      RemoveAttribute(value=ConstantAttribute(Attributes.BRAWL_PROTECTION), method=Methods.ALL, target=Targets.MINION, owner_filter=OwnerFilters.ALL))))
   gorehowl = Card(name="Gorehowl", card_type=CardTypes.WEAPON, manacost=7, attack=7, health=1, attributes=[Attributes.ATTACK_AS_DURABILITY])
 
+  # Warrior legendary
+  grommash_hellscream = Card(name="Grommash Hellscream", card_type=CardTypes.MINION, manacost=8, attack=4, health=9, attributes=[Attributes.CHARGE],\
+                             effect=ChangeStats(value=(ConstantInt(6), ConstantInt(0)), trigger=Triggers.SELF_DAMAGE_TAKEN, method=Methods.SELF, target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY, duration=Durations.PERMANENTLY))
+
   basic_warrior_cards = [execute, whirlwind, cleave, fiery_war_axe, heroic_strike, charge, shield_block, warsong_commander, korkron_elite, arcanite_reaper]
   common_warrior_cards = [inner_rage, battle_rage, cruel_taskmaster, rampage, slam, arathi_weaponsmith]
   rare_warrior_cards = [upgrade, armorsmith, commanding_shout, frothing_berserker, mortal_strike]
   epic_warrior_cards = [shield_slam, brawl, gorehowl]
-  return basic_warrior_cards + common_warrior_cards + rare_warrior_cards + epic_warrior_cards
+  legendary_warrior_cards = [grommash_hellscream]
+  return basic_warrior_cards + common_warrior_cards + rare_warrior_cards + epic_warrior_cards + legendary_warrior_cards
 
 def get_test_cards():
   all_dam = Card("All Damage", card_type=CardTypes.SPELL, manacost=0,
@@ -637,6 +709,7 @@ def _build_pool(set_names, random_state):
     pool.extend(get_common_cards())
     pool.extend(get_rare_cards())
     pool.extend(get_epic_cards())
+    pool.extend(get_legendary_cards())
   if CardSets.CLASSIC_HUNTER in set_names:
     pool.extend(get_hunter_cards())
   if CardSets.CLASSIC_MAGE in set_names:

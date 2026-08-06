@@ -28,16 +28,18 @@ def test_classic_pool():
   mage = get_mage_cards()
   hunter = get_hunter_cards()
   warrior = get_warrior_cards()
+  legendaries = get_legendary_cards()
   assert len(basics) == 43
   assert len(commons) == 40
   assert len(rares) == 36
   assert len(epics) == 11
-  assert len(hunter) == 24
-  assert len(mage) == 24
-  assert len(warrior) == 24
+  assert len(hunter) == 25
+  assert len(mage) == 25
+  assert len(warrior) == 25
+  assert len(legendaries) == 16
 
-  total = len(basics + commons + rares + epics + mage + hunter + warrior)
-  assert total == 202
+  total = len(basics + commons + rares + epics + mage + hunter + warrior + legendaries)
+  assert total == 221
 
 def test_coin():
   game_manager = GameManager()
@@ -1720,7 +1722,7 @@ def test_beastial_wrath():
   game = GameManager().create_test_game()
   tundra_rhino = game.game_manager.get_card('Tundra Rhino', game.current_player.board)
   assert tundra_rhino.get_attack() == 2
-  beastial_wrath = game.game_manager.get_card('Beastial Wrath', game.current_player.hand)
+  beastial_wrath = game.game_manager.get_card('Bestial Wrath', game.current_player.hand)
   cast_beastial_wrath = list(filter(lambda action: action.source == beastial_wrath, game.get_available_actions(game.current_player)))[0]
   game.perform_action(cast_beastial_wrath)
   assert tundra_rhino.get_attack() == 4
@@ -1734,7 +1736,7 @@ def test_beastial_wrath_immunity():
   game = GameManager().create_test_game()
   tundra_rhino = game.game_manager.get_card('Tundra Rhino', game.current_player.board)
   assert tundra_rhino.get_attack() == 2
-  beastial_wrath = game.game_manager.get_card('Beastial Wrath', game.current_player.hand)
+  beastial_wrath = game.game_manager.get_card('Bestial Wrath', game.current_player.hand)
   cast_beastial_wrath = list(filter(lambda action: action.source == beastial_wrath, game.get_available_actions(game.current_player)))[0]
   game.perform_action(cast_beastial_wrath)
   assert tundra_rhino.get_attack() == 4
@@ -2233,7 +2235,7 @@ def test_vaporize():
 def test_etherial_arcanist():
   game = GameManager().create_test_game()
   vaporize = game.game_manager.get_card('Vaporize', game.current_player.secrets_zone)
-  etherial_arcanist = game.game_manager.get_card('Etherial Arcanist', game.current_player.board)
+  etherial_arcanist = game.game_manager.get_card('Ethereal Arcanist', game.current_player.board)
   assert etherial_arcanist.get_attack() == 3
   assert etherial_arcanist.get_health() == 3
   game.end_turn()
@@ -2261,7 +2263,7 @@ def test_etherial_arcanist():
 def test_blizzard():
   game = GameManager().create_test_game()
   blizzard = game.game_manager.get_card('Blizzard', game.current_player.hand)
-  etherial_arcanist = game.game_manager.get_card('Etherial Arcanist', game.current_player.other_player.board)
+  etherial_arcanist = game.game_manager.get_card('Ethereal Arcanist', game.current_player.other_player.board)
   wisp = game.game_manager.get_card('Wisp', game.current_player.other_player.board)
   play_blizzard = list(filter(lambda action: action.source == blizzard, game.get_available_actions(game.current_player)))[0]
   game.perform_action(play_blizzard)
@@ -3059,6 +3061,91 @@ def test_summon_none():
   cast_summon_none = list(filter(lambda action: action.source == summon_none, game.get_available_actions(game.current_player)))[0]
   game.perform_action(cast_summon_none)
   assert len(game.current_player.board) == 0
+
+# Frozen regression test: getting frozen mid-combat, on your own turn, must
+# persist through your opponent's turn AND your own next turn (since you've
+# already used this turn's attack) - it must not thaw at your own turn end.
+def test_frozen_from_own_attack_persists_to_next_own_turn():
+  game = GameManager().create_test_game()
+  attacker = game.game_manager.get_card('Sea Giant', game.current_player.board)
+  attacker.attacks_this_turn = 0
+  enemy_water_elemental = game.game_manager.get_card('Water Elemental', game.current_player.other_player.board)
+  attack_action = list(filter(lambda action: action.action_type == Actions.ATTACK and action.source == attacker and action.targets[0] == enemy_water_elemental, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(attack_action)
+  assert attacker.has_attribute(Attributes.FROZEN)
+  assert attacker.attacks_this_turn == 1
+  game.end_turn() #attacker's own turn ends - already attacked this turn, must stay frozen
+  assert attacker.has_attribute(Attributes.FROZEN)
+  game.untap() #enemy's turn
+  game.end_turn()
+  game.untap() #attacker's owner's next turn
+  assert attacker.has_attribute(Attributes.FROZEN) #hasn't yet survived a turn without attacking
+  assert len(list(filter(lambda action: action.action_type == Actions.ATTACK and action.source == attacker, game.get_available_actions(game.current_player)))) == 0
+  game.end_turn() #this turn is skipped without attacking - thaws now
+  assert not attacker.has_attribute(Attributes.FROZEN)
+
+# Test legendaries
+def test_cairne_bloodhoof():
+  game = GameManager().create_test_game()
+  cairne = game.game_manager.get_card('Cairne Bloodhoof', game.current_player.board)
+  game.handle_death(cairne)
+  summoned = [card for card in game.current_player.board if card.name == 'Baine Bloodhoof']
+  assert len(summoned) == 1
+  assert summoned[0].get_attack() == 4
+  assert summoned[0].get_health() == 5
+
+def test_sylvanas_windrunner():
+  game = GameManager().create_test_game()
+  sylvanas = game.game_manager.get_card('Sylvanas Windrunner', game.current_player.board)
+  enemy_wisp = game.game_manager.get_card('Wisp', game.current_player.other_player.board)
+  assert enemy_wisp.owner == game.current_player.other_player
+  game.handle_death(sylvanas)
+  assert enemy_wisp.owner == game.current_player
+  assert enemy_wisp in game.current_player.board.get_all()
+  assert enemy_wisp not in game.current_player.other_player.board.get_all()
+
+def test_archmage_antonidas():
+  game = GameManager().create_test_game()
+  antonidas = game.game_manager.get_card('Archmage Antonidas', game.current_player.board)
+  fireball = game.game_manager.get_card('Fireball', game.current_player.hand)
+  enemy_wisp = game.game_manager.get_card('Wisp', game.current_player.other_player.board)
+  hand_size = len(game.current_player.hand)
+  cast_fireball = list(filter(lambda action: action.source == fireball and action.targets[0] == enemy_wisp, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(cast_fireball)
+  assert len(game.current_player.hand) == hand_size #lost the cast fireball, gained a new one
+  assert any(card.name == 'Fireball' for card in game.current_player.hand)
+
+def test_the_black_knight_requires_taunt():
+  game = GameManager().create_test_game()
+  black_knight = game.game_manager.get_card('The Black Knight', game.current_player.hand)
+  enemy_wisp = game.game_manager.get_card('Wisp', game.current_player.other_player.board)
+  targeted_actions = list(filter(lambda action: action.source == black_knight and len(action.targets) > 0, game.get_available_actions(game.current_player)))
+  assert len(targeted_actions) == 0 #no taunt minions to target (can still be played as a vanilla body)
+  enemy_taunt = game.game_manager.get_card('Goldshire Footman', game.current_player.other_player.board)
+  play_black_knight = list(filter(lambda action: action.source == black_knight and action.targets[0] == enemy_taunt, game.get_available_actions(game.current_player)))[0]
+  game.perform_action(play_black_knight)
+  assert enemy_taunt.parent == enemy_taunt.owner.graveyard
+
+def test_baron_geddon():
+  game = GameManager().create_test_game()
+  geddon = game.game_manager.get_card('Baron Geddon', game.current_player.board)
+  friendly_wisp = game.game_manager.get_card('Wisp', game.current_player.board)
+  enemy_wisp = game.game_manager.get_card('Wisp', game.current_player.other_player.board)
+  assert game.current_player.other_player.get_health() == 30
+  game.end_turn()
+  assert geddon.get_health() == 5 #not hit by its own effect
+  assert friendly_wisp.parent == friendly_wisp.owner.graveyard
+  assert enemy_wisp.parent == enemy_wisp.owner.graveyard
+  assert game.current_player.other_player.get_health() == 28
+
+def test_ragnaros_the_firelord_cant_attack():
+  game = GameManager().create_test_game()
+  ragnaros = game.game_manager.get_card('Ragnaros the Firelord', game.current_player.board)
+  assert len(list(filter(lambda action: action.action_type == Actions.ATTACK and action.source == ragnaros, game.get_available_actions(game.current_player)))) == 0
+  enemy = game.current_player.other_player #capture before end_turn flips current_player
+  enemy_health = enemy.get_health()
+  game.end_turn()
+  assert enemy.get_health() == enemy_health - 8
 
 def main():
   pass

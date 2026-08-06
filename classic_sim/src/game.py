@@ -134,8 +134,9 @@ class Game():
     self.current_player.temp_attack = 0
     self.current_player.temp_health = 0
     self.current_player.temp_attributes = []
-    self.current_player.remove_attribute(Attributes.FROZEN)
-  
+    if self.had_attack_opportunity(self.current_player):
+      self.current_player.remove_attribute(Attributes.FROZEN)
+
     self.current_player.other_player.temp_attack = 0
     self.current_player.other_player.temp_health = 0
     self.current_player.other_player.temp_attributes = []
@@ -144,16 +145,27 @@ class Game():
       minion.temp_attack = 0
       minion.temp_health = 0
       minion.temp_attributes = []
-      minion.remove_attribute(Attributes.FROZEN)
-    
+      if self.had_attack_opportunity(minion):
+        minion.remove_attribute(Attributes.FROZEN)
+
     for minion in self.current_player.other_player.board.get_all():
       minion.temp_attack = 0
       minion.temp_health = 0
       minion.temp_attributes = []
-      
+
     self.current_player.minions_played_this_turn = 0
 
     self.current_player = self.current_player.other_player
+
+  def had_attack_opportunity(self, entity):
+    #a Frozen character only thaws once it survives a turn where it could
+    #have attacked (i.e. wasn't summoning-sick) but chose/was forced not to.
+    #A minion that already used every attack this turn (or is fresh off the
+    #bench without Charge) stays Frozen through its owner's next turn too.
+    weapon_windfury = isinstance(entity, Player) and entity.weapon and entity.weapon.has_attribute(Attributes.WINDFURY)
+    return (entity.attacks_this_turn == 0
+            or (entity.attacks_this_turn == -1 and entity.has_attribute(Attributes.CHARGE))
+            or (entity.attacks_this_turn == 1 and (entity.has_attribute(Attributes.WINDFURY) or weapon_windfury)))
 
 
   def add_coin(self, player):
@@ -415,7 +427,7 @@ class Game():
 
         card.effect.resolve_action(self, Action(Actions.CAST_EFFECT, card, targets))
       elif card.effect.method == Methods.RANDOMLY:
-        card.effect.resolve_action(self, Action(Actions.CAST_EFFECT, card, self.game_manager.random_state.choice(targets, card.effect.random_count if card.effect.random_replace else min(len(cast_targets), card.effect.random_count), card.effect.random_replace)))
+        card.effect.resolve_action(self, Action(Actions.CAST_EFFECT, card, self.game_manager.random_state.choice(targets, card.effect.random_count if card.effect.random_replace else min(len(targets), card.effect.random_count), card.effect.random_replace)))
       elif card.effect.method == Methods.TARGETED:
         card.effect.resolve_action(self, Action(Actions.CAST_EFFECT, card, [targets[0]]))
       elif card.effect.method == Methods.SELF:
@@ -693,7 +705,7 @@ class Game():
       if (minion.attacks_this_turn == 0 \
           or (minion.attacks_this_turn == -1 and minion.has_attribute(Attributes.CHARGE))\
           or (minion.attacks_this_turn == 1 and minion.has_attribute(Attributes.WINDFURY)))\
-          and minion.get_attack() > 0 and not (minion.has_attribute(Attributes.FROZEN) or minion.has_attribute(Attributes.DEFENDER)):
+          and minion.get_attack() > 0 and not (minion.has_attribute(Attributes.FROZEN) or minion.has_attribute(Attributes.DEFENDER) or minion.has_attribute(Attributes.CANT_ATTACK)):
         for target in self.get_available_targets(minion):
           minion_attack_options.append(Action(Actions.ATTACK, minion, [target]))
 

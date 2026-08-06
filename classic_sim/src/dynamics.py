@@ -397,5 +397,22 @@ class TargetAlive(Dynamics):
   def __call__(self, action) -> Callable[..., bool]:
     return len(action.targets) > 0 and action.targets[0].get_health() > 0
 
+class WeaponHealth(Dynamics):
+  def __init__(self, constant:OwnerFilters):
+    self.constant = constant
+  def __call__(self, action) -> Callable[..., int]:
+    count = 0
+    if self.constant == OwnerFilters.FRIENDLY or self.constant == OwnerFilters.ALL:
+      count += action.source.owner.weapon.get_health() if action.source.owner.weapon else 0
+    if self.constant == OwnerFilters.ENEMY or self.constant == OwnerFilters.ALL:
+      count += action.source.owner.other_player.weapon.get_health() if action.source.owner.other_player.weapon else 0
+    return count
 
-__all__ = ["RandomInt", "ConstantInt", "ConstantBool", "ConstantCard", "ConstantAttribute", "ConstantCreatureTypes", "Multiply", "Add", "Equals", "LessThan", "GreaterThan", "Not", "And", "Or", "Minimum", "Maximum", "IfInt", "IfCard", "IfAttribute", "IfCreatureType", "Source", "Target", "NumOtherMinions", "CardsInHand", "DamageTaken", "PlayerArmor", "WeaponAttack", "HasWeapon", "MinionsPlayed", "NumCardsInHand", "AttackValue", "HealthValue", "Damaged", "NumWithAttribute", "NumWithCreatureType", "NumDamaged", "TargetFrozen", "PlayerHasAttribute", "SourceHasAttribute", "HasSecret", "TargetAlive"]
+class CastCard(Dynamics): #the card currently being cast, regardless of card_type (Source() only returns minions/weapons)
+  def __init__(self):
+    pass
+  def __call__(self, action) -> Callable[..., CARD]:
+    return action.source
+
+
+__all__ = ["RandomInt", "ConstantInt", "ConstantBool", "ConstantCard", "ConstantAttribute", "ConstantCreatureTypes", "Multiply", "Add", "Equals", "LessThan", "GreaterThan", "Not", "And", "Or", "Minimum", "Maximum", "IfInt", "IfCard", "IfAttribute", "IfCreatureType", "Source", "Target", "NumOtherMinions", "CardsInHand", "DamageTaken", "PlayerArmor", "WeaponAttack", "HasWeapon", "MinionsPlayed", "NumCardsInHand", "AttackValue", "HealthValue", "Damaged", "NumWithAttribute", "NumWithCreatureType", "NumDamaged", "TargetFrozen", "PlayerHasAttribute", "SourceHasAttribute", "HasSecret", "TargetAlive", "WeaponHealth", "CastCard"]

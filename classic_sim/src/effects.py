@@ -509,6 +509,72 @@ class SummonToken(Effect): #summon minion for target player
         new_weapon_token.set_owner(new_owner)
         new_weapon_token.set_parent(new_owner) #Doesn't trigger battlecry
 
+class AddCardToHand(Effect): #add a copy of a card to target player's hand
+  available_methods = [Methods.ALL, Methods.RANDOMLY]
+  param_type = ParamTypes.X_TOKENS
+  available_targets = [Targets.HERO]
+  available_owner_filters = [o for o in OwnerFilters]
+  available_type_filters = []
+  available_durations = []
+  available_triggers = list(filter(lambda t: t != Triggers.AURA, [t for t in Triggers]))
+
+  def __init__(self, value, method, owner_filter, target=Targets.HERO, random_count=1, random_replace=True, duration=None, trigger=None, type_filter=None):
+    self.zone_filter = Zones.BOARD #target is a player (Targets.HERO), same convention as DrawCards/SummonToken
+    self.method = method
+    self.value = value
+    self.random_count = random_count
+    self.random_replace = random_replace
+    self.hits_adjacent = False
+    self.target = target
+    self.owner_filter = owner_filter
+    self.type_filter = type_filter
+    self.trigger = trigger
+    self.duration = duration
+
+  def resolve_action(self, game, action):
+    if self.value[1](action) is None:
+      return
+    card_count = self.value[0](action)
+    for target in action.targets:
+      for _ in range(card_count):
+        if len(target.hand) >= target.hand.max_entries:
+          break
+        new_card = deepcopy(self.value[1](action))
+        new_card.collectable = False
+        new_card.set_owner(target)
+        new_card.set_parent(target.hand) #Doesn't trigger battlecry
+
+class TakeControl(Effect): #steal a minion for the source's owner
+  available_methods = [Methods.TARGETED, Methods.RANDOMLY]
+  param_type = ParamTypes.NONE
+  available_targets = [Targets.MINION]
+  available_owner_filters = [OwnerFilters.ENEMY]
+  available_type_filters = [t for t in CreatureTypes]
+  available_durations = []
+  available_triggers = [t for t in Triggers]
+
+  def __init__(self, method, owner_filter, target=Targets.MINION, value=None, random_count=1, random_replace=True, duration=None, trigger=None, type_filter=None):
+    self.zone_filter = Zones.BOARD
+    self.method = method
+    self.value = value
+    self.random_count = random_count
+    self.random_replace = random_replace
+    self.hits_adjacent = False
+    self.target = target
+    self.owner_filter = owner_filter
+    self.type_filter = type_filter
+    self.trigger = trigger
+    self.duration = duration
+
+  def resolve_action(self, game, action):
+    new_owner = action.source.owner
+    for target in action.targets:
+      if len(new_owner.board) >= new_owner.board.max_entries:
+        game.handle_death(target) #real Hearthstone destroys the minion if the new board is full
+        continue
+      target.set_owner(new_owner)
+      target.change_parent(new_owner.board)
+
 class ReplaceWithToken(Effect): #replace minion with summoned token
   available_methods = [Methods.TARGETED, Methods.RANDOMLY, Methods.ALL]
   param_type = ParamTypes.X_TOKENS

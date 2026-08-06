@@ -18,6 +18,7 @@ class Attributes(Enum):
   MINIONS_UNKILLABLE = 14 #player enchantment
   BRAWL_PROTECTION = 15 #special temp attribute
   ATTACK_AS_DURABILITY = 16 #special weapon attribute
+  CANT_ATTACK = 17
 
 class Triggers(Enum):
   BATTLECRY = 0
