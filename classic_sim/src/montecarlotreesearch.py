@@ -3,21 +3,33 @@ from enums import Attributes
 from exceptions import PlayerDead
 from utilities import BoundCloner
 
-#GreedyActionSmart's default weights with the turn_passed term dropped
-_EVAL_WEIGHTS = [10, -10, 10, 10, 1, 1, 1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1, 1, 1]
+#GreedyActionSmart's default weights with the turn_passed term dropped, plus
+#the 6-feature additive extension from strategy.py's GreedyActionSmart
+#(lethal margin both ways, weapon durability, fatigue proximity, hero power
+#availability, unused mana), defaulting to 0 for the same reason it does
+#there - unchanged behaviour until a caller supplies better ones (e.g. a
+#self-play-trained vector - see examples/metagame_analysis).
+_EVAL_WEIGHTS = [10, -10, 10, 10, 1, 1, 1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1, 1, 1, 0, 0, 0, 0, 0, 0]
 _OTHER_POSITIVE = [Attributes.CHARGE, Attributes.STEALTH, Attributes.WINDFURY, Attributes.HEXPROOF,
                    Attributes.POISONOUS, Attributes.IMMUNE, Attributes.FREEZER]
 
-def evaluate_position(state):
-  #the 21-feature linear evaluation from state.player's perspective, squashed to [-1, 1]
+def evaluate_position(state, weights=_EVAL_WEIGHTS):
+  #the 26-feature linear evaluation from state.player's perspective, squashed
+  #to [-1, 1]. weights is a real parameter, not just a module default - it
+  #must survive being passed into a rollout running in another process
+  #(distributed evaluation), where monkeypatching the module constant
+  #wouldn't propagate.
   me, them = state.player, state.enemy
   my_attrs = [minion.get_all_attributes() for minion in me.board]
   their_attrs = [minion.get_all_attributes() for minion in them.board]
+  total_my_attack = sum(minion.get_attack() for minion in me.board)
+  total_their_attack = sum(minion.get_attack() for minion in them.board)
+  my_weapon, their_weapon = me.weapon, them.weapon
   features = [
     me.health, them.health, me.health - them.health,
     me.armor - them.armor,
     len(me.board) - len(them.board),
-    sum(minion.get_attack() for minion in me.board) - sum(minion.get_attack() for minion in them.board),
+    total_my_attack - total_their_attack,
     sum(minion.get_health() for minion in me.board) - sum(minion.get_health() for minion in them.board),
     sum(1 for attrs in my_attrs if Attributes.TAUNT in attrs),
     sum(1 for attrs in their_attrs if Attributes.TAUNT in attrs),
@@ -32,8 +44,14 @@ def evaluate_position(state):
     len(me.hand) - len(them.hand),
     len(me.deck) - len(them.deck),
     len(me.secrets_zone) - len(them.secrets_zone),
+    (me.get_attack() + total_my_attack) - them.health, #lethal_margin_mine
+    (them.get_attack() + total_their_attack) - me.health, #lethal_margin_theirs
+    (my_weapon.get_health() if my_weapon else 0) - (their_weapon.get_health() if their_weapon else 0),
+    1 / (len(them.deck) + 1) - 1 / (len(me.deck) + 1), #fatigue_proximity
+    (0 if me.used_hero_power else 1) - (0 if them.used_hero_power else 1),
+    me.current_mana, #unused_mana
   ]
-  return float(tanh(sum(feature * weight for feature, weight in zip(features, _EVAL_WEIGHTS)) / 100.0))
+  return float(tanh(sum(feature * weight for feature, weight in zip(features, weights)) / 100.0))
 
 #UCT search for two-player games with multiple actions per turn.
 #Action objects hold references to the state they were generated from, so
@@ -82,9 +100,9 @@ class MonteCarloTreeSearchNode():
   def is_terminal_node(self):
     return self.is_game_over(self.state)
 
-  def rollout(self, random_state, turn_limit, guided):
+  def rollout(self, random_state, turn_limit, guided, eval_weights=_EVAL_WEIGHTS):
     if self.is_terminal_node():
-      return self.state_value(self.state, guided)
+      return self.state_value(self.state, guided, eval_weights)
     rollout_state, _ = self._get_cloner().clone()
     turns = 0
     try:
@@ -102,7 +120,7 @@ class MonteCarloTreeSearchNode():
           turns += 1
     except PlayerDead:
       pass
-    return self.state_value(rollout_state, guided)
+    return self.state_value(rollout_state, guided, eval_weights)
 
   def backpropagate(self, value):
     #value is from the "player" side's perspective
@@ -129,10 +147,10 @@ class MonteCarloTreeSearchNode():
         current_node = current_node.best_child(c_param)
     return current_node
 
-  def best_action(self, random_state, simulations, c_param, rollout_turn_limit, guided):
+  def best_action(self, random_state, simulations, c_param, rollout_turn_limit, guided, eval_weights=_EVAL_WEIGHTS):
     for i in range(simulations):
       v = self._tree_policy(random_state, c_param)
-      value = v.rollout(random_state, rollout_turn_limit, guided)
+      value = v.rollout(random_state, rollout_turn_limit, guided, eval_weights)
       v.backpropagate(value)
     return self.children[argmax([child.n() for child in self.children])]
 
@@ -150,7 +168,7 @@ class MonteCarloTreeSearchNode():
   def is_game_over(self, state):
     return state.player.health <= 0 or state.enemy.health <= 0
 
-  def state_value(self, state, guided):
+  def state_value(self, state, guided, eval_weights=_EVAL_WEIGHTS):
     #true terminals decide by death; rollouts cut off early are evaluated by
     #the feature evaluator (guided) or by raw health lead
     player_dead = state.player.health <= 0
@@ -162,7 +180,7 @@ class MonteCarloTreeSearchNode():
     if player_dead:
       return -1.0
     if guided:
-      return evaluate_position(state)
+      return evaluate_position(state, eval_weights)
     if state.player.health > state.enemy.health:
       return 1.0
     if state.enemy.health > state.player.health:

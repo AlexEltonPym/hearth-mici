@@ -8,11 +8,12 @@ from utilities import clone_with_action, BoundCloner
 from montecarlotreesearch import MonteCarloTreeSearchNode
 
 class MCTS():
-  def __init__(self, iterations=50, c_param=1.4, rollout_turn_limit=6, guided=False):
+  def __init__(self, iterations=50, c_param=1.4, rollout_turn_limit=6, guided=False, eval_weights=None):
     self.iterations = iterations
     self.c_param = c_param
     self.rollout_turn_limit = rollout_turn_limit
     self.guided = guided #no-early-pass rollouts + feature evaluation at rollout cutoff
+    self.eval_weights = eval_weights #None -> montecarlotreesearch's own default (the hand-tuned weights)
 
   def mulligan_rule(self, card):
     return card.get_manacost() < 4
@@ -22,7 +23,8 @@ class MCTS():
     if len(root.available_actions) == 1:
       return state.perform_action(root.available_actions[0])
 
-    best_child = root.best_action(state.game_manager.random_state, self.iterations, self.c_param, self.rollout_turn_limit, self.guided)
+    kwargs = {} if self.eval_weights is None else {"eval_weights": self.eval_weights}
+    best_child = root.best_action(state.game_manager.random_state, self.iterations, self.c_param, self.rollout_turn_limit, self.guided, **kwargs)
     #root.available_actions reference this state's objects, so applying directly is safe
     return state.perform_action(root.available_actions[best_child.parent_action_index])
 

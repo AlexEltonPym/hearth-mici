@@ -13,7 +13,7 @@ Usage (from classic_sim/examples/validation, PYTHONPATH=../../src):
 straight through to GameManager.simulate's parralel argument (-1 = all
 cores via joblib).
 """
-import sys, csv, argparse
+import sys, csv, json, argparse
 from itertools import permutations
 from pathlib import Path
 
@@ -47,10 +47,20 @@ def main():
   parser.add_argument("--shard", default="0/1", help="i/n - run only pairs where index%%n==i")
   parser.add_argument("--cores", type=int, default=1, help="passed to GameManager.simulate's parralel arg, -1 = all cores")
   parser.add_argument("--out", default=None)
+  parser.add_argument("--eval-weights", default=None,
+                       help="path to a JSON file with a 'champion_weights' or 'weights' key (27-long, "
+                            "GreedyActionSmart's ordering) - overrides MCTS's guided leaf evaluation. "
+                            "Tests whether search depth and evaluation-function quality compound.")
   args = parser.parse_args()
 
   shard_index, shard_count = (int(x) for x in args.shard.split("/"))
-  agent_factory = (lambda: MCTS(iterations=150, guided=True)) if args.agent == "mcts" else GreedyActionSmart
+  mcts_eval_weights = None
+  if args.eval_weights:
+    with open(args.eval_weights, encoding="utf-8") as f:
+      loaded = json.load(f)
+    full_weights = loaded.get("champion_weights") or loaded["weights"]
+    mcts_eval_weights = full_weights[1:] #drop turn_passed - not part of evaluate_position's feature set
+  agent_factory = (lambda: MCTS(iterations=150, guided=True, eval_weights=mcts_eval_weights)) if args.agent == "mcts" else GreedyActionSmart
   out_path = Path(args.out) if args.out else HERE / f"data/s1_{args.agent}_shard{shard_index}.csv"
 
   decks = load_decks()

@@ -294,6 +294,45 @@ Artifacts: `train_self_play_skill.py`, `evaluate_self_play_vs_real.py`,
 `data/self_play_champion.json` (hall-of-fame + final weights),
 `data/self_play_generations.csv` (promotion history), `data/self_play_vs_real.json`.
 
+**Does search depth and evaluation quality compound?** Two independent
+improvements had been found - guided MCTS (deeper search, hand-tuned
+weights) took correlation from 0.366 to 0.607; self-play (shallow greedy
+search, better weights) cut matching MSE from 486.7 to 314.6 - and nothing
+had tested them *together*. `montecarlotreesearch.py`'s guided leaf
+evaluation (`evaluate_position`) was a hardcoded copy of the hand-tuned
+weights with no way to swap them; threaded `weights` through as a real
+parameter instead of a module-level constant (`state_value` ->
+`rollout` -> `best_action`, plus `MCTS.__init__`'s new `eval_weights` arg)
+rather than monkeypatching the global - the calibration work already hit a
+bug from mutable-global state not surviving into a separate worker process,
+not repeating that here. Also extended `evaluate_position` with the same 6
+features `GreedyActionSmart` gained, so the self-play champion's 27-weight
+vector is actually compatible with it.
+
+Re-ran the guided-MCTS S1 matchups (same 40 games/matchup, same dwail1/dwail2
+split) with the self-play champion's weights as the leaf evaluator instead
+of the hand-tuned defaults:
+
+| | Spearman correlation | matching MSE |
+|---|---|---|
+| MCTS + hand-tuned weights (baseline) | 0.607 | 189.0 |
+| MCTS + self-play champion weights | **0.629** | **227.7** |
+
+A mixed result, reported as it is rather than rounded up or down: rank
+correlation improved a little further (0.607 -> 0.629, a real but modest
+gain next to the 0.366 -> 0.607 jump search depth alone provided), but
+absolute calibration got worse (MSE 189.0 -> 227.7). Plausible reason: the
+self-play champion was optimized purely to *win*, with no exposure to real
+win-rate magnitudes - paired with deep search, it likely converts small
+edges into more decisive (further from 50%) outcomes than real, imperfect
+human play does, which can improve *ranking* (which side is favoured)
+while hurting *calibration* (by how much) at the same time. The two
+improvements don't stack as cleanly as either alone would suggest - search
+depth is still carrying most of the weight, and the two aren't simply
+additive.
+
+Artifacts: `data/s1_mcts_selfplay_shard{0,1}.csv`, `data/s1_mcts_selfplay_matrix.csv`.
+
 **S2 - Archetype emergence.** Card-overlap between MAP-Elites archive clusters and
 real archetype cores. Report honestly: the mage archive collapsed deck-wise
 (715 elites, 24 unique decks); hunter/warrior archives retained diversity (537/590).
