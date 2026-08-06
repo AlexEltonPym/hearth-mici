@@ -33,8 +33,19 @@ class GreedyAction():
   def choose_action(self, state):
     available_actions = state.get_available_actions(state.current_player)
     cloner = BoundCloner(state, available_actions)
+    #clones share the live random_state (cloning it is the expensive part of
+    #the pickle round-trip - see utilities._stripped_dump). Without rewinding
+    #it between candidates, each candidate's random draws (e.g. random-target
+    #cards) would bleed into the next candidate's evaluation, and the whole
+    #lookahead loop's draws would bleed into the real action actually
+    #performed below. get_state/set_state are cheap (a tuple copy, no
+    #generator reconstruction) so this keeps evaluation deterministic and
+    #the real game's RNG stream uncontaminated by discarded candidates.
+    random_state = state.game_manager.random_state
+    saved_rng_state = random_state.get_state()
     possible_actions = []
     for action_index in range(len(available_actions)):
+      random_state.set_state(saved_rng_state)
       possible_state, cloned_actions = cloner.clone()
       try:
         turn_passed = possible_state.perform_action(cloned_actions[action_index])
@@ -50,6 +61,7 @@ class GreedyAction():
 
       possible_actions.append((action_index, state_score, turn_passed))
     best_action = sorted(possible_actions, key=lambda x: x[1])[-1]
+    random_state.set_state(saved_rng_state)
     state.perform_action(available_actions[best_action[0]])
 
 
@@ -72,8 +84,13 @@ class GreedyActionSmartv1():
   def choose_action(self, state):
     available_actions = state.get_available_actions(state.current_player)
     cloner = BoundCloner(state, available_actions)
+    #see GreedyAction.choose_action for why the RNG state is rewound between
+    #candidates and before the real action is performed.
+    random_state = state.game_manager.random_state
+    saved_rng_state = random_state.get_state()
     possible_actions = []
     for action_index in range(len(available_actions)):
+      random_state.set_state(saved_rng_state)
       possible_state, cloned_actions = cloner.clone()
       try:
         turn_passed = possible_state.perform_action(cloned_actions[action_index])
@@ -91,6 +108,7 @@ class GreedyActionSmartv1():
     best_action = sorted(possible_actions, key=lambda x: x[1])[-1]
     # print("v1: " + str(available_actions[best_action[0]]))
 
+    random_state.set_state(saved_rng_state)
     state.perform_action(available_actions[best_action[0]])
     return best_action[2]
 
@@ -129,8 +147,13 @@ class GreedyActionSmart():
   def choose_action(self, state):
     available_actions = state.get_available_actions(state.current_player)
     cloner = BoundCloner(state, available_actions)
+    #see GreedyAction.choose_action for why the RNG state is rewound between
+    #candidates and before the real action is performed.
+    random_state = state.game_manager.random_state
+    saved_rng_state = random_state.get_state()
     possible_actions = []
     for action_index in range(len(available_actions)):
+      random_state.set_state(saved_rng_state)
       possible_state, cloned_actions = cloner.clone()
       try:
         turn_passed = possible_state.perform_action(cloned_actions[action_index])
@@ -148,6 +171,7 @@ class GreedyActionSmart():
 
     best_action = sorted(possible_actions, key=lambda x: x[1])[-1]
     # print("gas: " + str(available_actions[best_action[0]]))
+    random_state.set_state(saved_rng_state)
     state.perform_action(available_actions[best_action[0]])
     return best_action[2]
 

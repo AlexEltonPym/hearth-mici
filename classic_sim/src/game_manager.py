@@ -100,7 +100,14 @@ class GameManager():
       parralel_game_results = Parallel(timeout=None, n_jobs=parralel, verbose=0 if silent else 100)(delayed(self.run_games)(num_games_per_processor, silent, rng, rank) for i in range(num_jobs_to_run))
       for processors_result in parralel_game_results:
         game_results.extend(processors_result)
-    return [mean(x) for x in zip(*game_results)] #average the stats
+
+    aborted = game_results.count(None)
+    if aborted and not silent:
+      print(f"{aborted}/{len(game_results)} games aborted (TooManyActions/RecursionError) and were excluded from the average")
+    completed_results = [result for result in game_results if result is not None]
+    if not completed_results:
+      return []
+    return [mean(x) for x in zip(*completed_results)] #average the stats
 
 
   def run_games(self, num_games, silent, rng, rank):

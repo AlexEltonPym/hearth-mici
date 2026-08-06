@@ -23,6 +23,21 @@ def test_copy_speeds():
 
 
 
+def test_simulate_ignores_aborted_games():
+  #simulate() used to crash zip(*game_results) whenever run_games returned a
+  #None (TooManyActions/RecursionError abort) mixed in with real results.
+  game_manager = GameManager()
+  game_manager.create_player_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER])
+  game_manager.create_enemy_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER])
+  game_manager.create_player(Classes.HUNTER, Deck.generate_random, GreedyAction())
+  game_manager.create_enemy(Classes.HUNTER, Deck.generate_random, GreedyAction())
+  game_manager.run_games = lambda num_games, silent, rng, rank: [(1, 30), None, (0, 12)]
+  result = game_manager.simulate(3, silent=True, parralel=1)
+  assert result == [0.5, 21]
+
+  game_manager.run_games = lambda num_games, silent, rng, rank: [None, None]
+  assert game_manager.simulate(2, silent=True, parralel=1) == []
+
 def test_mcts_vs_greedy():
 
   mage_player = ['Gadgetzan Auctioneer', 'Gadgetzan Auctioneer', 'Dire Wolf Alpha', 'Dire Wolf Alpha', 'Raging Worgen', 'Raging Worgen', 'Arcane Missiles', 'Arcane Missiles', 'Fen Creeper', 'Fen Creeper', 'Big Game Hunter', 'Big Game Hunter', 'Spellbender', 'Spellbender', 'Silvermoon Guardian', 'Silvermoon Guardian', 'Thrallmar Farseer', 'Thrallmar Farseer', 'Ethereal Arcanist', 'Ethereal Arcanist', 'Frostbolt', 'Frostbolt', 'Nightblade', 'Nightblade', 'Spellbreaker', 'Spellbreaker', 'Abusive Sergeant', 'Abusive Sergeant', 'Frost Nova', 'Frost Nova']

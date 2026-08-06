@@ -3084,6 +3084,18 @@ def test_frozen_from_own_attack_persists_to_next_own_turn():
   game.end_turn() #this turn is skipped without attacking - thaws now
   assert not attacker.has_attribute(Attributes.FROZEN)
 
+# Stealth+Taunt regression: a stealthed Taunt minion is untargetable outright,
+# so it must not force attacks onto itself.
+def test_stealthed_taunt_does_not_force_attacks():
+  game = GameManager().create_test_game()
+  stealthed_taunt = game.game_manager.get_card('Worgen Infiltrator', game.current_player.other_player.board)
+  stealthed_taunt.attributes.append(Attributes.TAUNT)
+  normal_minion = game.game_manager.get_card('Wisp', game.current_player.other_player.board)
+  targets = game.get_available_targets(game.current_player)
+  assert stealthed_taunt not in targets
+  assert normal_minion in targets
+  assert game.current_player.other_player in targets
+
 # Test legendaries
 def test_cairne_bloodhoof():
   game = GameManager().create_test_game()

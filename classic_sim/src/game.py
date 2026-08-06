@@ -569,7 +569,9 @@ class Game():
 
   def get_available_targets(self, card):
     targets = []
-    taunt_targets = list(filter(lambda target: target.has_attribute(Attributes.TAUNT), card.owner.other_player.board))
+    #Stealth makes a minion untargetable outright, Taunt or not - a stealthed
+    #Taunt minion must not force attacks onto itself.
+    taunt_targets = list(filter(lambda target: target.has_attribute(Attributes.TAUNT) and not target.has_attribute(Attributes.STEALTH), card.owner.other_player.board))
     if len(taunt_targets) > 0:
       targets = taunt_targets
     else:
