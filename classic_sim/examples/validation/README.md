@@ -216,6 +216,84 @@ Artifacts: `data/calibrated_weights_full.json` (full-data fit),
 `data/cv_weights_<Archetype>.json` x6 and `data/cv_generalization.json`
 (cross-validation).
 
+**Self-play skill training - a cleaner test of the same idea.** The
+win-rate-calibration overfitting above raised an obvious follow-up: what if
+the agent is just trained to play *well*, with zero exposure to the real
+win-rate target anywhere in the loop, on the hypothesis that a genuinely
+stronger player naturally reflects real human play better as a side effect
+of being stronger - rather than by being fit to match it? This is the same
+mechanism that already worked once: guided MCTS, using the *identical*
+hand-tuned weights but searching deeper, lifted correlation from 0.366 to
+0.607 purely by playing better (see the MCTS section above). This tests
+whether evolving stronger weights does the same thing.
+
+`train_self_play_skill.py` optimizes `GreedyActionSmart`'s weights via
+CMA-ES against a small, growing **hall-of-fame** (starts as just the default
+weights; each generation's best candidate gets promoted in if it decisively
+beats the most recent champion, keeping the last 3 - fitness against a
+*fixed* opponent plateaus once it's reliably beaten, and averaging across
+several past champions rather than only the newest guards against narrowly
+exploiting one opponent's blind spots instead of being generally strong).
+Trained on **mirror matches from a rotating sample of the full 88-deck real
+archive** (resampled every generation), deliberately *not* the 6
+representative archetype decks used for the real-matchup evaluation - so a
+good result means "got better at Hearthstone", not "learned to pilot these
+6 specific decks." No matching loss, no regularization toward the defaults,
+no skill-floor penalty - nothing in the objective but "did you win".
+
+Training converged in 23 generations (not the full 80-generation budget),
+stopping on stagnation (10 generations with no successful promotion) after
+4 promotions: default -> gen1 -> gen4 -> gen6 -> gen13 (final champion).
+Healthy self-play dynamics throughout - win rate against the hall-of-fame
+oscillated around 50-65% rather than saturating near 100%, meaning the
+opponent kept pace rather than the search stalling against something
+already fully beaten.
+
+*Result, same confirm-phase methodology (60 games/matchup) as everything
+above:*
+
+| | matching MSE (lower is better match to real win rates) |
+|---|---|
+| Default weights | 486.7 |
+| Win-rate-calibrated (in-sample, known to overfit - see above) | 222.7 |
+| **Self-play champion** | **314.6** |
+
+Read this next to the calibration section's honest number, not the
+in-sample one: win-rate-calibration's *true* held-out performance (measured
+by cross-validation) was 620.0 - worse than default. Self-play's 314.6 needed
+no held-out correction in the first place, since it never touched the
+target at any point - what you see is what you get, the same way the
+default weights' 486.7 needs no correction. On that fair, apples-to-apples
+basis (numbers that don't need a held-out asterisk), **self-play beats both
+the defaults (486.7) and calibration's honest generalization performance
+(620.0), using zero knowledge of what the real answer was.** It doesn't
+close the gap to calibration's over-fit in-sample number, which is exactly
+what should happen - that number was inflated by curve-fitting, not a
+target self-play should be expected to reach.
+
+This is a genuinely positive result for the hypothesis: skill, pursued for
+its own sake, transfers to real-world predictive accuracy better than
+fitting the target does once overfitting is accounted for - about a 35%
+MSE reduction over the hand-tuned defaults from playing strength alone.
+Skill-floor check (win rate vs. `RandomAction`, default -> champion): 4 of 6
+archetypes held steady or improved to 100%, Burn Mage dipped trivially
+(1.000 -> 0.983), Control Warrior dipped more (1.000 -> 0.817) - the same
+archetype that was hardest to keep stable in the calibration attempt too,
+suggestive of something Control-Warrior-specific being genuinely tricky for
+a linear heuristic rather than an artifact of either training method.
+
+One caveat stated plainly: the 6 representative decks are members of the
+same 88-deck pool training sampled from, so it's not a strictly disjoint
+held-out set the way the CV folds were - a specific representative deck may
+have been mirror-matched a handful of times over 23 generations by chance.
+Much milder than the calibration run's overfitting (nothing here ever saw
+the actual target *numbers*, only game outcomes), but worth a fully disjoint
+deck split in any follow-up.
+
+Artifacts: `train_self_play_skill.py`, `evaluate_self_play_vs_real.py`,
+`data/self_play_champion.json` (hall-of-fame + final weights),
+`data/self_play_generations.csv` (promotion history), `data/self_play_vs_real.json`.
+
 **S2 - Archetype emergence.** Card-overlap between MAP-Elites archive clusters and
 real archetype cores. Report honestly: the mage archive collapsed deck-wise
 (715 elites, 24 unique decks); hunter/warrior archives retained diversity (537/590).
