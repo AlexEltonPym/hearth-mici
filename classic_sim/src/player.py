@@ -12,7 +12,16 @@ class Player():
     self.game_manager = game_manager
     self.player_class = player_class
 
-    self.deck = deepcopy(deck_constructor(self))
+    #deck_constructor already returns a deck of independently-deepcopied cards
+    #(every implementation in zones.py's Deck class deepcopies each card it
+    #adds) with .parent correctly set to this real, in-construction player.
+    #Wrapping the whole deck in an extra deepcopy() here used to deep-copy
+    #that .parent backref too, producing a disconnected phantom Player (with
+    #its own game_manager/RandomState) as the deck's actual parent - any
+    #card later added straight to this deck (Card.set_owner via the deck's
+    #.parent) would get owned by that phantom, and Deck.shuffle() would
+    #shuffle using a RandomState nothing else in the game ever advances.
+    self.deck = deck_constructor(self)
     self.deck.update_owner(self)
     self.strategy = strategy
     self.hero_power = None

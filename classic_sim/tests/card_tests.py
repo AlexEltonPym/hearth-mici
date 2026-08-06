@@ -1277,8 +1277,7 @@ def test_hungry_crab():
 def test_captains_parrot():
   game = GameManager().create_test_game()
   captains_parrot = game.game_manager.get_card("Captain's Parrot", game.current_player.hand)
-  southsea_deckhand = game.game_manager.get_card("Southsea Deckhand", game.current_player.hand)
-  southsea_deckhand.change_parent(southsea_deckhand.owner.deck) #when initally setting to deck, has different owners for some reason?
+  game.game_manager.get_card("Southsea Deckhand", game.current_player.deck)
 
   play_parrot = list(filter(lambda action: action.source == captains_parrot, game.get_available_actions(game.current_player)))[0]
   game.perform_action(play_parrot)
@@ -3468,6 +3467,75 @@ def test_king_krush_vanilla_charge_beast():
   assert king_krush.creature_type == CreatureTypes.BEAST
   assert king_krush.get_attack() == 8
   assert king_krush.get_health() == 8
+
+# --- Remaining untested cards (coverage audit) ------------------------------
+
+def test_ironforge_rifleman():
+  game = GameManager().create_test_game()
+  rifleman = game.game_manager.get_card('Ironforge Rifleman', game.current_player.hand)
+  target = game.game_manager.get_card('Chillwind Yeti', game.current_player.other_player.board)
+  play_rifleman = [a for a in game.get_available_actions(game.current_player) if a.source == rifleman and a.targets == [target]][0]
+  game.perform_action(play_rifleman)
+  assert target.get_health() == target.get_max_health() - 1
+
+def test_razorfen_hunter_summons_boar():
+  game = GameManager().create_test_game()
+  razorfen_hunter = game.game_manager.get_card('Razorfen Hunter', game.current_player.hand)
+  play_action = [a for a in game.get_available_actions(game.current_player) if a.source == razorfen_hunter][0]
+  game.perform_action(play_action)
+  boars = [card for card in game.current_player.board if card.name == 'Boar']
+  assert len(boars) == 1
+  assert boars[0].get_attack() == 1
+  assert boars[0].get_health() == 1
+  assert boars[0].creature_type == CreatureTypes.BEAST
+
+def test_dragonling_mechanic_summons_mechanical_dragonling():
+  game = GameManager().create_test_game()
+  dragonling_mechanic = game.game_manager.get_card('Dragonling Mechanic', game.current_player.hand)
+  play_action = [a for a in game.get_available_actions(game.current_player) if a.source == dragonling_mechanic][0]
+  game.perform_action(play_action)
+  tokens = [card for card in game.current_player.board if card.name == 'Mechanical Dragonling']
+  assert len(tokens) == 1
+  assert tokens[0].get_attack() == 2
+  assert tokens[0].get_health() == 1
+  assert tokens[0].creature_type == CreatureTypes.MECH
+
+def test_gnomish_inventor_draws_a_card():
+  game = GameManager().create_test_game()
+  gnomish_inventor = game.game_manager.get_card('Gnomish Inventor', game.current_player.hand)
+  hand_size_before = len(game.current_player.hand)
+  play_action = [a for a in game.get_available_actions(game.current_player) if a.source == gnomish_inventor][0]
+  game.perform_action(play_action)
+  assert len(game.current_player.hand) == hand_size_before - 1 + 1 #lost the inventor from hand, drew 1
+
+def test_ancient_brewmaster_returns_friendly_minion_to_hand():
+  game = GameManager().create_test_game()
+  target = game.game_manager.get_card('Chillwind Yeti', game.current_player.board)
+  target.attacks_this_turn = 0
+  brewmaster = game.game_manager.get_card('Ancient Brewmaster', game.current_player.hand)
+  play_brewmaster = [a for a in game.get_available_actions(game.current_player) if a.source == brewmaster and a.targets == [target]][0]
+  game.perform_action(play_brewmaster)
+  assert target in game.current_player.hand.get_all()
+  assert target not in game.current_player.board.get_all()
+  assert target.attacks_this_turn == -1 #reset, as if freshly drawn
+
+def test_spellbreaker_silences_enemy_minion():
+  game = GameManager().create_test_game()
+  taunt_minion = game.game_manager.get_card('Frostwolf Grunt', game.current_player.other_player.board)
+  assert taunt_minion.has_attribute(Attributes.TAUNT)
+  spellbreaker = game.game_manager.get_card('Spellbreaker', game.current_player.hand)
+  play_spellbreaker = [a for a in game.get_available_actions(game.current_player) if a.source == spellbreaker and a.targets == [taunt_minion]][0]
+  game.perform_action(play_spellbreaker)
+  assert not taunt_minion.has_attribute(Attributes.TAUNT)
+
+def test_sorcerers_apprentice_reduces_friendly_spell_cost():
+  game = GameManager().create_test_game()
+  fireball = game.game_manager.get_card('Fireball', game.current_player.hand)
+  base_cost = fireball.get_manacost()
+  apprentice = game.game_manager.get_card("Sorcerer's Apprentice", game.current_player.board)
+  assert fireball.get_manacost() == base_cost - 1
+  game.handle_death(apprentice)
+  assert fireball.get_manacost() == base_cost #reverts once the aura source is gone
 
 def main():
   pass
