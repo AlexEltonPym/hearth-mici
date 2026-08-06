@@ -407,8 +407,13 @@ def get_legendary_cards():
                      effect=DealDamage(value=ConstantInt(2), trigger=Triggers.FRIENDLY_END_TURN, method=Methods.ALL, target=Targets.MINION_OR_HERO, owner_filter=OwnerFilters.ALL))
   sylvanas_windrunner = Card(name="Sylvanas Windrunner", card_type=CardTypes.MINION, manacost=6, attack=5, health=5,\
                      effect=TakeControl(trigger=Triggers.DEATHRATTLE, method=Methods.RANDOMLY, target=Targets.MINION, owner_filter=OwnerFilters.ENEMY))
+  #both sub-effects share the same target spec (DualEffect passes one shared
+  #action to both) - DrawCards' non-Player branch always draws for its own
+  #owner regardless of what the actual target is, so pointing it at the
+  #weapon too is safe and lets Destroy resolve second, after the durability
+  #read, against the correct target.
   harrison_jones = Card(name="Harrison Jones", card_type=CardTypes.MINION, manacost=5, attack=5, health=4,\
-                     effect=DualEffect(DrawCards(value=WeaponHealth(OwnerFilters.ENEMY), trigger=Triggers.BATTLECRY, method=Methods.ALL, owner_filter=OwnerFilters.FRIENDLY),\
+                     effect=DualEffect(DrawCards(value=WeaponHealth(OwnerFilters.ENEMY), trigger=Triggers.BATTLECRY, method=Methods.ALL, target=Targets.WEAPON, owner_filter=OwnerFilters.ENEMY),\
                                        Destroy(trigger=Triggers.BATTLECRY, method=Methods.ALL, target=Targets.WEAPON, owner_filter=OwnerFilters.ENEMY)))
   the_black_knight = Card(name="The Black Knight", card_type=CardTypes.MINION, manacost=6, attack=4, health=5,\
                      effect=Destroy(value=SourceHasAttribute(ConstantAttribute(Attributes.TAUNT)), trigger=Triggers.BATTLECRY, method=Methods.TARGETED, target=Targets.MINION, owner_filter=OwnerFilters.ENEMY))
@@ -429,9 +434,20 @@ def get_legendary_cards():
   #Nozdormu's real text ("each player only has 15 seconds to take their turn") has no
   #meaning for a non-realtime simulator, so it's included vanilla, per instruction.
   nozdormu = Card(name="Nozdormu", card_type=CardTypes.MINION, manacost=9, attack=8, health=8, creature_type=CreatureTypes.DRAGON)
+  #real Cho gives the copy only to the OTHER player from whoever cast the
+  #spell, but a Card's effect can only be dispatched off one Trigger value
+  #(DualEffect fires both sub-effects together off a single trigger match,
+  #it can't pick a sub-effect by which of two trigger types actually fired -
+  #see card_tests.py's regression test for why FRIENDLY/ENEMY_SPELL_CAST
+  #can't be split this way). Approximated as both players getting a copy of
+  #every spell cast, by either side - a real deck never needed this card.
+  #target=HERO (not SPELL) is deliberate: resolve_effect only dispatches a
+  #TRIGGERER-method effect once its own generic board/hero scan finds a
+  #match, and a spell is never a BOARD-zone candidate - HERO always matches
+  #(both players are always present) so the dispatch gate passes. The actual
+  #copied card comes from the triggerer at resolve time, not this target.
   lorewalker_cho = Card(name="Lorewalker Cho", card_type=CardTypes.MINION, manacost=2, attack=0, health=4,\
-                     effect=DualEffect(AddCardToHand(value=(ConstantInt(1), CastCard()), trigger=Triggers.FRIENDLY_SPELL_CAST, method=Methods.ALL, owner_filter=OwnerFilters.ENEMY),\
-                                       AddCardToHand(value=(ConstantInt(1), CastCard()), trigger=Triggers.ENEMY_SPELL_CAST, method=Methods.ALL, owner_filter=OwnerFilters.FRIENDLY)))
+                     effect=AddCardToHand(value=None, trigger=Triggers.ANY_SPELL_CAST, method=Methods.TRIGGERER, target=Targets.HERO, owner_filter=OwnerFilters.ALL))
   #Elite Tauren Chieftain (hero power swap chain) and Millhouse Manastorm
   #(temporary, hand-tracking cost reduction) both need mechanics this engine's
   #effect DSL doesn't support (persistent hero power replacement; "this turn

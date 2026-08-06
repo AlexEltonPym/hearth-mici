@@ -12,6 +12,7 @@ from exceptions import TooManyActions, PlayerDead
 class Game():
   def __init__(self, game_manager):
     self.game_manager = game_manager
+    self._secret_resolved_this_action = False #real Hearthstone only lets one secret trigger per player action, even if several would match
   
   def setup_players(self):
     #detach the prototypes' game_manager backref before copying, otherwise each
@@ -75,6 +76,7 @@ class Game():
 
 
   def untap(self):
+    self._secret_resolved_this_action = False
     self.current_player.max_mana += 1
     self.current_player.max_mana = min(self.current_player.max_mana, 10)
     self.current_player.current_mana = self.current_player.max_mana
@@ -127,6 +129,7 @@ class Game():
     return -1
 
   def end_turn(self):
+    self._secret_resolved_this_action = False
     self.trigger(self.current_player, Triggers.ANY_END_TURN)
     self.trigger(self.current_player, Triggers.FRIENDLY_END_TURN)
     self.trigger(self.current_player, Triggers.ENEMY_END_TURN)
@@ -174,6 +177,7 @@ class Game():
     coin.set_parent(coin.owner.hand)
 
   def perform_action(self, action):
+    self._secret_resolved_this_action = False
     if action.action_type == Actions.CAST_MINION:
       self.cast_minion(action)
     elif action.action_type == Actions.CAST_SPELL:
@@ -323,10 +327,14 @@ class Game():
           self.trigger(action.source, Triggers.DESTROY_SECRET_REVEALED)
           return
       self.trigger(action.targets[0], Triggers.HERO_ATTACKED) #this triggers even if redirected to another target
+      #a secret triggered above (e.g. Explosive Trap) may have killed the
+      #attacker before it ever swings - the attack doesn't happen at all.
+      if not isinstance(action.source, Player) and action.source.parent != action.source.owner.board:
+        return
     else:
 
       self.trigger(action.source, Triggers.ENEMY_ATTACKS_MINION)
-    
+
     if isinstance(action.source, Player) and action.source.weapon:
 
       damage = action.source.get_attack()
@@ -345,6 +353,10 @@ class Game():
       damage = action.source.get_attack()
       other_damage = action.targets[0].get_attack()
       self.trigger(action.source, Triggers.ENEMY_MINION_ATTACKS)
+      #Freezing Trap (or anything else that pulls the attacker off the board
+      #on this trigger) cancels the attack entirely - no damage either way.
+      if action.source.parent != action.source.owner.board:
+        return
 
     if isinstance(action.targets[0], Player):
       other_damage = 0
@@ -360,7 +372,7 @@ class Game():
 
 
   def deal_damage(self, target, amount, poisonous=False, freezer=False, fatigue=False):
-    if target.has_attribute(Attributes.IMMUNE) and not fatigue:
+    if target.has_attribute(Attributes.IMMUNE):
       return
     elif target.has_attribute(Attributes.DIVINE_SHIELD) and amount > 0:
       target.remove_attribute(Attributes.DIVINE_SHIELD)
@@ -378,7 +390,7 @@ class Game():
           new_health -= amount #no armor to worry about
         if new_health <= 0:
           self.trigger(target, Triggers.LETHAL_DAMAGE)
-        if target.has_attribute(Attributes.IMMUNE) and not fatigue:
+        if target.has_attribute(Attributes.IMMUNE):
           return
         else:
 
@@ -421,6 +433,11 @@ class Game():
     # print(f"{triggerer=}")
     if card.card_type == CardTypes.SECRET and card.owner.game.current_player == card.owner:
       return
+    if card.card_type == CardTypes.SECRET and self._secret_resolved_this_action:
+      #only one secret triggers per player action, even if several would match
+      #(e.g. an enemy minion attacking your face qualifies both Explosive Trap
+      #and Freezing Trap - only the first one found gets to resolve).
+      return
     targets = self.get_available_effect_targets(card)
     if len(targets) > 0 or card.effect.method == Methods.ALL:
       if card.effect.method == Methods.ALL:
@@ -440,6 +457,7 @@ class Game():
         card.effect.resolve_action(self, Action(Actions.CAST_EFFECT, card, [triggerer]))
 
     if card.card_type == CardTypes.SECRET:
+      self._secret_resolved_this_action = True
       card.change_parent(card.owner.graveyard)
       self.trigger(card, Triggers.ANY_SECRET_REVEALED)
 

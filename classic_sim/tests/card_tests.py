@@ -2006,6 +2006,9 @@ def test_ice_barrier():
   assert ice_barrier.parent == ice_barrier.owner.graveyard
 
 def test_multiple_secrets():
+  #both Ice Barrier and Misdirection qualify off the same HERO_ATTACKED-class
+  #event, but only one secret triggers per real Hearthstone rules - Ice
+  #Barrier is the earlier-played secret so it wins and Misdirection stays armed.
   game = GameManager().create_test_game()
   ice_barrier = game.game_manager.get_card("Ice Barrier", game.current_player.other_player.secrets_zone)
   enemy_misdirection = game.game_manager.get_card('Misdirection', game.current_player.other_player.secrets_zone)
@@ -2017,7 +2020,7 @@ def test_multiple_secrets():
   assert game.current_player.other_player.armor == 8
   assert game.current_player.other_player.get_health() == 30
   assert game.current_player.get_health() == 28
-  assert enemy_misdirection.parent == enemy_misdirection.owner.graveyard
+  assert enemy_misdirection.parent == enemy_misdirection.owner.secrets_zone #stays armed - only one secret triggers
   assert ice_barrier.parent == ice_barrier.owner.graveyard
 
 def test_mirror_entity():
@@ -3158,6 +3161,313 @@ def test_ragnaros_the_firelord_cant_attack():
   enemy_health = enemy.get_health()
   game.end_turn()
   assert enemy.get_health() == enemy_health - 8
+
+# --- Combat-cancellation / secret-exclusivity regressions -----------------
+# Found by mining Spellsource's reference test suite (ClassicTests.java,
+# SecretTest.java) for edge cases and cross-checking against our engine.
+
+def test_freezing_trap_cancels_the_attack():
+  game = GameManager().create_test_game()
+  game.current_player = game.enemy
+  game.current_player.other_player = game.player
+  freezing_trap = game.game_manager.get_card('Freezing Trap', game.enemy.secrets_zone)
+  attacker = game.game_manager.get_card('Boulderfist Ogre', game.player.board)
+  attacker.attacks_this_turn = 0
+  game.current_player = game.player
+  start_hp = game.enemy.get_health()
+  game.perform_action(Action(Actions.ATTACK, attacker, [game.enemy]))
+  assert game.enemy.get_health() == start_hp #no damage either way - the attack never happened
+  assert attacker.get_health() == attacker.get_max_health() #attacker took no counter-damage
+  assert attacker in game.player.hand.get_all()
+  assert freezing_trap.parent == freezing_trap.owner.graveyard
+
+def test_explosive_trap_kills_attacker_before_it_deals_damage():
+  game = GameManager().create_test_game()
+  game.current_player = game.enemy
+  game.current_player.other_player = game.player
+  explosive_trap = game.game_manager.get_card('Explosive Trap', game.enemy.secrets_zone)
+  weak_attacker = game.game_manager.get_card('Wisp', game.player.board) #1/1, dies to the trap's 2 dmg
+  weak_attacker.attacks_this_turn = 0
+  game.current_player = game.player
+  start_hp = game.enemy.get_health()
+  game.perform_action(Action(Actions.ATTACK, weak_attacker, [game.enemy]))
+  assert weak_attacker.parent == weak_attacker.owner.graveyard
+  assert game.enemy.get_health() == start_hp #dead attacker deals no combat damage
+
+def test_only_one_secret_triggers_per_attack():
+  #a minion attacking a hero satisfies both Explosive Trap (HERO_ATTACKED) and
+  #Freezing Trap (ENEMY_MINION_ATTACKS) - real Hearthstone only lets one fire.
+  game = GameManager().create_test_game()
+  game.current_player = game.enemy
+  game.current_player.other_player = game.player
+  explosive_trap = game.game_manager.get_card('Explosive Trap', game.enemy.secrets_zone)
+  freezing_trap = game.game_manager.get_card('Freezing Trap', game.enemy.secrets_zone)
+  attacker = game.game_manager.get_card('Boulderfist Ogre', game.player.board)
+  attacker.attacks_this_turn = 0
+  game.current_player = game.player
+  game.perform_action(Action(Actions.ATTACK, attacker, [game.enemy]))
+  assert len(game.enemy.secrets_zone) == 1 #only one secret consumed, not both
+  resolved = [s for s in [explosive_trap, freezing_trap] if s.parent == s.owner.graveyard]
+  assert len(resolved) == 1
+
+def test_two_different_secrets_can_each_trigger_on_separate_actions():
+  #exclusivity is scoped per action, not per game - a second, later action
+  #should still be able to pop a still-armed secret.
+  game = GameManager().create_test_game()
+  game.current_player = game.enemy
+  game.current_player.other_player = game.player
+  game.game_manager.get_card('Explosive Trap', game.enemy.secrets_zone)
+  game.game_manager.get_card('Freezing Trap', game.enemy.secrets_zone)
+  #both attackers are tough enough to shrug off Explosive Trap's 2-damage AOE
+  #splash, so a death from that doesn't confound which secret consumed which
+  attacker1 = game.game_manager.get_card('Boulderfist Ogre', game.player.board)
+  attacker2 = game.game_manager.get_card('War Golem', game.player.board)
+  attacker1.attacks_this_turn = 0
+  attacker2.attacks_this_turn = 0
+  game.current_player = game.player
+  game.perform_action(Action(Actions.ATTACK, attacker1, [game.enemy]))
+  assert len(game.enemy.secrets_zone) == 1
+  game.perform_action(Action(Actions.ATTACK, attacker2, [game.enemy]))
+  assert len(game.enemy.secrets_zone) == 0 #the second attack action pops the remaining secret
+
+# --- Fatigue vs Immune -----------------------------------------------------
+
+def test_ice_block_prevents_lethal_fatigue_damage():
+  game = GameManager().create_test_game()
+  #secrets only trigger on the opponent's turn, so it must not be this
+  #player's own turn when the fatigue damage lands
+  game.current_player = game.enemy
+  game.current_player.other_player = game.player
+  player = game.player
+  player.deck.clear()
+  player.health = 1
+  ice_block = game.game_manager.get_card('Ice Block', player.secrets_zone)
+  game.draw(player, 1) #fatigue for 1, would be lethal without Ice Block
+  assert player.get_health() == 1 #damage prevented
+  assert player.has_attribute(Attributes.IMMUNE)
+  assert ice_block.parent == ice_block.owner.graveyard
+
+# --- Hand-size / board-size / mana caps ------------------------------------
+
+def test_hand_size_cap_burns_drawn_card():
+  game = GameManager().create_test_game()
+  player = game.current_player
+  while len(player.hand) < player.hand.max_entries:
+    game.game_manager.get_card('Wisp', player.hand)
+  deck_size_before = len(player.deck)
+  graveyard_before = len(player.graveyard)
+  game.draw(player, 1)
+  assert len(player.hand) == player.hand.max_entries #unchanged - card was burned, not added
+  assert len(player.deck) == deck_size_before - 1
+  assert len(player.graveyard) == graveyard_before + 1
+
+def test_board_size_cap_blocks_extra_minion():
+  game = GameManager().create_test_game()
+  player = game.current_player
+  for _ in range(player.board.max_entries):
+    game.game_manager.get_card('Wisp', player.board)
+  extra_wisp = game.game_manager.get_card('Wisp', player.hand)
+  playable = [a for a in game.get_available_actions(player) if a.source == extra_wisp]
+  assert playable == [] #board is full, can't play an 8th minion
+
+def test_summon_token_respects_full_board():
+  game = GameManager().create_test_game()
+  player = game.current_player
+  for _ in range(player.board.max_entries - 1):
+    game.game_manager.get_card('Wisp', player.board)
+  assert len(player.board) == player.board.max_entries - 1
+  tidehunter = game.game_manager.get_card('Murloc Tidehunter', player.hand) #battlecry: summon a 1/1 Murloc Scout
+  play_action = [a for a in game.get_available_actions(player) if a.source == tidehunter][0]
+  game.perform_action(play_action)
+  assert len(player.board) == player.board.max_entries #tidehunter fills the last slot
+  assert not any(card.name == 'Murloc Scout' for card in player.board) #no room left for the token, doesn't overfill
+
+def test_mana_crystal_cap_ten():
+  game = GameManager().create_test_game()
+  game.current_player.max_mana = 10
+  game.untap()
+  assert game.current_player.max_mana == 10
+  assert game.current_player.current_mana == 10
+
+# --- Divine Shield / Poisonous interactions --------------------------------
+
+def test_divine_shield_absorbs_poisonous_hit_without_dying():
+  game = GameManager().create_test_game()
+  shielded = game.game_manager.get_card('Argent Squire', game.current_player.board)
+  game.deal_damage(shielded, 1, poisonous=True)
+  assert not shielded.has_attribute(Attributes.DIVINE_SHIELD) #shield popped
+  assert shielded.parent == shielded.owner.board #but survived - poison never applied
+
+def test_divine_shield_not_popped_by_zero_damage():
+  game = GameManager().create_test_game()
+  shielded = game.game_manager.get_card('Argent Squire', game.current_player.board)
+  game.deal_damage(shielded, 0)
+  assert shielded.has_attribute(Attributes.DIVINE_SHIELD)
+
+# --- Silence interactions ---------------------------------------------------
+
+def test_silence_removes_frozen():
+  game = GameManager().create_test_game()
+  minion = game.game_manager.get_card('Bloodfen Raptor', game.current_player.board)
+  minion.perm_attributes.append(Attributes.FROZEN)
+  assert minion.has_attribute(Attributes.FROZEN)
+  owl = game.game_manager.get_card('Ironbeak Owl', game.current_player.hand)
+  play_owl = [a for a in game.get_available_actions(game.current_player) if a.source == owl and a.targets and a.targets[0] == minion][0]
+  game.perform_action(play_owl)
+  assert not minion.has_attribute(Attributes.FROZEN)
+
+def test_silence_does_not_undo_setstats():
+  #Hunter's Mark permanently sets health to 1 by writing target.health directly
+  #(not through perm_health), so Silence shouldn't be able to undo it.
+  game = GameManager().create_test_game()
+  minion = game.game_manager.get_card('Boulderfist Ogre', game.current_player.other_player.board)
+  hunters_mark = game.game_manager.get_card("Hunter's Mark", game.current_player.hand)
+  cast_mark = [a for a in game.get_available_actions(game.current_player) if a.source == hunters_mark and a.targets == [minion]][0]
+  game.perform_action(cast_mark)
+  assert minion.get_health() == 1
+  owl = game.game_manager.get_card('Ironbeak Owl', game.current_player.hand)
+  play_owl = [a for a in game.get_available_actions(game.current_player) if a.source == owl and a.targets == [minion]][0]
+  game.perform_action(play_owl)
+  assert minion.get_health() == 1 #base health was rewritten, not overlaid - silence can't restore it
+
+# --- Frozen: summoning-sick edge case --------------------------------------
+
+def test_frozen_summoning_sick_minion_does_not_thaw_same_turn():
+  game = GameManager().create_test_game()
+  minion = game.game_manager.get_card('Bloodfen Raptor', game.current_player.board)
+  assert minion.attacks_this_turn == -1 #fresh off the bench, never had an untap
+  minion.perm_attributes.append(Attributes.FROZEN)
+  game.end_turn() #owner's turn ends without the minion ever having a chance to attack
+  assert minion.has_attribute(Attributes.FROZEN) #must not thaw - it never had an opportunity
+
+# --- Charge + Windfury ------------------------------------------------------
+
+def test_charge_spell_plus_windfury_minion_attacks_twice():
+  game = GameManager().create_test_game()
+  wf_minion = game.game_manager.get_card('Thrallmar Farseer', game.current_player.board) #freshly played, Windfury
+  charge_spell = game.game_manager.get_card('Charge', game.current_player.hand)
+  cast_charge = [a for a in game.get_available_actions(game.current_player) if a.source == charge_spell and a.targets == [wf_minion]][0]
+  game.perform_action(cast_charge)
+  first_attacks = [a for a in game.get_available_actions(game.current_player) if a.action_type == Actions.ATTACK and a.source == wf_minion]
+  assert len(first_attacks) > 0
+  game.perform_action(first_attacks[0])
+  assert wf_minion.attacks_this_turn == 1
+  second_attacks = [a for a in game.get_available_actions(game.current_player) if a.action_type == Actions.ATTACK and a.source == wf_minion]
+  assert len(second_attacks) > 0 #windfury grants a second swing off the charge-in
+
+# --- Wild Pyromancer self-damage ordering -----------------------------------
+
+def test_wild_pyromancer_survives_its_own_trigger():
+  game = GameManager().create_test_game()
+  pyro = game.game_manager.get_card('Wild Pyromancer', game.current_player.board) #3/2
+  missiles = game.game_manager.get_card('Arcane Missiles', game.current_player.hand)
+  cast_missiles = [a for a in game.get_available_actions(game.current_player) if a.source == missiles][0]
+  game.perform_action(cast_missiles)
+  assert pyro.parent == pyro.owner.board #took exactly 1 from its own trigger, survives at 3/1
+  assert pyro.get_health() == 1
+
+# --- Harvest Golem deathrattle refilling a dying board ----------------------
+
+def test_harvest_golem_flamestrike_refills_board():
+  game = GameManager().create_test_game()
+  for _ in range(7):
+    game.game_manager.get_card('Harvest Golem', game.current_player.other_player.board)
+  flamestrike = game.game_manager.get_card('Flamestrike', game.current_player.hand)
+  cast_flamestrike = [a for a in game.get_available_actions(game.current_player) if a.source == flamestrike][0]
+  game.perform_action(cast_flamestrike)
+  assert len(game.current_player.other_player.board) == 7
+  assert all(card.name == 'Damaged Golem' for card in game.current_player.other_player.board)
+
+# --- Untested legendaries (flagged by coverage audit) -----------------------
+
+def test_alexstrasza():
+  game = GameManager().create_test_game()
+  alexstrasza = game.game_manager.get_card('Alexstrasza', game.current_player.hand)
+  enemy = game.current_player.other_player
+  cast_alex = [a for a in game.get_available_actions(game.current_player) if a.source == alexstrasza and a.targets == [enemy]][0]
+  game.perform_action(cast_alex)
+  assert enemy.get_health() == 15
+
+def test_grommash_hellscream_enrage():
+  game = GameManager().create_test_game()
+  grommash = game.game_manager.get_card('Grommash Hellscream', game.current_player.board)
+  assert grommash.has_attribute(Attributes.CHARGE)
+  assert grommash.get_attack() == 4
+  game.deal_damage(grommash, 1)
+  assert grommash.get_attack() == 10 #+6 from taking damage
+
+def test_leeroy_jenkins_summons_enemy_whelps():
+  game = GameManager().create_test_game()
+  leeroy = game.game_manager.get_card('Leeroy Jenkins', game.current_player.hand)
+  play_leeroy = [a for a in game.get_available_actions(game.current_player) if a.source == leeroy][0]
+  enemy_board_before = len(game.current_player.other_player.board)
+  game.perform_action(play_leeroy)
+  assert leeroy.has_attribute(Attributes.CHARGE)
+  assert len(game.current_player.other_player.board) == enemy_board_before + 2
+  assert all(card.name == 'Whelp' for card in game.current_player.other_player.board)
+
+def test_harrison_jones_draws_cards_equal_to_weapon_durability():
+  game = GameManager().create_test_game()
+  enemy_weapon = game.game_manager.get_card('Arcanite Reaper', game.current_player.other_player) #5 durability
+  harrison = game.game_manager.get_card('Harrison Jones', game.current_player.hand)
+  hand_size_before = len(game.current_player.hand)
+  play_harrison = [a for a in game.get_available_actions(game.current_player) if a.source == harrison][0]
+  game.perform_action(play_harrison)
+  assert not game.current_player.other_player.weapon
+  assert len(game.current_player.hand) == hand_size_before - 1 + 2 #lost Harrison from hand, drew 2 (weapon's durability)
+
+def test_tinkmaster_overspark_transforms_into_devilsaur_or_squirrel():
+  game = GameManager().create_test_game()
+  target = game.game_manager.get_card('Wisp', game.current_player.other_player.board)
+  tinkmaster = game.game_manager.get_card('Tinkmaster Overspark', game.current_player.hand)
+  play_tinkmaster = [a for a in game.get_available_actions(game.current_player) if a.source == tinkmaster and a.targets == [target]][0]
+  game.perform_action(play_tinkmaster)
+  transformed = [card for card in game.current_player.other_player.board if card.name in ('Devilsaur', 'Squirrel')]
+  assert len(transformed) == 1
+
+def test_ysera_draws_a_card_each_end_turn():
+  game = GameManager().create_test_game()
+  ysera_owner = game.current_player #capture before end_turn flips current_player
+  other_player = game.current_player.other_player
+  ysera = game.game_manager.get_card('Ysera', ysera_owner.board)
+  hand_size_before = len(ysera_owner.hand)
+  other_hand_before = len(other_player.hand)
+  game.end_turn()
+  assert len(ysera_owner.hand) == hand_size_before + 1 #drew from its own FRIENDLY_END_TURN trigger
+  assert len(other_player.hand) == other_hand_before #didn't affect the other player
+
+def test_nat_pagle_chance_to_draw_extra_card():
+  game = GameManager().create_test_game()
+  game.game_manager.get_card('Nat Pagle', game.current_player.board)
+  hand_size_before = len(game.current_player.hand)
+  game.untap()
+  #50/50 chance to draw an extra card on top of the normal turn draw - just
+  #confirm it doesn't crash and hand grows by the normal amount or more
+  assert len(game.current_player.hand) >= hand_size_before + 1
+
+def test_lorewalker_cho_gives_both_players_a_copy_of_cast_spells():
+  #simplified from real Cho (see card_sets.py comment): both players get a
+  #copy of any spell cast by either side, not just the non-caster.
+  game = GameManager().create_test_game()
+  game.game_manager.get_card('Lorewalker Cho', game.current_player.board)
+  missiles = game.game_manager.get_card('Arcane Missiles', game.current_player.hand)
+  caster = game.current_player
+  enemy = game.current_player.other_player
+  caster_hand_before = len(caster.hand)
+  enemy_hand_before = len(enemy.hand)
+  cast_missiles = [a for a in game.get_available_actions(game.current_player) if a.source == missiles][0]
+  game.perform_action(cast_missiles)
+  assert len(enemy.hand) == enemy_hand_before + 1
+  assert any(card.name == 'Arcane Missiles' for card in enemy.hand)
+  assert len(caster.hand) == caster_hand_before - 1 + 1 #lost the cast Missiles, gained a copy back
+
+def test_king_krush_vanilla_charge_beast():
+  game = GameManager().create_test_game()
+  king_krush = game.game_manager.get_card('King Krush', game.current_player.board)
+  assert king_krush.has_attribute(Attributes.CHARGE)
+  assert king_krush.creature_type == CreatureTypes.BEAST
+  assert king_krush.get_attack() == 8
+  assert king_krush.get_health() == 8
 
 def main():
   pass

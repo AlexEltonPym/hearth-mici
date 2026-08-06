@@ -34,6 +34,26 @@ python3 -m pip install -r requirements.txt
 For an example of running the simulator, see classic_sim.py
 
 
+## Running the tests
+From `classic_sim/tests`, with `PYTHONPATH=../src`:
+
+    PYTHONPATH=../src python -m pytest card_tests.py dynamics_tests.py agent_tests.py
+
+This runs the **fast tier** only (unit-style card/mechanic tests, a few hundred
+of them, a few seconds total) - `pytest.ini` marks anything that plays out
+real games (MCTS search, multi-game `simulate()` calls) as `slow` and excludes
+it by default, so editing a card doesn't mean waiting minutes for a full MCTS
+ladder to re-run. Run the slow tier explicitly when you want it:
+
+    PYTHONPATH=../src python -m pytest agent_tests.py -m slow
+
+or drop `-m slow`'s default exclusion for everything:
+
+    PYTHONPATH=../src python -m pytest card_tests.py dynamics_tests.py agent_tests.py -m slow
+
+New tests that spin up `GameManager.simulate(...)` with many games, or run
+`MCTS`, should get `@pytest.mark.slow` (see `agent_tests.py` for examples).
+
 ## Profiling the code:
 First you will need to install kernprof/line_profiler https://github.com/rkern/line_profiler:
 

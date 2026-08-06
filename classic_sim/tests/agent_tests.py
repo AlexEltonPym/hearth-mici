@@ -1,8 +1,9 @@
 import sys
-  
+
 # appending the parent directory path
 sys.path.append('../src/')
 
+import pytest
 from game_manager import GameManager
 from strategy import GreedyAction, GreedyActionSmart, RandomNoEarlyPassing, RandomAction, GreedyActionSmartv1, MCTS
 from enums import *
@@ -13,6 +14,7 @@ from copy import deepcopy
 from timeit import timeit
 
 
+@pytest.mark.slow
 def test_copy_speeds():
   cpickle = timeit(stmt="cpy=cPickle.loads(cPickle.dumps(game, -1))", setup="import _pickle as cPickle; from game_manager import GameManager; game=GameManager().create_test_game()", number=100)
   pickle = timeit(stmt="cpy=pickle.loads(pickle.dumps(game, -1))", setup="import pickle; from game_manager import GameManager; game=GameManager().create_test_game()", number=100)
@@ -38,6 +40,7 @@ def test_simulate_ignores_aborted_games():
   game_manager.run_games = lambda num_games, silent, rng, rank: [None, None]
   assert game_manager.simulate(2, silent=True, parralel=1) == []
 
+@pytest.mark.slow
 def test_mcts_vs_greedy():
 
   mage_player = ['Gadgetzan Auctioneer', 'Gadgetzan Auctioneer', 'Dire Wolf Alpha', 'Dire Wolf Alpha', 'Raging Worgen', 'Raging Worgen', 'Arcane Missiles', 'Arcane Missiles', 'Fen Creeper', 'Fen Creeper', 'Big Game Hunter', 'Big Game Hunter', 'Spellbender', 'Spellbender', 'Silvermoon Guardian', 'Silvermoon Guardian', 'Thrallmar Farseer', 'Thrallmar Farseer', 'Ethereal Arcanist', 'Ethereal Arcanist', 'Frostbolt', 'Frostbolt', 'Nightblade', 'Nightblade', 'Spellbreaker', 'Spellbreaker', 'Abusive Sergeant', 'Abusive Sergeant', 'Frost Nova', 'Frost Nova']
@@ -53,6 +56,7 @@ def test_mcts_vs_greedy():
   print(game_results)
 
 
+@pytest.mark.slow
 def test_smart_greedy_vs_greedy():
   game_manager = GameManager()
   game_manager.create_player_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER])
@@ -62,6 +66,7 @@ def test_smart_greedy_vs_greedy():
   game_results = game_manager.simulate(20, False, -1)
   print(game_results)
 
+@pytest.mark.slow
 def test_decklist_vs_decklist():
   basic_mage = [
     "Arcane Missiles",

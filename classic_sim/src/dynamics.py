@@ -408,11 +408,4 @@ class WeaponHealth(Dynamics):
       count += action.source.owner.other_player.weapon.get_health() if action.source.owner.other_player.weapon else 0
     return count
 
-class CastCard(Dynamics): #the card currently being cast, regardless of card_type (Source() only returns minions/weapons)
-  def __init__(self):
-    pass
-  def __call__(self, action) -> Callable[..., CARD]:
-    return action.source
-
-
-__all__ = ["RandomInt", "ConstantInt", "ConstantBool", "ConstantCard", "ConstantAttribute", "ConstantCreatureTypes", "Multiply", "Add", "Equals", "LessThan", "GreaterThan", "Not", "And", "Or", "Minimum", "Maximum", "IfInt", "IfCard", "IfAttribute", "IfCreatureType", "Source", "Target", "NumOtherMinions", "CardsInHand", "DamageTaken", "PlayerArmor", "WeaponAttack", "HasWeapon", "MinionsPlayed", "NumCardsInHand", "AttackValue", "HealthValue", "Damaged", "NumWithAttribute", "NumWithCreatureType", "NumDamaged", "TargetFrozen", "PlayerHasAttribute", "SourceHasAttribute", "HasSecret", "TargetAlive", "WeaponHealth", "CastCard"]
+__all__ = ["RandomInt", "ConstantInt", "ConstantBool", "ConstantCard", "ConstantAttribute", "ConstantCreatureTypes", "Multiply", "Add", "Equals", "LessThan", "GreaterThan", "Not", "And", "Or", "Minimum", "Maximum", "IfInt", "IfCard", "IfAttribute", "IfCreatureType", "Source", "Target", "NumOtherMinions", "CardsInHand", "DamageTaken", "PlayerArmor", "WeaponAttack", "HasWeapon", "MinionsPlayed", "NumCardsInHand", "AttackValue", "HealthValue", "Damaged", "NumWithAttribute", "NumWithCreatureType", "NumDamaged", "TargetFrozen", "PlayerHasAttribute", "SourceHasAttribute", "HasSecret", "TargetAlive", "WeaponHealth"]

@@ -510,9 +510,9 @@ class SummonToken(Effect): #summon minion for target player
         new_weapon_token.set_parent(new_owner) #Doesn't trigger battlecry
 
 class AddCardToHand(Effect): #add a copy of a card to target player's hand
-  available_methods = [Methods.ALL, Methods.RANDOMLY]
+  available_methods = [Methods.ALL, Methods.RANDOMLY, Methods.TRIGGERER]
   param_type = ParamTypes.X_TOKENS
-  available_targets = [Targets.HERO]
+  available_targets = [Targets.HERO, Targets.SPELL] #SPELL only matters for TRIGGERER (see resolve_action)
   available_owner_filters = [o for o in OwnerFilters]
   available_type_filters = []
   available_durations = []
@@ -532,6 +532,27 @@ class AddCardToHand(Effect): #add a copy of a card to target player's hand
     self.duration = duration
 
   def resolve_action(self, game, action):
+    if self.method == Methods.TRIGGERER:
+      #the card to copy isn't known ahead of time (e.g. Lorewalker Cho copies
+      #whatever spell was just cast) - resolve_effect threads it through as
+      #the triggerer, landing in action.targets[0] instead of self.value.
+      card_to_copy = action.targets[0] if action.targets else None
+      if card_to_copy is None:
+        return
+      recipients = []
+      if self.owner_filter in (OwnerFilters.FRIENDLY, OwnerFilters.ALL):
+        recipients.append(action.source.owner)
+      if self.owner_filter in (OwnerFilters.ENEMY, OwnerFilters.ALL):
+        recipients.append(action.source.owner.other_player)
+      for recipient in recipients:
+        if len(recipient.hand) >= recipient.hand.max_entries:
+          continue
+        new_card = deepcopy(card_to_copy)
+        new_card.collectable = False
+        new_card.set_owner(recipient)
+        new_card.set_parent(recipient.hand) #doesn't trigger battlecry
+      return
+
     if self.value[1](action) is None:
       return
     card_count = self.value[0](action)
