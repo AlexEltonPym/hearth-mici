@@ -536,14 +536,18 @@ class AddCardToHand(Effect): #add a copy of a card to target player's hand
       #the card to copy isn't known ahead of time (e.g. Lorewalker Cho copies
       #whatever spell was just cast) - resolve_effect threads it through as
       #the triggerer, landing in action.targets[0] instead of self.value.
+      #owner_filter is relative to whoever cast that card, not to this
+      #effect's own owner (Cho) - that's what lets one card react correctly
+      #regardless of which side actually triggered it.
       card_to_copy = action.targets[0] if action.targets else None
       if card_to_copy is None:
         return
+      caster = card_to_copy.owner
       recipients = []
       if self.owner_filter in (OwnerFilters.FRIENDLY, OwnerFilters.ALL):
-        recipients.append(action.source.owner)
+        recipients.append(caster)
       if self.owner_filter in (OwnerFilters.ENEMY, OwnerFilters.ALL):
-        recipients.append(action.source.owner.other_player)
+        recipients.append(caster.other_player)
       for recipient in recipients:
         if len(recipient.hand) >= recipient.hand.max_entries:
           continue

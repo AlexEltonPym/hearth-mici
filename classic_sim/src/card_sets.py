@@ -423,10 +423,27 @@ def get_legendary_cards():
                                         value=(ConstantInt(1), ConstantCard(Card(name="Devilsaur", collectable=False, card_type=CardTypes.MINION, manacost=5, attack=5, health=5)))),
                        ReplaceWithToken(trigger=Triggers.BATTLECRY, method=Methods.RANDOMLY, owner_filter=OwnerFilters.ALL,\
                                         value=(ConstantInt(1), ConstantCard(Card(name="Squirrel", collectable=False, card_type=CardTypes.MINION, manacost=1, attack=1, health=1))))]))
-  #Ysera's real Dream Cards (5-card randomised subpool) aren't modelled; approximated
-  #as a card-advantage engine so her headline stats are still deckbuilding-relevant.
+  #4 of the 5 real Dream Cards, randomly added to hand at end of turn like
+  #the real card. Ysera Awakens deviates from the real text ("deal 5 to ALL
+  #characters, except Ysera") - DealDamage computes one damage amount for
+  #the whole target list, it has no per-target exception mechanism, so
+  #Ysera also takes the 5 here if she's still alive. Nightmare ("+5/+5,
+  #destroy this minion at end of turn") is skipped: a Card has exactly one
+  #effect slot, so giving an arbitrary minion a fresh end-of-turn Destroy
+  #would silently overwrite (destroy) whatever ability it already had.
+  emerald_drake = Card(name="Emerald Drake", collectable=False, card_type=CardTypes.MINION, manacost=4, attack=4, health=4, creature_type=CreatureTypes.DRAGON)
+  laughing_sister = Card(name="Laughing Sister", collectable=False, card_type=CardTypes.MINION, manacost=3, attack=3, health=5, attributes=[Attributes.STEALTH, Attributes.SPELL_DAMAGE])
+  dream = Card(name="Dream", collectable=False, card_type=CardTypes.SPELL, manacost=0,\
+              effect=DualEffect(ReturnToHand(method=Methods.TARGETED, target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY),\
+                                ChangeCost(value=ConstantInt(-2), method=Methods.TARGETED, target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY)))
+  ysera_awakens = Card(name="Ysera Awakens", collectable=False, card_type=CardTypes.SPELL, manacost=2,\
+                       effect=DealDamage(value=ConstantInt(5), method=Methods.ALL, target=Targets.MINION_OR_HERO, owner_filter=OwnerFilters.ALL))
   ysera = Card(name="Ysera", card_type=CardTypes.MINION, manacost=9, attack=4, health=12, creature_type=CreatureTypes.DRAGON,\
-                     effect=DrawCards(value=ConstantInt(1), trigger=Triggers.FRIENDLY_END_TURN, method=Methods.ALL, owner_filter=OwnerFilters.FRIENDLY))
+                     effect=MultiEffectRandom([
+                       AddCardToHand(value=(ConstantInt(1), ConstantCard(emerald_drake)), trigger=Triggers.FRIENDLY_END_TURN, method=Methods.ALL, owner_filter=OwnerFilters.FRIENDLY),
+                       AddCardToHand(value=(ConstantInt(1), ConstantCard(laughing_sister)), trigger=Triggers.FRIENDLY_END_TURN, method=Methods.ALL, owner_filter=OwnerFilters.FRIENDLY),
+                       AddCardToHand(value=(ConstantInt(1), ConstantCard(dream)), trigger=Triggers.FRIENDLY_END_TURN, method=Methods.ALL, owner_filter=OwnerFilters.FRIENDLY),
+                       AddCardToHand(value=(ConstantInt(1), ConstantCard(ysera_awakens)), trigger=Triggers.FRIENDLY_END_TURN, method=Methods.ALL, owner_filter=OwnerFilters.FRIENDLY)]))
   nat_pagle = Card(name="Nat Pagle", card_type=CardTypes.MINION, manacost=2, attack=0, health=4,\
                      effect=MultiEffectRandom([
                        DrawCards(value=ConstantInt(1), trigger=Triggers.FRIENDLY_UNTAP, method=Methods.ALL, owner_filter=OwnerFilters.FRIENDLY),
@@ -435,19 +452,17 @@ def get_legendary_cards():
   #meaning for a non-realtime simulator, so it's included vanilla, per instruction.
   nozdormu = Card(name="Nozdormu", card_type=CardTypes.MINION, manacost=9, attack=8, health=8, creature_type=CreatureTypes.DRAGON)
   #real Cho gives the copy only to the OTHER player from whoever cast the
-  #spell, but a Card's effect can only be dispatched off one Trigger value
-  #(DualEffect fires both sub-effects together off a single trigger match,
-  #it can't pick a sub-effect by which of two trigger types actually fired -
-  #see card_tests.py's regression test for why FRIENDLY/ENEMY_SPELL_CAST
-  #can't be split this way). Approximated as both players getting a copy of
-  #every spell cast, by either side - a real deck never needed this card.
+  #spell. AddCardToHand's TRIGGERER branch resolves owner_filter relative to
+  #the triggerer (the spell that was cast), not to Cho's own owner, so
+  #owner_filter=ENEMY here correctly means "the opposite side from whoever
+  #cast it" regardless of which player that is.
   #target=HERO (not SPELL) is deliberate: resolve_effect only dispatches a
   #TRIGGERER-method effect once its own generic board/hero scan finds a
   #match, and a spell is never a BOARD-zone candidate - HERO always matches
   #(both players are always present) so the dispatch gate passes. The actual
   #copied card comes from the triggerer at resolve time, not this target.
   lorewalker_cho = Card(name="Lorewalker Cho", card_type=CardTypes.MINION, manacost=2, attack=0, health=4,\
-                     effect=AddCardToHand(value=None, trigger=Triggers.ANY_SPELL_CAST, method=Methods.TRIGGERER, target=Targets.HERO, owner_filter=OwnerFilters.ALL))
+                     effect=AddCardToHand(value=None, trigger=Triggers.ANY_SPELL_CAST, method=Methods.TRIGGERER, target=Targets.HERO, owner_filter=OwnerFilters.ENEMY))
   #Elite Tauren Chieftain (hero power swap chain) and Millhouse Manastorm
   #(temporary, hand-tracking cost reduction) both need mechanics this engine's
   #effect DSL doesn't support (persistent hero power replacement; "this turn

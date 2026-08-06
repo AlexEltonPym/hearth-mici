@@ -3424,7 +3424,7 @@ def test_tinkmaster_overspark_transforms_into_devilsaur_or_squirrel():
   transformed = [card for card in game.current_player.other_player.board if card.name in ('Devilsaur', 'Squirrel')]
   assert len(transformed) == 1
 
-def test_ysera_draws_a_card_each_end_turn():
+def test_ysera_adds_one_dream_card_each_end_turn():
   game = GameManager().create_test_game()
   ysera_owner = game.current_player #capture before end_turn flips current_player
   other_player = game.current_player.other_player
@@ -3432,8 +3432,24 @@ def test_ysera_draws_a_card_each_end_turn():
   hand_size_before = len(ysera_owner.hand)
   other_hand_before = len(other_player.hand)
   game.end_turn()
-  assert len(ysera_owner.hand) == hand_size_before + 1 #drew from its own FRIENDLY_END_TURN trigger
+  assert len(ysera_owner.hand) == hand_size_before + 1 #added one Dream Card from its own FRIENDLY_END_TURN trigger
   assert len(other_player.hand) == other_hand_before #didn't affect the other player
+  added_card = ysera_owner.hand.get_all()[0] #hand started empty (create_test_game clears it)
+  assert added_card.name in ('Emerald Drake', 'Laughing Sister', 'Dream', 'Ysera Awakens')
+
+def test_ysera_dream_cards_are_all_reachable():
+  #run enough trials that all 4 Dream Cards should show up at least once -
+  #a sanity check on the MultiEffectRandom wiring, not a statistical proof.
+  game = GameManager().create_test_game()
+  ysera_owner = game.current_player
+  game.game_manager.get_card('Ysera', ysera_owner.board)
+  seen = set()
+  for _ in range(60):
+    ysera_owner.hand.clear()
+    game.end_turn()
+    game.current_player = ysera_owner #undo the turn flip so the next end_turn is Ysera's again
+    seen.update(c.name for c in ysera_owner.hand)
+  assert seen == {'Emerald Drake', 'Laughing Sister', 'Dream', 'Ysera Awakens'}
 
 def test_nat_pagle_chance_to_draw_extra_card():
   game = GameManager().create_test_game()
@@ -3444,21 +3460,35 @@ def test_nat_pagle_chance_to_draw_extra_card():
   #confirm it doesn't crash and hand grows by the normal amount or more
   assert len(game.current_player.hand) >= hand_size_before + 1
 
-def test_lorewalker_cho_gives_both_players_a_copy_of_cast_spells():
-  #simplified from real Cho (see card_sets.py comment): both players get a
-  #copy of any spell cast by either side, not just the non-caster.
+def test_lorewalker_cho_gives_the_copy_to_the_non_caster():
+  #Cho's owner casts a spell - the copy goes to the OPPONENT, not back to the caster.
   game = GameManager().create_test_game()
-  game.game_manager.get_card('Lorewalker Cho', game.current_player.board)
-  missiles = game.game_manager.get_card('Arcane Missiles', game.current_player.hand)
-  caster = game.current_player
+  cho_owner = game.current_player
   enemy = game.current_player.other_player
-  caster_hand_before = len(caster.hand)
+  game.game_manager.get_card('Lorewalker Cho', cho_owner.board)
+  missiles = game.game_manager.get_card('Arcane Missiles', cho_owner.hand)
+  caster_hand_before = len(cho_owner.hand)
   enemy_hand_before = len(enemy.hand)
-  cast_missiles = [a for a in game.get_available_actions(game.current_player) if a.source == missiles][0]
+  cast_missiles = [a for a in game.get_available_actions(cho_owner) if a.source == missiles][0]
   game.perform_action(cast_missiles)
   assert len(enemy.hand) == enemy_hand_before + 1
   assert any(card.name == 'Arcane Missiles' for card in enemy.hand)
-  assert len(caster.hand) == caster_hand_before - 1 + 1 #lost the cast Missiles, gained a copy back
+  assert len(cho_owner.hand) == caster_hand_before - 1 #lost the cast Missiles, got nothing back
+
+def test_lorewalker_cho_reacts_to_the_opponent_casting_too():
+  #Cho isn't one-directional - it reacts to either player casting a spell,
+  #always routing the copy to whoever didn't cast it.
+  game = GameManager().create_test_game()
+  cho_owner = game.current_player
+  enemy = game.current_player.other_player
+  game.game_manager.get_card('Lorewalker Cho', cho_owner.board)
+  enemy_missiles = game.game_manager.get_card('Arcane Missiles', enemy.hand)
+  cho_owner_hand_before = len(cho_owner.hand)
+  game.current_player = enemy #it's the enemy's turn to cast, for this action
+  cast_missiles = [a for a in game.get_available_actions(enemy) if a.source == enemy_missiles][0]
+  game.perform_action(cast_missiles)
+  assert len(cho_owner.hand) == cho_owner_hand_before + 1
+  assert any(card.name == 'Arcane Missiles' for card in cho_owner.hand)
 
 def test_king_krush_vanilla_charge_beast():
   game = GameManager().create_test_game()
