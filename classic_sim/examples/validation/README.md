@@ -37,6 +37,41 @@ prediction for the simulator to reproduce (or fail to).
 Secondary ground truth: HSReplay RANKED_CLASSIC per-deck winrates + decklists
 (Wayback capture 2021-05-04, 88 Mage/Hunter/Warrior decks).
 
+**S1 results (run 2026-08-06, after the legendaries pass).** All 88 real decks
+are now fully constructible (`extract_hsreplay_decklists.py`), so for the
+first time this could run on genuine archived decklists rather than
+approximations. `run_s1_matchups.py` picks one representative real deck per
+named archetype by signature-card score (no archetype label exists in the
+Wayback capture - its `archetype_id` is a single per-class sentinel, not a
+real classification), then simulates all 20 in-scope matchup pairs that have
+real ground truth, 60 games each, with `GreedyActionSmart` piloting both sides.
+
+**Spearman rank correlation (real ordinal vs. simulated win rate): 0.366.**
+Positive but weak - directionally right more than half the time, wrong often
+enough that this isn't yet a confident validation. The clearest single cause:
+**Freeze Mage's simulated results are bad in every matchup it's in**
+(11.7% vs. Face Hunter where real is 42.5%; 38.3% vs. Burn Mage where real is
+50.0%; 0.0%/60 games vs. Control Warrior where real is 32.5%) - a systematic,
+one-sided pattern across all three of its matchups, not a one-off. Freeze
+Mage's real gameplan is delayed-value control (survive on Ice Block/armor,
+win on fatigue or a late Alexstrasza+burn line); `GreedyActionSmart`'s 1-ply
+lookahead has no way to value "correct now, win in 15 turns" over immediate
+board/health swings, so it's a plausible confound that the *strategy*, not
+the *card implementations*, is what's failing to reproduce Freeze Mage's real
+performance. A second, smaller effect: Face Hunter vs. Aggro Warrior inverts
+outright (sim: Face favoured 75%; real: Aggro Warrior favoured, Face only
+42.5%) - possibly genuine archetype-representative imprecision (the specific
+real decklist picked for "Aggro Warrior" scored lower on its signature set,
+7-8, than Face Hunter's 17, so it may be a noisier example of the archetype).
+
+Natural next experiment, not yet run (expensive - MCTS games are ~20-50x
+slower than GreedyActionSmart, so 20 matchups x 60 games would take hours
+rather than minutes): re-run with `MCTS(guided=True)` piloting instead, to
+see whether the correlation improves once the piloting agent can actually
+value a control gameplan. If it does, that confirms the card
+implementations are fine and the confound is agent skill, not simulator
+fidelity. Full comparison: `data/s1_simulated_matrix.csv`.
+
 **S2 - Archetype emergence.** Card-overlap between MAP-Elites archive clusters and
 real archetype cores. Report honestly: the mage archive collapsed deck-wise
 (715 elites, 24 unique decks); hunter/warrior archives retained diversity (537/590).
@@ -76,14 +111,17 @@ plainly: the real 2014 ladder ran Classic + Naxxramas, and the Hunter rebuild
 leaned on Naxx cards (Undertaker, Haunted Creeper) the simulator cannot represent,
 so (2) is the weaker of the two comparisons.
 
-## Deck representability (measured 2026-08-06)
+## Deck representability
 
-Real 2021 Classic decks fully constructible in the current sim pool: 5/88.
-The entire gap is 15 legendaries (Alexstrasza 53 decks, Grommash 32, Ragnaros 30,
-Cairne 29, Thalnos 27, Leeroy 24, Geddon 23, Sylvanas 23, Harrison 19, Antonidas 15,
-Black Knight 6, Tinkmaster 6, Ysera 3, King Krush 1, Nat Pagle 1). Implementing
-these unlocks near-total decklist fidelity. Nozdormu/Cho/ETC/Millhouse: unused by
-real decks, intentionally skipped.
+Measured 2026-08-06 (before the legendaries pass): real 2021 Classic decks
+fully constructible in the sim pool were 5/88. The entire gap was 15
+legendaries (Alexstrasza 53 decks, Grommash 32, Ragnaros 30, Cairne 29,
+Thalnos 27, Leeroy 24, Geddon 23, Sylvanas 23, Harrison 19, Antonidas 15,
+Black Knight 6, Tinkmaster 6, Ysera 3, King Krush 1, Nat Pagle 1).
+
+Re-measured 2026-08-06 (after): **88/88** - every real archived Classic
+Mage/Hunter/Warrior deck in the HSReplay sample is now fully constructible
+(`extract_hsreplay_decklists.py`, `data/hsreplay_classic/constructible_decklists.csv`).
 
 ## data/ contents
 
