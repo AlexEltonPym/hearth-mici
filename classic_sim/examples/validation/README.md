@@ -333,6 +333,53 @@ additive.
 
 Artifacts: `data/s1_mcts_selfplay_shard{0,1}.csv`, `data/s1_mcts_selfplay_matrix.csv`.
 
+**Non-standard decks - a first step.** Every validation run above uses the
+same 6 hand-picked archetype representatives. But the thesis's actual
+mechanism (an agent traversing a MAP-Elites archive to predict metagame
+shifts) means the agent needs to handle decks *between* metagames too - ones
+outside the current 6 named archetypes. Rather than jump straight to fully
+synthetic decks (random generation, or MAP-Elites archive output - both
+available: `Deck.generate_random`/`generate_random_n_copies` in `zones.py`,
+and saved archives under `dwailmeta_0_post_nerf/` and
+`hunter_vs_15_300_x_5/` etc.), the first step used a safer middle ground:
+the other **82 real HSReplay decks** in `constructible_decklists.csv` that
+aren't one of the 6 signature-matched archetypes - still human-played, real
+decklists, just ones no validation work had touched yet.
+
+Unlike the pairwise vS matrix, HSReplay's own `win_rate` column is a deck's
+win rate across the *whole field it was actually played in* - there's no
+pairwise ground truth for these 82, so the right comparison is a full
+internal round robin (every pair played once; `game.play_game()` already
+randomises who goes first, so an unordered round robin isn't biased toward
+whichever deck is passed as "player") rather than more archetype-vs-archetype
+pairs. New code: `run_offarchetype_tournament.py` (round robin + early-
+stopping matchup evaluation, same sequential-t-test shape as
+`calibrate_greedy_weights.py`) + `tournament_remote_worker.py`, using the
+same dill-over-SSH distribution pattern as everything else this session.
+
+First pass, `GreedyActionSmart` (default weights) both sides, distributed
+across dwail1/dwail2:
+
+| decks | pairs | games | Spearman (real win_rate vs sim win_rate) | MSE (pct points^2) |
+|---|---|---|---|---|
+| 82 | 3321 | 37,551 | **0.639** | 258.7 |
+
+Notably higher than S1's pairwise 0.366 - though these aren't the same
+measurement (deck-level aggregate win rate across a large internal field vs.
+one pairwise matchup ordinal against 5 others), so it isn't a clean
+apples-to-apples improvement. A plausible reading: ranking a deck's overall
+power against a broad field averages out matchup-specific noise that a
+single pairwise comparison can't, so this may be an easier prediction task
+by construction, not evidence the greedy heuristic got better at anything.
+Artifacts: `data/offarchetype_greedy.csv`, `data/offarchetype_greedy.summary.json`.
+
+Not yet done, and the natural next steps: (1) re-run with guided MCTS to see
+whether the same search-depth lift S1 showed holds here too; (2) the
+originally-scoped follow-up - perturb/evolve this 82-deck pool (swap a few
+cards per generation, MAP-Elites-style) to generate genuinely non-standard
+decks, using round-robin win rate against the real pool as a fitness/sanity
+signal before trusting a purely synthetic deck's evaluation.
+
 **S2 - Archetype emergence.** Card-overlap between MAP-Elites archive clusters and
 real archetype cores. Report honestly: the mage archive collapsed deck-wise
 (715 elites, 24 unique decks); hunter/warrior archives retained diversity (537/590).
