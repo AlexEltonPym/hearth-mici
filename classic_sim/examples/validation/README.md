@@ -64,13 +64,33 @@ outright (sim: Face favoured 75%; real: Aggro Warrior favoured, Face only
 real decklist picked for "Aggro Warrior" scored lower on its signature set,
 7-8, than Face Hunter's 17, so it may be a noisier example of the archetype).
 
-Natural next experiment, not yet run (expensive - MCTS games are ~20-50x
-slower than GreedyActionSmart, so 20 matchups x 60 games would take hours
-rather than minutes): re-run with `MCTS(guided=True)` piloting instead, to
-see whether the correlation improves once the piloting agent can actually
-value a control gameplan. If it does, that confirms the card
-implementations are fine and the confound is agent skill, not simulator
-fidelity. Full comparison: `data/s1_simulated_matrix.csv`.
+Full comparison: `data/s1_simulated_matrix.csv`.
+
+**S1 re-run with guided MCTS (2026-08-06), distributed across dwail1/dwail2.**
+Confirmed the agent-skill hypothesis above rather than just speculating about
+it. Ran the same 20 matchups with `MCTS(iterations=150, guided=True)` piloting
+both sides instead of `GreedyActionSmart` - the strongest agent in the
+codebase (95% vs. `GreedyActionSmart` at this setting, see the engine notes),
+but too slow to run locally in reasonable time (~25s/game vs. ~1s for greedy).
+Split the 20 pairs across dwail1 and dwail2 (`run_s1_matchups_remote.py
+--shard i/2`, 18 and 10 cores respectively via joblib - dwail2 was left more
+headroom since it had another job already running), 40 games/matchup, ~15
+minutes wall-clock total instead of the multi-hour local estimate.
+
+**Spearman rank correlation: 0.607**, up from 0.366. Freeze Mage specifically
+went from "loses almost everything" to roughly matching real win rates: vs.
+Face Hunter 11.7% -> 57.5% (real 42.5%), vs. Control Warrior 0.0% -> 12.5%
+(real 32.5%, still under but no longer a 0/40 wipeout), vs. Burn Mage
+38.3% -> 47.5% (real 50.0%, near-exact). Confirms the original diagnosis:
+`GreedyActionSmart`'s 1-ply lookahead, not the card implementations, was
+suppressing Freeze Mage's real performance. Not every gap closed - Face
+Hunter vs. Sunshine Hunter is still inverted (sim 40% vs. real 62.5% either
+way) and a few matchups overshot in the correct direction rather than landing
+close - so 0.607 is meaningfully better evidence, not a finished validation.
+Full comparison: `data/s1_mcts_matrix.csv`. Deployment for the curious: the
+tarball shipped was `src/` + `examples/validation/` (minus the 592MB Zenodo
+archive) via scp, run under a pyenv 3.13 venv on each machine (the engine
+needs `typing.Self`, unavailable on the machines' default Python 3.8).
 
 **S2 - Archetype emergence.** Card-overlap between MAP-Elites archive clusters and
 real archetype cores. Report honestly: the mage archive collapsed deck-wise
