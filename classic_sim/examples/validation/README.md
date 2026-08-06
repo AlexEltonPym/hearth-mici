@@ -92,6 +92,130 @@ tarball shipped was `src/` + `examples/validation/` (minus the 592MB Zenodo
 archive) via scp, run under a pyenv 3.13 venv on each machine (the engine
 needs `typing.Self`, unavailable on the machines' default Python 3.8).
 
+**Agent calibration (CMA-ES), following on from the S1 diagnosis.** S1 showed
+`GreedyActionSmart`'s hand-tuned 21-feature linear heuristic is a real ceiling
+- guided MCTS (whose leaf evaluation is a hardcoded copy of the same weights)
+improved correlation from 0.366 to 0.607 purely by searching deeper with the
+*same* evaluation function. Rather than accept the hand-tuned weights (or the
+21-feature basis they're built on) as fixed, calibrated them against the real
+matchup matrix directly - scoped out in detail before building anything (see
+session notes), including working through *why* CMA-ES specifically (a
+~27-dimensional, noisy, non-differentiable, unevenly-scaled-parameter
+optimization is squarely its niche - Bayesian optimization wants far fewer
+evaluations than we can afford; plain isotropic evolution strategies ignore
+the cross-parameter correlation that matters at this dimensionality) and
+what the objective needs to guard against (pure win-rate matching is
+gameable - an archetype that already overperforms real players could satisfy
+the loss by getting *worse*, not more realistic, so the objective includes a
+one-sided skill-floor penalty that only fires on regressions vs. a fixed
+`RandomAction` baseline, never rewards exceeding it).
+
+Added 6 features `GreedyActionSmart`'s original 21 structurally can't express
+- lethal margin (both directions), weapon durability differential, a
+reciprocal (non-linear-in-state, linear-in-weight) fatigue-proximity term,
+hero power availability, and unused mana - defaulting to weight 0 so
+`GreedyActionSmart()`'s out-of-the-box behaviour is unchanged until
+calibration finds a reason to use them. Built on the existing distributed
+tournament framework (`metagame.py`'s `run_ssh_tournament`/`run_host` +
+`remote_simulator.py`'s dill-over-stdin protocol) rather than a fresh
+deploy - dwail1/dwail2 already had a working `venv` with every dependency,
+and it's the path their other MAP-Elites tooling expects to find in a
+working state. New code: `calibrate_greedy_weights.py` (the CMA-ES loop +
+loss function), `calibrate_remote_worker.py` (sibling to
+`remote_simulator.py`), `analyze_calibration.py` (confirm-phase + ablation),
+`evaluate_cv_generalization.py` (leave-one-archetype-out scoring).
+
+*Result (60-generation search, both machines, ~27k games; confirm phase at
+full 60-games/matchup fidelity):*
+
+| | matching MSE (real vs. sim win-rate %, lower is better) |
+|---|---|
+| Default weights | 487.5 |
+| Calibrated weights | **204.1** |
+
+Real improvement, not a rounding error - roughly 58% lower squared error
+against the vS matchup matrix. Skill-floor check (win rate vs. `RandomAction`,
+should hold steady or improve): 4 of 6 archetypes held steady or improved;
+Freeze Mage dipped trivially (1.000 -> 0.983, one extra loss in 60 games) and
+Control Warrior dipped more than is comfortable (1.000 -> 0.900). The
+skill-floor penalty is evaluated on noisy, early-stopped (4-16 game) samples
+during the search loop, so a real but modest regression like Control
+Warrior's ~10pp drop can slip through detection some fraction of the time -
+worth tightening (more games per skill-floor check, or a larger
+`--lambda-skill`) before treating this vector as final, not just a one-off
+finding to shrug at.
+
+*Feature ablation* (zero each new feature's fitted weight individually,
+holding the rest fixed, re-measure matching MSE - a cheap proxy for
+importance, not a full re-optimization; deltas near the ~30-point mark are
+within the noise of a 60-game-per-matchup sample and shouldn't be
+over-read):
+
+| feature removed | MSE | delta vs. full (204.1) |
+|---|---|---|
+| `lethal_margin_theirs` | 332.1 | +128.0 |
+| `fatigue_proximity` | 266.1 | +62.0 |
+| `lethal_margin_mine` | 265.7 | +61.6 |
+| `hero_power_available_difference` | 247.2 | +43.1 |
+| `unused_mana` | 207.8 | +3.7 (noise) |
+| `weapon_durability_difference` | 177.2 | -26.9 (noise, or actively unhelpful) |
+
+The threat-of-lethal and fatigue-proximity features are carrying real
+weight; hero power availability plausibly too. Weapon durability and unused
+mana were already fitted to near-zero weights and removing them doesn't
+clearly hurt (`weapon_durability_difference` improving on removal suggests
+its tiny fitted weight is noise-fit, not signal) - candidates to drop in a
+future pass rather than genuinely denser signal.
+
+*Leave-one-archetype-out cross-validation* (does calibration generalize, or
+did it just memorize the 20 real points? - fit 6 times, each excluding one
+archetype's real matchups, then score that fold's fitted weights against
+only the held-out matchups it never saw):
+
+| archetype held out | held-out pairs | default MSE | calibrated MSE |
+|---|---|---|---|
+| Face Hunter | 10 | 451.1 | 645.2 |
+| Sunshine Hunter | 4 | 142.4 | 202.1 |
+| Freeze Mage | 6 | 666.2 | 1187.5 |
+| Burn Mage | 6 | 283.2 | **272.3** |
+| Aggro Warrior | 4 | 584.0 | **403.5** |
+| Control Warrior | 10 | 411.2 | 1009.6 |
+| **overall** | 40 | **423.0** | **620.0** |
+
+**This is the finding that matters more than the headline in-sample number
+above, and it's a negative one: on matchups a fold never saw during fitting,
+the calibrated weights do worse than the default weights overall (620.0 vs.
+423.0 MSE) - only Burn Mage and Aggro Warrior generalized; Face Hunter,
+Sunshine Hunter, Freeze Mage, and Control Warrior got worse, Freeze Mage and
+Control Warrior by a lot.** Read together with the in-sample result
+(487.5 -> 204.1 MSE, fit on all 20 points), this is a textbook overfitting
+signature: a ~27-parameter model fit against only 20 sparse, mutually
+correlated real data points (each held-out fold has as few as 14-16 training
+points) can drive the training loss down without learning anything that
+transfers - exactly the risk flagged before any of this was built (see the
+regularization rationale above), and exactly why the CV step existed rather
+than trusting the in-sample number. `lambda_reg=0.05` evidently wasn't
+enough restraint for the amount of ground truth available.
+
+**Conclusion: this calibration run should not be treated as a validated
+improvement over the hand-tuned defaults - the in-sample fit looks good, the
+cross-validation says it doesn't reliably generalize.** Worth doing
+differently before trusting a calibrated vector: stronger regularization
+(a materially higher `lambda_reg`, or a stricter prior that only allows the
+new features to move, leaving the original 21 fixed), fewer parameters (the
+ablation above already suggests dropping `weapon_durability_difference` and
+`unused_mana`, which fit to near-zero/noise anyway - down to ~25 dimensions
+against 20 points is still tight but less so), or more real ground truth
+(the vS matrix's 172 total matchups only gave 20 among our 6 archetypes -
+extending representative-archetype coverage would help most). Not attempted
+in this pass, given the compute already spent - a reasonable next step
+before spending more.
+
+Artifacts: `data/calibrated_weights_full.json` (full-data fit),
+`data/calibration_confirm.json` (confirm-phase + ablation detail),
+`data/cv_weights_<Archetype>.json` x6 and `data/cv_generalization.json`
+(cross-validation).
+
 **S2 - Archetype emergence.** Card-overlap between MAP-Elites archive clusters and
 real archetype cores. Report honestly: the mage archive collapsed deck-wise
 (715 elites, 24 unique decks); hunter/warrior archives retained diversity (537/590).

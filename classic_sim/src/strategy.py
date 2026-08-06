@@ -140,7 +140,12 @@ class GreedyActionSmartv1():
     return turn_passed * -1 + health_difference * 10 + armor_difference + num_minions_difference + total_minion_health_difference
 
 class GreedyActionSmart():
-  def __init__(self, weights = [-1, 10, -10, 10, 10, 1, 1, 1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1, 1, 1]):
+  #the trailing 6 zeros are the additive feature extension's default weights
+  #(lethal_margin_mine, lethal_margin_theirs, weapon_durability_difference,
+  #fatigue_proximity, hero_power_available_difference, unused_mana) - zero
+  #means the default behaves exactly as it did with the original 21 features
+  #until calibrate_greedy_weights.py finds better values.
+  def __init__(self, weights = [-1, 10, -10, 10, 10, 1, 1, 1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1, 1, 1, 0, 0, 0, 0, 0, 0]):
     self.weights = weights
   def mulligan_rule(self, card):
     return card.get_manacost() < 4
@@ -235,24 +240,49 @@ class GreedyActionSmart():
     num_enemy_cards_in_secrets_zone = len(possible_state.current_player.other_player.secrets_zone)
     num_cards_in_secrets_zone_difference = num_cards_in_secrets_zone - num_enemy_cards_in_secrets_zone
 
-    #-0.1, 
+    #additive extension (Aug 2026): features the original 21 structurally can't
+    #express - threshold/interaction effects (lethal), a resource the original
+    #set never tracked (weapon durability), and a non-linear-in-state but still
+    #linear-in-weight injection of "how close to fatigue" (deck size difference
+    #alone can't distinguish 25->20 from 5->0, but 1/(n+1) can). Appended, not
+    #interleaved, so the original 21 weights still line up unchanged when these
+    #are zero-weighted - see calibrate_greedy_weights.py.
+    my_total_attack = possible_state.current_player.get_attack() + total_minion_attack
+    their_total_attack = possible_state.current_player.other_player.get_attack() + total_enemy_minion_attack
+    lethal_margin_mine = my_total_attack - enemy_hp
+    lethal_margin_theirs = their_total_attack - hp
+
+    my_weapon = possible_state.current_player.weapon
+    their_weapon = possible_state.current_player.other_player.weapon
+    weapon_durability_difference = (my_weapon.get_health() if my_weapon else 0) - (their_weapon.get_health() if their_weapon else 0)
+
+    fatigue_proximity = 1 / (num_enemy_cards_in_library + 1) - 1 / (num_cards_in_library + 1)
+
+    hero_power_available_difference = (0 if possible_state.current_player.used_hero_power else 1) \
+                                       - (0 if possible_state.current_player.other_player.used_hero_power else 1)
+
+    unused_mana = possible_state.current_player.current_mana
+
+    #-0.1,
     #1, -1, 1, 1
     #2, 2, 1.5,
-    #3, -3, 
+    #3, -3,
     #1, -1
     #1, -1
     #1, -1
     #1, -1
     #-1, 0, 1
-    feature_vector = [turn_passed, 
-                      hp, enemy_hp, health_difference, armor_difference, 
+    feature_vector = [turn_passed,
+                      hp, enemy_hp, health_difference, armor_difference,
                       num_minions_difference, total_minion_attack_difference, total_minion_health_difference,
                       num_minions_with_taunt, num_enemy_minions_with_taunt,
                       num_minions_with_divine_shield, num_enemy_minions_with_divine_shield,
                       num_minions_with_lifesteal, num_enemy_minions_with_lifesteal,
                       num_minions_with_spell_damage, num_enemy_minions_with_spell_damage,
                       num_other_positive_attributes, num_other_enemy_positive_attributes,
-                      num_cards_in_hand_difference, num_cards_in_library_difference, num_cards_in_secrets_zone_difference]
+                      num_cards_in_hand_difference, num_cards_in_library_difference, num_cards_in_secrets_zone_difference,
+                      lethal_margin_mine, lethal_margin_theirs, weapon_durability_difference,
+                      fatigue_proximity, hero_power_available_difference, unused_mana]
 
     return sum(feature*weight for feature, weight in zip(feature_vector, self.weights))
   

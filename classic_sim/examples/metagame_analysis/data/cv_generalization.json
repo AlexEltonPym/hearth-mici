@@ -1,0 +1,30 @@
+{
+  "per_archetype": {
+    "Face Hunter": {
+      "default": 451.13333333333327,
+      "calibrated": 645.2444444444444
+    },
+    "Sunshine Hunter": {
+      "default": 142.3611111111111,
+      "calibrated": 202.08333333333334
+    },
+    "Freeze Mage": {
+      "default": 666.2037037037038,
+      "calibrated": 1187.5
+    },
+    "Burn Mage": {
+      "default": 283.2314814814814,
+      "calibrated": 272.30555555555554
+    },
+    "Aggro Warrior": {
+      "default": 584.0277777777778,
+      "calibrated": 403.4722222222223
+    },
+    "Control Warrior": {
+      "default": 411.25,
+      "calibrated": 1009.5833333333334
+    }
+  },
+  "overall_default_mse": 423.0345679012346,
+  "overall_calibrated_mse": 620.0314814814815
+}
