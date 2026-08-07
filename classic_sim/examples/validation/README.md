@@ -539,6 +539,39 @@ this evaluation), which is real future compute, not a re-analysis of
 existing data - noted here rather than pursued further this session.
 Artifacts: `data/evolved_vs_pool_confirm.csv`.
 
+**Full-engine audit + Naxxramas implementation (2026-08-07/08).** Before the
+metagame-shift experiments below, the entire engine was audited against the
+real 2014 card database: a 10-agent sweep over all 221 cards (370 new tests,
+`tests/audit/`), a mechanics audit of the non-card game rules (hero powers,
+turn structure, fatigue, combat legality, action generation, win/loss), and
+a 221-card parametrized VANILLA stat regression. Sixteen behavioral bugs
+were fixed, several game-breaking: token summons fired no triggers (the
+Buzzard+Unleash combo did not exist in-engine), the board was a ring (edge
+minions counted as adjacent), Doomsayer wiped a turn early, Grommash's
+Enrage stacked +6 per damage instance, Alexstrasza permanently capped hero
+max health, weapon-over-weapon plays were never offered, stealth blocked
+friendly targeting, and Leeroy carried its post-2014 nerf cost. The full
+Naxxramas HMW set (21 neutrals + Webspinner/Duplicate/Death's Bite, 2014
+versions incl. pre-nerf Undertaker) is implemented behind new `NAXX_*` card
+sets, plus a `card_patches` hook in `build_pool` for historical nerf
+simulation (`SEPT_2014_NERF_PATCHES`).
+
+Re-baseline after all fixes (fidelity numbers quoted above predate them):
+
+| study | pre-fix | post-fix |
+|---|---|---|
+| S1 matchups, greedy (20 pairs, 60 games) | 0.366 | 0.326 |
+| S1 matchups, guided MCTS (20 pairs, 30 games) | 0.607 | 0.552 |
+| 82-deck round-robin, greedy (Spearman / MSE) | 0.639 / 258.7 | 0.604 / 241.2 |
+
+All three shifts are within sampling noise (20-pair Spearman SE ~0.2):
+the audit changed game *content* without moving aggregate fidelity, and
+the agent-skill ordering (MCTS > greedy) survives intact. The honest
+conclusion stands that agent skill, not card correctness, is the current
+fidelity ceiling. Artifacts: `data/s1_greedy_postfix.csv`,
+`data/s1_mcts_postfix_shard{0,1}.csv`,
+`../metagame_analysis/data/offarchetype_greedy_postfix.csv`.
+
 **S2 - Archetype emergence.** Card-overlap between MAP-Elites archive clusters and
 real archetype cores. Report honestly: the mage archive collapsed deck-wise
 (715 elites, 24 unique decks); hunter/warrior archives retained diversity (537/590).

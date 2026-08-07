@@ -1,0 +1,11 @@
+hero,opponent,sim_winrate_pct,real_winrate_band_pct,real_ordinal
+Face Hunter,Freeze Mage,36.7,57.5,6
+Face Hunter,Aggro Warrior,23.3,42.5,2
+Sunshine Hunter,Face Hunter,53.3,37.5,1
+Freeze Mage,Face Hunter,60.0,42.5,2
+Freeze Mage,Control Warrior,10.0,32.5,0
+Burn Mage,Freeze Mage,53.3,50.0,4
+Aggro Warrior,Face Hunter,63.3,57.5,6
+Control Warrior,Face Hunter,80.0,67.5,8
+Control Warrior,Freeze Mage,93.3,67.5,8
+Control Warrior,Aggro Warrior,43.3,62.5,7
