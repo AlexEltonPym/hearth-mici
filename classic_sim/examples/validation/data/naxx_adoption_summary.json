@@ -1,38 +1,38 @@
 {
   "pre_naxx": {
     "decks": {
-      "HUNTER": 1355,
-      "MAGE": 1619,
-      "WARRIOR": 1327
+      "HUNTER": 497,
+      "MAGE": 561,
+      "WARRIOR": 427
     },
     "constructible_seeds": {
-      "HUNTER": 798,
-      "MAGE": 1080,
-      "WARRIOR": 787
+      "HUNTER": 422,
+      "MAGE": 486,
+      "WARRIOR": 378
     }
   },
   "naxx_prenerf": {
     "decks": {
-      "HUNTER": 724,
-      "MAGE": 967,
-      "WARRIOR": 760
+      "HUNTER": 620,
+      "MAGE": 835,
+      "WARRIOR": 651
     },
     "constructible_seeds": {
-      "HUNTER": 602,
-      "MAGE": 818,
-      "WARRIOR": 613
+      "HUNTER": 561,
+      "MAGE": 775,
+      "WARRIOR": 573
     }
   },
   "post_nerf": {
     "decks": {
-      "HUNTER": 728,
-      "MAGE": 744,
-      "WARRIOR": 631
+      "HUNTER": 573,
+      "MAGE": 538,
+      "WARRIOR": 469
     },
     "constructible_seeds": {
-      "HUNTER": 545,
-      "MAGE": 537,
-      "WARRIOR": 436
+      "HUNTER": 485,
+      "MAGE": 465,
+      "WARRIOR": 384
     }
   }
 }

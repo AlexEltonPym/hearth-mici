@@ -45,6 +45,22 @@ WINDOWS = {
   "post_nerf": (datetime(2014, 9, 22), datetime(2014, 12, 8)),
 }
 
+#HearthPwn's Date is the deck's CREATION date, but the card list (and the Set
+#tag) reflect the LAST EDIT - a deck created in June and updated in August
+#carries Naxx cards under a pre-Naxx date (measured: 3,725 'Naxx Launch'-
+#tagged decks inside the pre-Naxx date window, Webspinner at a nonsense 24.7%
+#pre-Naxx adoption). Each window therefore also requires the Set tag to
+#belong to the window's patch era. Residual limitation: the Sept 22 nerf got
+#no tag of its own (post-nerf edits still show 'Naxx Launch'), so
+#naxx_prenerf can still contain post-nerf edits - undetectable, but the
+#Buzzard rate there (67.8%, matching pre-Naxx) suggests it is minor.
+SET_ALLOWLIST = {
+  "pre_naxx": {"Beta Patch 4243", "Beta Patch 4458", "Beta Patch 4482", "Beta Patch 4944",
+               "Live Patch 4973", "Live Patch 5170", "Live Patch 5314"},
+  "naxx_prenerf": {"Naxx Launch", "Live Patch 5435", "Live Patch 5506"},
+  "post_nerf": {"Naxx Launch", "Live Patch 5435", "Live Patch 5506"},
+}
+
 #the simulator's Naxxramas set (engine implementation in card_sets.get_naxx_*;
 #names hardcoded here so this data script has no dependency on that landing)
 NAXX_NEUTRALS = ["Zombie Chow", "Undertaker", "Echoing Ooze", "Haunted Creeper", "Mad Scientist",
@@ -70,7 +86,8 @@ def legendary_names():
 
 
 def load_ranked_decks():
-  """deck_id -> window label for every 2014 ranked deck in any window."""
+  """deck_id -> window label for every 2014 ranked deck whose date AND Set
+  tag both belong to the same window's era (see SET_ALLOWLIST)."""
   decks = {}
   with DECKS.open(encoding="utf-8", errors="replace") as f:
     for row in csv.DictReader(f, delimiter=";"):
@@ -80,7 +97,7 @@ def load_ranked_decks():
       if not date:
         continue
       for window, (start, end) in WINDOWS.items():
-        if start <= date < end:
+        if start <= date < end and row["Set"].strip() in SET_ALLOWLIST[window]:
           decks[row["idDeck"]] = window
           break
   return decks
@@ -124,9 +141,14 @@ def main():
   seeds = {w: {c: [] for c in CLASSES} for w in WINDOWS}
   pools_by_window = {w: era_pools(w) for w in WINDOWS}
 
+  naxx_names = set(NAXX_NEUTRALS) | {c for cs in NAXX_CLASS.values() for c in cs}
   for deck_id, window in decks.items():
     deck_counts = cards.get(deck_id)
     if not deck_counts:
+      continue
+    #belt and braces on top of the Set filter: a pre-Naxx deck containing any
+    #Naxx card is a later edit leaking through - drop it
+    if window == "pre_naxx" and naxx_names & set(deck_counts):
       continue
     player_class = infer_class(deck_counts)
     if not player_class:
