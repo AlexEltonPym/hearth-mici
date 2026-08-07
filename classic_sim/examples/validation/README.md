@@ -463,12 +463,44 @@ two of three classes).
 Artifacts: `data/evolve_offarchetype_{hunter,mage,warrior}_history.csv`,
 `data/evolve_offarchetype_{hunter,mage,warrior}_generation{0..14}.json`.
 
-Not yet done: run this for longer (fitness hadn't clearly converged for
-Mage), widen the gauntlet beyond 9 decks so fitness isn't overfit to a
-small fixed field, and re-evaluate the fittest evolved decks against the
-full 82-deck pool (and eventually with guided MCTS) the same way the
-un-evolved decks were - the honest test of whether evolution actually
-produces more metagame-plausible decks, not just gauntlet specialists.
+**Does evolution generalize past its own gauntlet?** The honest follow-up
+flagged above: the fittest evolved deck per class only proved itself
+against the 9-deck gauntlet it was selected against. New code,
+`evaluate_evolved_vs_pool.py`, plays that deck (and, for a same-conditions
+comparison, its nearest real ancestor by card overlap) against the full
+82-deck real pool - a much wider field neither was directly optimized
+against - under the same fixed agent (self-play champion weights).
+Included **the Warrior pair as a built-in noise check**: its "evolved" deck
+was already found to be a verbatim, zero-card-changed copy of its ancestor
+(see above), so any win-rate gap between that pair is pure simulation noise,
+not a real effect, and gives an honest floor for how far apart two *numbers*
+can land even when the *decks* are identical.
+
+| | win rate vs 82-deck pool | games |
+|---|---|---|
+| Hunter evolved | 70.7% | 795 |
+| Hunter ancestor | 66.8% | 827 |
+| Mage evolved | 58.9% | 886 |
+| Mage ancestor | 54.5% | 880 |
+| **Warrior evolved (= ancestor, verbatim)** | **70.3%** | 755 |
+| **Warrior ancestor** | **76.6%** | 710 |
+
+The Warrior control is the headline result here: two *identical* 30-card
+decks landed 6.3 percentage points apart purely from early-stopping
+sampling noise (~9 games/matchup average across 82 opponents). That's
+larger than Hunter's apparent evolved-vs-ancestor gap (+3.9pp) and close to
+Mage's (+4.4pp). Conclusion, stated plainly rather than rounded up: **this
+test cannot distinguish "evolution generalizes to the wider pool" from
+"the observed gaps are noise"** - the signal, if real, is at or below the
+noise floor this specific setup can resolve. Confirms the gauntlet-fitness
+lift the evolution loop reported is real (it's the same fixed 9-deck field
+every generation, so noise averages out across many generations of
+selection pressure), but doesn't confirm it transfers to a wider field.
+Fixing this needs more games per matchup here specifically (this script
+used the same cheap early-stopping settings the exploratory evolution loop
+used, not a full confirm-phase game count) rather than more evolution -
+noted as the concrete next step rather than re-running evolution longer.
+Artifacts: `data/evolved_vs_pool.csv`.
 
 **S2 - Archetype emergence.** Card-overlap between MAP-Elites archive clusters and
 real archetype cores. Report honestly: the mage archive collapsed deck-wise

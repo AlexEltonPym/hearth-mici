@@ -56,7 +56,7 @@ MIN_GAMES, MAX_GAMES, PVALUE_ALPHA, MIN_STREAK = 4, 16, 0.1, 2
 
 def make_strategy(agent_name, eval_weights=None):
   if agent_name == "greedy":
-    return GreedyActionSmart()
+    return GreedyActionSmart(eval_weights) if eval_weights else GreedyActionSmart()
   if agent_name == "mcts":
     return MCTS(iterations=150, guided=True, eval_weights=eval_weights)
   raise ValueError(f"unknown agent {agent_name!r}")
