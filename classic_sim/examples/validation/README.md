@@ -408,11 +408,67 @@ depth and the self-play-trained evaluator are not a uniform improvement -
 their effect depends on the structure of the matchups being evaluated.
 Artifacts: `data/offarchetype_mcts.csv`, `data/offarchetype_greedy_sameN.csv`.
 
-Not yet done, and the natural next step (as scoped by the user): perturb/
-evolve this 82-deck pool (swap a few cards per generation, MAP-Elites-style)
-to generate genuinely non-standard decks, using round-robin win rate against
-the real pool as a fitness/sanity signal before trusting a purely synthetic
-deck's evaluation.
+**Evolving genuinely non-standard decks.** The scoped follow-up: perturb/
+evolve the 82-deck pool rather than just measuring it. User's choice among
+three fitness options (power alone; power + MAP-Elites diversity; novelty-
+as-objective) was **power + diversity**, to stay faithful to the thesis's
+actual mechanism (an agent traversing a MAP-Elites archive), not just a
+hill-climb toward the single strongest deck.
+
+New code: `evolve_offarchetype_decks.py` + `evolve_remote_worker.py`, reusing
+`map_elites.py`'s existing `Archive` (same phenotype axes as
+`metaspace_generation/coevolution.py` - hand size x turns - and the same
+bin-elite-selection loop shape) rather than building new archive machinery.
+Differences from `coevolution.py`: only the DECK evolves, not the agent -
+the agent is fixed to the self-play champion weights (the best validated
+this session) via `GreedyActionSmart`, not MCTS, since an evolutionary loop
+needs many cheap generations, not a few deep-search games. One archive per
+class (decks are class-locked), seeded from that class's real off-archetype
+decks (already legal, not a cold random start). Mutation swaps 0-3
+individual card slots per generation for a same-class pool card, respecting
+real copy-count legality (max 2, or 1 for legendaries via
+`get_legendary_cards()`). Fitness = mean win rate vs a fixed 9-deck real
+gauntlet (3 decks/class, most-played on HSReplay). Novelty (card-overlap
+distance to the nearest *original* seed deck) is tracked per generation as
+a diagnostic only - per the user's choice, it's not part of fitness/selection.
+
+15 generations, population/selection count 20, distributed across
+dwail1/dwail2:
+
+| class | seed mean fitness | gen 14 mean fitness | gen 14 best fitness | gen 14 mean novelty (of 30) |
+|---|---|---|---|---|
+| Hunter | 0.537 (gen 0) | 0.592 | 0.774 | 5.2 |
+| Mage | 0.362 (gen 0) | 0.496 | 0.704 | 5.2 |
+| Warrior | 0.627 (gen 0) | 0.704 | 0.829 | 2.5 |
+
+A clear cross-class pattern, not noise: Mage's real off-archetype decks
+started weakest against the gauntlet and improved the most in relative
+terms (0.362 -> 0.496, +37%); Warrior started strongest and drifted least
+(novelty 2.5/30 vs Hunter/Mage's 5.2/30) - evolution found comparatively
+little to change because a near-optimal deck was likely already in the
+seed pool. Checked directly: the best Warrior deck found at generation 14
+is a **verbatim match** (0 cards changed) to its nearest real seed deck -
+mutation explored around it every generation but never beat it. Hunter and
+Mage's best decks are small, plausible edits (3-4 card swaps) from their
+best real seed - e.g. Hunter's fittest evolved deck (0.774) swaps out Leeroy
+Jenkins, Hunter's Mark, and Ironbeak Owl for Bloodmage Thalnos, Oasis
+Snapjaw, and Tauren Warrior versus its nearest real ancestor. Read narrowly:
+this is a first, cheap demonstration that the pipeline can find real,
+legal, incrementally-different decks that beat their real ancestors against
+a fixed real-deck gauntlet - not evidence of large-scale, qualitatively
+novel metagame drift (5/30 cards changed at 15 generations is a small
+neighbourhood search, and fitness plateaued well before generation 14 in
+two of three classes).
+
+Artifacts: `data/evolve_offarchetype_{hunter,mage,warrior}_history.csv`,
+`data/evolve_offarchetype_{hunter,mage,warrior}_generation{0..14}.json`.
+
+Not yet done: run this for longer (fitness hadn't clearly converged for
+Mage), widen the gauntlet beyond 9 decks so fitness isn't overfit to a
+small fixed field, and re-evaluate the fittest evolved decks against the
+full 82-deck pool (and eventually with guided MCTS) the same way the
+un-evolved decks were - the honest test of whether evolution actually
+produces more metagame-plausible decks, not just gauntlet specialists.
 
 **S2 - Archetype emergence.** Card-overlap between MAP-Elites archive clusters and
 real archetype cores. Report honestly: the mage archive collapsed deck-wise
