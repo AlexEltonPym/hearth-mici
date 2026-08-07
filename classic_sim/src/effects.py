@@ -6,6 +6,21 @@ from player import Player
 import inspect
 
 
+def pristine_copy(card):
+  #a copy of a card exactly as printed. The owner/parent backrefs are detached
+  #first: deepcopying a card that is in play otherwise drags the whole game
+  #(both players, their decks, the game manager) into the copy. reset() then
+  #strips the buffs, damage and silencing the original picked up in play.
+  original_owner, original_parent = card.owner, card.parent
+  card.owner, card.parent = None, None
+  try:
+    new_card = deepcopy(card)
+  finally:
+    card.owner, card.parent = original_owner, original_parent
+  new_card.reset()
+  return new_card
+
+
 class Effect():
   def __repr__(self):
     return f"{self.__class__.__name__}({self.method}, {self.target}, {self.owner_filter}, {self.type_filter}, {self.trigger}, value={self.value})"
@@ -307,7 +322,7 @@ class Tutor(Effect):
   available_durations = []
   available_triggers = list(filter(lambda t: t != Triggers.AURA, [t for t in Triggers]))
 
-  def __init__(self, method, owner_filter, value=None, random_count=1, random_replace=True, target=Targets.HERO, trigger=None, type_filter=None, duration=None):
+  def __init__(self, method, owner_filter, value=None, random_count=1, random_replace=True, target=Targets.HERO, trigger=None, type_filter=None, duration=None, destination=Zones.HAND, dynamic_filter=None):
     self.zone_filter = Zones.DECK
     self.method = method
     self.value = value
@@ -319,10 +334,24 @@ class Tutor(Effect):
     self.type_filter = type_filter
     self.trigger = trigger
     self.duration = duration
+    self.destination = destination #HAND, or straight into play: SECRETS (Mad Scientist) / BOARD (Deathlord)
+    self.dynamic_filter = dynamic_filter
 
   def resolve_action(self, game, action):
     for target in action.targets:
-      if len(action.source.owner.hand) < action.source.owner.hand.max_entries:
+      if self.destination == Zones.SECRETS:
+        #the secret enters play for free, but never as a duplicate of an active
+        #one and never past the 5 secret cap
+        secrets_zone = action.source.owner.secrets_zone
+        if len(secrets_zone) < secrets_zone.max_entries and target.name not in secrets_zone.names():
+          target.change_parent(secrets_zone)
+      elif self.destination == Zones.BOARD:
+        #the minion is put into play by (and for) its own owner - a full board
+        #means nothing happens and it stays in the deck
+        if len(target.owner.board) < target.owner.board.max_entries:
+          target.change_parent(target.owner.board)
+          game.trigger_summoned(target)
+      elif len(action.source.owner.hand) < action.source.owner.hand.max_entries:
         target.change_parent(action.source.owner.hand)
       else:
         target.change_parent(action.source.owner.graveyard) #mill if hand is full, need to playtest this
@@ -429,13 +458,16 @@ class GiveAttribute(Effect):
       if self.hits_adjacent:
         adjacent_targets = target.parent.get_adjacent(target)
         for adjacent_target in adjacent_targets:
-          if self.duration == Durations.TURN and not self.value in adjacent_target.temp_attributes:
+          #the dedup check has to compare the attribute itself, not the dynamic
+          #that produces it, or the same keyword stacks up several times and a
+          #single remove_attribute no longer clears it
+          if self.duration == Durations.TURN and not self.value(action) in adjacent_target.temp_attributes:
             adjacent_target.temp_attributes.append(self.value(action))
-          elif self.duration == Durations.PERMANENTLY and not self.value in adjacent_target.perm_attributes:
+          elif self.duration == Durations.PERMANENTLY and not self.value(action) in adjacent_target.perm_attributes:
             adjacent_target.perm_attributes.append(self.value(action))
-      if self.duration == Durations.TURN and not self.value in target.temp_attributes:
+      if self.duration == Durations.TURN and not self.value(action) in target.temp_attributes:
         target.temp_attributes.append(self.value(action))
-      elif self.duration == Durations.PERMANENTLY and not self.value in target.perm_attributes:
+      elif self.duration == Durations.PERMANENTLY and not self.value(action) in target.perm_attributes:
         target.perm_attributes.append(self.value(action))
 
 class RemoveAttribute(Effect):
@@ -505,20 +537,10 @@ class SummonToken(Effect): #summon minion for target player
         new_minion_token.collectable = False
         new_minion_token.set_owner(new_owner)
         new_minion_token.set_parent(new_owner.board) #Doesn't trigger battlecry
-        #tokens are real summons: fire the *_SUMMONED trigger family (Knife
-        #Juggler, Starving Buzzard, Warsong Commander...) but NOT the
-        #*_MINION_PLAYED family - only cards played from hand are "played".
-        #Transforms (ReplaceWithToken: Polymorph, Tinkmaster) correctly stay
-        #silent - transformed minions are not summoned.
-        initial_attack_less_than_four = new_minion_token.get_attack() < 4
-        game.trigger(new_minion_token, Triggers.ANY_MINION_SUMMONED)
-        game.trigger(new_minion_token, Triggers.ANY_SAME_TYPE_SUMMONED)
-        game.trigger(new_minion_token, Triggers.FRIENDLY_MINION_SUMMONED)
-        game.trigger(new_minion_token, Triggers.FRIENDLY_SAME_TYPE_SUMMONED)
-        game.trigger(new_minion_token, Triggers.ENEMY_MINION_SUMMONED)
-        game.trigger(new_minion_token, Triggers.ENEMY_SAME_TYPE_SUMMONED)
-        if initial_attack_less_than_four:
-          game.trigger(new_minion_token, Triggers.FRIENDLY_LESS_THAN_FOUR_ATTACK_SUMMONED)
+        #tokens are real summons (see Game.trigger_summoned). Transforms
+        #(ReplaceWithToken: Polymorph, Tinkmaster) correctly stay silent -
+        #transformed minions are not summoned.
+        game.trigger_summoned(new_minion_token)
       elif summoned_card.card_type == CardTypes.WEAPON: 
         # weapons override their zone so we need to destroy exising weapon
         if new_owner.weapon: game.handle_death(new_owner.weapon)
@@ -566,13 +588,15 @@ class AddCardToHand(Effect): #add a copy of a card to target player's hand
         recipients.append(caster)
       if self.owner_filter in (OwnerFilters.ENEMY, OwnerFilters.ALL):
         recipients.append(caster.other_player)
+      copy_count = self.value[0](action) if self.value else 1 #Duplicate makes 2, Lorewalker Cho 1
       for recipient in recipients:
-        if len(recipient.hand) >= recipient.hand.max_entries:
-          continue
-        new_card = deepcopy(card_to_copy)
-        new_card.collectable = False
-        new_card.set_owner(recipient)
-        new_card.set_parent(recipient.hand) #doesn't trigger battlecry
+        for _ in range(copy_count):
+          if len(recipient.hand) >= recipient.hand.max_entries:
+            break
+          new_card = pristine_copy(card_to_copy)
+          new_card.collectable = False
+          new_card.set_owner(recipient)
+          new_card.set_parent(recipient.hand) #doesn't trigger battlecry
       return
 
     if self.value[1](action) is None:
@@ -586,6 +610,65 @@ class AddCardToHand(Effect): #add a copy of a card to target player's hand
         new_card.collectable = False
         new_card.set_owner(target)
         new_card.set_parent(target.hand) #Doesn't trigger battlecry
+
+class Resurrect(Effect): #resummon the minions that died this turn (Kel'Thuzad)
+  available_methods = [Methods.ALL, Methods.TARGETED]
+  param_type = ParamTypes.NONE
+  available_targets = [Targets.HERO]
+  available_owner_filters = [o for o in OwnerFilters]
+  available_type_filters = []
+  available_durations = []
+  available_triggers = list(filter(lambda t: t != Triggers.AURA, [t for t in Triggers]))
+
+  def __init__(self, method, owner_filter, target=Targets.HERO, value=None, random_count=1, random_replace=True, duration=None, trigger=None, type_filter=None):
+    self.zone_filter = Zones.BOARD #targets a player, same convention as SummonToken
+    self.method = method
+    self.value = value
+    self.random_count = random_count
+    self.random_replace = random_replace
+    self.hits_adjacent = False
+    self.target = target
+    self.owner_filter = owner_filter
+    self.type_filter = type_filter
+    self.trigger = trigger
+    self.duration = duration
+
+  def resolve_action(self, game, action):
+    for target in action.targets:
+      #the death log holds the cards as they died; each comes back as printed
+      for dead_minion in list(target.minions_died_this_turn):
+        if len(target.board) >= target.board.max_entries:
+          break
+        new_minion = pristine_copy(dead_minion)
+        new_minion.collectable = False
+        new_minion.set_owner(target)
+        new_minion.set_parent(target.board) #Doesn't trigger battlecry
+        game.trigger_summoned(new_minion)
+
+class DoubleDeathrattles(Effect): #Baron Rivendare - resolved in Game.handle_death
+  available_methods = [Methods.ALL]
+  param_type = ParamTypes.NONE
+  available_targets = [Targets.MINION]
+  available_owner_filters = [OwnerFilters.FRIENDLY]
+  available_type_filters = []
+  available_durations = []
+  available_triggers = [Triggers.AURA]
+
+  def __init__(self, method=Methods.ALL, owner_filter=OwnerFilters.FRIENDLY, target=Targets.MINION, value=None, random_count=1, random_replace=True, duration=None, trigger=Triggers.AURA, type_filter=None):
+    self.zone_filter = Zones.BOARD
+    self.method = method
+    self.value = value
+    self.random_count = random_count
+    self.random_replace = random_replace
+    self.hits_adjacent = False
+    self.target = target
+    self.owner_filter = owner_filter
+    self.type_filter = type_filter
+    self.trigger = trigger
+    self.duration = duration
+
+  def resolve_action(self, game, action): #handled seperatly in the death resolver
+    return
 
 class TakeControl(Effect): #steal a minion for the source's owner
   available_methods = [Methods.TARGETED, Methods.RANDOMLY]
@@ -735,7 +818,7 @@ class ChangeCost(Effect):
   available_durations = []
   available_triggers = [t for t in Triggers]
   
-  def __init__(self, method, owner_filter, target, value, random_count=1, random_replace=True, duration=None, trigger=None, type_filter=None):
+  def __init__(self, method, owner_filter, target, value, random_count=1, random_replace=True, duration=None, trigger=None, type_filter=None, dynamic_filter=None):
     self.zone_filter = Zones.HAND
     self.method = method
     self.value = value
@@ -747,7 +830,8 @@ class ChangeCost(Effect):
     self.type_filter = type_filter
     self.trigger = trigger
     self.duration = duration
-  
+    self.dynamic_filter = dynamic_filter #Nerub'ar Weblord taxes battlecry minions only
+
   def resolve_action(self, game, action):
     for target in action.targets:
       target.manacost += self.value(action)

@@ -19,6 +19,7 @@ class Attributes(Enum):
   BRAWL_PROTECTION = 15 #special temp attribute
   ATTACK_AS_DURABILITY = 16 #special weapon attribute
   CANT_ATTACK = 17
+  SPELLS_COST_FIVE_MORE = 18 #player enchantment, cleared when the OTHER player untaps (Loatheb)
 
 class Triggers(Enum):
   BATTLECRY = 0
@@ -183,3 +184,4 @@ class Zones(Enum):
   BOARD = 0
   HAND = 1
   DECK = 2
+  SECRETS = 3

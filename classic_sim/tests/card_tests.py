@@ -41,6 +41,12 @@ def test_classic_pool():
   total = len(basics + commons + rares + epics + mage + hunter + warrior + legendaries)
   assert total == 221
 
+  #Naxxramas is a separate set: it must not change the classic total above
+  assert len(get_naxx_neutral_cards()) == 21
+  assert len(get_naxx_hunter_cards()) == 1
+  assert len(get_naxx_mage_cards()) == 1
+  assert len(get_naxx_warrior_cards()) == 1
+
 def test_coin():
   game_manager = GameManager()
   game_manager.create_player_pool([CardSets.CLASSIC_NEUTRAL, CardSets.CLASSIC_HUNTER, CardSets.TEST_CARDS])

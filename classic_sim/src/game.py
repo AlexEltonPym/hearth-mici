@@ -75,8 +75,26 @@ class Game():
 
 
 
+  def trigger_summoned(self, minion):
+    #tokens, resurrections and deck-to-board summons are all real summons: they
+    #fire the *_SUMMONED trigger family (Knife Juggler, Undertaker, Starving
+    #Buzzard...) but NOT the *_MINION_PLAYED family - only cards played from
+    #hand are "played".
+    initial_attack_less_than_four = minion.get_attack() < 4
+    self.trigger(minion, Triggers.ANY_MINION_SUMMONED)
+    self.trigger(minion, Triggers.ANY_SAME_TYPE_SUMMONED)
+    self.trigger(minion, Triggers.FRIENDLY_MINION_SUMMONED)
+    self.trigger(minion, Triggers.FRIENDLY_SAME_TYPE_SUMMONED)
+    self.trigger(minion, Triggers.ENEMY_MINION_SUMMONED)
+    self.trigger(minion, Triggers.ENEMY_SAME_TYPE_SUMMONED)
+    if initial_attack_less_than_four:
+      self.trigger(minion, Triggers.FRIENDLY_LESS_THAN_FOUR_ATTACK_SUMMONED)
+
   def untap(self):
     self._secret_resolved_this_action = False
+    #Loatheb's tax runs out when its caster - the player the victim is facing -
+    #starts their next turn
+    self.current_player.other_player.remove_attribute(Attributes.SPELLS_COST_FIVE_MORE)
     self.current_player.max_mana += 1
     self.current_player.max_mana = min(self.current_player.max_mana, 10)
     self.current_player.current_mana = self.current_player.max_mana
@@ -157,6 +175,10 @@ class Game():
       minion.temp_attributes = []
 
     self.current_player.minions_played_this_turn = 0
+    #cleared only after the end-of-turn triggers have run, so Kel'Thuzad still
+    #sees everything that died during the turn
+    self.current_player.minions_died_this_turn = []
+    self.current_player.other_player.minions_died_this_turn = []
 
     self.current_player = self.current_player.other_player
 
@@ -301,6 +323,9 @@ class Game():
 
   def cast_weapon(self, action):
     self.current_player.current_mana -= action.source.get_manacost()
+    #equipping over an existing weapon destroys the old one - its deathrattle fires
+    if action.source.owner.weapon:
+      self.handle_death(action.source.owner.weapon)
     action.source.change_parent(action.source.owner)
     if action.source.effect and action.source.effect.trigger == Triggers.BATTLECRY:
       action.source.effect.resolve_action(self, action)
@@ -431,9 +456,20 @@ class Game():
       
   def handle_death(self, card):
     card.change_parent(card.owner.graveyard)
+    if card.card_type == CardTypes.MINION:
+      card.owner.minions_died_this_turn.append(card)
+      card.owner.minions_died_this_game.append(card.name)
     if card.effect and card.effect.trigger == Triggers.DEATHRATTLE:
       self.resolve_effect(card)
-    
+      #Baron Rivendare doubles his controller's minion deathrattles (he is
+      #already off the board by the time his own death resolves, so he never
+      #doubles for himself)
+      if card.card_type == CardTypes.MINION and any(minion.effect and isinstance(minion.effect, DoubleDeathrattles) for minion in card.owner.board):
+        self.resolve_effect(card)
+
+    if card.card_type != CardTypes.MINION: #a destroyed weapon is not a minion death
+      return
+
     self.trigger(card, Triggers.ANY_MINION_DIES)
     self.trigger(card, Triggers.FRIENDLY_MINION_DIES)
     self.trigger(card, Triggers.ENEMY_MINION_DIES)
@@ -459,7 +495,13 @@ class Game():
       elif card.effect.method == Methods.TARGETED:
         card.effect.resolve_action(self, Action(Actions.CAST_EFFECT, card, [targets[0]]))
       elif card.effect.method == Methods.SELF:
-        card.effect.resolve_action(self, Action(Actions.CAST_EFFECT, card, [card]))
+        #a self-targeting triggered effect can still care about what fired it
+        #(Undertaker only grows on a summon that has a Deathrattle), and the
+        #triggerer is the only place that information lives
+        self_action = Action(Actions.CAST_EFFECT, card, [card], triggerer)
+        dynamic_filter = getattr(card.effect, 'dynamic_filter', None)
+        if dynamic_filter == None or dynamic_filter(self_action):
+          card.effect.resolve_action(self, self_action)
       elif card.effect.method == Methods.TRIGGERER and triggerer != None:
         if isinstance(triggerer, Player) and not Targets.HERO in card.effect.available_targets or\
           not isinstance(triggerer, Player) and triggerer.card_type == CardTypes.SPELL and not (Targets.SPELL in card.effect.available_targets or Targets.MINION_OR_SPELL in card.effect.available_targets):
@@ -621,7 +663,9 @@ class Game():
       cast_targets = self.get_available_effect_targets(card)
       if card.effect and (len(cast_targets) > 0 or card.effect.method==Methods.ALL):
         if card.effect.method == Methods.TARGETED:
-          for target in filter(lambda target: not (target.has_attribute(Attributes.STEALTH) or target.has_attribute(Attributes.HEXPROOF)), cast_targets):
+          #Stealth only hides a minion from its OPPONENT - you can always target
+          #your own stealthed minions. Hexproof blocks both sides.
+          for target in filter(lambda target: not ((target.owner != player and target.has_attribute(Attributes.STEALTH)) or target.has_attribute(Attributes.HEXPROOF)), cast_targets):
             playable_spell_actions.append(Action(Actions.CAST_SPELL, card, [target]))
         elif card.effect.method == Methods.RANDOMLY:
           playable_spell_actions.append(Action(Actions.CAST_SPELL, card, self.game_manager.random_state.choice(cast_targets, card.effect.random_count if card.effect.random_replace else min(len(cast_targets), card.effect.random_count), card.effect.random_replace)))
@@ -641,7 +685,7 @@ class Game():
     if player.current_mana >= 2 and not player.used_hero_power:
       cast_targets = self.get_available_effect_targets(player.hero_power)
       if player.hero_power.effect.method == Methods.TARGETED:
-        for target in filter(lambda target: not (target.has_attribute(Attributes.STEALTH) or target.has_attribute(Attributes.HEXPROOF)), cast_targets):
+        for target in filter(lambda target: not ((target.owner != player and target.has_attribute(Attributes.STEALTH)) or target.has_attribute(Attributes.HEXPROOF)), cast_targets):
           hero_power_actions.append(Action(Actions.CAST_HERO_POWER, player.hero_power, [target]))
       elif player.hero_power.effect.method == Methods.RANDOMLY:
         hero_power_actions.append(Action(Actions.CAST_HERO_POWER, player.hero_power, self.game_manager.random_state.choice(cast_targets, player.hero_power.effect.random_count if player.hero_power.effect.random_replace else min(len(cast_targets), player.hero_power.effect.random_count), player.hero_power.effect.random_replace)))
@@ -751,7 +795,7 @@ class Game():
 
   def get_hero_attack_actions(self, player):
     hero_attack_options = []
-    if (not (player.has_attribute(Attributes.FROZEN) or player.has_attribute(Attributes.DEFENDER))\
+    if (not (player.has_attribute(Attributes.FROZEN) or player.has_attribute(Attributes.DEFENDER) or player.has_attribute(Attributes.CANT_ATTACK))\
         and (player.get_attack() > 0 or player.weapon and player.weapon.attack > 0)\
         and (player.attacks_this_turn == 0 or (player.attacks_this_turn == 1 and (player.has_attribute(Attributes.WINDFURY) or (player.weapon and player.weapon.has_attribute(Attributes.WINDFURY)))))):
       for target in self.get_available_targets(player):
@@ -767,10 +811,13 @@ class Game():
           battlecry_targets = self.get_available_effect_targets(card)
           if len(battlecry_targets) > 0 or card.effect.method == Methods.ALL:
             if card.effect.method == Methods.TARGETED:
-              for target in filter(lambda target: not target.has_attribute(Attributes.STEALTH),  battlecry_targets):
+              legal_targets = [target for target in battlecry_targets if not (target.owner != player and target.has_attribute(Attributes.STEALTH))]
+              for target in legal_targets:
                 playable_minion_actions.append(Action(Actions.CAST_MINION, card, [target]))
+              if len(legal_targets) == 0:
+                playable_minion_actions.append(Action(Actions.CAST_MINION, card, [])) #every candidate was untargetable: play it, battlecry fizzles
             elif card.effect.method == Methods.RANDOMLY:
-              playable_minion_actions.append(Action(Actions.CAST_MINION, card, self.game_manager.random_state.choice(battlecry_targets, card.effect.random_count if card.effect.random_replace else min(len(cast_targets), card.effect.random_count), card.effect.random_replace)))
+              playable_minion_actions.append(Action(Actions.CAST_MINION, card, self.game_manager.random_state.choice(battlecry_targets, card.effect.random_count if card.effect.random_replace else min(len(battlecry_targets), card.effect.random_count), card.effect.random_replace)))
             elif card.effect.method == Methods.ALL:
               playable_minion_actions.append(Action(Actions.CAST_MINION, card, battlecry_targets))
             elif card.effect.target == Targets.MINION and card.effect.method == Methods.ADJACENT:
@@ -790,22 +837,25 @@ class Game():
 
   def get_playable_weapon_actions(self, player):
     playable_weapon_actions = []
-    if not player.weapon:
-      for card in filter(lambda card: card.get_manacost() <= player.current_mana and card.card_type == CardTypes.WEAPON, player.hand):
-        if card.effect and card.effect.trigger == Triggers.BATTLECRY:
-          battlecry_targets = self.get_available_effect_targets(card)
-          if len(battlecry_targets) > 0 or card.effect.method == Methods.ALL:
-            if card.effect.method == Methods.TARGETED:
-              for target in filter(lambda target: not target.has_attribute(Attributes.STEALTH), battlecry_targets):
-                playable_weapon_actions.append(Action(Actions.CAST_WEAPON, card, [target]))
-            elif card.effect.method == Methods.RANDOMLY:
-              playable_weapon_actions.append(Action(Actions.CAST_WEAPON, card, self.game_manager.random_state.choice(battlecry_targets, card.effect.random_count if card.effect.random_replace else min(len(cast_targets), card.effect.random_count), card.effect.random_replace)))
-            elif card.effect.method == Methods.ALL:
-              playable_weapon_actions.append(Action(Actions.CAST_WEAPON, card, battlecry_targets))
-          else:
-            playable_weapon_actions.append(Action(Actions.CAST_WEAPON, card, []))
+    #a weapon may be equipped over an existing one - the old weapon is destroyed
+    for card in filter(lambda card: card.get_manacost() <= player.current_mana and card.card_type == CardTypes.WEAPON, player.hand):
+      if card.effect and card.effect.trigger == Triggers.BATTLECRY:
+        battlecry_targets = self.get_available_effect_targets(card)
+        if len(battlecry_targets) > 0 or card.effect.method == Methods.ALL:
+          if card.effect.method == Methods.TARGETED:
+            legal_targets = [target for target in battlecry_targets if not (target.owner != player and target.has_attribute(Attributes.STEALTH))]
+            for target in legal_targets:
+              playable_weapon_actions.append(Action(Actions.CAST_WEAPON, card, [target]))
+            if len(legal_targets) == 0:
+              playable_weapon_actions.append(Action(Actions.CAST_WEAPON, card, []))
+          elif card.effect.method == Methods.RANDOMLY:
+            playable_weapon_actions.append(Action(Actions.CAST_WEAPON, card, self.game_manager.random_state.choice(battlecry_targets, card.effect.random_count if card.effect.random_replace else min(len(battlecry_targets), card.effect.random_count), card.effect.random_replace)))
+          elif card.effect.method == Methods.ALL:
+            playable_weapon_actions.append(Action(Actions.CAST_WEAPON, card, battlecry_targets))
         else:
           playable_weapon_actions.append(Action(Actions.CAST_WEAPON, card, []))
+      else:
+        playable_weapon_actions.append(Action(Actions.CAST_WEAPON, card, []))
     return playable_weapon_actions
 
   def play_game(self):

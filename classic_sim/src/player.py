@@ -57,6 +57,10 @@ class Player():
 
     self.pool = None
     self.minions_played_this_turn = 0
+    #death log: the cards themselves for this turn (Kel'Thuzad resummons them),
+    #names for the whole game (Feugen/Stalagg check whether their twin died)
+    self.minions_died_this_turn = []
+    self.minions_died_this_game = []
 
   def reset(self):
     self.attacks_this_turn = 0
@@ -73,6 +77,8 @@ class Player():
     self.current_mana = 0
     self.max_mana = 0
     self.minions_played_this_turn = 0
+    self.minions_died_this_turn = []
+    self.minions_died_this_game = []
 
   def remove(self, card):
     if self.weapon == card:

@@ -814,17 +814,112 @@ SEPT_2014_NERF_PATCHES = {
 
 
 def get_naxx_neutral_cards():
-  #Naxxramas neutrals - implemented incrementally (M1/M2 of the shift-prediction plan)
-  return []
+  #Curse of Naxxramas neutrals, as printed in 2014. Undertaker is the PRE-nerf
+  #version (+1/+1 per Deathrattle summon); the Jan 2015 patch cut it to +1/+0,
+  #which is what modern card databases carry.
+  # Naxx one drops
+  zombie_chow = Card(name="Zombie Chow", card_type=CardTypes.MINION, manacost=1, attack=2, health=3,\
+                     effect=RestoreHealth(value=ConstantInt(5), trigger=Triggers.DEATHRATTLE, method=Methods.ALL, target=Targets.HERO, owner_filter=OwnerFilters.ENEMY))
+  undertaker = Card(name="Undertaker", card_type=CardTypes.MINION, manacost=1, attack=1, health=2,\
+                    effect=ChangeStats(value=(ConstantInt(1), ConstantInt(1)), trigger=Triggers.FRIENDLY_MINION_SUMMONED, method=Methods.SELF, target=Targets.MINION,\
+                    owner_filter=OwnerFilters.FRIENDLY, duration=Durations.PERMANENTLY, dynamic_filter=TriggererHasDeathrattle()))
+
+  # Naxx two drops
+  #SIMPLIFICATION: the real Ooze summons its copy at the END of the turn, so
+  #buffs played onto it afterwards are copied too. There is no delayed-summon
+  #machinery in the engine, so the copy arrives immediately with printed stats.
+  echoing_ooze = Card(name="Echoing Ooze", card_type=CardTypes.MINION, manacost=2, attack=1, health=2,\
+                      effect=SummonToken(trigger=Triggers.BATTLECRY, method=Methods.ALL, owner_filter=OwnerFilters.FRIENDLY, target=Targets.HERO,\
+                      value=(ConstantInt(1), ConstantCard(Card(name="Echoing Ooze", collectable=False, card_type=CardTypes.MINION, manacost=2, attack=1, health=2)))))
+  haunted_creeper = Card(name="Haunted Creeper", card_type=CardTypes.MINION, creature_type=CreatureTypes.BEAST, manacost=2, attack=1, health=2,\
+                         effect=SummonToken(trigger=Triggers.DEATHRATTLE, method=Methods.ALL, owner_filter=OwnerFilters.FRIENDLY, target=Targets.HERO,\
+                         value=(ConstantInt(2), ConstantCard(Card(name="Spectral Spider", collectable=False, card_type=CardTypes.MINION, manacost=1, attack=1, health=1)))))
+  mad_scientist = Card(name="Mad Scientist", card_type=CardTypes.MINION, manacost=2, attack=2, health=2,\
+                       effect=Tutor(trigger=Triggers.DEATHRATTLE, method=Methods.RANDOMLY, target=Targets.SECRET, owner_filter=OwnerFilters.FRIENDLY,\
+                       destination=Zones.SECRETS, dynamic_filter=SecretNotActive()))
+  nerubar_weblord = Card(name="Nerub'ar Weblord", card_type=CardTypes.MINION, manacost=2, attack=1, health=4,\
+                         effect=ChangeCost(value=ConstantInt(2), trigger=Triggers.AURA, method=Methods.ALL, target=Targets.MINION, owner_filter=OwnerFilters.ALL,\
+                         dynamic_filter=SourceHasBattlecry()))
+  nerubian_egg = Card(name="Nerubian Egg", card_type=CardTypes.MINION, manacost=2, attack=0, health=2,\
+                      effect=SummonToken(trigger=Triggers.DEATHRATTLE, method=Methods.ALL, owner_filter=OwnerFilters.FRIENDLY, target=Targets.HERO,\
+                      value=(ConstantInt(1), ConstantCard(Card(name="Nerubian", collectable=False, card_type=CardTypes.MINION, manacost=4, attack=4, health=4)))))
+  unstable_ghoul = Card(name="Unstable Ghoul", card_type=CardTypes.MINION, manacost=2, attack=1, health=3, attributes=[Attributes.TAUNT],\
+                        effect=DealDamage(value=ConstantInt(1), trigger=Triggers.DEATHRATTLE, method=Methods.ALL, target=Targets.MINION, owner_filter=OwnerFilters.ALL))
+
+  # Naxx three drops
+  dancing_swords = Card(name="Dancing Swords", card_type=CardTypes.MINION, manacost=3, attack=4, health=4,\
+                        effect=DrawCards(value=ConstantInt(1), trigger=Triggers.DEATHRATTLE, method=Methods.ALL, target=Targets.HERO, owner_filter=OwnerFilters.ENEMY))
+  deathlord = Card(name="Deathlord", card_type=CardTypes.MINION, manacost=3, attack=2, health=8, attributes=[Attributes.TAUNT],\
+                   effect=Tutor(trigger=Triggers.DEATHRATTLE, method=Methods.RANDOMLY, target=Targets.MINION, owner_filter=OwnerFilters.ENEMY, destination=Zones.BOARD))
+  shade_of_naxxramas = Card(name="Shade of Naxxramas", card_type=CardTypes.MINION, manacost=3, attack=2, health=2, attributes=[Attributes.STEALTH],\
+                            effect=ChangeStats(value=(ConstantInt(1), ConstantInt(1)), trigger=Triggers.FRIENDLY_UNTAP, method=Methods.SELF, target=Targets.MINION,\
+                            owner_filter=OwnerFilters.FRIENDLY, duration=Durations.PERMANENTLY))
+  #RestoreHealth caps healing at the missing health, so any number at or above
+  #the gargoyle's maximum health is "restore to full"
+  stoneskin_gargoyle = Card(name="Stoneskin Gargoyle", card_type=CardTypes.MINION, manacost=3, attack=1, health=4,\
+                            effect=RestoreHealth(value=ConstantInt(99), trigger=Triggers.FRIENDLY_UNTAP, method=Methods.SELF, target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY))
+
+  # Naxx four drops
+  baron_rivendare = Card(name="Baron Rivendare", card_type=CardTypes.MINION, manacost=4, attack=1, health=7,\
+                         effect=DoubleDeathrattles(trigger=Triggers.AURA, method=Methods.ALL, target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY))
+  wailing_soul = Card(name="Wailing Soul", card_type=CardTypes.MINION, manacost=4, attack=3, health=5,\
+                      effect=Silence(trigger=Triggers.BATTLECRY, method=Methods.ALL, target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY))
+
+  # Naxx five drops
+  thaddius = Card(name="Thaddius", collectable=False, card_type=CardTypes.MINION, manacost=10, attack=11, health=11)
+  feugen = Card(name="Feugen", card_type=CardTypes.MINION, manacost=5, attack=4, health=7,\
+                effect=SummonToken(trigger=Triggers.DEATHRATTLE, method=Methods.ALL, owner_filter=OwnerFilters.FRIENDLY, target=Targets.HERO,\
+                value=(ConstantInt(1), IfCard(MinionDiedThisGame("Stalagg"), ConstantCard(thaddius), ConstantCard(None)))))
+  stalagg = Card(name="Stalagg", card_type=CardTypes.MINION, manacost=5, attack=7, health=4,\
+                 effect=SummonToken(trigger=Triggers.DEATHRATTLE, method=Methods.ALL, owner_filter=OwnerFilters.FRIENDLY, target=Targets.HERO,\
+                 value=(ConstantInt(1), IfCard(MinionDiedThisGame("Feugen"), ConstantCard(thaddius), ConstantCard(None)))))
+  #the tax is a player enchantment on the opponent, cleared in Game.untap when
+  #Loatheb's own controller starts their next turn - it has to survive the whole
+  #enemy turn, which Durations.TURN (cleared at the caster's own end of turn)
+  #cannot express
+  loatheb = Card(name="Loatheb", card_type=CardTypes.MINION, manacost=5, attack=5, health=5,\
+                 effect=GiveAttribute(value=ConstantAttribute(Attributes.SPELLS_COST_FIVE_MORE), trigger=Triggers.BATTLECRY, method=Methods.ALL,\
+                 target=Targets.HERO, owner_filter=OwnerFilters.ENEMY, duration=Durations.PERMANENTLY))
+  sludge_belcher = Card(name="Sludge Belcher", card_type=CardTypes.MINION, manacost=5, attack=3, health=5, attributes=[Attributes.TAUNT],\
+                        effect=SummonToken(trigger=Triggers.DEATHRATTLE, method=Methods.ALL, owner_filter=OwnerFilters.FRIENDLY, target=Targets.HERO,\
+                        value=(ConstantInt(1), ConstantCard(Card(name="Slime", collectable=False, card_type=CardTypes.MINION, manacost=1, attack=1, health=2, attributes=[Attributes.TAUNT])))))
+  spectral_knight = Card(name="Spectral Knight", card_type=CardTypes.MINION, manacost=5, attack=4, health=6, attributes=[Attributes.HEXPROOF])
+
+  # Naxx six drops
+  maexxna = Card(name="Maexxna", card_type=CardTypes.MINION, creature_type=CreatureTypes.BEAST, manacost=6, attack=2, health=8, attributes=[Attributes.POISONOUS])
+
+  # Naxx eight drops
+  kel_thuzad = Card(name="Kel'Thuzad", card_type=CardTypes.MINION, manacost=8, attack=6, health=8,\
+                    effect=Resurrect(trigger=Triggers.ANY_END_TURN, method=Methods.ALL, target=Targets.HERO, owner_filter=OwnerFilters.FRIENDLY))
+
+  naxx_one_drops = [zombie_chow, undertaker]
+  naxx_two_drops = [echoing_ooze, haunted_creeper, mad_scientist, nerubar_weblord, nerubian_egg, unstable_ghoul]
+  naxx_three_drops = [dancing_swords, deathlord, shade_of_naxxramas, stoneskin_gargoyle]
+  naxx_four_drops = [baron_rivendare, wailing_soul]
+  naxx_five_drops = [feugen, stalagg, loatheb, sludge_belcher, spectral_knight]
+  naxx_six_drops = [maexxna]
+  naxx_eight_drops = [kel_thuzad]
+  return naxx_one_drops + naxx_two_drops + naxx_three_drops + naxx_four_drops + naxx_five_drops + naxx_six_drops + naxx_eight_drops
 
 
 def get_naxx_hunter_cards():
-  return []
+  webspinner = Card(name="Webspinner", card_type=CardTypes.MINION, creature_type=CreatureTypes.BEAST, manacost=1, attack=1, health=1,\
+                    effect=AddCardToHand(trigger=Triggers.DEATHRATTLE, method=Methods.ALL, target=Targets.HERO, owner_filter=OwnerFilters.FRIENDLY,\
+                    value=(ConstantInt(1), RandomCardWithCreatureType(CreatureTypes.BEAST))))
+  return [webspinner]
 
 
 def get_naxx_mage_cards():
-  return []
+  #target=Targets.HERO keeps a valid effect target around even when the dying
+  #minion was the last one on the board - the copied card comes from the
+  #triggerer at resolve time, not from this target (same pattern as Lorewalker Cho)
+  duplicate = Card(name="Duplicate", card_type=CardTypes.SECRET, manacost=3,\
+                   effect=AddCardToHand(trigger=Triggers.FRIENDLY_MINION_DIES, method=Methods.TRIGGERER, target=Targets.HERO, owner_filter=OwnerFilters.FRIENDLY,\
+                   value=(ConstantInt(2), None)))
+  return [duplicate]
 
 
 def get_naxx_warrior_cards():
-  return []
+  deaths_bite = Card(name="Death's Bite", card_type=CardTypes.WEAPON, manacost=4, attack=4, health=2,\
+                     effect=DealDamage(value=ConstantInt(1), trigger=Triggers.DEATHRATTLE, method=Methods.ALL, target=Targets.MINION, owner_filter=OwnerFilters.ALL))
+  return [deaths_bite]

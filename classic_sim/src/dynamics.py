@@ -408,4 +408,50 @@ class WeaponHealth(Dynamics):
       count += action.source.owner.other_player.weapon.get_health() if action.source.owner.other_player.weapon else 0
     return count
 
-__all__ = ["RandomInt", "ConstantInt", "ConstantBool", "ConstantCard", "ConstantAttribute", "ConstantCreatureTypes", "Multiply", "Add", "Equals", "LessThan", "GreaterThan", "Not", "And", "Or", "Minimum", "Maximum", "IfInt", "IfCard", "IfAttribute", "IfCreatureType", "Source", "Target", "NumOtherMinions", "CardsInHand", "DamageTaken", "PlayerArmor", "WeaponAttack", "HasWeapon", "MinionsPlayed", "NumCardsInHand", "AttackValue", "HealthValue", "Damaged", "NumWithAttribute", "NumWithCreatureType", "NumDamaged", "TargetFrozen", "PlayerHasAttribute", "SourceHasAttribute", "HasSecret", "TargetAlive", "WeaponHealth"]
+class TriggererHasDeathrattle(Dynamics):
+  #Undertaker: only a summoned minion that itself has a Deathrattle pumps it
+  def __init__(self):
+    pass
+  def __call__(self, action) -> Callable[..., bool]:
+    triggerer = getattr(action, 'triggerer', None)
+    if triggerer is None:
+      return False
+    return triggerer.effect != None and triggerer.effect.trigger == Triggers.DEATHRATTLE
+
+class SourceHasBattlecry(Dynamics):
+  #Nerub'ar Weblord taxes minions with a Battlecry, whoever owns them
+  def __init__(self):
+    pass
+  def __call__(self, action) -> Callable[..., bool]:
+    effect = action.source.effect
+    return effect != None and effect.trigger == Triggers.BATTLECRY
+
+class MinionDiedThisGame(Dynamics):
+  #Feugen/Stalagg check the owner's death log rather than the graveyard, which
+  #also holds milled and burned cards that never actually died
+  def __init__(self, constant:str):
+    self.constant = constant
+  def __call__(self, action) -> Callable[..., bool]:
+    return self.constant in action.source.owner.minions_died_this_game
+
+class SecretNotActive(Dynamics):
+  #Mad Scientist cannot put a secret into play that its owner already controls
+  def __init__(self):
+    pass
+  def __call__(self, action) -> Callable[..., bool]:
+    return action.source.name not in action.source.owner.secrets_zone.names()
+
+class RandomCardWithCreatureType(Dynamics):
+  #Webspinner: a random card of a creature type from the owner's own card pool
+  def __init__(self, constant:CreatureTypes):
+    self.constant = constant
+  def __call__(self, action) -> Callable[..., CARD]:
+    owner = action.source.owner
+    game_manager = owner.game_manager
+    pool = game_manager.get_player_pool() if owner.name == "player" else game_manager.get_enemy_pool()
+    candidates = [card for card in pool if card.creature_type == self.constant]
+    if len(candidates) == 0:
+      return None
+    return game_manager.random_state.choice(candidates)
+
+__all__ = ["RandomInt", "ConstantInt", "ConstantBool", "ConstantCard", "ConstantAttribute", "ConstantCreatureTypes", "Multiply", "Add", "Equals", "LessThan", "GreaterThan", "Not", "And", "Or", "Minimum", "Maximum", "IfInt", "IfCard", "IfAttribute", "IfCreatureType", "Source", "Target", "NumOtherMinions", "CardsInHand", "DamageTaken", "PlayerArmor", "WeaponAttack", "HasWeapon", "MinionsPlayed", "NumCardsInHand", "AttackValue", "HealthValue", "Damaged", "NumWithAttribute", "NumWithCreatureType", "NumDamaged", "TargetFrozen", "PlayerHasAttribute", "SourceHasAttribute", "HasSecret", "TargetAlive", "WeaponHealth", "TriggererHasDeathrattle", "SourceHasBattlecry", "MinionDiedThisGame", "SecretNotActive", "RandomCardWithCreatureType"]
