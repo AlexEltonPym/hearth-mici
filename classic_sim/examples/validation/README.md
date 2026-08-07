@@ -373,12 +373,46 @@ single pairwise comparison can't, so this may be an easier prediction task
 by construction, not evidence the greedy heuristic got better at anything.
 Artifacts: `data/offarchetype_greedy.csv`, `data/offarchetype_greedy.summary.json`.
 
-Not yet done, and the natural next steps: (1) re-run with guided MCTS to see
-whether the same search-depth lift S1 showed holds here too; (2) the
-originally-scoped follow-up - perturb/evolve this 82-deck pool (swap a few
-cards per generation, MAP-Elites-style) to generate genuinely non-standard
-decks, using round-robin win rate against the real pool as a fitness/sanity
-signal before trusting a purely synthetic deck's evaluation.
+**Does the search-depth lift hold here?** S1 showed guided MCTS lifting
+pairwise correlation 0.366 -> 0.607. Natural next question: does the same
+lift show up on this internal-round-robin task? The full 3321-pair round
+robin is far too expensive at MCTS depth (deep guided search is roughly two
+orders of magnitude slower per game than greedy), so this used a 24-deck
+subsample - the off-archetype decks with the most real HSReplay
+`total_games` (`--sort-by-games`), chosen for a more reliable real win_rate
+to compare against rather than an arbitrary slice. `GreedyActionSmart` was
+re-run on the *same* 24-deck subsample (not compared against the full-82
+number above, to keep pool size and composition from confounding the
+agent comparison) as the baseline. Agent under test: guided MCTS with the
+self-play champion's weights as leaf evaluator - the best-performing
+combination S1 found.
+
+| agent | decks | pairs | games | Spearman | MSE (pct points^2) |
+|---|---|---|---|---|---|
+| GreedyActionSmart (default weights) | 24 | 276 | 3,091 | **0.534** | **269.9** |
+| Guided MCTS + self-play champion weights | 24 | 276 | 3,215 | 0.309 | 324.6 |
+
+The opposite of S1's result: here MCTS is worse on both rank correlation
+and calibration, not better. Reported as found, not smoothed over. A
+plausible reason this doesn't match S1: S1 compared *distinct archetypes*
+against each other, where matchups have real structural power gaps for
+deep search to find and exploit correctly; this task is decks *within the
+same off-archetype pool* playing a broad round robin against decks of
+similar overall quality (that's why they cleared HSReplay's win-rate bar in
+the first place) - the signal search depth needs to exploit is weaker and
+noisier here, and the self-play champion's bias toward decisive, winning
+play (already flagged in the compounding result above as a driver of worse
+calibration) may dominate more when matchups are closer to coin flips.
+Consistent with, not contradicting, this session's running theme: search
+depth and the self-play-trained evaluator are not a uniform improvement -
+their effect depends on the structure of the matchups being evaluated.
+Artifacts: `data/offarchetype_mcts.csv`, `data/offarchetype_greedy_sameN.csv`.
+
+Not yet done, and the natural next step (as scoped by the user): perturb/
+evolve this 82-deck pool (swap a few cards per generation, MAP-Elites-style)
+to generate genuinely non-standard decks, using round-robin win rate against
+the real pool as a fitness/sanity signal before trusting a purely synthetic
+deck's evaluation.
 
 **S2 - Archetype emergence.** Card-overlap between MAP-Elites archive clusters and
 real archetype cores. Report honestly: the mage archive collapsed deck-wise

@@ -19,6 +19,8 @@ Usage (from classic_sim/examples/metagame_analysis, PYTHONPATH src+validation
 already appended below):
   python run_offarchetype_tournament.py --backend local --agent greedy --limit-decks 8 --out data/tournament_smoke.csv
   python run_offarchetype_tournament.py --backend ssh --agent greedy --out data/tournament_greedy.csv
+  python run_offarchetype_tournament.py --backend ssh --agent mcts --eval-weights data/self_play_champion.json \
+      --limit-decks 24 --sort-by-games --out data/offarchetype_mcts.csv
 """
 import sys, csv, json, argparse, subprocess, ast
 from itertools import combinations
@@ -52,25 +54,25 @@ CARDSET_ENUM = {"HUNTER": CardSets.CLASSIC_HUNTER, "MAGE": CardSets.CLASSIC_MAGE
 MIN_GAMES, MAX_GAMES, PVALUE_ALPHA, MIN_STREAK = 4, 16, 0.1, 2
 
 
-def make_strategy(agent_name):
+def make_strategy(agent_name, eval_weights=None):
   if agent_name == "greedy":
     return GreedyActionSmart()
   if agent_name == "mcts":
-    return MCTS(iterations=150, guided=True)
+    return MCTS(iterations=150, guided=True, eval_weights=eval_weights)
   raise ValueError(f"unknown agent {agent_name!r}")
 
 
-def play_matchup_till_stoppage(deck_a, class_a, deck_b, class_b, agent_name,
+def play_matchup_till_stoppage(deck_a, class_a, deck_b, class_b, agent_name, eval_weights=None,
                                 min_games=MIN_GAMES, max_games=MAX_GAMES):
-  """Returns (win_rate_for_a, games_played). min_games/max_games are real
-  parameters (not module globals) for the same reason calibrate_greedy_weights
+  """Returns (win_rate_for_a, games_played). min_games/max_games/eval_weights are
+  real parameters (not module globals) for the same reason calibrate_greedy_weights
   uses them that way - they must survive dill-over-stdin into a remote worker
   that reimports this module fresh."""
   game_manager = GameManager()
   game_manager.create_player_pool([CardSets.CLASSIC_NEUTRAL, CARDSET_ENUM[class_a]])
   game_manager.create_enemy_pool([CardSets.CLASSIC_NEUTRAL, CARDSET_ENUM[class_b]])
-  game_manager.create_player(CLASS_ENUM[class_a], Deck.generate_from_decklist(deck_a), make_strategy(agent_name))
-  game_manager.create_enemy(CLASS_ENUM[class_b], Deck.generate_from_decklist(deck_b), make_strategy(agent_name))
+  game_manager.create_player(CLASS_ENUM[class_a], Deck.generate_from_decklist(deck_a), make_strategy(agent_name, eval_weights))
+  game_manager.create_enemy(CLASS_ENUM[class_b], Deck.generate_from_decklist(deck_b), make_strategy(agent_name, eval_weights))
   game_manager.create_game()
 
   wins = []
@@ -146,13 +148,18 @@ def run_matchups_ssh(work_items, cores):
   return results
 
 
-def load_offarchetype_decks(limit_decks=None):
+def load_offarchetype_decks(limit_decks=None, sort_by_games=False):
   """The 82 real decks that aren't one of the 6 named-archetype representatives
-  already used throughout S1 validation."""
+  already used throughout S1 validation. sort_by_games: prioritize decks with
+  more real HSReplay total_games (a more reliable real win_rate estimate to
+  compare against) - used to pick a smaller, still-meaningful subsample for
+  the much more expensive MCTS agent, rather than an arbitrary CSV-order slice."""
   decks = load_decks()
   reps, _ = pick_representatives(decks)
   rep_card_lists = {"|".join(cards) for cards in reps.values()}
   pool = [d for d in decks if d["card_list"] not in rep_card_lists]
+  if sort_by_games:
+    pool = sorted(pool, key=lambda d: int(d["total_games"]), reverse=True)
   if limit_decks:
     pool = pool[:limit_decks]
   return pool
@@ -163,18 +170,33 @@ def main():
   parser.add_argument("--agent", choices=["greedy", "mcts"], default="greedy")
   parser.add_argument("--backend", choices=["local", "ssh"], default="local")
   parser.add_argument("--cores", type=int, default=1, help="local backend only")
-  parser.add_argument("--limit-decks", type=int, default=None, help="smoke-test with only the first N decks")
+  parser.add_argument("--limit-decks", type=int, default=None, help="smoke-test / subsample with only the first (or top-by-games) N decks")
+  parser.add_argument("--sort-by-games", action="store_true",
+                       help="prioritize decks with more real HSReplay total_games when --limit-decks subsamples, "
+                            "instead of an arbitrary CSV-order slice")
+  parser.add_argument("--eval-weights", default=None,
+                       help="path to a JSON file with a 'champion_weights' or 'weights' key (27-long, "
+                            "GreedyActionSmart's ordering) - overrides MCTS's guided leaf evaluation")
   parser.add_argument("--out", default=str(OUT_DIR / "offarchetype_tournament.csv"))
   args = parser.parse_args()
 
-  pool = load_offarchetype_decks(args.limit_decks)
-  print(f"{len(pool)} off-archetype decks, agent={args.agent}, backend={args.backend}")
+  eval_weights = None
+  if args.eval_weights:
+    with open(args.eval_weights, encoding="utf-8") as f:
+      loaded = json.load(f)
+    full_weights = loaded.get("champion_weights") or loaded["weights"]
+    eval_weights = full_weights[1:]  #drop turn_passed - not part of evaluate_position's feature set
+
+  pool = load_offarchetype_decks(args.limit_decks, args.sort_by_games)
+  print(f"{len(pool)} off-archetype decks, agent={args.agent}, backend={args.backend}"
+        + (f", eval_weights={args.eval_weights}" if eval_weights else ""))
 
   pairs = list(combinations(range(len(pool)), 2))
   print(f"{len(pairs)} round-robin pairs")
 
   work_items = [
-    (pool[i]["card_list"].split("|"), pool[i]["class"], pool[j]["card_list"].split("|"), pool[j]["class"], args.agent)
+    (pool[i]["card_list"].split("|"), pool[i]["class"], pool[j]["card_list"].split("|"), pool[j]["class"],
+     args.agent, eval_weights)
     for i, j in pairs
   ]
 
