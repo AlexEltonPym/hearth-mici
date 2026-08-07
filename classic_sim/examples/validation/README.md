@@ -618,13 +618,27 @@ Jan-Jun (every archetype 9-25% throughout, no trend) - consistent with the
 S3 finding that even the September Buzzard nerf moved card adoption sharply
 but class share barely at all.
 
+**Agent-sensitivity check (MCTS rerun, 2026-08-07).** The greedy matrix's
+least plausible feature was Control Warrior's 0.62-0.95 row (S1 already
+measured this agent's matchup fidelity as mediocre), so the matrix was
+re-simulated with guided MCTS (150 iterations, champion eval weights) on
+dwail1/dwail2, same fixed 60 games/pair
+(`data/hearthpwn_2014_matrix_mcts.csv`). The matrix improves in exactly the
+direction S1 predicted - Freeze Mage recovers (0.05 -> 0.33 vs Control
+Warrior, 0.82 vs Face Hunter), Control Warrior softens against the control
+mirrors - but the dynamics verdict does not move: Spearman(field-weighted
+win rate -> next-month share change) = **0.081**, indistinguishable from the
+power-alone baseline (0.081) and from zero
+(`data/hearthpwn_2014_dynamics_mcts.csv`). The no-signal result is not an
+artifact of the greedy agent's matrix.
+
 Interpretation, honestly bounded: this does *not* prove popularity dynamics
-are unpredictable - it shows that (a) monthly deckbuilder-submission shares
+are unpredictable - it shows that monthly deckbuilder-submission shares
 over six archetypes carry too little real movement to test the hypothesis
 (the one large real shift, the Buzzard nerf, is card-level and post-Naxx),
-and (b) the matrix itself is a limitation (greedy+champion-weights produces
-an implausibly dominant Control Warrior row, 0.62-0.95 - S1 already measured
-this agent's matchup fidelity as mediocre). What survives: card-level
+and that conclusion is robust to which agent produced the matrix (the MCTS
+rerun above replaces the greedy matrix's least plausible entries and leaves
+the correlation at zero). What survives: card-level
 adoption (S3's 68% -> 17% Buzzard collapse) is the popularity signal with
 real signal-to-noise in this dataset, and any future popularity-prediction
 work should target card adoption or nerf-response direction, not smooth

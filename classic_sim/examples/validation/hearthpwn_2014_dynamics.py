@@ -31,6 +31,7 @@ Three stages, each skippable if its output already exists (--force to redo):
 
 Usage (from classic_sim/examples/validation):
   python hearthpwn_2014_dynamics.py --cores 10
+  python hearthpwn_2014_dynamics.py --agent mcts --backend ssh   #matrix via dwail1/dwail2
 """
 import sys, csv, json, argparse, os
 from collections import Counter, defaultdict
@@ -53,12 +54,24 @@ CARDS = HERE / "data" / "decks" / "zenodo_cards.csv"
 CHAMPION = HERE / ".." / "metagame_analysis" / "data" / "self_play_champion.json"
 SERIES_OUT = HERE / "data" / "hearthpwn_2014_archetype_series.csv"
 REPS_OUT = HERE / "data" / "hearthpwn_2014_representatives.json"
-MATRIX_OUT = HERE / "data" / "hearthpwn_2014_matrix.csv"
-DYNAMICS_OUT = HERE / "data" / "hearthpwn_2014_dynamics.csv"
 
 NAXX_LAUNCH = datetime(2014, 7, 22)
 ARCHETYPES = list(SIGNATURES)
 GAMES = 60
+#each pair's fixed GAMES games are split into chunks this size so a slow agent
+#(MCTS: ~15 pairs would otherwise each run 60 sequential games on one core)
+#spreads across cores/hosts; equal-sized chunks mean a plain mean recombines them
+CHUNK = 10
+
+
+def matrix_path(agent):
+  return HERE / "data" / ("hearthpwn_2014_matrix.csv" if agent == "greedy"
+                           else f"hearthpwn_2014_matrix_{agent}.csv")
+
+
+def dynamics_path(agent):
+  return HERE / "data" / ("hearthpwn_2014_dynamics.csv" if agent == "greedy"
+                           else f"hearthpwn_2014_dynamics_{agent}.csv")
 
 
 #---------------------------------------------------------------- stage A
@@ -206,44 +219,53 @@ def stage_a():
 
 #---------------------------------------------------------------- stage B
 
-def stage_b(cores):
-  from joblib import Parallel, delayed
-  from run_offarchetype_tournament import play_matchup_till_stoppage
+def stage_b(cores, agent, backend):
+  from run_offarchetype_tournament import run_matchups_local, run_matchups_ssh
 
-  print(f"stage B: simulating 6x6 matrix, fixed {GAMES} games/pair, {cores} cores...", flush=True)
+  print(f"stage B: simulating 6x6 matrix, agent={agent}, backend={backend}, "
+        f"fixed {GAMES} games/pair in {CHUNK}-game chunks...", flush=True)
   with REPS_OUT.open(encoding="utf-8") as f:
     reps = json.load(f)
   with CHAMPION.open(encoding="utf-8") as f:
     loaded = json.load(f)
-  eval_weights = loaded.get("champion_weights") or loaded["weights"]
+  full_weights = loaded.get("champion_weights") or loaded["weights"]
+  #same convention as run_offarchetype_tournament: greedy takes the full
+  #vector, MCTS's evaluate_position has no turn_passed feature
+  eval_weights = full_weights if agent == "greedy" else full_weights[1:]
 
   pairs = [(a, b) for i, a in enumerate(ARCHETYPES) for b in ARCHETYPES[i + 1:]]
-  results = Parallel(n_jobs=cores)(
-    delayed(play_matchup_till_stoppage)(
-      reps[a]["deck"], reps[a]["class"], reps[b]["deck"], reps[b]["class"],
-      "greedy", eval_weights, GAMES, GAMES)
-    for a, b in pairs)
+  chunks_per_pair = GAMES // CHUNK
+  work_items = [
+    (reps[a]["deck"], reps[a]["class"], reps[b]["deck"], reps[b]["class"],
+     agent, eval_weights, CHUNK, CHUNK)
+    for a, b in pairs for _ in range(chunks_per_pair)
+  ]
+  run_matchups = run_matchups_ssh if backend == "ssh" else run_matchups_local
+  results = run_matchups(work_items, cores)
 
   matrix = {a: {a: 0.5} for a in ARCHETYPES}
-  for (a, b), (win_rate, games) in zip(pairs, results):
+  for i, (a, b) in enumerate(pairs):
+    chunk_results = results[i * chunks_per_pair: (i + 1) * chunks_per_pair]
+    win_rate = mean(r[0] for r in chunk_results)
     matrix[a][b] = win_rate
     matrix[b][a] = 1 - win_rate
-  with MATRIX_OUT.open("w", newline="", encoding="utf-8") as f:
+  out = matrix_path(agent)
+  with out.open("w", newline="", encoding="utf-8") as f:
     writer = csv.DictWriter(f, fieldnames=["archetype"] + ARCHETYPES)
     writer.writeheader()
     for a in ARCHETYPES:
       writer.writerow({"archetype": a, **{b: round(matrix[a][b], 3) for b in ARCHETYPES}})
-  print(f"  wrote {MATRIX_OUT}")
+  print(f"  wrote {out}")
   return matrix
 
 
 #---------------------------------------------------------------- stage C
 
-def stage_c():
-  print("stage C: field-weighted win rate vs next-month popularity shift", flush=True)
+def stage_c(agent):
+  print(f"stage C: field-weighted win rate vs next-month popularity shift (agent={agent})", flush=True)
   with SERIES_OUT.open(encoding="utf-8") as f:
     series = list(csv.DictReader(f))
-  with MATRIX_OUT.open(encoding="utf-8") as f:
+  with matrix_path(agent).open(encoding="utf-8") as f:
     matrix = {row["archetype"]: {a: float(row[a]) for a in ARCHETYPES}
               for row in csv.DictReader(f)}
 
@@ -270,11 +292,11 @@ def stage_c():
       if t > 0:
         momentum_points.append((now[a] - shares[t - 1][a], change))
 
-  with DYNAMICS_OUT.open("w", newline="", encoding="utf-8") as f:
+  with dynamics_path(agent).open("w", newline="", encoding="utf-8") as f:
     writer = csv.DictWriter(f, fieldnames=list(rows[0]))
     writer.writeheader()
     writer.writerows(rows)
-  print(f"  wrote {DYNAMICS_OUT}\n")
+  print(f"  wrote {dynamics_path(agent)}\n")
 
   print(f"{'month':9}{'archetype':18}{'share':>8}{'field_wr':>10}{'next_change':>13}")
   for row in rows:
@@ -293,6 +315,8 @@ def stage_c():
 
 def main():
   parser = argparse.ArgumentParser()
+  parser.add_argument("--agent", choices=["greedy", "mcts"], default="greedy")
+  parser.add_argument("--backend", choices=["local", "ssh"], default="local")
   parser.add_argument("--cores", type=int, default=max(1, (os.cpu_count() or 2) - 2))
   parser.add_argument("--force", action="store_true", help="redo stages whose outputs already exist")
   args = parser.parse_args()
@@ -301,11 +325,11 @@ def main():
     stage_a()
   else:
     print(f"stage A: outputs exist, skipping (--force to redo)")
-  if args.force or not MATRIX_OUT.exists():
-    stage_b(args.cores)
+  if args.force or not matrix_path(args.agent).exists():
+    stage_b(args.cores, args.agent, args.backend)
   else:
-    print(f"stage B: {MATRIX_OUT.name} exists, skipping (--force to redo)")
-  stage_c()
+    print(f"stage B: {matrix_path(args.agent).name} exists, skipping (--force to redo)")
+  stage_c(args.agent)
 
 
 if __name__ == "__main__":
