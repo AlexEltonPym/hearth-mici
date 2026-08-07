@@ -578,6 +578,58 @@ plainly: the real 2014 ladder ran Classic + Naxxramas, and the Hunter rebuild
 leaned on Naxx cards (Undertaker, Haunted Creeper) the simulator cannot represent,
 so (2) is the weaker of the two comparisons.
 
+**Does simulated power predict real popularity? (`hearthpwn_2014_dynamics.py`,
+run 2026-08-07).** Motivation, measured first in the data we already had: in
+the HSReplay 2021 snapshot, a deck's real win rate and its real play count
+(`total_games`) are nearly uncorrelated - Spearman **-0.03** across the 88
+constructible decks (Hunter 0.07, Mage 0.24, Warrior 0.05). Winning decks were
+not the played decks, so no function of a static win rate can predict
+popularity. The testable hypothesis is dynamic instead: an archetype's
+FIELD-WEIGHTED win rate (its matchup row weighted by the current popularity
+mix) should predict its next-month popularity *change*, replicator-style.
+
+Test bed: the pre-Naxxramas 2014 window (1 Jan - 21 Jul), the only period when
+the real ladder ran on exactly the simulator's card pool. 14,124 ranked
+HearthPwn decks classified into the six S1 archetypes by signature-card
+scoring (plus a class-consistency gate; ~580/month land in the six).
+Representative decks are 2014-NATIVE - built from the cards those real decks
+actually ran, not the 2021 HSReplay lists
+(`data/hearthpwn_2014_representatives.json`, 528-781 source decks each). The
+6x6 matrix was simulated at confirm-phase fidelity (fixed 60 games/pair,
+greedy + self-play champion weights, `data/hearthpwn_2014_matrix.csv`).
+
+Result over 36 (archetype, month) points (`data/hearthpwn_2014_dynamics.csv`):
+
+| predictor of next-month share change | Spearman |
+|---|---|
+| field-weighted win rate | **-0.004** |
+| static row-mean win rate (power alone) | 0.074 |
+| this month's share change (pure momentum) | -0.463 |
+
+**No detectable replicator signal - and the diagnosis is that the target
+itself is mostly noise at this granularity.** Two independent checks agree.
+First, the sampling floor: at ~580 classified decks/month, the binomial SE of
+a month-to-month share change is ~2.2pp, against an observed mean absolute
+change of 2.9pp - most of the movement being "predicted" is sampling noise.
+Second, the momentum row: for a series that is constant + independent noise,
+the expected lag-1 correlation of changes is exactly -0.5, and the observed
+-0.463 is right on it. The archetype mix was in fact remarkably stable
+Jan-Jun (every archetype 9-25% throughout, no trend) - consistent with the
+S3 finding that even the September Buzzard nerf moved card adoption sharply
+but class share barely at all.
+
+Interpretation, honestly bounded: this does *not* prove popularity dynamics
+are unpredictable - it shows that (a) monthly deckbuilder-submission shares
+over six archetypes carry too little real movement to test the hypothesis
+(the one large real shift, the Buzzard nerf, is card-level and post-Naxx),
+and (b) the matrix itself is a limitation (greedy+champion-weights produces
+an implausibly dominant Control Warrior row, 0.62-0.95 - S1 already measured
+this agent's matchup fidelity as mediocre). What survives: card-level
+adoption (S3's 68% -> 17% Buzzard collapse) is the popularity signal with
+real signal-to-noise in this dataset, and any future popularity-prediction
+work should target card adoption or nerf-response direction, not smooth
+month-to-month archetype shares.
+
 ## Deck representability
 
 Measured 2026-08-06 (before the legendaries pass): real 2021 Classic decks
