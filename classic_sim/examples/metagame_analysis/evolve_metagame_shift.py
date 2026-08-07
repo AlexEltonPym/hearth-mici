@@ -35,7 +35,7 @@ import sys, csv, json, argparse, subprocess, ast
 from collections import Counter
 from pathlib import Path
 from statistics import mean
-from random import Random, random, randint, choice
+from random import Random, random, randint, choice, choices
 
 sys.path.append('../../src')
 sys.path.append('../map_elites')
@@ -88,18 +88,33 @@ def era_class_pool(player_class):
   return [card.name for card in build_pool(ERA_SETS[player_class], None)]
 
 
-def mutate_deck(deck, pool):
+def mutate_deck(deck, pool, bias=None, bias_strength=10.0):
+  """bias: {card: probed_delta_wr} from probe_card_values.py. Models the real
+  players' non-neutral exploration: replacement candidates with positive
+  probed value are proposed more often (weight 1 + strength*delta/max_delta),
+  and slots holding negative-probed cards are replaced more often. Unprobed
+  cards keep weight 1 / uniform slot odds."""
   deck = list(deck)
   num_swaps = 0
   for exponent in range(4):
     if random() < 1 / (2 ** exponent):
       num_swaps = exponent
+  max_positive = max([d for d in bias.values() if d > 0], default=0) if bias else 0
   for _ in range(num_swaps):
-    slot = randint(0, len(deck) - 1)
+    if bias:
+      slot_weights = [1 + bias_strength * max(0.0, -bias.get(card, 0.0)) / max_positive if max_positive else 1
+                      for card in deck]
+      slot = choices(range(len(deck)), weights=slot_weights)[0]
+    else:
+      slot = randint(0, len(deck) - 1)
     candidates = [c for c in pool if deck.count(c) < max_copies(c)]
     if not candidates:
       continue
-    deck[slot] = choice(candidates)
+    if bias and max_positive:
+      weights = [1 + bias_strength * max(0.0, bias.get(c, 0.0)) / max_positive for c in candidates]
+      deck[slot] = choices(candidates, weights=weights)[0]
+    else:
+      deck[slot] = choice(candidates)
   return deck
 
 
@@ -264,6 +279,13 @@ def main():
   parser.add_argument("--seed", type=int, default=0, help="rng seed for seed-deck/gauntlet sampling")
   parser.add_argument("--eval-weights", default=str(OUT_DIR / "self_play_champion.json"),
                        help="fixed agent weights piloting both sides. Pass '' for default weights.")
+  parser.add_argument("--mutation-bias", default=None,
+                       help="probe_card_values.py CSV - biases mutation toward probed-positive cards "
+                            "and away from probed-negative slots (per class)")
+  parser.add_argument("--bias-strength", type=float, default=10.0)
+  parser.add_argument("--fixed-games", type=int, default=None,
+                       help="fixed games per matchup (min=max, no early stopping) - reduces selection "
+                            "noise at higher cost; default keeps the exploratory 4-12 early stop")
   parser.add_argument("--out", default=None, help="output prefix (default data/shift_<era>)")
   args = parser.parse_args()
 
@@ -276,6 +298,14 @@ def main():
     with open(args.eval_weights, encoding="utf-8") as f:
       loaded = json.load(f)
     eval_weights = loaded.get("champion_weights") or loaded["weights"]
+
+  bias_by_class = None
+  if args.mutation_bias:
+    bias_by_class = {c: {} for c in CLASSES}
+    with open(args.mutation_bias, encoding="utf-8") as f:
+      for row in csv.DictReader(f):
+        bias_by_class[row["class"]][row["card"]] = float(row["mean_delta_wr"])
+    print(f"mutation bias loaded: { {c: len(bias_by_class[c]) for c in CLASSES} } probed cards/class")
 
   populations, full_seeds = load_seeds(args.era, args.population, rng)
   gauntlet = initial_gauntlet(full_seeds, rng)
@@ -306,13 +336,19 @@ def main():
     #mutate all three class populations, evaluate everything in ONE dispatch
     #so the ssh hosts get a single large batch per generation
     for player_class in CLASSES:
-      populations[player_class] = [mutate_deck(deck, pools[player_class]) for deck in populations[player_class]]
+      class_bias = bias_by_class[player_class] if bias_by_class else None
+      populations[player_class] = [mutate_deck(deck, pools[player_class], class_bias, args.bias_strength)
+                                   for deck in populations[player_class]]
     work, spans = [], {}
     for player_class in CLASSES:
       start = len(work)
       for deck in populations[player_class]:
         for opponent in gauntlet:
-          work.append((deck, player_class, opponent["deck"], opponent["class"], args.era, eval_weights))
+          if args.fixed_games:
+            work.append((deck, player_class, opponent["deck"], opponent["class"], args.era,
+                         eval_weights, args.fixed_games, args.fixed_games))
+          else:
+            work.append((deck, player_class, opponent["deck"], opponent["class"], args.era, eval_weights))
       spans[player_class] = (start, len(work))
     results = run_matchups(work, args.cores)
 
