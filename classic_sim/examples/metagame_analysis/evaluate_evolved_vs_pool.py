@@ -14,6 +14,14 @@ ancestor's; if it only overfit the small gauntlet, it won't be.
 
 Usage (from classic_sim/examples/metagame_analysis):
   python evaluate_evolved_vs_pool.py --backend ssh --out data/evolved_vs_pool.csv
+  python evaluate_evolved_vs_pool.py --backend ssh --games 60 --out data/evolved_vs_pool_confirm.csv
+
+--games N: confirm-phase mode - plays exactly N games per matchup (min_games
+== max_games == N, so early stopping can't cut a matchup short) instead of
+the exploratory ~4-12 early-stopped default. The first pass at this
+(default settings, ~9 games/matchup average) turned out to have a noise
+floor (6.3pp, measured via the Warrior identical-deck control below) as
+large as the effect it was trying to measure - not a confident answer.
 """
 import sys, csv, json, argparse
 from pathlib import Path
@@ -59,6 +67,9 @@ def main():
   parser = argparse.ArgumentParser()
   parser.add_argument("--backend", choices=["local", "ssh"], default="local")
   parser.add_argument("--cores", type=int, default=1)
+  parser.add_argument("--games", type=int, default=None,
+                       help="fixed games/matchup (min_games=max_games=N, no early stopping). "
+                            "Omit to use the exploratory early-stopping defaults.")
   parser.add_argument("--out", default=str(OUT_DIR / "evolved_vs_pool.csv"))
   args = parser.parse_args()
 
@@ -83,11 +94,17 @@ def main():
   #each test deck plays the FULL real pool of its opponents' own class-agnostic
   #field (the same 82-deck pool used throughout, all classes) - not just same
   #class - matching how the original off-archetype tournament measured decks.
-  work_items = [
-    (t["deck"], t["class"], opp["card_list"].split("|"), opp["class"], eval_weights)
-    for t in test_decks for opp in pool
-  ]
-  print(f"{len(work_items)} matchup pairs")
+  if args.games:
+    work_items = [
+      (t["deck"], t["class"], opp["card_list"].split("|"), opp["class"], eval_weights, args.games, args.games)
+      for t in test_decks for opp in pool
+    ]
+  else:
+    work_items = [
+      (t["deck"], t["class"], opp["card_list"].split("|"), opp["class"], eval_weights)
+      for t in test_decks for opp in pool
+    ]
+  print(f"{len(work_items)} matchup pairs" + (f", fixed {args.games} games/matchup" if args.games else ""))
 
   run_matchups = run_matchups_ssh if args.backend == "ssh" else run_matchups_local
   results = run_matchups(work_items, args.cores)

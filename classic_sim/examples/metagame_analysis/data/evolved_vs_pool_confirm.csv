@@ -1,0 +1,7 @@
+label,class,pool_win_rate_pct,gauntlet_fitness,overlap_with_ancestor,games
+HUNTER_evolved,HUNTER,63.6,0.7740740740740741,27,4920
+HUNTER_ancestor,HUNTER,62.7,,30,4920
+MAGE_evolved,MAGE,54.0,0.7037037037037037,26,4920
+MAGE_ancestor,MAGE,51.1,,30,4920
+WARRIOR_evolved,WARRIOR,72.7,0.8287037037037037,30,4920
+WARRIOR_ancestor,WARRIOR,70.4,,30,4920

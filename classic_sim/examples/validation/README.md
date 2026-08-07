@@ -502,6 +502,43 @@ used, not a full confirm-phase game count) rather than more evolution -
 noted as the concrete next step rather than re-running evolution longer.
 Artifacts: `data/evolved_vs_pool.csv`.
 
+**Confirm phase: fixed 60 games/matchup (`--games 60`, `data/evolved_vs_pool_confirm.csv`).**
+4,920 games per test deck (82 opponents x 60), no early stopping, so the
+game count can't confound the comparison:
+
+| | win rate vs 82-deck pool |
+|---|---|
+| Hunter evolved | 63.6% |
+| Hunter ancestor | 62.7% |
+| Mage evolved | 54.0% |
+| Mage ancestor | 51.1% |
+| **Warrior evolved (= ancestor, verbatim)** | **72.7%** |
+| **Warrior ancestor** | **70.4%** |
+
+The Warrior noise check now reads 2.3pp apart (down from 6.3pp at ~9
+games/matchup) - close to the sqrt(9/60) ~= 0.39x scaling pure sampling
+noise predicts (6.3 x 0.39 ~= 2.4pp), a good sanity check that this is
+measuring noise correctly and not some other bug. **Confident answer, with
+noise now properly bounded: Hunter's evolved-vs-ancestor gap (+0.9pp) is
+well inside the 2.3pp noise floor - no signal.** Mage's gap (+2.9pp) sits
+right at the edge of it - a plausible small real effect, but not one this
+sample size can call with confidence (the noise floor here is a single
+measurement, not a distribution). Neither reaches the kind of clear,
+noise-dominating margin the earlier within-gauntlet fitness gains (e.g.
+Mage's +37% relative) showed.
+
+**Overall conclusion for this line of work:** the MAP-Elites evolution loop
+reliably improves fitness *against the field it was selected on* (that
+result is solid - many generations of consistent selection pressure average
+out noise), but this confirm-phase test does not show that improvement
+reliably transferring to a wider, independent real-deck field. The likely
+explanation is the one flagged when evolution was first run: a 9-deck
+gauntlet is small enough to specialize against without generalizing. Fixing
+that means widening the gauntlet the *evolution loop itself* uses (not just
+this evaluation), which is real future compute, not a re-analysis of
+existing data - noted here rather than pursued further this session.
+Artifacts: `data/evolved_vs_pool_confirm.csv`.
+
 **S2 - Archetype emergence.** Card-overlap between MAP-Elites archive clusters and
 real archetype cores. Report honestly: the mage archive collapsed deck-wise
 (715 elites, 24 unique decks); hunter/warrior archives retained diversity (537/590).
