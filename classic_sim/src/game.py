@@ -221,6 +221,9 @@ class Game():
     self.trigger(action.source, Triggers.FRIENDLY_SAME_TYPE_SUMMONED)
     self.trigger(action.source, Triggers.ENEMY_MINION_SUMMONED)
     self.trigger(action.source, Triggers.ENEMY_SAME_TYPE_SUMMONED)
+    self.trigger(action.source, Triggers.ANY_MINION_PLAYED)
+    self.trigger(action.source, Triggers.FRIENDLY_MINION_PLAYED)
+    self.trigger(action.source, Triggers.ENEMY_MINION_PLAYED)
     self.trigger(action.source, Triggers.ANY_CARD_PLAYED)
     self.trigger(action.source, Triggers.FRIENDLY_CARD_PLAYED)
     self.trigger(action.source, Triggers.ENEMY_CARD_PLAYED)
@@ -237,7 +240,9 @@ class Game():
     for secret in action.source.owner.other_player.secrets_zone:
       if isinstance(secret.effect, Counterspell):
         spell_countered = True
-      if spell_targeted and isinstance(secret.effect, RedirectToToken) and secret.effect.value[1](action) is not None:
+      #Spellbender only redirects spells cast on MINIONS, never on a hero
+      if spell_targeted and len(action.targets) > 0 and not isinstance(action.targets[0], Player)\
+          and isinstance(secret.effect, RedirectToToken) and secret.effect.value[1](action) is not None:
         for token_number in range(secret.effect.value[0](action)):
           if len(secret.owner.board) >= secret.owner.board.max_entries:
             break
@@ -309,7 +314,7 @@ class Game():
 
   def handle_attack(self, action):
     if isinstance(action.targets[0], Player):
-      for secret in action.targets[0].owner.secrets_zone:
+      for secret in action.targets[0].owner.secrets_zone.get_all(): #copy - we may consume mid-loop
         if isinstance(secret.effect, Redirect):
           player_board = self.player.board.get_all()
           enemy_board = self.player.other_player.board.get_all()
@@ -321,6 +326,12 @@ class Game():
           if len(possible_targets) > 0:
             action.targets[0] = self.game_manager.random_state.choice(possible_targets)
             self.trigger(action.source, Triggers.REDIRECT_SECRET_REVEALED)
+            #minion attackers consume the secret via the ENEMY_MINION_ATTACKS
+            #trigger further down; a hero attacker never reaches it, so the
+            #secret would stay armed forever - consume it here instead
+            if isinstance(action.source, Player):
+              secret.change_parent(secret.owner.graveyard)
+              self.trigger(secret, Triggers.ANY_SECRET_REVEALED)
 
         if isinstance(secret.effect, Destroy) and not isinstance(action.source, Player):
           self.handle_death(action.source)
@@ -499,6 +510,8 @@ class Game():
               self.resolve_effect(card, triggerer)
             elif trigger_type == Triggers.FRIENDLY_MINION_DAMAGED:
               self.resolve_effect(card, triggerer)
+            elif trigger_type == Triggers.FRIENDLY_MINION_PLAYED:
+              self.resolve_effect(card, triggerer)
 
 
           elif "ENEMY" in trigger_type.name and triggerer.owner != card.owner:
@@ -536,12 +549,16 @@ class Game():
               self.resolve_effect(card, triggerer)
             elif trigger_type == Triggers.ENEMY_MINION_DAMAGED:
               self.resolve_effect(card, triggerer)
+            elif trigger_type == Triggers.ENEMY_MINION_PLAYED:
+              self.resolve_effect(card, triggerer)
           else:
             if trigger_type == Triggers.ANY_MINION_DIES:
               self.resolve_effect(card, triggerer)
             elif trigger_type == Triggers.ANY_HEALED:
               self.resolve_effect(card, triggerer)
             elif trigger_type == Triggers.ANY_MINION_SUMMONED:
+              self.resolve_effect(card, triggerer)
+            elif trigger_type == Triggers.ANY_MINION_PLAYED:
               self.resolve_effect(card, triggerer)
             elif trigger_type == Triggers.ANY_SAME_TYPE_SUMMONED\
                 and triggerer.creature_type and card.creature_type\
@@ -757,7 +774,11 @@ class Game():
             elif card.effect.method == Methods.ALL:
               playable_minion_actions.append(Action(Actions.CAST_MINION, card, battlecry_targets))
             elif card.effect.target == Targets.MINION and card.effect.method == Methods.ADJACENT:
-              adjacent_minions = list(set(filter(lambda target: target.parent.at_edge(target), battlecry_targets)))
+              #a new minion is always appended to the right end of the board,
+              #so its only true neighbour is the current last minion - NOT
+              #both edges of the pre-cast board
+              board_minions = player.board.get_all()
+              adjacent_minions = [m for m in board_minions[-1:] if m in battlecry_targets]
               playable_minion_actions.append(Action(Actions.CAST_MINION, card, adjacent_minions))
             elif card.effect.method == Methods.SELF:
               playable_minion_actions.append(Action(Actions.CAST_MINION, card, [card]))

@@ -128,7 +128,7 @@ def get_common_cards():
   # Common one drops
   wisp = Card(name="Wisp", card_type=CardTypes.MINION,
         manacost=0, attack=1, health=1)
-  abusive_sergeant = Card(name="Abusive Sergeant", card_type=CardTypes.MINION, manacost=1, attack=1, health=1,
+  abusive_sergeant = Card(name="Abusive Sergeant", card_type=CardTypes.MINION, manacost=1, attack=2, health=1,
               effect=ChangeStats(value=(ConstantInt(2), ConstantInt(0)), method=Methods.TARGETED,
                          target=Targets.MINION, owner_filter=OwnerFilters.ALL, duration=Durations.TURN,
                          trigger=Triggers.BATTLECRY, type_filter=CreatureTypes.ALL))
@@ -143,7 +143,7 @@ def get_common_cards():
                condition=Condition(requirement=HasWeapon(OwnerFilters.FRIENDLY), result={'attributes': [Attributes.CHARGE]}))
   worgen_infiltrator = Card(name="Worgen Infiltrator", card_type=CardTypes.MINION,
                 manacost=1, attack=2, health=1, attributes=[Attributes.STEALTH])
-  young_dragonhawk = Card(name="Young Dragonhawk", card_type=CardTypes.MINION,
+  young_dragonhawk = Card(name="Young Dragonhawk", card_type=CardTypes.MINION, creature_type=CreatureTypes.BEAST,
               manacost=1, attack=1, health=1, attributes=[Attributes.WINDFURY])
 
   # Common two drops
@@ -152,7 +152,7 @@ def get_common_cards():
   bloodsail_raider = Card(name="Bloodsail Raider", card_type=CardTypes.MINION, manacost=2, attack=2, health=3, creature_type=CreatureTypes.PIRATE,\
               effect=ChangeStats(trigger=Triggers.BATTLECRY, value=(WeaponAttack(OwnerFilters.FRIENDLY), ConstantInt(0)), method=Methods.SELF, target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY, duration=Durations.PERMANENTLY))
       
-  dire_wolf_alpha = Card(name="Dire Wolf Alpha", card_type=CardTypes.MINION, manacost=2, attack=2, health=2, effect=ChangeStats(value=(ConstantInt(1), ConstantInt(0)), trigger=Triggers.AURA, method=Methods.ADJACENT,
+  dire_wolf_alpha = Card(name="Dire Wolf Alpha", card_type=CardTypes.MINION, creature_type=CreatureTypes.BEAST, manacost=2, attack=2, health=2, effect=ChangeStats(value=(ConstantInt(1), ConstantInt(0)), trigger=Triggers.AURA, method=Methods.ADJACENT,
                target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY, type_filter=CreatureTypes.ALL))  # gives all minions +1 including self, nerf attack by 1, mana by 1?
   faerie_dragon = Card(name="Faerie Dragon", card_type=CardTypes.MINION, creature_type=CreatureTypes.DRAGON,\
              manacost=2, attack=3, health=2, attributes=[Attributes.HEXPROOF])
@@ -194,7 +194,7 @@ def get_common_cards():
              effect=DrawCards(value=ConstantInt(1), method=Methods.TARGETED, owner_filter=OwnerFilters.FRIENDLY, trigger=Triggers.FRIENDLY_MINION_DIES))
   dark_iron_dwarf = Card(name="Dark Iron Dwarf", card_type=CardTypes.MINION, manacost=4, attack=4, health=4,
                effect=ChangeStats(value=(ConstantInt(2), ConstantInt(0)), method=Methods.TARGETED, target=Targets.MINION, owner_filter=OwnerFilters.ALL, duration=Durations.TURN, trigger=Triggers.BATTLECRY))
-  dread_corsair = Card(name="Dread Corsair", card_type=CardTypes.MINION, manacost=4, attack=3, health=3, creature_type=CreatureTypes.PIRATE,
+  dread_corsair = Card(name="Dread Corsair", card_type=CardTypes.MINION, manacost=4, attack=3, health=3, creature_type=CreatureTypes.PIRATE, attributes=[Attributes.TAUNT],
              effect=ChangeCost(value=Multiply(WeaponAttack(OwnerFilters.FRIENDLY), ConstantInt(-1)), method=Methods.SELF, target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY, trigger=Triggers.AURA))
   mogushan_warden = Card(name="Mogu'shan Warden", card_type=CardTypes.MINION,
                manacost=4, attack=1, health=7, attributes=[Attributes.TAUNT])
@@ -269,7 +269,7 @@ def get_rare_cards():
                            effect=ChangeStats(value=(ConstantInt(1), ConstantInt(0)), trigger=Triggers.FRIENDLY_END_TURN, method=Methods.RANDOMLY, target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY, duration=Durations.PERMANENTLY))
   pint_sized_summoner = Card(name="Pint-Sized Summoner", card_type=CardTypes.MINION, manacost=2, attack=2, health=2,\
                              effect=ChangeCost(value=IfInt(Equals(MinionsPlayed(OwnerFilters.FRIENDLY), ConstantInt(0)), ConstantInt(-1), ConstantInt(0)), trigger=Triggers.AURA, method=Methods.ALL, target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY))
-  sunfury_protector = Card(name="Sunfury Protector", card_type=CardTypes.MINION, manacost=2, attack=2, health=2,\
+  sunfury_protector = Card(name="Sunfury Protector", card_type=CardTypes.MINION, manacost=2, attack=2, health=3,\
                           effect=GiveAttribute(value=ConstantAttribute(Attributes.TAUNT), method=Methods.ADJACENT, target=Targets.MINION,
                           owner_filter=OwnerFilters.FRIENDLY, duration=Durations.PERMANENTLY, trigger=Triggers.BATTLECRY))
   wild_pyromancer = Card(name="Wild Pyromancer", card_type=CardTypes.MINION, manacost=2, attack=3, health=2,\
@@ -286,8 +286,8 @@ def get_rare_cards():
   coldlight_seer = Card(name="Coldlight Seer", card_type=CardTypes.MINION, manacost=3, attack=2, health=3, creature_type=CreatureTypes.MURLOC,\
                         effect=ChangeStats(value=(ConstantInt(0), ConstantInt(2)), trigger=Triggers.BATTLECRY, method=Methods.ALL,\
                                            target=Targets.MINION, owner_filter=OwnerFilters.ALL, type_filter=CreatureTypes.MURLOC, duration=Durations.PERMANENTLY))
-  demolisher = Card(name="Demolisher", card_type=CardTypes.MINION, manacost=3, attack=1, health=3, creature_type=CreatureTypes.MECH,\
-                    effect=DealDamage(value=ConstantInt(2), method=Methods.RANDOMLY, trigger=Triggers.FRIENDLY_UNTAP, target=Targets.MINION, owner_filter=OwnerFilters.ENEMY))
+  demolisher = Card(name="Demolisher", card_type=CardTypes.MINION, manacost=3, attack=1, health=4, creature_type=CreatureTypes.MECH,\
+                    effect=DealDamage(value=ConstantInt(2), method=Methods.RANDOMLY, trigger=Triggers.FRIENDLY_UNTAP, target=Targets.MINION_OR_HERO, owner_filter=OwnerFilters.ENEMY))
   emperor_cobra = Card(name="Emperor Cobra", card_type=CardTypes.MINION, manacost=3, attack=2, health=3, creature_type=CreatureTypes.BEAST, attributes=[Attributes.POISONOUS])
   imp_master = Card(name="Imp Master", card_type=CardTypes.MINION, manacost=3, attack=1, health=5,\
                     effect=DualEffectSelf(SummonToken(trigger=Triggers.FRIENDLY_END_TURN, method=Methods.ALL, owner_filter=OwnerFilters.FRIENDLY,\
@@ -351,8 +351,8 @@ def get_epic_cards():
   captains_parrot = Card(name="Captain's Parrot", card_type=CardTypes.MINION, manacost=2, attack=1, health=1, creature_type=CreatureTypes.BEAST,\
                           effect=Tutor(trigger=Triggers.BATTLECRY, method=Methods.RANDOMLY, target=Targets.MINION, type_filter=CreatureTypes.PIRATE, owner_filter=OwnerFilters.FRIENDLY))
   doomsayer = Card(name="Doomsayer", card_type=CardTypes.MINION, manacost=2, attack=0, health=7,\
-                        effect=DualEffectSelf(Destroy(trigger=Triggers.FRIENDLY_END_TURN, owner_filter=OwnerFilters.ALL, target=Targets.MINION, method=Methods.ALL),\
-                                              Destroy(trigger=Triggers.FRIENDLY_END_TURN, owner_filter=OwnerFilters.FRIENDLY, target=Targets.MINION, method=Methods.SELF)))
+                        effect=DualEffectSelf(Destroy(trigger=Triggers.FRIENDLY_UNTAP, owner_filter=OwnerFilters.ALL, target=Targets.MINION, method=Methods.ALL),\
+                                              Destroy(trigger=Triggers.FRIENDLY_UNTAP, owner_filter=OwnerFilters.FRIENDLY, target=Targets.MINION, method=Methods.SELF)))
 
   # Epic three drops
   big_game_hunter = Card(name="Big Game Hunter", card_type=CardTypes.MINION, manacost=3, attack=4, health=2,\
@@ -400,7 +400,8 @@ def get_legendary_cards():
                      value=(ConstantInt(1), ConstantCard(Card(name="Baine Bloodhoof", collectable=False, card_type=CardTypes.MINION, manacost=4, attack=4, health=5)))))
   bloodmage_thalnos = Card(name="Bloodmage Thalnos", card_type=CardTypes.MINION, manacost=2, attack=1, health=1, attributes=[Attributes.SPELL_DAMAGE],\
                      effect=DrawCards(value=ConstantInt(1), trigger=Triggers.DEATHRATTLE, method=Methods.ALL, owner_filter=OwnerFilters.FRIENDLY))
-  leeroy_jenkins = Card(name="Leeroy Jenkins", card_type=CardTypes.MINION, manacost=5, attack=6, health=2, attributes=[Attributes.CHARGE],\
+  #4 mana is the 2014-launch AND 2021-Classic-format cost (the 5-mana version is the Sept 2014 nerf)
+  leeroy_jenkins = Card(name="Leeroy Jenkins", card_type=CardTypes.MINION, manacost=4, attack=6, health=2, attributes=[Attributes.CHARGE],\
                      effect=SummonToken(trigger=Triggers.BATTLECRY, method=Methods.ALL, owner_filter=OwnerFilters.ENEMY, target=Targets.HERO,\
                      value=(ConstantInt(2), ConstantCard(Card(name="Whelp", collectable=False, card_type=CardTypes.MINION, manacost=1, attack=1, health=1, creature_type=CreatureTypes.DRAGON)))))
   baron_geddon = Card(name="Baron Geddon", card_type=CardTypes.MINION, manacost=7, attack=7, health=5,\
@@ -513,7 +514,7 @@ def get_hunter_cards():
   scavenging_hyena = Card(name="Scavenging Hyena", card_type=CardTypes.MINION, manacost=2, attack=2, health=2, creature_type=CreatureTypes.BEAST,\
                           effect=ChangeStats(value=(ConstantInt(2), ConstantInt(1)), trigger=Triggers.FRIENDLY_SAME_TYPE_DIES, method=Methods.SELF, target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY, duration=Durations.PERMANENTLY))
   snipe = Card(name="Snipe", card_type=CardTypes.SECRET, manacost=2,\
-              effect=DealDamage(value=ConstantInt(4), trigger=Triggers.ENEMY_MINION_SUMMONED, method=Methods.TRIGGERER, target=Targets.MINION, owner_filter=OwnerFilters.ENEMY))
+              effect=DealDamage(value=ConstantInt(4), trigger=Triggers.ENEMY_MINION_PLAYED, method=Methods.TRIGGERER, target=Targets.MINION, owner_filter=OwnerFilters.ENEMY))
   deadly_shot = Card(name="Deadly Shot", card_type=CardTypes.SPELL, manacost=3,\
                     effect=Destroy(method=Methods.RANDOMLY, target=Targets.MINION, owner_filter=OwnerFilters.ENEMY))
   unleash_the_hounds = Card(name="Unleash the Hounds", card_type=CardTypes.SPELL, manacost=3,\
@@ -522,13 +523,13 @@ def get_hunter_cards():
   
   #Hunter rare cards
   flare = Card(name="Flare", card_type=CardTypes.SPELL, manacost=1,\
-              effect=Cantrip(DualEffectSecrets(RemoveAttribute(value=ConstantAttribute(Attributes.STEALTH), target=Targets.MINION, owner_filter=OwnerFilters.ENEMY, method=Methods.ALL),\
+              effect=Cantrip(DualEffectSecrets(RemoveAttribute(value=ConstantAttribute(Attributes.STEALTH), target=Targets.MINION, owner_filter=OwnerFilters.ALL, method=Methods.ALL),\
                                        Destroy(method=Methods.ALL, target=Targets.SECRET, owner_filter=OwnerFilters.ENEMY))))
   misdirection = Card(name="Misdirection", card_type=CardTypes.SECRET, manacost=2,\
                       effect=Redirect(trigger=Triggers.ENEMY_MINION_ATTACKS))
   eaglehorn_bow = Card(name="Eaglehorn Bow", card_type=CardTypes.WEAPON, manacost=3, attack=3, health=2,\
                       effect=ChangeStats(value=(ConstantInt(0), ConstantInt(1)), trigger=Triggers.ANY_SECRET_REVEALED, method=Methods.SELF, target=Targets.WEAPON, owner_filter=OwnerFilters.FRIENDLY, duration=Durations.PERMANENTLY))
-  explosive_shot = Card(name="Explosive Shot", card_type=CardTypes.SPELL, manacost=6,\
+  explosive_shot = Card(name="Explosive Shot", card_type=CardTypes.SPELL, manacost=5,\
                         effect=DualEffect(DealDamage(method=Methods.TARGETED, value=ConstantInt(3), target=Targets.MINION, owner_filter=OwnerFilters.ENEMY),\
                                           DealDamage(method=Methods.TARGETED, value=ConstantInt(2), target=Targets.MINION, owner_filter=OwnerFilters.ENEMY, hits_adjacent=True)))
   savannah_highmane = Card(name="Savannah Highmane", card_type=CardTypes.MINION, manacost=6, attack=6, health=5, creature_type=CreatureTypes.BEAST,\
@@ -592,7 +593,7 @@ def get_mage_cards():
   ice_barrier = Card(name="Ice Barrier", card_type=CardTypes.SECRET, manacost=3,\
                      effect=GainArmor(value=ConstantInt(8), trigger=Triggers.HERO_ATTACKED, method=Methods.ALL, owner_filter=OwnerFilters.FRIENDLY))
   mirror_entity = Card(name="Mirror Entity", card_type=CardTypes.SECRET, manacost=3,\
-                        effect=SummonToken(trigger=Triggers.ENEMY_MINION_SUMMONED, value=(ConstantInt(1), Target()), method=Methods.TRIGGERER, owner_filter=OwnerFilters.FRIENDLY))
+                        effect=SummonToken(trigger=Triggers.ENEMY_MINION_PLAYED, value=(ConstantInt(1), Target()), method=Methods.TRIGGERER, owner_filter=OwnerFilters.FRIENDLY))
   cone_of_cold = Card(name="Cone of Cold", card_type=CardTypes.SPELL, manacost=4,\
                       effect=DualEffect(GiveAttribute(value=ConstantAttribute(Attributes.FROZEN), method=Methods.TARGETED, target=Targets.MINION, owner_filter=OwnerFilters.ALL, hits_adjacent=True, duration=Durations.PERMANENTLY),\
                                         DealDamage(value=ConstantInt(1), method=Methods.TARGETED, target=Targets.MINION, owner_filter=OwnerFilters.ALL, hits_adjacent=True)))
@@ -634,7 +635,7 @@ def get_mage_cards():
 def get_warrior_cards():
   #Warrior basic cards
   execute = Card(name="Execute", card_type=CardTypes.SPELL, manacost=1,\
-                 effect=Destroy(value=Damaged(), target=Targets.MINION, owner_filter=OwnerFilters.ALL, method=Methods.TARGETED))
+                 effect=Destroy(value=Damaged(), target=Targets.MINION, owner_filter=OwnerFilters.ENEMY, method=Methods.TARGETED))
   whirlwind = Card(name="Whirlwind", card_type=CardTypes.SPELL, manacost=1,\
                    effect=DealDamage(value=ConstantInt(1), method=Methods.ALL, target=Targets.MINION, owner_filter=OwnerFilters.ALL))
   cleave = Card(name="Cleave", card_type=CardTypes.SPELL, manacost=2,\
@@ -657,7 +658,7 @@ def get_warrior_cards():
                     effect=DualEffect(DealDamage(value=ConstantInt(1), target=Targets.MINION, method=Methods.TARGETED, owner_filter=OwnerFilters.ALL),\
                                       ChangeStats(value=(ConstantInt(2), ConstantInt(0)), target=Targets.MINION, method=Methods.TARGETED, owner_filter=OwnerFilters.ALL, duration=Durations.PERMANENTLY)))
   battle_rage = Card(name="Battle Rage", card_type=CardTypes.SPELL, manacost=2,\
-                    effect=DrawCards(value=Add(NumDamaged(OwnerFilters.FRIENDLY), IfInt(GreaterThan(DamageTaken(OwnerFilters.FRIENDLY), ConstantInt(1)), ConstantInt(1), ConstantInt(0))),\
+                    effect=DrawCards(value=Add(NumDamaged(OwnerFilters.FRIENDLY), IfInt(GreaterThan(DamageTaken(OwnerFilters.FRIENDLY), ConstantInt(0)), ConstantInt(1), ConstantInt(0))),\
                                       method=Methods.ALL, owner_filter=OwnerFilters.FRIENDLY))
   cruel_taskmaster = Card(name="Cruel Taskmaster", card_type=CardTypes.MINION, manacost=2, attack=2, health=2,\
                     effect=DualEffect(DealDamage(value=ConstantInt(1), trigger=Triggers.BATTLECRY, target=Targets.MINION, method=Methods.TARGETED, owner_filter=OwnerFilters.ALL),\
@@ -698,7 +699,7 @@ def get_warrior_cards():
 
   # Warrior legendary
   grommash_hellscream = Card(name="Grommash Hellscream", card_type=CardTypes.MINION, manacost=8, attack=4, health=9, attributes=[Attributes.CHARGE],\
-                             effect=ChangeStats(value=(ConstantInt(6), ConstantInt(0)), trigger=Triggers.SELF_DAMAGE_TAKEN, method=Methods.SELF, target=Targets.MINION, owner_filter=OwnerFilters.FRIENDLY, duration=Durations.PERMANENTLY))
+                             condition=Condition(requirement=Damaged(), result={'temp_attack': 6}))
 
   basic_warrior_cards = [execute, whirlwind, cleave, fiery_war_axe, heroic_strike, charge, shield_block, warsong_commander, korkron_elite, arcanite_reaper]
   common_warrior_cards = [inner_rage, battle_rage, cruel_taskmaster, rampage, slam, arathi_weaponsmith]
@@ -753,17 +754,77 @@ def _build_pool(set_names, random_state):
     pool.extend(get_test_cards())
   if CardSets.RANDOM_CARDS in set_names:
     pool.extend(get_random_cards(random_state))
+  if CardSets.NAXX_NEUTRAL in set_names:
+    pool.extend(get_naxx_neutral_cards())
+  if CardSets.NAXX_HUNTER in set_names:
+    pool.extend(get_naxx_hunter_cards())
+  if CardSets.NAXX_MAGE in set_names:
+    pool.extend(get_naxx_mage_cards())
+  if CardSets.NAXX_WARRIOR in set_names:
+    pool.extend(get_naxx_warrior_cards())
   return pool
+
+
+def _apply_card_patches(pool, card_patches):
+  """Historical patch simulation (e.g. the 22 Sept 2014 nerf). card_patches
+  maps card name -> {"manacost"/"attack"/"health": value}. Pool cards are
+  shared prototypes, so patched cards are DEEPCOPIED before mutation - never
+  patch a cached card in place. original_* are updated too so Card.reset()
+  between games keeps the patched values."""
+  patched_pool = []
+  for card in pool:
+    if card.name in card_patches:
+      card = deepcopy(card)
+      patch = card_patches[card.name]
+      if "manacost" in patch:
+        card.manacost = card.original_manacost = patch["manacost"]
+      if "attack" in patch:
+        card.attack = card.original_attack = patch["attack"]
+      if "health" in patch:
+        card.health = card.max_health = card.original_health = patch["health"]
+    patched_pool.append(card)
+  return patched_pool
+
 
 _pool_cache = {}
 
-def build_pool(set_names, random_state):
+def build_pool(set_names, random_state, card_patches=None):
   #pool cards are read-only prototypes: every consumer deepcopies the cards it
   #takes, so deterministic pools are built once and shared. RANDOM_CARDS pools
   #depend on the random_state and are rebuilt every call.
   if CardSets.RANDOM_CARDS in set_names:
-    return _build_pool(set_names, random_state)
+    pool = _build_pool(set_names, random_state)
+    return _apply_card_patches(pool, card_patches) if card_patches else pool
   key = tuple(set_names)
+  if card_patches:
+    key = key + tuple(sorted((name, tuple(sorted(patch.items()))) for name, patch in card_patches.items()))
   if key not in _pool_cache:
-    _pool_cache[key] = _build_pool(set_names, random_state)
+    pool = _build_pool(set_names, random_state)
+    if card_patches:
+      pool = _apply_card_patches(pool, card_patches)
+    _pool_cache[key] = pool
   return list(_pool_cache[key])
+
+
+#the real 22 Sept 2014 balance patch, for historical nerf-response experiments
+SEPT_2014_NERF_PATCHES = {
+  "Starving Buzzard": {"manacost": 5, "attack": 3, "health": 2},
+  "Leeroy Jenkins": {"manacost": 5},
+}
+
+
+def get_naxx_neutral_cards():
+  #Naxxramas neutrals - implemented incrementally (M1/M2 of the shift-prediction plan)
+  return []
+
+
+def get_naxx_hunter_cards():
+  return []
+
+
+def get_naxx_mage_cards():
+  return []
+
+
+def get_naxx_warrior_cards():
+  return []

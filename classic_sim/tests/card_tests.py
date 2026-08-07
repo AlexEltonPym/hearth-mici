@@ -439,15 +439,16 @@ def test_direwolf():
   second_wisp = game.game_manager.get_card('Wisp', game.current_player.board)
   third_wisp = game.game_manager.get_card('Wisp', game.current_player.board)
 
+  #board is a line, not a ring: [wolf, wisp1, wisp2, wisp3] - only wisp1 is adjacent
   assert first_wisp.get_attack() == 2
   assert second_wisp.get_attack() == 1
-  assert third_wisp.get_attack() == 2
+  assert third_wisp.get_attack() == 1
   assert new_wolf.get_attack() == 2
 
   first_wisp.change_parent(first_wisp.owner.graveyard)
   assert first_wisp.get_attack() == 1
   assert second_wisp.get_attack() == 2
-  assert third_wisp.get_attack() == 2
+  assert third_wisp.get_attack() == 1
 
   new_wolf.change_parent(new_wolf.owner.graveyard)
   assert second_wisp.get_attack() == 1
@@ -984,7 +985,9 @@ def test_sunfury_protector():
   play_sunfury = list(filter(lambda action: action.source == sunfury_protector, game.get_available_actions(game.current_player)))[0]
   game.perform_action(play_sunfury)
   assert len(game.current_player.board) == 3
-  assert wisp1.has_attribute(Attributes.TAUNT)
+  #the new minion is appended on the right, so only wisp2 (the previous
+  #rightmost minion) is actually adjacent to it
+  assert not wisp1.has_attribute(Attributes.TAUNT)
   assert wisp2.has_attribute(Attributes.TAUNT)
   assert not sunfury_protector.has_attribute(Attributes.TAUNT)
 
@@ -1064,7 +1067,10 @@ def test_demolisher():
   game.untap()
   game.end_turn()
   game.untap()
-  assert ancient_watcher.get_health() == 3
+  #'a random enemy' includes the hero - exactly 2 total damage lands somewhere
+  minion_damage = 5 - ancient_watcher.get_health()
+  hero_damage = 30 - game.current_player.other_player.get_health()
+  assert minion_damage + hero_damage == 2
 
 def test_emperor_cobra():
   game = GameManager().create_test_game()
@@ -1134,7 +1140,9 @@ def test_ancient_mage():
   third_wisp = game.game_manager.get_card('Wisp', game.current_player.board)
   play_mage = list(filter(lambda action: action.source == ancient_mage, game.get_available_actions(game.current_player)))[0]
   game.perform_action(play_mage)
-  assert game.current_player.get_spell_damage() == 2
+  #only the rightmost pre-cast minion (third_wisp) is adjacent to the new
+  #Ancient Mage - one Spell Damage grant, not two
+  assert game.current_player.get_spell_damage() == 1
 
 def test_twilight_drake():
   game = GameManager().create_test_game()
@@ -1292,7 +1300,15 @@ def test_doomsayer():
   doomsayer = game.game_manager.get_card("Doomsayer", game.current_player.board)
   southsea_deckhand = game.game_manager.get_card("Southsea Deckhand", game.current_player.board)
   wisp = game.game_manager.get_card("Wisp", game.current_player.other_player.board)
+  #real Doomsayer wipes at the START of its controller's NEXT turn - the
+  #opponent gets a full turn to deal with it first
   game.end_turn()
+  game.untap() #opponent's turn starts - no wipe
+  assert doomsayer.parent == doomsayer.owner.board
+  assert southsea_deckhand.parent == southsea_deckhand.owner.board
+  assert wisp.parent == wisp.owner.board
+  game.end_turn()
+  game.untap() #controller's turn starts - wipe
   assert doomsayer.parent == doomsayer.owner.graveyard
   assert southsea_deckhand.parent == southsea_deckhand.owner.graveyard
   assert wisp.parent == wisp.owner.graveyard
@@ -1705,7 +1721,7 @@ def test_explosive_shot():
   game.perform_action(cast_explosive_shot)
   assert enemy_giant1.get_health() == 3
   assert enemy_giant2.get_health() == 6
-  assert enemy_giant3.get_health() == 6
+  assert enemy_giant3.get_health() == 8 #not adjacent - the board doesn't wrap
 
 def test_savannah_highmane():
   game = GameManager().create_test_game()
@@ -2078,8 +2094,9 @@ def test_cone_of_cold_three_targets():
   assert enemy_wisp2.get_health() == 0
   assert enemy_wisp2.has_attribute(Attributes.FROZEN)
 
-  assert enemy_wisp3.get_health() == 0
-  assert enemy_wisp3.has_attribute(Attributes.FROZEN)
+  #targeting the left edge only reaches its single true neighbour - no wrap
+  assert enemy_wisp3.get_health() == 1
+  assert not enemy_wisp3.has_attribute(Attributes.FROZEN)
 
 
 def test_cone_of_cold_three_targets_middle():
@@ -2114,14 +2131,15 @@ def test_cone_of_cold_four_targets():
   assert enemy_wisp.get_health() == 0
   assert enemy_wisp.has_attribute(Attributes.FROZEN)
 
-  assert enemy_wisp2.get_health() == 0  
+  assert enemy_wisp2.get_health() == 0
   assert enemy_wisp2.has_attribute(Attributes.FROZEN)
 
-  assert enemy_wisp3.get_health() == 1  
+  assert enemy_wisp3.get_health() == 1
   assert not enemy_wisp3.has_attribute(Attributes.FROZEN)
 
-  assert enemy_wisp4.get_health() == 0 
-  assert enemy_wisp4.has_attribute(Attributes.FROZEN)
+  #the far edge is NOT adjacent to the near edge - no wrap
+  assert enemy_wisp4.get_health() == 1
+  assert not enemy_wisp4.has_attribute(Attributes.FROZEN)
 
 
 def test_cone_of_cold_four_targets_last():
@@ -2134,8 +2152,9 @@ def test_cone_of_cold_four_targets_last():
 
   play_cone_of_cold = list(filter(lambda action: action.source == cone_of_cold and action.targets[0] == enemy_wisp4, game.get_available_actions(game.current_player)))[0]
   game.perform_action(play_cone_of_cold)
-  assert enemy_wisp.get_health() == 0
-  assert enemy_wisp.has_attribute(Attributes.FROZEN)
+  #targeting the right edge only reaches wisp3 - wisp1/wisp2 are untouched
+  assert enemy_wisp.get_health() == 1
+  assert not enemy_wisp.has_attribute(Attributes.FROZEN)
 
   assert enemy_wisp2.get_health() == 1
   assert not enemy_wisp2.has_attribute(Attributes.FROZEN)

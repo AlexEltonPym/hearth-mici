@@ -84,6 +84,11 @@ class Triggers(Enum):
   ENEMY_MINION_DAMAGED = 45
   ANY_MINION_DAMAGED = 46
   REDIRECT_SECRET_REVEALED = 47
+  #played-from-hand only (Mirror Entity, Snipe) - unlike the *_SUMMONED
+  #family, these do NOT fire for tokens
+  ANY_MINION_PLAYED = 48
+  FRIENDLY_MINION_PLAYED = 49
+  ENEMY_MINION_PLAYED = 50
 
 
 class Actions(Enum):
@@ -147,6 +152,10 @@ class CardSets(Enum):
   RANDOM_CARDS = 4
   CLASSIC_MAGE = 5
   CLASSIC_WARRIOR = 6
+  NAXX_NEUTRAL = 7
+  NAXX_HUNTER = 8
+  NAXX_MAGE = 9
+  NAXX_WARRIOR = 10
 
 class Classes(Enum):
   HUNTER = 0

@@ -55,12 +55,14 @@ class Zone(object):
   def get_adjacent(self, key):
     if self.name != 'board': #adjacency only for board
       return []
+    #the board is a line, not a ring - index 0 and the last index are NOT adjacent
     key_index = self.zone.index(key)
-    adjacent_set = set()
-    adjacent_set.add(self.zone[key_index-1])
-    adjacent_set.add(self.zone[(key_index+1)%len(self.zone)])
-    if self.zone[key_index] in adjacent_set: adjacent_set.remove(self.zone[key_index])
-    return list(adjacent_set)
+    adjacent = []
+    if key_index > 0:
+      adjacent.append(self.zone[key_index-1])
+    if key_index < len(self.zone)-1:
+      adjacent.append(self.zone[key_index+1])
+    return adjacent
   
   def names(self):
     return [card.name for card in self.zone]

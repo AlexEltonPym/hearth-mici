@@ -31,17 +31,19 @@ class GameManager():
     self.create_enemy(enemy_class, enemy_deck_constructor, enemy_strategy)
     
 
-  def create_player_pool(self, sets):
+  def create_player_pool(self, sets, card_patches=None):
     self.player_pool_sets = sets
+    self.player_card_patches = card_patches
 
-  def create_enemy_pool(self, sets):
+  def create_enemy_pool(self, sets, card_patches=None):
     self.enemy_pool_sets = sets
+    self.enemy_card_patches = card_patches
 
   def get_player_pool(self):
-    return build_pool(self.player_pool_sets, self.random_state)
+    return build_pool(self.player_pool_sets, self.random_state, getattr(self, "player_card_patches", None))
 
   def get_enemy_pool(self):
-    return build_pool(self.enemy_pool_sets, self.random_state)
+    return build_pool(self.enemy_pool_sets, self.random_state, getattr(self, "enemy_card_patches", None))
 
   def create_player(self, player_class, deck_constructor, strategy):
     self.player = Player("player", self, player_class, deck_constructor, strategy)

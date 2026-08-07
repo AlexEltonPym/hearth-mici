@@ -189,7 +189,7 @@ class SetStats(Effect):
             adjacent_target.temp_health = 0
             adjacent_target.perm_health = 0
             adjacent_target.health = self.value[1](action)
-            adjacent_target.max_health = target.health
+            adjacent_target.max_health = adjacent_target.health
       if self.value[0] != None:
         target.temp_attack = 0
         target.perm_attack = 0
@@ -198,7 +198,11 @@ class SetStats(Effect):
         target.temp_health = 0
         target.perm_health = 0
         target.health = self.value[1](action)
-        target.max_health = target.health
+        #setting a MINION's health rewrites its max (Hunter's Mark), but a
+        #HERO's max health is untouchable - Alexstrasza sets current health
+        #to 15 without capping healing at 15 for the rest of the game
+        if not isinstance(target, Player):
+          target.max_health = target.health
 
 
 class SwapStats(Effect):
@@ -501,6 +505,20 @@ class SummonToken(Effect): #summon minion for target player
         new_minion_token.collectable = False
         new_minion_token.set_owner(new_owner)
         new_minion_token.set_parent(new_owner.board) #Doesn't trigger battlecry
+        #tokens are real summons: fire the *_SUMMONED trigger family (Knife
+        #Juggler, Starving Buzzard, Warsong Commander...) but NOT the
+        #*_MINION_PLAYED family - only cards played from hand are "played".
+        #Transforms (ReplaceWithToken: Polymorph, Tinkmaster) correctly stay
+        #silent - transformed minions are not summoned.
+        initial_attack_less_than_four = new_minion_token.get_attack() < 4
+        game.trigger(new_minion_token, Triggers.ANY_MINION_SUMMONED)
+        game.trigger(new_minion_token, Triggers.ANY_SAME_TYPE_SUMMONED)
+        game.trigger(new_minion_token, Triggers.FRIENDLY_MINION_SUMMONED)
+        game.trigger(new_minion_token, Triggers.FRIENDLY_SAME_TYPE_SUMMONED)
+        game.trigger(new_minion_token, Triggers.ENEMY_MINION_SUMMONED)
+        game.trigger(new_minion_token, Triggers.ENEMY_SAME_TYPE_SUMMONED)
+        if initial_attack_less_than_four:
+          game.trigger(new_minion_token, Triggers.FRIENDLY_LESS_THAN_FOUR_ATTACK_SUMMONED)
       elif summoned_card.card_type == CardTypes.WEAPON: 
         # weapons override their zone so we need to destroy exising weapon
         if new_owner.weapon: game.handle_death(new_owner.weapon)

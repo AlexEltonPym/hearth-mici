@@ -144,13 +144,12 @@ class Card():
   def get_aura_attributes(self):
     aura_attributes = []
     board = self.owner.board
-    last_index = len(board)-1
     for index, card in enumerate(board):
       if card != self and card.effect and card.effect.trigger == Triggers.AURA and self.matches_card_requirements(card):
         adjacent = False
         if self.parent == self.owner.board:
           my_index = self.parent.index_of(self)
-          adjacent = card.effect.method == Methods.ADJACENT and (my_index == index-1 or my_index == index+1 or (my_index == 0 and index == last_index) or (my_index == last_index and index == 0))
+          adjacent = card.effect.method == Methods.ADJACENT and abs(my_index - index) == 1
         if card.effect.method == Methods.ALL or adjacent:
           if isinstance(card.effect, GiveAttribute):
             aura_attributes.append(card.effect.value(Action(Actions.CAST_EFFECT, self, [card])))
@@ -167,13 +166,12 @@ class Card():
     aura_attack = 0
     aura_health = 0
     board = self.owner.board
-    last_index = len(board)-1
     for index, card in enumerate(board):
       if card != self and card.effect and card.effect.trigger == Triggers.AURA and self.matches_card_requirements(card):
         adjacent = False
         if self.parent == self.owner.board:
           my_index = self.parent.index_of(self)
-          adjacent = card.effect.method == Methods.ADJACENT and (my_index == index-1 or my_index == index+1 or (my_index == 0 and index == last_index) or (my_index == last_index and index == 0))
+          adjacent = card.effect.method == Methods.ADJACENT and abs(my_index - index) == 1
         if card.effect.method == Methods.ALL or adjacent:
           if isinstance(card.effect, ChangeStats):
             aura_attack += card.effect.value[0](Action(Actions.CAST_EFFECT, card, [self]))
