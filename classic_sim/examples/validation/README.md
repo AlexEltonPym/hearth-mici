@@ -894,3 +894,53 @@ Files: src/neural_eval.py (encoder + numpy net), strategy.NeuralGreedy,
 train_value_net.py / big_train_value_net.py / mcts_ladder.py /
 value_net_selfplay.py / value_net_remote_worker.py; nets and logs in
 metagame_analysis/data/value_net/ (champion = gen 4 = value_net_best.npz).
+
+### S4 continued: Naxx-era fine-tuning closes the Hunter gap (2026-08-09)
+
+Fine-tuned the gen-4 champion for 3 generations of self-play in the Naxx
+world (Naxx cards now in the self-play pool, same DouZero-style loop,
+gate + best-checkpoint selection). Results vs the linear champion in the
+Naxx world: gen0 0.524, **gen1 0.550** (best - the first net to clearly
+lead the linear champion anywhere in this project), gen2 0.509. Champion
+saved to metagame_analysis/data/value_net_naxx/value_net_champion.npz.
+
+Re-probed the same 22 Naxx cards with the fine-tuned net
+(probe_naxx_launch_neural_finetuned.csv), compared against the unseen
+gen-4 net and the linear probe, Spearman rho vs real naxx_prenerf adoption:
+
+| class | linear | gen-4 (unseen) | fine-tuned |
+|---|---|---|---|
+| Hunter | +0.352 | -0.075 | **+0.340** |
+| Mage | +0.197 | +0.302 | **+0.597** |
+| Warrior | +0.296 | +0.197 | +0.165 |
+
+The Hunter gap closes almost completely (-0.075 -> +0.340, matching the
+linear agent) once the net actually sees deathrattle-token cards in
+self-play: Haunted Creeper flips from -6.1pp to +3.0pp (real 57.6%
+adoption), Webspinner from -0.8pp to +0.9pp (real 54.4%). Mage improves
+further past both other agents (+0.597) after exposure. Warrior gives back
+a little ground (+0.197 -> +0.165) - plausible self-play-induced drift in
+an unrelated class rather than a Naxx-specific effect, consistent with the
+project's general finding that retrains are high-variance in induced-policy
+space at small MSE deltas.
+
+The two historic policy-level blind spots shrink but do not fully close:
+Death's Bite -3.2pp (linear) / -2.6pp (gen-4) / **-0.4pp** (fine-tuned) vs
+60.2% real adoption; Duplicate -3.0pp / -4.3pp / **-0.4pp** vs 43.4% real.
+Both move toward zero with exposure but stay far short of the +3-4pp a
+correct valuation would need - consistent with the S4 conclusion that these
+are sequencing/synergy properties of the POLICY, not the position
+evaluator, and exposure alone narrows but doesn't remove that gap.
+
+**Conclusion:** feature-based generalization is not just mechanism-blind
+or mechanism-aware in a fixed way - it's directly fixable by exposing the
+net to a few generations of self-play containing the new mechanism, cheaper
+than any architecture change. This is the intended answer to the original
+Naxx-integration framing (subbing new cards into decks at above-average
+rate "just like real players test them out"): a short fine-tune closes the
+generalization gap for a class whose core mechanism was previously
+unsupported.
+
+Script: metagame_analysis/compare_finetuned_probe.py. Data:
+value_net_naxx/ (fine-tuned nets + training log),
+probe_naxx_launch_neural_finetuned.csv.

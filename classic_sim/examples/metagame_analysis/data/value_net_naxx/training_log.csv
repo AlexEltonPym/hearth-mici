@@ -1,0 +1,4 @@
+generation,games,n_samples,n_train,val_mse,win_vs_champion,win_vs_previous,adopted
+0,12000,121888,121888,0.45003,0.5243,0.5104,True
+1,12000,127849,249737,0.43684,0.5503,0.5191,True
+2,12000,130625,380362,0.44555,0.5087,0.592,True

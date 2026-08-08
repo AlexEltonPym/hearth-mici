@@ -38,6 +38,7 @@ import neural_eval as ne
 from value_net_selfplay import run_item, concatenate_samples, WORLDS
 
 HERE = Path(__file__).parent
+#module-level defaults; main() rebinds from --out-dir / --seeds
 OUT_DIR = HERE / "data" / "value_net"
 SHARD_DIR = OUT_DIR / "shards"
 SEEDS_PATH = HERE.parent / "validation" / "data" / "naxx_seeds_pre_naxx.json"
@@ -340,12 +341,23 @@ def main():
                             "a net weaker than the warm start)")
   parser.add_argument("--learning-rate", type=float, default=None,
                        help="override the warm-start learning rate (default 3e-4; 1e-3 cold)")
+  parser.add_argument("--seeds", default=None,
+                       help="seed-decklist json override (default: pre-Naxx seeds)")
+  parser.add_argument("--out-dir", default=None,
+                       help="output directory override (default: data/value_net)")
   parser.add_argument("--selfcheck", action="store_true")
   args = parser.parse_args()
 
   if args.selfcheck:
     self_check()
     return
+
+  global OUT_DIR, SHARD_DIR, SEEDS_PATH
+  if args.out_dir:
+    OUT_DIR = Path(args.out_dir)
+    SHARD_DIR = OUT_DIR / "shards"
+  if args.seeds:
+    SEEDS_PATH = Path(args.seeds)
 
   rng = Random(args.seed)
   seeds = load_seeds()
