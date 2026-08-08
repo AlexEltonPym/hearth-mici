@@ -606,10 +606,82 @@ Two distinct predictions to test, and the interesting part is that they diverge:
    packages.
 
 A simulator that reproduces (1) is capturing card-level power; one that also
-reproduces (2) is capturing genuine metagame adaptation. Confound to state
-plainly: the real 2014 ladder ran Classic + Naxxramas, and the Hunter rebuild
-leaned on Naxx cards (Undertaker, Haunted Creeper) the simulator cannot represent,
-so (2) is the weaker of the two comparisons.
+reproduces (2) is capturing genuine metagame adaptation. (The
+cannot-represent-Naxx confound originally noted here was removed by the
+Naxxramas implementation above.)
+
+**S3 results - predicting the post-shock decks (2026-08-08).** The full
+challenge: given only the real decks from before a shock, predict the decks
+after it. Two shocks, both with clean ground truth
+(`naxx_adoption_series.py`; note its Set-tag filter - HearthPwn dates are
+creation dates but card lists are last edits, and 3,725 time-traveled decks
+had to be dropped from the pre-Naxx window). Pipeline:
+`../metagame_analysis/evolve_metagame_shift.py` (+ probe, + evaluation).
+
+*Attempt 1 - unbiased evolution (naxx_launch):* real pre-Naxx seeds
+evolving under the Classic+Naxx pool adopted ~0% of every Naxx staple.
+Diagnosis: drift, not selection - a one-card swap moves a deck ~1pp, far
+under the 4-12-game evaluation noise, and the observed adoption matches the
+pure mutation-drift rate almost exactly. Whole-deck evolution cannot see
+single-card quality at feasible budgets.
+
+*The marginal-value probe (`probe_card_values.py`):* isolate the variable -
+swap each candidate into a FIXED slot of 5 real host decks per class, 60
+fixed games against a real 9-deck field, delta win rate per card. Result:
+the simulator values the real Naxx package correctly (Hunter's top probe
+cards ARE the real winners - Sludge Belcher +6.5pp, Mad Scientist +5.3pp,
+Webspinner +5.1pp, Haunted Creeper +3.7pp; the never-played duds correctly
+bottom out; Spearman probed-value vs real adoption 0.35/0.20/0.30 by class)
+- and its two big misses are exactly the mechanics-dependent cards:
+Death's Bite (probed LAST for Warrior vs 60% real adoption - greedy's
+weapon sequencing) and Duplicate (-3.0pp vs 41% real - contextual card
+advantage invisible to a single-deck swap). Single-card stat value
+transfers; synergy and sequencing value doesn't. This is the per-card
+version of the S1 agent-skill ceiling.
+
+*Attempt 2 - probe-biased evolution:* mutation proposes probed-positive
+cards more and replaces probed-negative slots more (modelling real players'
+deliberate, non-neutral exploration of a new set), 24 fixed games/eval, 25
+generations. The naxx_launch run now adopts the real package: Hunter
+direction hit-rate on real movers 30/38 (was 16/38 unbiased), Unstable
+Ghoul predicted 45.8% vs real 44.9%, Mad Scientist/Undertaker/Belcher/
+Loatheb all rise from zero. Death's Bite stays 0% - the probe blind spot
+propagates, as it should.
+
+*The nerf experiment (buzzard_nerf, the cleanest test):* seeds = real
+Naxx-era decks, pool = the real 22 Sept 2014 patch via `card_patches`
+(Buzzard 5-mana 3/2, Leeroy 5-mana). The removal probe alone signs the
+response correctly: removing Buzzard from patched-world Hunter decks gains
++2.7pp, removing Leeroy +0.9pp (Hunter) / +1.6pp (Warrior). The biased
+evolution's population-level prediction vs reality:
+
+| card (Hunter) | pre-nerf | predicted | real post-nerf |
+|---|---|---|---|
+| Starving Buzzard | 73.4% | 31.8% | 16.8% |
+| Leeroy Jenkins | 34.8% | 4.5% | 12.0% |
+| Unleash the Hounds (not nerfed) | 84.4% | 77.3% | 69.5% |
+| Webspinner | 54.4% | 63.6% | 73.7% |
+
+The Buzzard and Leeroy collapses are reproduced in direction and rough
+magnitude, the un-nerfed UTH is correctly retained, and Webspinner's
+continued rise is called. Warrior's Death's Bite is again the systematic
+miss (predicted down, real up).
+
+**Honest bounds.** (a) The no-change baseline still wins the OVERALL
+Spearman (0.62-0.96 vs the prediction's 0.27-0.51) - real decks are sticky
+and the baseline copies ~100 unchanged cards exactly; the prediction's win
+is specifically on the MOVERS (direction hit-rate, magnitudes above), which
+is the part the challenge actually asks. (b) The probe bias injects
+probe-measured knowledge into exploration - the claim is "simulation-derived
+card values + evolutionary selection reproduce the shift", not "blind
+evolution discovers it"; the unbiased failure is reported alongside for
+exactly this reason. (c) Both persistent misses (Death's Bite, Duplicate)
+trace to agent skill, not card data - the same ceiling S1 measured. (d) The
+naxx_prenerf window may retain post-nerf-edited decks (the Sept 22 patch
+got no HearthPwn Set tag of its own); its healthy 73.4% Buzzard rate bounds
+the contamination as minor. Artifacts: `../metagame_analysis/data/`
+`probe_naxx_launch.csv`, `probe_buzzard_nerf.csv`,
+`shift_{naxx_launch,naxx_biased,nerf_biased}_*.csv/json`.
 
 **Does simulated power predict real popularity? (`hearthpwn_2014_dynamics.py`,
 run 2026-08-07).** Motivation, measured first in the data we already had: in
