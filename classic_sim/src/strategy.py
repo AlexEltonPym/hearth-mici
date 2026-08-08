@@ -288,6 +288,56 @@ class GreedyActionSmart():
 
     return sum(feature*weight for feature, weight in zip(feature_vector, self.weights))
   
+class NeuralGreedy():
+  """1-ply greedy over the value net (neural_eval). Same clone/RNG-rewind loop
+  as GreedyActionSmart; only the evaluator differs. pass_penalty nudges the
+  agent away from ending the turn while value-neutral plays remain - the net
+  scores the pass-state identically to the current state, so without it the
+  argmax can pass early on ties."""
+  def __init__(self, net_weights, pass_penalty=0.02):
+    self.net_weights = net_weights
+    self.pass_penalty = pass_penalty
+
+  def mulligan_rule(self, card):
+    return card.get_manacost() < 4
+
+  def choose_action(self, state):
+    from neural_eval import evaluate_state
+    available_actions = state.get_available_actions(state.current_player)
+    cloner = BoundCloner(state, available_actions)
+    #see GreedyAction.choose_action for why the RNG state is rewound between
+    #candidates and before the real action is performed.
+    random_state = state.game_manager.random_state
+    saved_rng_state = random_state.get_state()
+    possible_actions = []
+    for action_index in range(len(available_actions)):
+      random_state.set_state(saved_rng_state)
+      possible_state, cloned_actions = cloner.clone()
+      try:
+        turn_passed = possible_state.perform_action(cloned_actions[action_index])
+        if possible_state.current_player.health <= 0:
+          state_score = -1000.0
+        elif possible_state.current_player.other_player.health <= 0:
+          state_score = 1000.0
+        else:
+          state_score = evaluate_state(self.net_weights, possible_state,
+                                       me=possible_state.current_player)
+          if turn_passed:
+            state_score -= self.pass_penalty
+      except PlayerDead:
+        turn_passed = 0
+        if possible_state.current_player.health <= 0:
+          state_score = -1000.0
+        else:
+          state_score = 1000.0
+      possible_actions.append((action_index, state_score, turn_passed))
+
+    best_action = sorted(possible_actions, key=lambda x: x[1])[-1]
+    random_state.set_state(saved_rng_state)
+    state.perform_action(available_actions[best_action[0]])
+    return best_action[2]
+
+
 class RandomAction():
   def mulligan_rule(self, card):
     return card.get_manacost() < 3

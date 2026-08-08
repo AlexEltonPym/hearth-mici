@@ -180,6 +180,11 @@ class MonteCarloTreeSearchNode():
     if player_dead:
       return -1.0
     if guided:
+      #a dict is a value-net weight bundle (neural_eval), a list is the linear
+      #feature weights - same parameter so every existing caller keeps working
+      if isinstance(eval_weights, dict):
+        from neural_eval import evaluate_state
+        return evaluate_state(eval_weights, state, me=state.player)
       return evaluate_position(state, eval_weights)
     if state.player.health > state.enemy.health:
       return 1.0
