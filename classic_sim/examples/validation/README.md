@@ -775,3 +775,122 @@ Mage/Hunter/Warrior deck in the HSReplay sample is now fully constructible
   (DOI 10.5281/zenodo.10198504, CC-BY 4.0): decks.csv 56MB (852k decks
   2013-2020, 75k dated 2014), cards.csv 564MB (deck -> card join). Re-download
   from the DOI if absent.
+
+## S4 - training a stronger agent: the ID-free value net (2026-08-08)
+
+Motivation: every persistent S3 miss (Death's Bite sequencing, Duplicate
+synergy, Freeze Mage piloting) traced to agent skill, and the linear
+27-feature evaluation is the structural ceiling - synergy and sequencing
+value are exactly what a linear state score cannot express. Literature
+survey (Hearthstone AI competition 2018-2020, Choe & Kim 2019, Zhang & Buro
+2017, DouZero 2021, Scheiermann & Konen 2022, ByteRL/LOCM 1.5) picked the
+approach: a learned value function trained WITHOUT search in the loop
+("train cheap, search at test time"), over an ID-free card encoding so
+unseen cards get valued by what they do, not who they are.
+
+Architecture (`src/neural_eval.py`): cards encode as 68 features (stats,
+type, creature type, keywords, 8 trigger categories, 16 effect families,
+scope/owner flags, magnitude, condition/dynamic-filter flags) - all 245
+cards encode uniquely, and the Sept-2014 nerf patches change the encoding
+(patched Buzzard != launch Buzzard). Deep-sets value net (~60k params):
+shared per-card MLPs sum+max-pooled over board/hand, concat with 24 global
+features -> value in [-1,1]. Pure-numpy forward (0.11 ms) for the dwail
+workers; torch training mirror verified numerically identical.
+
+Training (`train_value_net.py`): self-play on real pre-Naxx decks
+(naxx_seeds_pre_naxx.json, classic pool only - Naxx cards deliberately
+unseen), Monte Carlo outcome targets at sampled decision states (no oracle
+features: own hand visible, opponent counts only), 12k games/generation on
+dwail1+2, sliding 3-generation replay window, epsilon=0.1 exploration, 30%
+of games anchored vs the linear self-play champion. Run 1 (12 generations,
+144k games, ~120k samples/gen): greedy-level strength vs the linear
+champion rose 0.380 -> 0.516 by generation 4, then oscillated 0.42-0.48
+while consistently beating its own previous nets - classic self-play drift
+away from the external anchor. Champion checkpoint = best-by-ladder
+(gen 4), not last. A gated refinement run (warm start from gen 4,
+promotion gate on the champion ladder, 50% anchor games) addresses the
+drift; results below.
+
+**Search finding (mcts_ladder.py, 288-game ladders on fixed real-deck
+pairs):** the net is the better MCTS leaf evaluator - net-leaf (pure leaf
+eval, no rollout) beats linear-leaf guided MCTS 0.573. But EVERY vanilla
+UCT config loses to the tuned 1-ply greedy at feasible budgets: net-leaf
+MCTS-150 0.333, MCTS-400 0.391 vs the linear champion, and MCTS-400 with
+the net loses 0.464 to plain NeuralGreedy with the SAME net. The earlier
+"guided MCTS-150 beats greedy 95%" benchmark holds only against the
+DEFAULT-weight greedy; against a well-tuned evaluation, 150-400 iterations
+of random-rollout UCT subtract value. Structural cause: a Hearthstone turn
+is a sequence of atomic actions, so UCT burns its budget disambiguating
+within-turn orderings that a 1-ply greedy with a good evaluator
+hill-climbs through. This matches the competition literature - winning
+MCTS agents needed state abstraction, chance bucketing and pruning, not
+vanilla UCT. Practical consequence: the workhorse agent is greedy + best
+evaluator; search improvements need a policy prior / turn-level moves
+first. (Caveat: mcts leaf evals take 26 weights - champion[1:]; passing
+all 27 misaligns every feature silently. The first ladder run had exactly
+that bug.)
+
+### S4 results (2026-08-08, evening)
+
+Three training regimes all landed on the same plateau - NeuralGreedy is at
+STATISTICAL PARITY with the tuned linear champion at 1-ply:
+
+| regime | best vs linear champion |
+|---|---|
+| 12-gen self-play loop (144k games) | 0.516 (gen 4), then drift 0.42-0.48 |
+| gated refinement (8 gens, warm start, lr 1e-4, 50% anchor) | never beat gen 4 (0.375-0.474, gate held) |
+| one-shot big train (1.34M samples, from scratch) | 0.490; 0.470 vs gen 4 head-to-head |
+
+Strength tracked training-window size (110k -> 0.38, 220k -> 0.45,
+335k -> 0.47-0.52) but saturated at ~340k samples; more data (1.34M) did not
+help, and val MSE was flat ~0.44-0.45 throughout. The binding constraint is
+not data volume - it is Monte Carlo target noise and/or net capacity at this
+feature resolution. Retrains are high-variance in induced-policy space even
+at lr 1e-4 (val MSE moves ~0.001, ladder strength moves ~10 points), which
+is why the gate + best-checkpoint selection matter.
+
+**Unseen-card generalization (the point of the ID-free encoding):** the
+gen-4 net, trained with zero Naxx exposure, probed on the 22 Naxx cards
+(probe_naxx_launch_neural.csv vs the linear probe_naxx_launch.csv,
+naxx_prenerf real adoption as truth):
+
+| class | neural probe rho | linear probe rho |
+|---|---|---|
+| Mage | +0.302 | +0.197 |
+| Warrior | +0.197 | +0.296 |
+| Hunter | -0.075 | +0.352 |
+
+Mage: the net beats the linear agent's valuations without ever seeing the
+cards (Mad Scientist correctly top; Kel'Thuzad and Unstable Ghoul correctly
+duds). Warrior: rough tie. Hunter: clear failure concentrated on the
+deathrattle-token package (Haunted Creeper -6.1pp vs 57.6% real adoption) -
+coherent, since pre-Naxx training data contains almost no deathrattle-token
+minions (Harvest Golem aside): that region of card-feature space has no
+training support. Feature-based generalization works exactly where the
+training distribution covers the mechanism, and fails where it doesn't -
+the same lesson as the MTG/ByteRL literature, now reproduced in-house.
+
+Nerf-response direction (probe_buzzard_nerf_neural.csv): the neural agent
+signs BOTH cuts from the patch text alone (removing nerfed Buzzard +1.5pp,
+nerfed Leeroy positive in all three classes, up to +4.4pp Warrior) -
+agreeing with the linear agent on Buzzard and improving on Leeroy (linear
+had Mage Leeroy removal slightly negative).
+
+S1 matchup fidelity with NeuralGreedy: Spearman 0.344 (linear greedy 0.326,
+guided MCTS 0.552) - fidelity tracks agent style more than head-to-head
+strength.
+
+The historic blind spots (Death's Bite -2.6pp vs 60% real, Duplicate
+-4.3pp vs 43%) persist with the neural agent. A static value function -
+linear or learned - does not fix them: Death's Bite's value lives in
+weapon-swing sequencing across turns and Duplicate's in contextual synergy,
+both properties of the POLICY, not the position evaluation. The honest
+conclusion of S4: greedy + best evaluator is the strength ceiling of this
+architecture family; the next lever is policy/search work (turn-level
+moves, policy priors) or mechanism-aware training data (Naxx-era
+fine-tuning), not a bigger value net.
+
+Files: src/neural_eval.py (encoder + numpy net), strategy.NeuralGreedy,
+train_value_net.py / big_train_value_net.py / mcts_ladder.py /
+value_net_selfplay.py / value_net_remote_worker.py; nets and logs in
+metagame_analysis/data/value_net/ (champion = gen 4 = value_net_best.npz).

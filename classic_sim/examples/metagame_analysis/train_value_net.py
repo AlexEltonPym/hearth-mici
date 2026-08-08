@@ -334,6 +334,12 @@ def main():
   parser.add_argument("--gate", action="store_true",
                        help="promotion gate: only adopt a new net for data generation if its "
                             "champion-ladder score doesn't regress below the best seen so far")
+  parser.add_argument("--init-best", type=float, default=None,
+                       help="known champion-ladder score of --init-net: seeds the gate baseline "
+                            "and best-checkpoint tracking (without it, gen 0 can silently adopt "
+                            "a net weaker than the warm start)")
+  parser.add_argument("--learning-rate", type=float, default=None,
+                       help="override the warm-start learning rate (default 3e-4; 1e-3 cold)")
   parser.add_argument("--selfcheck", action="store_true")
   args = parser.parse_args()
 
@@ -354,6 +360,8 @@ def main():
   shard_history = []  #list of lists, one per generation
   history = []
   best_win, best_weights = None, None
+  if args.init_best is not None and net_weights is not None:
+    best_win, best_weights = args.init_best, net_weights
   log_path = OUT_DIR / "training_log.csv"
 
   for generation in range(args.generations):
@@ -370,7 +378,7 @@ def main():
               for path in generation_shards]
     print(f"  {games} games, {n_samples} new samples; training on {len(window)} shards...", flush=True)
 
-    learning_rate = 1e-3 if net_weights is None else 3e-4
+    learning_rate = args.learning_rate or (1e-3 if net_weights is None else 3e-4)
     new_weights, val_mse, n_train = train_net(window, net_weights, args.epochs,
                                               learning_rate, args.seed + generation)
     ne.save_weights(new_weights, OUT_DIR / f"net_gen{generation}.npz")
