@@ -30,7 +30,7 @@ sys.path.append('../../src')
 import numpy as np
 
 from game_manager import GameManager
-from strategy import GreedyActionSmart, NeuralGreedy
+from strategy import GreedyActionSmart, NeuralGreedy, MCTS
 from zones import Deck
 from enums import Classes, CardSets, Actions
 from exceptions import PlayerDead, TooManyActions
@@ -66,6 +66,17 @@ def make_agent(spec):
     return GreedyActionSmart(list(payload))
   if kind == "net":
     return NeuralGreedy(payload)
+  if kind == "mcts":
+    #payload = (eval_weights, iterations[, rollout_turn_limit]); guided MCTS
+    #with the net (dict) or linear features (26-long list - callers must strip
+    #the turn_passed weight) as leaf evaluator. rollout_turn_limit=0 skips
+    #rollouts entirely (AlphaZero-style pure leaf eval) - the right mode for
+    #a trained net, whose training states never included random-rollout
+    #futures. For ladder items only, ~60x the per-game cost of greedy.
+    eval_weights, iterations = payload[0], payload[1]
+    rollout_limit = payload[2] if len(payload) > 2 else 6
+    return MCTS(iterations=iterations, guided=True, eval_weights=eval_weights,
+                rollout_turn_limit=rollout_limit)
   raise ValueError(f"unknown agent spec kind {kind!r}")
 
 

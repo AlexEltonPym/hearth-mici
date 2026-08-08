@@ -36,7 +36,7 @@ from enums import CardSets
 from card_sets import build_pool
 
 from evolve_metagame_shift import (CLASSES, ERA_SETS, ERAS, LEGENDARY_NAMES, OUT_DIR, SEEDS_DIR,
-                                    run_matchups_local, run_matchups_ssh)
+                                    load_eval_weights, run_matchups_local, run_matchups_ssh)
 
 HOSTS_PER_CLASS = 5
 FIELD_PER_CLASS = 3
@@ -82,11 +82,7 @@ def main():
 
   rng = Random(args.seed)
   mode = "removal" if args.era == "buzzard_nerf" else "addition"
-  eval_weights = None
-  if args.eval_weights:
-    with open(args.eval_weights, encoding="utf-8") as f:
-      loaded = json.load(f)
-    eval_weights = loaded.get("champion_weights") or loaded["weights"]
+  eval_weights = load_eval_weights(args.eval_weights) if args.eval_weights else None
 
   seeds = load_seeds(args.era)
   field = build_field(seeds, rng)

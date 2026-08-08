@@ -289,13 +289,14 @@ def sample_pair(seeds, rng):
 
 
 def build_generate_items(seeds, rng, generation, pairs, games_per_pair, sample_rate,
-                          epsilon, world, net_weights, champion_weights):
+                          epsilon, world, net_weights, champion_weights,
+                          anchor_fraction=ANCHOR_FRACTION):
   items = []
   for i in range(pairs):
     deck_a, class_a, deck_b, class_b = sample_pair(seeds, rng)
     if net_weights is None:
       spec_a = spec_b = ("linear", champion_weights)
-    elif rng.random() < ANCHOR_FRACTION:
+    elif rng.random() < anchor_fraction:
       spec_a, spec_b = ("net", net_weights), ("linear", champion_weights)
     else:
       spec_a = spec_b = ("net", net_weights)
@@ -325,6 +326,14 @@ def main():
   parser.add_argument("--seed", type=int, default=0)
   parser.add_argument("--ladder-pairs", type=int, default=LADDER_PAIRS)
   parser.add_argument("--ladder-games", type=int, default=LADDER_GAMES)
+  parser.add_argument("--anchor-fraction", type=float, default=ANCHOR_FRACTION,
+                       help="fraction of self-play games vs the linear champion (drift anchor)")
+  parser.add_argument("--init-net", default=None,
+                       help="warm-start .npz net: skips the linear bootstrap generation and "
+                            "generates gen-0 data with this net")
+  parser.add_argument("--gate", action="store_true",
+                       help="promotion gate: only adopt a new net for data generation if its "
+                            "champion-ladder score doesn't regress below the best seen so far")
   parser.add_argument("--selfcheck", action="store_true")
   args = parser.parse_args()
 
@@ -341,9 +350,10 @@ def main():
   ladder_pairs = [sample_pair(seeds, Random(args.seed + 777))
                   for _ in range(args.ladder_pairs)]
 
-  net_weights = None
+  net_weights = ne.load_weights(args.init_net) if args.init_net else None
   shard_history = []  #list of lists, one per generation
   history = []
+  best_win, best_weights = None, None
   log_path = OUT_DIR / "training_log.csv"
 
   for generation in range(args.generations):
@@ -351,7 +361,7 @@ def main():
           f"{args.pairs * args.games_per_pair} games ({'bootstrap linear' if net_weights is None else 'net self-play'})...", flush=True)
     items = build_generate_items(seeds, rng, generation, args.pairs, args.games_per_pair,
                                   args.sample_rate, args.epsilon, args.world,
-                                  net_weights, champion_weights)
+                                  net_weights, champion_weights, args.anchor_fraction)
     summaries, shards = dispatch(items, f"gen{generation}", args.backend, args.cores)
     games = sum(s["games"] for s in summaries)
     n_samples = sum(s["n_samples"] for s in summaries)
@@ -383,19 +393,35 @@ def main():
           f"win_vs_champion={win_vs_champion:.3f}"
           + (f" win_vs_previous={win_vs_previous:.3f}" if win_vs_previous is not None else ""), flush=True)
 
+    if best_win is None or win_vs_champion > best_win:
+      best_win, best_weights = win_vs_champion, new_weights
+
+    #promotion gate: a net that regressed on the external anchor ladder keeps
+    #generating data with the incumbent instead - checks self-play drift
+    adopted = True
+    if args.gate and best_win is not None and win_vs_champion < best_win - 0.02:
+      adopted = False
+      print(f"  gen {generation}: NOT adopted (win_vs_champion {win_vs_champion:.3f} "
+            f"< best {best_win:.3f} - 0.02)", flush=True)
+
     history.append({"generation": generation, "games": games, "n_samples": n_samples,
                     "n_train": n_train, "val_mse": round(val_mse, 5),
                     "win_vs_champion": round(win_vs_champion, 4),
-                    "win_vs_previous": round(win_vs_previous, 4) if win_vs_previous is not None else ""})
+                    "win_vs_previous": round(win_vs_previous, 4) if win_vs_previous is not None else "",
+                    "adopted": adopted})
     with log_path.open("w", newline="", encoding="utf-8") as f:
       writer = csv.DictWriter(f, fieldnames=list(history[0].keys()))
       writer.writeheader()
       writer.writerows(history)
 
-    net_weights = new_weights
+    if adopted:
+      net_weights = new_weights
 
-  ne.save_weights(net_weights, OUT_DIR / "value_net_champion.npz")
-  print(f"\nwrote {OUT_DIR / 'value_net_champion.npz'} and {log_path}")
+  #the champion is the BEST net by external ladder, not the last one - the
+  #adopt-always default can end on a self-play-drift downswing
+  ne.save_weights(best_weights, OUT_DIR / "value_net_champion.npz")
+  print(f"\nbest win_vs_champion={best_win:.3f}; "
+        f"wrote {OUT_DIR / 'value_net_champion.npz'} and {log_path}")
 
 
 if __name__ == "__main__":

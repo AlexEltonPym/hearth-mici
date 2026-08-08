@@ -40,7 +40,7 @@ from random import Random, random, randint, choice, choices
 sys.path.append('../../src')
 sys.path.append('../map_elites')
 from game_manager import GameManager
-from strategy import GreedyActionSmart
+from strategy import GreedyActionSmart, NeuralGreedy
 from zones import Deck
 from enums import Classes, CardSets
 from card_sets import build_pool, get_legendary_cards, SEPT_2014_NERF_PATCHES
@@ -119,7 +119,21 @@ def mutate_deck(deck, pool, bias=None, bias_strength=10.0):
 
 
 def make_fixed_agent(eval_weights):
+  #a dict is a value-net weight bundle (neural_eval arrays) -> NeuralGreedy;
+  #a list is the linear feature weights -> GreedyActionSmart, as before
+  if isinstance(eval_weights, dict):
+    return NeuralGreedy(eval_weights)
   return GreedyActionSmart(eval_weights) if eval_weights else GreedyActionSmart()
+
+
+def load_eval_weights(path):
+  """.json -> linear weights list; .npz -> value-net weight dict."""
+  if str(path).endswith(".npz"):
+    from neural_eval import load_weights
+    return load_weights(path)
+  with open(path, encoding="utf-8") as f:
+    loaded = json.load(f)
+  return loaded.get("champion_weights") or loaded["weights"]
 
 
 def play_matchup_till_stoppage(deck_a, class_a, deck_b, class_b, era, eval_weights,
@@ -293,11 +307,7 @@ def main():
   out_prefix = str(Path(out_prefix).name)
   rng = Random(args.seed)
 
-  eval_weights = None
-  if args.eval_weights:
-    with open(args.eval_weights, encoding="utf-8") as f:
-      loaded = json.load(f)
-    eval_weights = loaded.get("champion_weights") or loaded["weights"]
+  eval_weights = load_eval_weights(args.eval_weights) if args.eval_weights else None
 
   bias_by_class = None
   if args.mutation_bias:

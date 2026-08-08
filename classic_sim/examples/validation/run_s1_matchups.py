@@ -16,7 +16,7 @@ see extract_vs_matchups.py).
 Output: data/s1_simulated_matrix.csv, and a printed comparison table plus
 the rank correlation.
 """
-import sys, csv, json
+import sys, csv, json, argparse
 from collections import Counter
 from itertools import permutations
 from pathlib import Path
@@ -24,9 +24,13 @@ from statistics import mean
 
 sys.path.append('../../src')
 from game_manager import GameManager
-from strategy import GreedyActionSmart
+from strategy import GreedyActionSmart, NeuralGreedy
 from zones import Deck
 from enums import Classes, CardSets
+
+#set from --eval-weights in main(); None -> the default GreedyActionSmart,
+#preserving the original S1 baseline behaviour exactly
+AGENT_NET_WEIGHTS = None
 
 HERE = Path(__file__).parent
 DECKLISTS = HERE / "data" / "hsreplay_classic" / "constructible_decklists.csv"
@@ -86,12 +90,16 @@ def pick_representatives(decks):
   return reps, scores
 
 
+def make_agent():
+  return NeuralGreedy(AGENT_NET_WEIGHTS) if AGENT_NET_WEIGHTS is not None else GreedyActionSmart()
+
+
 def simulate_matchup(deck_a_list, class_a, deck_b_list, class_b):
   game_manager = GameManager()
   game_manager.create_player_pool([CardSets.CLASSIC_NEUTRAL, CARDSET_ENUM[class_a]])
   game_manager.create_enemy_pool([CardSets.CLASSIC_NEUTRAL, CARDSET_ENUM[class_b]])
-  game_manager.create_player(CLASS_ENUM[class_a], Deck.generate_from_decklist(deck_a_list), GreedyActionSmart())
-  game_manager.create_enemy(CLASS_ENUM[class_b], Deck.generate_from_decklist(deck_b_list), GreedyActionSmart())
+  game_manager.create_player(CLASS_ENUM[class_a], Deck.generate_from_decklist(deck_a_list), make_agent())
+  game_manager.create_enemy(CLASS_ENUM[class_b], Deck.generate_from_decklist(deck_b_list), make_agent())
   result = game_manager.simulate(GAMES_PER_MATCHUP, silent=True, parralel=1, rng=True)
   return result[0] if result else None #mean win rate for the "player" side
 
@@ -130,6 +138,18 @@ def spearman(pairs):
 
 
 def main():
+  global AGENT_NET_WEIGHTS, OUT
+  parser = argparse.ArgumentParser()
+  parser.add_argument("--eval-weights", default=None,
+                       help="value-net .npz (neural_eval) piloting both sides; default = GreedyActionSmart")
+  parser.add_argument("--out", default=None, help="output CSV override")
+  args = parser.parse_args()
+  if args.eval_weights:
+    from neural_eval import load_weights
+    AGENT_NET_WEIGHTS = load_weights(args.eval_weights)
+  if args.out:
+    OUT = Path(args.out)
+
   decks = load_decks()
   reps, scores = pick_representatives(decks)
   print("representative decks picked (signature-card score):")
