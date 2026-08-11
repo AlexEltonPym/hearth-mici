@@ -338,6 +338,162 @@ class NeuralGreedy():
     return best_action[2]
 
 
+class _BeamEntry():
+  __slots__ = ("state", "parent", "action_index", "available_count", "rng_state", "score", "done")
+  def __init__(self, state, parent, action_index, available_count, rng_state, score, done):
+    self.state = state
+    self.parent = parent
+    self.action_index = action_index #index into this entry's *own* available_actions at its ply
+    self.available_count = available_count #len(available_actions) this index was chosen from - see choose_action
+    self.rng_state = rng_state #arrival snapshot, for expanding further - None once done (no expansion needed)
+    self.score = score
+    self.done = done #turn ended or game ended along this branch - carried forward unexpanded
+
+
+class BeamSearch():
+  """Beam search over turn-plans. GreedyAction/NeuralGreedy commit to the
+  single best next action and re-decide from scratch every choose_action
+  call - myopic, since it can't see a combo that needs two specific actions
+  in order. This searches beam_width candidate continuations depth actions
+  deep (same clone/RNG-rewind idiom as the flat greedy loop, applied per
+  beam entry with parent pointers - see montecarlotreesearch.py's
+  parent/parent_action_index for the same pattern) and commits the WHOLE
+  winning plan, not just its first step, re-searching only once the plan
+  is exhausted. Own-turn planning only: current_player never changes across
+  the search (an END_TURN branch is scored but not expanded further, and is
+  never advanced past with an actual end_turn() call, matching every other
+  strategy's convention) - no opponent-hand modeling needed or attempted.
+  Stateful across choose_action calls within a turn: never share one
+  instance between both seats of a game. Self-play/ladder drivers reuse the
+  same strategy object across many games on the same Game instance
+  (reset_game() mutates in place - there's no fresh object to detect a new
+  game from), so a plan left over from a game that ended abruptly (lethal,
+  action-cap abort) would otherwise get replayed against a totally different
+  next game's board. Each cached step therefore also carries the
+  available-action count it was chosen from; choose_action discards the
+  whole cached plan and re-searches if that count doesn't match reality
+  instead of trusting a stale index.
+  """
+  def __init__(self, eval_weights, beam_width=3, depth=3, pass_penalty=0.02):
+    self.eval_weights = eval_weights
+    self.beam_width = beam_width
+    self.depth = depth
+    self.pass_penalty = pass_penalty
+    self._plan = []
+
+  def mulligan_rule(self, card):
+    return card.get_manacost() < 4
+
+  def _evaluate(self, possible_state):
+    if isinstance(self.eval_weights, dict):
+      from neural_eval import evaluate_state
+      return evaluate_state(self.eval_weights, possible_state, me=possible_state.current_player)
+    #evaluate_position is state.player-relative, not current_player-relative
+    #(montecarlotreesearch.py handles this via acting_player_name in backprop
+    #instead) - current_player is fixed as us for this whole search, so a
+    #single sign flip here is enough.
+    from montecarlotreesearch import evaluate_position
+    score = evaluate_position(possible_state, self.eval_weights)
+    if possible_state.current_player is not possible_state.player:
+      score = -score
+    return score
+
+  def _perform_and_score(self, possible_state, action, parent, action_index, available_count, random_state):
+    #see GreedyAction.choose_action for why terminal states are scored
+    #before the caller advances further, and why PlayerDead is expected here.
+    try:
+      turn_passed = possible_state.perform_action(action)
+      if possible_state.current_player.health <= 0:
+        score, terminal = -1000.0, True
+      elif possible_state.current_player.other_player.health <= 0:
+        score, terminal = 1000.0, True
+      else:
+        score, terminal = self._evaluate(possible_state), False
+        if turn_passed:
+          score -= self.pass_penalty
+    except PlayerDead:
+      turn_passed, terminal = False, True
+      score = -1000.0 if possible_state.current_player.health <= 0 else 1000.0
+
+    done = turn_passed or terminal
+    rng_state = None if done else random_state.get_state()
+    return _BeamEntry(possible_state, parent, action_index, available_count, rng_state, score, done)
+
+  def _prune(self, beam):
+    return sorted(beam, key=lambda entry: entry.score, reverse=True)[:self.beam_width]
+
+  def _expand_root(self, state, available_actions, random_state, saved_rng_state):
+    cloner = BoundCloner(state, available_actions)
+    entries = []
+    for action_index in range(len(available_actions)):
+      random_state.set_state(saved_rng_state)
+      possible_state, cloned_actions = cloner.clone()
+      entries.append(self._perform_and_score(possible_state, cloned_actions[action_index],
+                                              None, action_index, len(available_actions), random_state))
+    return entries
+
+  def _expand_ply(self, beam, random_state):
+    new_beam = []
+    for entry in beam:
+      if entry.done:
+        new_beam.append(entry)
+        continue
+      available_actions = entry.state.get_available_actions(entry.state.current_player)
+      cloner = BoundCloner(entry.state, available_actions)
+      for action_index in range(len(available_actions)):
+        random_state.set_state(entry.rng_state)
+        possible_state, cloned_actions = cloner.clone()
+        new_beam.append(self._perform_and_score(possible_state, cloned_actions[action_index],
+                                                 entry, action_index, len(available_actions), random_state))
+    return new_beam
+
+  def _reconstruct_plan(self, entry):
+    #each step is (action_index, available_count) - see choose_action for why
+    #available_count rides along.
+    plan = []
+    node = entry
+    while node is not None:
+      plan.append((node.action_index, node.available_count))
+      node = node.parent
+    plan.reverse()
+    return plan
+
+  def _search(self, state):
+    random_state = state.game_manager.random_state
+    root_rng_state = random_state.get_state()
+
+    available_actions = state.get_available_actions(state.current_player)
+    if len(available_actions) == 1:
+      return [(0, 1)]
+
+    beam = self._prune(self._expand_root(state, available_actions, random_state, root_rng_state))
+    ply = 1
+    while ply < self.depth and any(not entry.done for entry in beam):
+      beam = self._prune(self._expand_ply(beam, random_state))
+      ply += 1
+
+    #sorted(...)[-1], not max(): matches every other strategy's tie-break
+    #convention in this file (stable sort favours the later-indexed action).
+    best = sorted(beam, key=lambda entry: entry.score)[-1]
+    #real execution starts from the original snapshot, not any explored branch's
+    random_state.set_state(root_rng_state)
+    return self._reconstruct_plan(best)
+
+  def choose_action(self, state):
+    available_actions = state.get_available_actions(state.current_player)
+    #a plan whose next step wasn't chosen from this many available actions is
+    #stale - left over from a previous game/turn this agent's object was
+    #reused for (see class docstring) - discard it rather than trust an index
+    #that might silently point at the wrong action instead of just crashing.
+    if self._plan and self._plan[0][1] != len(available_actions):
+      self._plan = []
+    if not self._plan:
+      self._plan = self._search(state)
+      available_actions = state.get_available_actions(state.current_player)
+    action_index, _ = self._plan.pop(0)
+    return state.perform_action(available_actions[action_index])
+
+
 class RandomAction():
   def mulligan_rule(self, card):
     return card.get_manacost() < 3

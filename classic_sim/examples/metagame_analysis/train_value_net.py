@@ -291,16 +291,23 @@ def sample_pair(seeds, rng):
 
 def build_generate_items(seeds, rng, generation, pairs, games_per_pair, sample_rate,
                           epsilon, world, net_weights, champion_weights,
-                          anchor_fraction=ANCHOR_FRACTION):
+                          anchor_fraction=ANCHOR_FRACTION, selfplay_spec=None):
+  """selfplay_spec overrides the ("net", net_weights) spec used for the
+  current-agent side once net_weights is set - e.g. ("beam", (net_weights,
+  beam_width, depth)) to close the loop with turn-plan search generating the
+  training games themselves, instead of the DouZero-style "no search in the
+  training loop" default (see module docstring - this is a deliberate,
+  opt-in deviation from that design, not the default)."""
   items = []
   for i in range(pairs):
     deck_a, class_a, deck_b, class_b = sample_pair(seeds, rng)
+    current_spec = selfplay_spec if selfplay_spec is not None else ("net", net_weights)
     if net_weights is None:
       spec_a = spec_b = ("linear", champion_weights)
     elif rng.random() < anchor_fraction:
-      spec_a, spec_b = ("net", net_weights), ("linear", champion_weights)
+      spec_a, spec_b = current_spec, ("linear", champion_weights)
     else:
-      spec_a = spec_b = ("net", net_weights)
+      spec_a = spec_b = current_spec
     items.append(("generate", deck_a, class_a, deck_b, class_b, spec_a, spec_b,
                   world, games_per_pair, sample_rate, epsilon,
                   generation * 100003 + i))
@@ -345,6 +352,15 @@ def main():
                        help="seed-decklist json override (default: pre-Naxx seeds)")
   parser.add_argument("--out-dir", default=None,
                        help="output directory override (default: data/value_net)")
+  parser.add_argument("--selfplay-agent", choices=["net", "beam"], default="net",
+                       help="agent that generates self-play games once net_weights is set. "
+                            "'beam' closes the loop with turn-plan search generating the "
+                            "training games themselves - a deliberate deviation from the "
+                            "DouZero 'no search in the training loop' default, to test "
+                            "whether beam-search self-play data trains a stronger net than "
+                            "greedy self-play data did (which plateaued - see README S4).")
+  parser.add_argument("--selfplay-beam-width", type=int, default=3)
+  parser.add_argument("--selfplay-depth", type=int, default=3)
   parser.add_argument("--selfcheck", action="store_true")
   args = parser.parse_args()
 
@@ -377,11 +393,16 @@ def main():
   log_path = OUT_DIR / "training_log.csv"
 
   for generation in range(args.generations):
+    selfplay_label = "bootstrap linear" if net_weights is None else f"{args.selfplay_agent} self-play"
     print(f"gen {generation}: generating "
-          f"{args.pairs * args.games_per_pair} games ({'bootstrap linear' if net_weights is None else 'net self-play'})...", flush=True)
+          f"{args.pairs * args.games_per_pair} games ({selfplay_label})...", flush=True)
+    selfplay_spec = None
+    if net_weights is not None and args.selfplay_agent == "beam":
+      selfplay_spec = ("beam", (net_weights, args.selfplay_beam_width, args.selfplay_depth))
     items = build_generate_items(seeds, rng, generation, args.pairs, args.games_per_pair,
                                   args.sample_rate, args.epsilon, args.world,
-                                  net_weights, champion_weights, args.anchor_fraction)
+                                  net_weights, champion_weights, args.anchor_fraction,
+                                  selfplay_spec=selfplay_spec)
     summaries, shards = dispatch(items, f"gen{generation}", args.backend, args.cores)
     games = sum(s["games"] for s in summaries)
     n_samples = sum(s["n_samples"] for s in summaries)

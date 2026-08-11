@@ -1,0 +1,12 @@
+{
+  "results": {
+    "beam_net_vs_greedy_net": 0.5572916666666666,
+    "beam_net_vs_greedy_linear": 0.5190972222222222,
+    "beam_linear_vs_greedy_linear": 0.5416666666666666
+  },
+  "pairs": 24,
+  "games": 24,
+  "beam_width": 3,
+  "depth": 3,
+  "net": "data/value_net_naxx/value_net_champion.npz"
+}

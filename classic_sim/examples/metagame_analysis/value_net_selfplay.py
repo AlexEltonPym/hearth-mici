@@ -30,7 +30,7 @@ sys.path.append('../../src')
 import numpy as np
 
 from game_manager import GameManager
-from strategy import GreedyActionSmart, NeuralGreedy, MCTS
+from strategy import GreedyActionSmart, NeuralGreedy, MCTS, BeamSearch
 from zones import Deck
 from enums import Classes, CardSets, Actions
 from exceptions import PlayerDead, TooManyActions
@@ -77,6 +77,13 @@ def make_agent(spec):
     rollout_limit = payload[2] if len(payload) > 2 else 6
     return MCTS(iterations=iterations, guided=True, eval_weights=eval_weights,
                 rollout_turn_limit=rollout_limit)
+  if kind == "beam":
+    #payload = (eval_weights, beam_width[, depth]); Tier-1 turn-plan search
+    #(see strategy.BeamSearch) - the vanilla-UCT replacement, since search
+    #subtracts value at the atomic-action granularity MCTS used.
+    eval_weights, beam_width = payload[0], payload[1]
+    depth = payload[2] if len(payload) > 2 else 3
+    return BeamSearch(eval_weights, beam_width=beam_width, depth=depth)
   raise ValueError(f"unknown agent spec kind {kind!r}")
 
 
