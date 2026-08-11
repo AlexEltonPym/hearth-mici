@@ -1,20 +1,22 @@
 % Predicting human metagame adaptation in a collectible card game.
 % IEEE Transactions on Games / CoG submission draft.
-% Compile on Overleaf (no local TeX toolchain): IEEEtran, pdflatex.
 %
-% STATUS: full draft generated from the validated results in
-% classic_sim/examples/validation/README.md (sections S1-S4). All numbers
-% are copied from committed experiment artifacts, none invented.
+% All numbers copied from committed experiment artifacts in
+% classic_sim/examples/validation/README.md (sections S1-S4).
+% Bibliography verified 2026-08-11 against publisher pages (DOIs included).
 % TODO before submission:
 %   - author block / affiliation / funding;
 %   - decide venue (ToG regular paper vs CoG) and trim to page budget.
-% Bibliography verified 2026-08-11 against publisher pages (DOIs included).
 
 \documentclass[conference]{IEEEtran}
 \usepackage{booktabs}
 \usepackage{graphicx}
 \usepackage{amsmath}
 \usepackage{url}
+\usepackage{tikz}
+\usetikzlibrary{positioning,arrows.meta,calc}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
 
 \newcommand{\pp}{\,\text{pp}}
 
@@ -30,38 +32,33 @@ alexeltonpym@gmail.com}}
 \maketitle
 
 \begin{abstract}
-When a collectible card game receives an expansion or a balance patch,
-its player population responds by rebuilding decks --- adopting some new
-cards at high rates, ignoring others, and abandoning nerfed cards. We ask
-whether this human response can be predicted \emph{forward} from
-simulation alone: given only the real decks played before a shock, can a
-validated game simulator predict which cards players will adopt and drop
-afterwards? Using a card-accurate simulator of 2014-era
-\emph{Hearthstone} and an archive of 33{,}697 ranked decklists spanning
-the Naxxramas expansion (July 2014) and the Starving Buzzard nerf
-(September 2014), we show that (i) unbiased evolutionary deck search
-fails to detect single-card quality at feasible evaluation budgets ---
-adoption of new cards matches the pure mutation-drift rate; (ii) a
-\emph{marginal-value probe} that measures each candidate card's win-rate
-contribution in fixed real host decks recovers the real adoption ranking
-(the community's staple picks probe highest; never-played cards probe at
-the bottom); and (iii) evolution whose exploration is biased by these
-probed values --- modelling players' deliberate, non-uniform testing of
-new cards --- reproduces the real post-shock decklists on the cards that
-actually moved: direction hit-rate on real Hunter movers rises from
-16/38 to 30/38, and the nerf experiment predicts the Starving Buzzard
-collapse (real $73\%\!\to\!17\%$ within-class adoption, predicted
-$73\%\!\to\!32\%$) while correctly retaining the un-nerfed cards around
-it. The two persistent misses (a weapon whose value lies in multi-turn
-sequencing, and a secret whose value is contextual card advantage) trace
-to measured limitations of the piloting agent rather than to card data,
-and are partially closed by an ID-free learned evaluator that
-generalises to unseen cards from their mechanics. Complementing recent
-validation of simulated meta discovery against real usage shifts around
-Pok\'emon tier bans, this is to our knowledge the first such validation
-in a collectible card game, and the first covering content
-\emph{addition} (an expansion with previously unseen cards) and a stat
-\emph{nerf} rather than outright removals.
+Expansions and balance patches change which cards a population of
+players puts in its decks. We test whether this response can be
+predicted from simulation before it happens. The inputs are a
+card-accurate simulator of 2014-era \emph{Hearthstone} and the real
+decks played before each of two historical shocks, the Naxxramas
+expansion (July 2014) and the Starving Buzzard nerf (September 2014);
+ground truth for the outcome comes from 33{,}697 ranked decklists.
+Unbiased evolutionary deck search adopts new cards at roughly the
+mutation-drift rate, because a single card changes a 30-card deck's
+win rate by about 1$\pp$ while affordable per-deck evaluation is an
+order of magnitude noisier. We instead measure each candidate card's
+marginal win-rate contribution in fixed real host decks. This probe
+recovers the community's adoption ranking of the new set, and
+evolution whose mutation operator is weighted by probed values, as a
+model of players' deliberate testing of promising cards, reproduces
+the post-shock decklists on the cards that moved. Direction hit-rate
+on Hunter cards whose real adoption shifted rises from 16/38 under
+unbiased evolution to 30/38, and the nerf experiment predicts the
+Buzzard collapse (predicted within-class adoption 73\% to 32\%,
+against a real fall to 17\%) while keeping the cards the patch left
+alone. Two cards are mispredicted in every configuration; both misses
+are traceable to the 1-ply piloting agent rather than to card data,
+and a learned evaluator with an identity-free card encoding partially
+closes them. Simulated meta prediction has previously been validated
+against real usage shifts for Pok\'emon tier bans; we provide the
+corresponding validation for a collectible card game, covering shock
+types that cannot be expressed as bans: new content and stat changes.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -71,173 +68,167 @@ Hearthstone, simulation
 
 \section{Introduction}
 
-Live competitive games are periodically shocked: expansions inject new
-content, and balance patches weaken cards that dominate. Each shock
-triggers a population-level response --- within weeks, the distribution
-of played decks shifts as players test new cards, keep the good ones,
-and abandon the nerfed ones. Game designers would like to anticipate
-this response before shipping a change; academic work on automated
-balancing has long used simulation to evaluate proposed changes
-\emph{in silico}, but almost never validates the simulated response
-against what a real player population subsequently did.
+Live competitive games are periodically shocked. Expansions inject
+new content; balance patches weaken cards that dominate. Within weeks
+of either event the distribution of played decks shifts as players
+work out what the change is worth. Designers would like to anticipate
+that shift before shipping, and academic work on automated balancing
+has long evaluated proposed changes inside a simulator. What has been
+missing until recently is any check of the simulated response against
+what a real player population subsequently did.
 
-This paper poses the forward-prediction problem directly. Fix a
-historical shock in \emph{Hearthstone}: the Naxxramas expansion
-(July~22, 2014, 30 new cards) or the Starving Buzzard/Leeroy Jenkins
-nerf (September~22, 2014). Give the system only (a) a card-accurate
-simulator of the game and (b) the real decks played \emph{before} the
-shock. Ask it to predict the real decks played \emph{after}: which cards
-get adopted, which get dropped, at what rates. Ground truth is measured
-from an archive of 33{,}697 ranked 2014 decklists. Saravanan and
+We pose the forward-prediction problem directly. Fix a historical
+shock in \emph{Hearthstone}: the Naxxramas expansion (July~22, 2014,
+30 new cards) or the Starving Buzzard/Leeroy Jenkins nerf
+(September~22, 2014). Give the system a card-accurate simulator and
+the real decks played before the shock, and nothing else. Ask it to
+predict the decks played after: which cards get adopted, which get
+dropped, at what rates. Ground truth is measured from an archive of
+33{,}697 ranked 2014 decklists. Saravanan and
 Guzdial~\cite{saravanan2024meta} recently established this
-validate-against-the-real-population standard for Pok\'emon tier bans;
-we extend it to a deckbuilding game and to the two shock types their
-ban-only setting does not cover --- new content, whose cards no
-historical data describes, and stat changes, where the modified card
-remains in the pool at a different power level.
+validate-against-the-real-population standard for Pok\'emon tier
+bans. We extend it to a deckbuilding game and to the two shock types
+a ban cannot express: new content, for which no historical usage data
+exists, and stat changes, where the modified card remains legal at a
+different power level.
 
-The problem is harder than it looks, and the failures are as
-informative as the successes. Our contributions:
+Our contributions:
 
 \begin{itemize}
-\item A negative result with a quantified mechanism: \textbf{unbiased
-evolutionary deck search cannot see single-card quality} at feasible
-budgets. A one-card swap moves a 30-card deck's win rate by
-$\sim$1$\pp$, far below the noise of affordable per-deck evaluation, and
-measured adoption of new cards under unbiased evolution matches the
-pure mutation-drift rate.
-\item A \textbf{marginal-value probe} that isolates the variable:
-swap each candidate card into a fixed slot of real host decks and
-measure the win-rate delta over fixed opposition. The probe recovers
-the real community's adoption ranking of the Naxxramas set, and its
-systematic misses localise exactly where the piloting agent's skill
-ceiling lies.
-\item \textbf{Probe-biased evolution} --- exploration weighted by
-probed card values, modelling the fact that real players do not test
-new cards uniformly at random --- which reproduces the real post-shock
-adoption on the cards that moved, for both the expansion and the nerf,
-against a strong no-change baseline that we report honestly (the
-baseline wins overall rank correlation because most cards do not move;
-the prediction wins on the movers, which is the question).
-\item A class-vs-card dissociation in the real data with a matching
-simulated account: the Buzzard nerf collapsed \emph{card} adoption
-($68\%\!\to\!17\%$) while \emph{class} share stayed flat --- players
-abandoned the card, not the class --- and a replicator-style analysis
-shows month-to-month archetype shares carry too little signal to
-predict, whereas card adoption around shocks is the predictable
-quantity.
-\item An extension replacing the hand-designed evaluator with an
-\textbf{ID-free learned value function} that encodes cards by mechanics
-rather than identity, generalises to never-seen cards where its
-training distribution covers the mechanism, and signs both 2014 nerfs
-from the patch text alone.
+\item A negative result with a quantified mechanism. Unbiased
+evolutionary deck search cannot detect single-card quality at
+feasible budgets: a one-card swap moves a deck's win rate by
+$\sim$1$\pp$, well under the noise of affordable per-deck evaluation,
+and measured adoption of new cards under unbiased evolution matches
+the pure mutation-drift rate.
+\item A marginal-value probe that isolates the card variable by
+swapping each candidate into a fixed slot of real host decks and
+measuring the win-rate delta over fixed opposition. The probe
+recovers the real community's adoption ranking of the Naxxramas set.
+Its two systematic misses localise the piloting agent's skill
+ceiling, which we quantify independently.
+\item Probe-biased evolution, in which exploration is weighted by
+probed card values as a stand-in for players' deliberate testing of
+promising cards. It reproduces real post-shock adoption on the cards
+that moved, for the expansion and for the nerf. A no-change baseline
+wins overall rank correlation, since most cards do not move; the
+prediction wins on the movers. We report both.
+\item A dissociation in the real data with a matching simulated
+account. The nerf collapsed Buzzard's within-class adoption from
+68\% to 17\% while Hunter's class share stayed flat, so players
+abandoned the card and kept the class. A replicator-style analysis
+shows why: month-to-month archetype shares in this archive sit at
+their sampling noise floor, whereas card adoption around shocks
+moves by 40--60$\pp$. Card adoption is the predictable quantity.
+\item A learned value function whose card encoding is identity-free
+(mechanics, statistics and keywords, with no card IDs). It
+generalises to cards it has never seen where its training data
+covers the mechanism, and it assigns the correct sign to both 2014
+nerfs given the patch text alone.
 \end{itemize}
 
 \section{Related Work}
 
-% TODO: verify all entries; written from memory.
-Hearthstone has been a standard AI testbed for a decade, but almost all
-work targets \emph{playing} strength or \emph{deckbuilding} in a fixed
-metagame. Evolutionary deckbuilding was established by
-Garc\'ia-S\'anchez et al.~\cite{garcia2016evodeck}; quality-diversity
-methods mapped deck spaces~\cite{fontaine2019mapelites}; and the
-Hearthstone AI competition~\cite{dockhorn2019competition} drove play
-agents including MCTS with learned components~\cite{swiechowski2018}.
+Hearthstone has served as an AI testbed for a decade, mostly for
+playing strength or for deckbuilding within a fixed metagame.
+Garc\'ia-S\'anchez et al.~\cite{garcia2016evodeck} established
+evolutionary deckbuilding; Fontaine et
+al.~\cite{fontaine2019mapelites} mapped deck spaces with
+quality-diversity search; the Hearthstone AI
+competition~\cite{dockhorn2019competition} drove play agents,
+including MCTS with learned components~\cite{swiechowski2018}.
+Justesen et al.~\cite{justesen2017} showed that in multi-action
+adversarial games the effective unit of decision is the turn plan,
+a result we lean on when analysing our piloting agent's limits.
+Dockhorn et al.~\cite{dockhorn2018prediction} studied prediction of
+hidden information in Hearthstone; their finding that exact hand
+knowledge is worth only a few points of win rate justifies our
+perfect-information piloting.
+
 Closest in motivation, de Mesentier Silva et
 al.~\cite{demesentier2019meta} evolved decks to study how proposed
-balance changes would shift a simulated metagame, with the metagame
+card changes would shift a simulated metagame, with the metagame
 internal to the simulator. Saravanan and
-Guzdial~\cite{saravanan2024meta} took the decisive validation step:
-their Meta Discovery framework, using reinforcement-learning agents in
-Pok\'emon Showdown, predicts the post-ban top-40 usage meta across four
-real tier bans and validates against Smogon's measured usage statistics
-(92--100\% overlap). Our work shares their validation standard and
-differs in three ways: the domain (a deckbuilding CCG, where the
-predicted unit is within-deck card adoption rather than pick rates over
-a fixed roster), the shock types (content \emph{addition} and a stat
-\emph{nerf}, neither expressible as a ban --- new cards have no
-historical usage data at all, and a nerfed card remains playable at a
-different power level), and the explicit no-change baseline our sticky
-ground truth makes essential. Justesen et al.~\cite{justesen2017} showed that in
-multi-action adversarial games the effective unit of decision is the
-turn plan rather than the atomic action, which informs our analysis of
-the piloting agent's limitations. Dockhorn et
-al.~\cite{dockhorn2018prediction} studied prediction of hidden
-information in Hearthstone; we use their finding on the limited value
-of exact hand knowledge to justify our perfect-information piloting.
-On the human side, large-scale deck archives have been mined
-descriptively~\cite{zenodo_dataset}, and community analytics such as
-the Vicious Syndicate Data Reaper reports~\cite{vicious_syndicate}
-publish matchup matrices from tens of thousands of tracked games; we
-use both as ground truth rather than as objects of study. CMA-ES
+Guzdial~\cite{saravanan2024meta} then took the validation step their
+setting lacked: the Meta Discovery framework uses
+reinforcement-learning agents in Pok\'emon Showdown to predict the
+post-ban top-40 usage meta for four real tier bans, checked against
+Smogon's measured usage statistics (92--100\% overlap). We share
+that validation standard. The differences are the domain (a
+deckbuilding game, where the predicted unit is within-deck card
+adoption rather than pick rates over a fixed roster), the shock
+types (content addition and a stat nerf), and an explicit no-change
+baseline, which our sticky ground truth makes essential. Community
+analytics such as the Vicious Syndicate Data Reaper
+reports~\cite{vicious_syndicate} and the HearthPwn deck
+archive~\cite{zenodo_dataset} supply ground truth. CMA-ES
 \cite{hansen2001cmaes} and MAP-Elites~\cite{mouret2015mapelites}
-supply the optimisation machinery.
+supply optimisation machinery.
 
 \section{The Simulator and Its Validation}
 \label{sec:simulator}
 
 \subsection{Engine and scope}
-We implement a card-accurate simulator of \emph{Hearthstone}'s
-2014-era Classic format restricted to three classes (Hunter, Mage,
-Warrior): 221 Classic cards plus all 24 Naxxramas cards choosable by
-those classes (21 neutrals and one card per class), 245 total. The
-engine models the full turn structure, combat, secrets, weapons,
-auras, deathrattles and triggered effects; a systematic audit compared
-every card against the authoritative card text of the era and added a
-per-card regression test suite. A patching hook applies historical
-balance changes (the September 2014 patch: Starving Buzzard 2-mana
-2/1$\to$5-mana 3/2; Leeroy Jenkins 4$\to$5 mana), so pre- and
-post-patch worlds are both simulable. Every one of the 88 archived
-real Classic decklists in our evaluation snapshot is exactly
-constructible in the pool.
+The simulator implements \emph{Hearthstone}'s 2014-era Classic
+format restricted to three classes (Hunter, Mage, Warrior): 221
+Classic cards plus all 24 Naxxramas cards those classes could play,
+245 in total. It models the full turn structure, combat, secrets,
+weapons, auras, deathrattles and triggered effects. A systematic
+audit compared every card against the authoritative card text of the
+era and left each with a regression test. A patching hook applies
+historical balance changes, so the September 2014 patch (Starving
+Buzzard 2-mana 2/1 to 5-mana 3/2; Leeroy Jenkins 4 to 5 mana) can be
+switched on and off. All 88 archived real Classic decklists in our
+evaluation snapshot are exactly constructible in the pool.
 
 \subsection{Matchup fidelity and the agent-skill ceiling}
 \label{sec:fidelity}
-Validation asks: do simulated matchups between real decks reproduce
-real matchup outcomes? Ground truth is the community-measured Classic
-matchup matrix ($\sim$90k tracked games)~\cite{vicious_syndicate},
-giving 20 in-scope archetype pairings with banded win rates and exact
-ordinal ranks. Piloting both sides with a tuned 1-ply greedy agent
-(27-feature linear evaluation) yields Spearman rank correlation 0.33
-between simulated and real matchup orderings; piloting with guided
-MCTS over the same evaluation yields 0.55--0.61. The improvement from
-searching deeper with the \emph{same} evaluator --- concentrated in
-exactly the archetype (Freeze Mage) whose real gameplan requires
-valuing delayed wins --- establishes the central confound this paper
-tracks throughout: \textbf{residual fidelity error is dominated by
-agent skill, not card correctness}. A full-pool card audit that
-changed game content (notably fixing token-summon triggers, without
-which the very combo the 2014 nerf targeted did not exist in-engine)
-moved aggregate fidelity by less than sampling noise, confirming the
-attribution. A 82-deck round-robin against per-deck real win rates
-gives Spearman 0.60.
+Do simulated matchups between real decks reproduce real matchup
+outcomes? Ground truth is a community-measured Classic matchup
+matrix built from roughly 90k tracked
+games~\cite{vicious_syndicate}, which covers 20 in-scope archetype
+pairings with banded win rates and exact ordinal ranks. With a tuned
+1-ply greedy agent (a 27-feature linear evaluation) piloting both
+sides, the Spearman rank correlation between simulated and real
+matchup orderings is 0.33. With guided MCTS over the same evaluation
+it is 0.55--0.61. The gain comes from searching deeper with an
+unchanged evaluator, and it concentrates in the archetype whose real
+gameplan requires valuing delayed wins (Freeze Mage). This
+establishes the confound we track through the rest of the paper:
+residual fidelity error is dominated by agent skill rather than card
+correctness. Consistent with that reading, a full-pool card audit
+that changed game content (including a token-trigger fix without
+which the combo the 2014 nerf targeted did not exist in-engine)
+moved aggregate fidelity by less than sampling noise. An 82-deck
+round-robin against per-deck real win rates gives Spearman 0.60.
 
 \section{Historical Data and Ground Truth}
 \label{sec:data}
 
 \subsection{The deck archive and its date trap}
 Ground truth derives from 33{,}697 ranked 2014 decklists (HearthPwn
-archive~\cite{zenodo_dataset}), class-normalised to the simulator's
+archive~\cite{zenodo_dataset}), normalised to the simulator's
 three-class world. One correction matters for anyone using this
-archive: deck \emph{dates} are creation dates but card \emph{lists}
-are last edits, so a deck created in June and edited in August can
-contain Naxxramas cards ``before'' Naxxramas existed. Filtering by the
-expansion tag of each deck's cards removed 3{,}725 such time-travelled
-decks from the pre-Naxxramas window; without this filter the
-prediction task is contaminated by its own answer key.
+archive: deck dates are creation dates, but card lists reflect the
+last edit. A deck created in June and edited in August can therefore
+contain Naxxramas cards ``before'' Naxxramas existed. Filtering on
+the expansion tag of each deck's cards removed 3{,}725 such decks
+from the pre-Naxxramas window. Without the filter, the prediction
+task is contaminated by its own answer key.
 
 \subsection{Two shocks, and a dissociation}
 \label{sec:shocks}
-Table~\ref{tab:buzzard_series} shows the monthly series around the
-September nerf. Two facts diverge instructively. At the \emph{card}
-level, Starving Buzzard's within-Hunter adoption collapses from a
-67.7\% pre-nerf mean to 16.9\% post-nerf, beginning in the nerf month
-itself. At the \emph{class} level, Hunter's share of submitted decks
-is flat to slightly rising (31.6\%$\to$33.0\%): the popular ``Hunter
-died'' narrative is not supported --- players abandoned the card and
-rebuilt the class. A simulator that reproduces the first is capturing
-card-level power; one that also reproduces the second is capturing
-metagame adaptation.
+Table~\ref{tab:buzzard_series} and
+Fig.~\ref{fig:dissociation} show the monthly series around the
+September nerf. At the card level, Starving Buzzard's within-Hunter
+adoption falls from a 67.7\% pre-nerf mean to 16.9\% afterwards,
+beginning in the nerf month itself. At the class level, Hunter's
+share of submitted decks is flat to slightly rising over the same
+period (31.6\% to 33.0\%). The popular claim that the nerf killed
+Hunter is unsupported in this archive; players dropped the card and
+rebuilt the class around other packages. A simulator that reproduces
+the card-level collapse is capturing card power. One that also
+predicts what replaces it is capturing adaptation.
 
 \begin{table}[t]
 \caption{Monthly ground truth around the Sept.~22, 2014 nerf.}
@@ -258,112 +249,177 @@ month & decks & Hunter & Mage & Warrior & Buzzard/Hunter\\
 \end{tabular}
 \end{table}
 
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  width=\columnwidth, height=5.2cm,
+  xlabel={month (2014)}, ylabel={share (\%)},
+  xtick={6,7,8,9,10,11,12},
+  xticklabels={Jun,Jul,Aug,Sep,Oct,Nov,Dec},
+  ymin=0, ymax=85,
+  legend style={font=\scriptsize, at={(0.03,0.03)}, anchor=south west},
+  tick label style={font=\scriptsize},
+  label style={font=\footnotesize},
+  grid=none]
+\addplot[mark=*, thick, black] coordinates
+  {(6,61.1) (7,76.2) (8,74.6) (9,31.8) (10,19.2) (11,19.7) (12,11.9)};
+\addlegendentry{Buzzard adoption within Hunter}
+\addplot[mark=square*, dashed, gray, thick, mark options={solid, fill=gray}] coordinates
+  {(6,31.2) (7,30.4) (8,27.5) (9,32.6) (10,35.0) (11,34.7) (12,29.4)};
+\addlegendentry{Hunter share of all decks}
+\draw[dotted, thick] (axis cs:8.72,0) -- (axis cs:8.72,85)
+  node[pos=0.97, right, font=\scriptsize] {nerf (Sept.~22)};
+\end{axis}
+\end{tikzpicture}
+\caption{The card--class dissociation. The nerf collapses Buzzard's
+within-Hunter adoption while Hunter's class share does not move
+outside its noise band.}
+\label{fig:dissociation}
+\end{figure}
+
 \subsection{Why shocks are the predictable part}
 \label{sec:dynamics}
 Before predicting shocks we tested the smoother alternative: does an
 archetype's field-weighted simulated win rate (its matchup row
 weighted by the current popularity mix) predict its next-month
-popularity change, replicator-style? Over 36 (archetype, month) points
-in the pre-Naxxramas window: Spearman $-0.004$ (and $0.081$ when the
-matchup matrix is re-simulated with the stronger MCTS agent ---
-the null is not an artifact of agent choice). The diagnosis is that
-the target itself is noise at this granularity: at $\sim$580
-classified decks/month the binomial standard error of a share change
-($\sim$2.2$\pp$) is comparable to the observed mean absolute change
-(2.9$\pp$), and the lag-1 autocorrelation of changes ($-0.46$) sits at
-the $-0.5$ expected for constant-plus-noise. Static deck win rate and
-play count are likewise uncorrelated in a separate 88-deck snapshot
-(Spearman $-0.03$). Card adoption around shocks --- moves of
-40--60$\pp$ against a $\sim$2$\pp$ noise floor --- is where the real
-signal lives, and it is what the remainder of the paper predicts.
+popularity change, in the manner of replicator dynamics? Over 36
+(archetype, month) points in the pre-Naxxramas window the Spearman
+correlation is $-0.004$, and $0.081$ when the matchup matrix is
+re-simulated with the stronger MCTS agent, so the null is not an
+artifact of agent choice. The target itself appears to be noise at
+this granularity. At $\sim$580 classified decks per month, the
+binomial standard error of a share change ($\sim$2.2$\pp$) is
+comparable to the observed mean absolute change (2.9$\pp$), and the
+lag-1 autocorrelation of changes ($-0.46$) sits at the $-0.5$
+expected for a constant series plus independent noise. In a separate
+88-deck snapshot, per-deck win rate and play count are uncorrelated
+(Spearman $-0.03$). Card adoption around shocks moves by
+40--60$\pp$ against that $\sim$2$\pp$ floor. That is where the
+signal is, and it is what the rest of the paper predicts.
 
 \section{Prediction Pipeline}
 \label{sec:pipeline}
 
-All experiments share the same skeleton: seed with the real pre-shock
-decks, evolve under the post-shock card pool (expansion cards added,
-or nerf patches applied), extract per-card adoption from the evolved
+Fig.~\ref{fig:pipeline} summarises the pipeline. All experiments
+share the same skeleton: seed with the real pre-shock decks, evolve
+under the post-shock card pool (expansion cards added, or nerf
+patches applied), extract per-card adoption from the evolved
 population, and compare against real post-shock adoption. Deck
-evaluation is by simulated matches against a \emph{refreshing field}:
-a gauntlet seeded with real pre-shock representatives of all three
-classes, periodically re-sampled from the co-evolving populations'
-elites with a fraction of real anchors retained (a fixed gauntlet
-measurably overfits). Decks are piloted by the tuned greedy agent with
-self-play-optimised weights. The no-change baseline --- predicting
-that post-shock adoption equals pre-shock adoption --- is reported for
-every metric.
+fitness is evaluated by simulated matches against a refreshing
+field: a gauntlet seeded with real pre-shock representatives of all
+three classes and periodically re-sampled from the co-evolving
+populations' elites, with a fraction of real anchors retained,
+because a fixed gauntlet measurably overfits. Decks are piloted by
+the tuned greedy agent with self-play-optimised weights. Every
+metric is also computed for the no-change baseline, which predicts
+that post-shock adoption equals pre-shock adoption.
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}[font=\scriptsize,
+  box/.style={draw, rounded corners=1pt, align=center, inner sep=3pt,
+              minimum height=6.5mm},
+  arr/.style={-{Stealth[length=2mm]}, thick}]
+\node[box] (seeds) {real pre-shock\\decks};
+\node[box, right=16mm of seeds] (pool) {post-shock pool\\(new cards / patch)};
+\node[box, below=6mm of seeds] (probe) {marginal-value probe\\($\Delta$ win rate per card)};
+\node[box, below=6mm of pool] (evo) {probe-biased evolution\\vs.\ refreshing field};
+\node[box, below=6mm of evo] (pred) {predicted\\card adoption};
+\node[box, left=10mm of pred] (real) {real post-shock\\adoption};
+\node[box, below=6mm of $(real.south)!0.5!(pred.south)$] (cmp)
+  {compare: movers, direction, magnitude};
+\draw[arr] (seeds) -- (probe);
+\draw[arr] (pool) -- (evo);
+\draw[arr] (seeds.east) -- (evo.north west);
+\draw[arr] (probe) -- node[above, font=\tiny]{mutation bias} (evo);
+\draw[arr] (evo) -- (pred);
+\draw[arr] (pred.south) -- (cmp.north east);
+\draw[arr] (real.south) -- (cmp.north west);
+\draw[arr, dashed] (seeds.west) .. controls +(-8mm,0) and +(-9mm,3mm) ..
+  node[left, align=center, font=\tiny, pos=0.55]{no-change\\baseline}
+  (cmp.west);
+\end{tikzpicture}
+\caption{Prediction pipeline. Real pre-shock decks seed both the
+per-card probe and the evolutionary search; the probe's card values
+bias mutation; predictions are scored against real post-shock
+adoption alongside a no-change baseline.}
+\label{fig:pipeline}
+\end{figure}
 
 \subsection{Attempt 1: unbiased evolution fails, with a mechanism}
 Real pre-Naxxramas seeds evolving under the Classic+Naxxramas pool
-adopted approximately 0\% of every card the real community adopted.
-This is drift, not selection: a single-card swap changes a deck's win
-rate by $\sim$1$\pp$, the per-deck evaluation budget (4--12 games
-under early stopping) has a noise floor an order of magnitude above
-that, and the observed adoption rate of new cards matches the pure
+adopted approximately none of the cards the real community adopted.
+The cause is drift. A single-card swap changes a deck's win rate by
+$\sim$1$\pp$; the per-deck evaluation budget (4--12 games under
+early stopping) has a noise floor an order of magnitude above that;
+and the observed adoption rate of new cards matches the pure
 mutation-drift expectation. Whole-deck fitness evaluation cannot
-resolve single-card quality at any budget we can afford ---
-$\sim$37{,}000 games for the study as run.
+resolve single-card quality at any budget we could afford, which for
+this study was roughly 37{,}000 games.
 
 \subsection{The marginal-value probe}
-The probe isolates the card variable the way the evolutionary loop
-cannot: for each candidate card and class, swap the candidate into a
-fixed slot of five real host decks, play a fixed 60-game schedule per
-host against a fixed nine-deck real field, and record the mean
-win-rate delta versus the unmodified hosts. One number per
-(card, class): the card's marginal value in realistic context.
+The probe isolates the card variable directly. For each candidate
+card and class, swap the candidate into a fixed slot of five real
+host decks, play a fixed 60-game schedule per host against a fixed
+nine-deck real field, and record the mean win-rate delta relative to
+the unmodified hosts. The result is one number per (card, class):
+the card's marginal value in a realistic deck context.
 
 \subsection{Attempt 2: probe-biased evolution}
-Real players do not explore a new set uniformly: they read cards,
-theorycraft, and disproportionately test promising ones. We model this
-by biasing mutation --- probed-positive cards are proposed more often
-and probed-negative slots replaced more often --- while keeping
-selection untouched (24 fixed games per evaluation, 25 generations).
-The claim tested is therefore explicitly \emph{``simulation-derived
-card values plus evolutionary selection reproduce the shift''}, not
-``blind evolution discovers it''; the unbiased failure is reported
-alongside for exactly this reason.
+Real players do not explore a new set uniformly at random. They read
+the cards and disproportionately test the ones that look strong. We
+model this with a biased mutation operator: probed-positive cards
+are proposed more often, and probed-negative slots are replaced more
+often, while selection is left untouched (24 fixed games per
+evaluation, 25 generations). The claim under test is therefore that
+simulation-derived card values combined with evolutionary selection
+reproduce the shift. It is not that blind evolution discovers the
+shift; the unbiased failure above is reported for exactly that
+reason.
 
 \section{Results}
 \label{sec:results}
 
 \subsection{The probe recovers the real adoption ranking}
-For the Naxxramas launch, the probe's top Hunter cards are precisely
-the real community's staple package: Sludge Belcher $+6.5\pp$, Mad
-Scientist $+5.3\pp$, Webspinner $+5.1\pp$, Haunted Creeper $+3.7\pp$
---- all cards that reached 45--74\% real adoption within weeks ---
-while the cards the community never played probe at the bottom.
-Spearman correlation between probed value and real pre-nerf adoption
-is 0.35 (Hunter), 0.20 (Mage), 0.30 (Warrior) over the 22 new cards
-per class. The two systematic misses are mechanically diagnostic:
-Death's Bite (probed last for Warrior; 60\% real adoption) is a
-weapon whose value lies in sequencing its deathrattle across turns,
-and Duplicate ($-3.0\pp$ probed; 41\% real) is a secret whose value
-is contextual card advantage --- both invisible to a 1-ply evaluator
-piloting a single-card swap, and both instances of the agent-skill
-ceiling measured independently in Sec.~\ref{sec:fidelity}.
+For the Naxxramas launch, the probe's top Hunter cards are the real
+community's staple package: Sludge Belcher $+6.5\pp$, Mad Scientist
+$+5.3\pp$, Webspinner $+5.1\pp$, Haunted Creeper $+3.7\pp$. All four
+reached 45--74\% real adoption within weeks. The cards the community
+never played probe at the bottom. Spearman correlation between
+probed value and real pre-nerf adoption over the 22 new cards per
+class is 0.35 (Hunter), 0.20 (Mage) and 0.30 (Warrior). The two
+systematic misses are informative. Death's Bite (probed last for
+Warrior, against 60\% real adoption) is a weapon whose value depends
+on sequencing its deathrattle across turns. Duplicate ($-3.0\pp$
+probed, 41\% real) is a secret whose value is contextual card
+advantage. Neither property is visible to a 1-ply evaluator piloting
+a single-card swap, and both are instances of the agent-skill
+ceiling measured in Sec.~\ref{sec:fidelity}.
 
 \subsection{Expansion: predicting Naxxramas adoption}
 Probe-biased evolution from real pre-Naxxramas seeds adopts the real
-package. On the 38 Hunter cards whose real adoption moved by at least
-5$\pp$ across the launch, the predicted direction matches reality for
-30/38 (probe-biased) versus 16/38 (unbiased evolution) --- chance is
-19/38. Magnitudes land in range for the package cards (e.g.\ Unstable
-Ghoul predicted 45.8\% vs.\ real 44.9\%; Mad Scientist, Undertaker,
-Sludge Belcher and Loatheb all rise from zero to real-order rates).
-Death's Bite stays at 0\% predicted --- the probe's blind spot
-propagates through the pipeline, as it must.
+package. On the 38 Hunter cards whose real adoption moved by at
+least 5$\pp$ across the launch, the predicted direction matches
+reality for 30, against 16 for unbiased evolution; chance is 19.
+Magnitudes land in range for the package cards. Unstable Ghoul is
+predicted at 45.8\% against a real 44.9\%, and Mad Scientist,
+Undertaker, Sludge Belcher and Loatheb all rise from zero to rates
+in the real ordering. Death's Bite stays at 0\% predicted. The
+probe's blind spot propagates through the pipeline, as it must.
 
 \subsection{Patch: predicting the nerf response}
-The nerf experiment is the cleaner test (no new cards; the real
-post-shock pool equals the simulated pool). Seeds are real
-Naxxramas-era decks; the pool applies the real September patch.
-Table~\ref{tab:nerf} shows the headline cards. The Buzzard collapse
-is reproduced in direction and rough magnitude; nerfed Leeroy drops;
-the un-nerfed Unleash the Hounds is correctly \emph{retained}; and
-Webspinner's continued rise is called. The removal probe alone signs
-the response: deleting Buzzard from patched-world Hunter decks gains
-$+2.7\pp$, deleting Leeroy $+0.9\pp$ (Hunter) and $+1.6\pp$
-(Warrior).
+The nerf experiment is the cleaner test, since no new cards are
+involved and the real post-shock pool equals the simulated pool.
+Seeds are real Naxxramas-era decks; the pool applies the real
+September patch. Table~\ref{tab:nerf} and Fig.~\ref{fig:nerf} show
+the headline cards. The Buzzard collapse is reproduced in direction
+and rough magnitude. Nerfed Leeroy drops. Unleash the Hounds, which
+the patch left alone, is correctly retained, and Webspinner's
+continued rise is called. The removal probe alone already carries
+the sign of the response: deleting Buzzard from patched-world Hunter
+decks gains $+2.7\pp$, deleting Leeroy $+0.9\pp$ (Hunter) and
+$+1.6\pp$ (Warrior).
 
 \begin{table}[t]
 \caption{Nerf-response prediction (Hunter, within-class adoption).}
@@ -381,78 +437,110 @@ Webspinner & 54.4\% & 63.6\% & 73.7\%\\
 \end{tabular}
 \end{table}
 
-\subsection{The baseline, honestly}
-The no-change baseline wins the \emph{overall} adoption Spearman
-(0.62--0.96 vs.\ the prediction's 0.27--0.51): real decks are sticky,
-and copying $\sim$100 unmoved cards exactly is unbeatable on a rank
-metric dominated by non-movers. The prediction's win is specifically
-on the movers --- direction hit-rate and the magnitudes above ---
-which is the part of the question a no-change baseline cannot answer
-by construction. We report both so the reader can weigh them.
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  width=\columnwidth, height=5.4cm,
+  ybar, bar width=5.5pt,
+  ymin=0, ymax=100, ylabel={within-Hunter adoption (\%)},
+  symbolic x coords={Buzzard, Leeroy, Unleash, Webspinner},
+  xtick=data,
+  enlarge x limits=0.16,
+  legend style={font=\scriptsize, at={(0.5,1.02)}, anchor=south,
+                legend columns=3, /tikz/every even column/.append style={column sep=4pt}},
+  tick label style={font=\scriptsize},
+  label style={font=\footnotesize}]
+\addplot+[bar shift=-6pt, draw=black, fill=white] coordinates
+  {(Buzzard,73.4) (Leeroy,34.8) (Unleash,84.4) (Webspinner,54.4)};
+\addlegendentry{pre-nerf}
+\addplot+[bar shift=0pt, draw=black, fill=gray!55] coordinates
+  {(Buzzard,31.8) (Leeroy,4.5) (Unleash,77.3) (Webspinner,63.6)};
+\addlegendentry{predicted}
+\addplot+[bar shift=6pt, draw=black, fill=black] coordinates
+  {(Buzzard,16.8) (Leeroy,12.0) (Unleash,69.5) (Webspinner,73.7)};
+\addlegendentry{real post-nerf}
+\end{axis}
+\end{tikzpicture}
+\caption{Nerf-response prediction against reality. Both nerfed cards
+are predicted to fall, the untouched Unleash the Hounds is retained,
+and Webspinner's rise is called.}
+\label{fig:nerf}
+\end{figure}
+
+\subsection{The baseline}
+The no-change baseline wins the overall adoption Spearman, at
+0.62--0.96 against the prediction's 0.27--0.51. Real decks are
+sticky, and a baseline that copies roughly 100 unmoved cards is
+unbeatable on a rank metric dominated by non-movers. The
+prediction's advantage is confined to the movers, in direction
+hit-rate and in the magnitudes above. Since predicting the movers is
+the question a no-change baseline cannot answer by construction, we
+report both numbers and leave the weighting to the reader.
 
 \section{Learned Evaluators and Unseen Cards}
 \label{sec:neural}
 
-The probe's evaluator is a hand-designed linear function; new cards
-were probed with full knowledge of their implementation. A stronger
-test of generalisation replaces it with a learned value function that
-has never seen the new cards. We encode each card by 68 ID-free
-mechanical features (cost/stats, type, keywords, trigger and effect
-categories, effect magnitudes) --- so a nerfed card encodes
-differently from its original --- and train a small deep-sets value
-network ($\sim$60k parameters) on pre-Naxxramas self-play only, with
-Monte Carlo outcome targets and no search in the training loop.
+The probe's evaluator is a hand-designed linear function, and the
+new cards were probed with full knowledge of their implementation. A
+stronger test of generalisation replaces it with a learned value
+function that has never seen the new cards. Each card is encoded by
+68 identity-free mechanical features (cost and stats, type,
+keywords, trigger and effect categories, effect magnitudes), so a
+nerfed card encodes differently from its original. A small deep-sets
+value network of about 60k parameters is trained on pre-Naxxramas
+self-play only, with Monte Carlo outcome targets and no search in
+the training loop.
 
-Probing the Naxxramas cards with this net (zero Naxxramas exposure)
-splits by mechanism support: Mage valuations \emph{beat} the linear
-probe (Spearman vs.\ real adoption $+0.30$ vs.\ $+0.20$), Warrior
-ties, and Hunter fails outright ($-0.075$ vs.\ $+0.35$) --- the
-Hunter package is deathrattle-token cards, a mechanism with
-essentially no support in pre-Naxxramas training data. Three
-generations of fine-tuning with Naxxramas cards in the self-play pool
-close the gap (Hunter $-0.075\to+0.34$; Mage rises to $+0.60$),
-identifying mechanism-coverage of the training distribution, not
-architecture, as the binding constraint. From the patch text alone,
-the net signs both 2014 nerfs (removing nerfed Buzzard or nerfed
-Leeroy improves its evaluation of the deck), agreeing with the linear
-agent on Buzzard and improving on Leeroy. The two sequencing misses
-(Death's Bite, Duplicate) persist under every static evaluator
-tested --- they are properties of the policy, not the evaluation.
+Probing the Naxxramas cards with this net splits by mechanism
+support. Mage valuations beat the linear probe (Spearman against
+real adoption $+0.30$ vs.\ $+0.20$), Warrior ties, and Hunter fails
+($-0.075$ vs.\ $+0.35$). The Hunter package consists of
+deathrattle-token cards, a mechanism with essentially no support in
+pre-Naxxramas training data. Three generations of fine-tuning with
+Naxxramas cards in the self-play pool close the gap (Hunter
+$-0.075$ to $+0.34$; Mage rises to $+0.60$). The binding constraint
+is mechanism coverage of the training distribution, not the
+architecture. Given only the patch text, the net assigns the
+correct sign to both 2014 nerfs, agreeing with the linear agent on
+Buzzard and improving on Leeroy. The two sequencing misses, Death's
+Bite and Duplicate, persist under every static evaluator we tested;
+they belong to the policy rather than to the evaluation.
 
 \section{Limitations}
 \label{sec:limitations}
 
-(a)~The probe bias injects simulation-derived knowledge into
-exploration; unbiased evolution fails, and we frame the claim
-accordingly. (b)~Both persistent misses trace to the piloting agent's
-1-ply horizon, quantified independently by the fidelity study; claims
-about sequencing-dependent cards are out of reach at this agent
-strength. (c)~The engine models three classes and one era;
-cross-class effects (e.g.\ a nerf shifting play toward an unmodelled
-class) are invisible. (d)~The pre-nerf ground-truth window may retain
-a small number of post-nerf-edited decks (the September patch
-received no archive tag of its own); its healthy 73.4\% Buzzard rate
-bounds the contamination as minor. (e)~Ground-truth matchup win rates
-are banded ($\pm2.5\pp$); we use ordinal ranks where it matters.
-(f)~Headline pipeline results are single runs; the probe aggregates
-five hosts $\times$ 60 games per card, but replication across seeds
-is future work for the evolutionary stages.
+The probe bias injects simulation-derived knowledge into
+exploration, and unbiased evolution fails; we frame the claim
+accordingly. Both persistent misses trace to the piloting agent's
+1-ply horizon, quantified independently by the fidelity study, so
+claims about sequencing-dependent cards are out of reach at this
+agent strength. The engine models three classes and one era, and
+cross-class effects, such as a nerf pushing players toward an
+unmodelled class, are invisible to it. The pre-nerf ground-truth
+window may retain a small number of post-nerf-edited decks, because
+the September patch received no archive tag of its own; the
+window's healthy 73.4\% Buzzard rate bounds that contamination as
+minor. Ground-truth matchup win rates are banded at $\pm2.5\pp$,
+so we use ordinal ranks where precision matters. Finally, the
+evolutionary stages are single runs. The probe aggregates five
+hosts and 60 games per card, but replication across seeds remains
+future work.
 
 \section{Conclusion}
 
-Given only pre-shock decklists and a validated simulator, a
-marginal-value probe plus probe-biased evolutionary selection
-predicts which cards a real player population adopted and abandoned
-around both an expansion and a nerf --- with quantified failure modes
-that localise to agent skill, an honest accounting of a strong
-no-change baseline, and a learned-evaluator extension showing the
-same predictions emerge from mechanics alone where training coverage
-allows. We believe forward validation against measured human
-adoption, rather than internal simulator consistency, is the standard
-automated balancing should be held to --- a standard recently
-established for tier bans~\cite{saravanan2024meta} --- and this work
-extends its coverage to the expansion and nerf shocks that dominate
-the life of a collectible card game.
+Given pre-shock decklists and a validated simulator, a
+marginal-value probe combined with probe-biased evolutionary
+selection predicts which cards a real player population adopted and
+abandoned around an expansion and around a nerf. The failure modes
+are quantified and localise to agent skill; the no-change baseline
+is reported alongside the wins; and a learned evaluator shows the
+same predictions emerging from card mechanics alone where training
+coverage allows. Forward validation against measured human
+adoption, recently established for tier bans~\cite{saravanan2024meta},
+strikes us as the appropriate standard for automated balancing
+research, and this work extends its coverage to the expansion and
+nerf shocks that make up most of a collectible card game's life.
 
 % ------------------------------------------------------------------
 \begin{thebibliography}{9}
