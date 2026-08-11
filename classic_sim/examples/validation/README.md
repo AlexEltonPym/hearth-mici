@@ -1025,3 +1025,88 @@ Files: strategy.BeamSearch (+invalidate_plan), tests/beam_search_tests.py
 value_net_naxx/beam_ladder{,_seed111,_seed222}.json,
 value_net_naxx_beam_selfplay/training_log.csv (confounded run, kept for
 the record), value_net_naxx_beam_selfplay_fixed/training_log.csv.
+
+## S5 - imperfect information (determinized hands) + heuristic redesign (2026-08-11)
+
+Two builds, per the two-level-search report's Tier 2 and a from-scratch
+re-examination of the 2014-era linear features. User decision: build BOTH
+determinization knowledge models and compare them (the in-house Dockhorn
+replication).
+
+**M1-M2, the machinery.** src/determinize.py: known-decklist
+determinization (shuffle the opponent's hidden hand into their deck,
+redeal the observed count; private RNG only - clones share the live
+master RandomState, so using the game stream would corrupt real draws)
+and class-prior sampling (fresh cards weighted by real adoption shares,
+2-copy/1-legendary caps net of public cards; deck untouched so both modes
+share draw knowledge and the hand model is the only difference).
+BeamSearch gained an optional Tier-2 reply stage: final candidate plans
+re-scored by mean post-reply evaluation over reply_samples determinized
+opponent reply turns (cheap linear greedy plays the reply). Measured cost
+~15x greedy at K=3/D=3/samples=3. Non-collectable hand cards (the Coin)
+are public knowledge and stay put.
+
+**M3-M4, the feature study.** The 26 state features were extracted into
+src/heuristic_features.py (single implementation for GreedyActionSmart
+AND evaluate_position, which now strips a 27-long vector itself - the
+silent-misalignment trap is dead). Six candidates were designed and
+tested on 118,586 sampled decision states (12k mixed-agent naxx games,
+MC outcome targets) with a pre-registered rule: adopt iff MI clears a
+shuffled-label noise floor AND held-out delta-AUC is positive.
+
+| candidate | MI (floor 0.0038) | dAUC | verdict |
+|---|---|---|---|
+| deathrattle_count_difference | 0.0099 | +0.00018 | ADOPT |
+| taunt_health_difference | 0.0132 | +0.00007 | ADOPT |
+| their_hand_mana_threat | 0.0155 | +0.00010 | ADOPT |
+| my_playable_next_turn | 0.0111 | +0.00021 | ADOPT |
+| divine_shield_attack_difference | 0.0014 | +0.00004 | reject |
+| enemy_weapon_damage_pending | 0.0000 | -0.00001 | reject |
+
+weapon_durability_difference: confirmed dead (drop). unused_mana: the old
+ablation's drop call is OVERTURNED - removal costs 0.0018 AUC and it
+carries real permutation importance. v2 feature set = 29 state features;
+consumers dispatch v1/v2 by weight-vector length, so all historical
+27-long vectors keep their meaning.
+
+**M5, the retrain - a null with a story.** CMA-ES self-play skill
+training in the naxx world (naxx pools + naxx-era real-deck seeds,
+seeded from the v1 champion mapped onto v2) stagnated in 10 generations
+with ZERO promotions: no candidate decisively beat the mapped v1
+champion (confirm win rates 0.41-0.54, threshold 0.55 - the gate can
+only detect >~5pp gains, so precisely: no substantial improvement
+exists). Combined with S4's parity plateau this completes a consistent
+picture: **the 1-ply greedy policy class is saturated. Features that
+demonstrably improve outcome PREDICTION (M4) do not improve 1-ply PLAY,
+because the binding constraint is the policy's depth, not the
+evaluator's information.**
+
+**M6, the comparison** (2 seeds x 576 games/config, pooled n=1152, naxx
+world, naxx net evaluator, linear champion as reply greedy):
+
+| config | seeds (777/111) | pooled | 95% CI | p |
+|---|---|---|---|---|
+| reply(decklist) vs plain beam | 0.557/0.477 | 0.517 | (0.488, 0.547) | 0.25 |
+| reply(decklist) vs reply(class-prior) | 0.576/0.564 | **0.570** | (0.541, 0.599) | <0.0001 |
+| reply(decklist) vs greedy(net) | 0.569/0.507 | 0.538 | (0.509, 0.567) | 0.01 |
+
+Verdicts: (1) the Tier-2 reply stage does NOT measurably improve on plain
+Tier-1 beam (0.517, CI spans 0.5) at ~7x Tier 1's cost - its full-stack
+edge over greedy (0.538) is the same as plain beam's own (0.528 pooled,
+S4). (2) BUT the determinization framework yields a cleanly significant
+side result: decklist-level hand knowledge beats crude class-prior
+sampling by ~7pp (0.570, p<1e-4) - LARGER than Dockhorn's ~2-4pp
+true-vs-learned gap, consistent with a population prior being a much
+worse opponent model than a learned predictor. The knowledge model
+matters even when the reply stage itself adds little vs not replying at
+all - i.e. if you do model the opponent's hand, model it well or the
+replies you imagine actively mislead relative to imagining none.
+
+Files: src/determinize.py, src/heuristic_features.py,
+tests/{determinize,heuristic_features}_tests.py, gen_feature_dataset.py,
+analyze_feature_usefulness.py, comparison_ladder.py, --world/--seeds-json/
+--init-champion in train_self_play_skill.py, world field in
+calibrate_greedy_weights.play_matchup_till_stoppage. Data:
+feature_study/{feature_dataset.npz,usefulness.json},
+self_play_champion_v2_naxx.json, self_play_v2_generations.csv,
+value_net_naxx/comparison_seed{777,111}.json.
