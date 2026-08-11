@@ -18,39 +18,14 @@ def evaluate_position(state, weights=_EVAL_WEIGHTS):
   #to [-1, 1]. weights is a real parameter, not just a module default - it
   #must survive being passed into a rollout running in another process
   #(distributed evaluation), where monkeypatching the module constant
-  #wouldn't propagate.
-  me, them = state.player, state.enemy
-  my_attrs = [minion.get_all_attributes() for minion in me.board]
-  their_attrs = [minion.get_all_attributes() for minion in them.board]
-  total_my_attack = sum(minion.get_attack() for minion in me.board)
-  total_their_attack = sum(minion.get_attack() for minion in them.board)
-  my_weapon, their_weapon = me.weapon, them.weapon
-  features = [
-    me.health, them.health, me.health - them.health,
-    me.armor - them.armor,
-    len(me.board) - len(them.board),
-    total_my_attack - total_their_attack,
-    sum(minion.get_health() for minion in me.board) - sum(minion.get_health() for minion in them.board),
-    sum(1 for attrs in my_attrs if Attributes.TAUNT in attrs),
-    sum(1 for attrs in their_attrs if Attributes.TAUNT in attrs),
-    sum(1 for attrs in my_attrs if Attributes.DIVINE_SHIELD in attrs),
-    sum(1 for attrs in their_attrs if Attributes.DIVINE_SHIELD in attrs),
-    sum(1 for attrs in my_attrs if Attributes.LIFESTEAL in attrs),
-    sum(1 for attrs in their_attrs if Attributes.LIFESTEAL in attrs),
-    sum(1 for attrs in my_attrs if Attributes.SPELL_DAMAGE in attrs),
-    sum(1 for attrs in their_attrs if Attributes.SPELL_DAMAGE in attrs),
-    sum(sum(1 for attrs in my_attrs if attribute in attrs) for attribute in _OTHER_POSITIVE),
-    sum(sum(1 for attrs in their_attrs if attribute in attrs) for attribute in _OTHER_POSITIVE),
-    len(me.hand) - len(them.hand),
-    len(me.deck) - len(them.deck),
-    len(me.secrets_zone) - len(them.secrets_zone),
-    (me.get_attack() + total_my_attack) - them.health, #lethal_margin_mine
-    (them.get_attack() + total_their_attack) - me.health, #lethal_margin_theirs
-    (my_weapon.get_health() if my_weapon else 0) - (their_weapon.get_health() if their_weapon else 0),
-    1 / (len(them.deck) + 1) - 1 / (len(me.deck) + 1), #fatigue_proximity
-    (0 if me.used_hero_power else 1) - (0 if them.used_hero_power else 1),
-    me.current_mana, #unused_mana
-  ]
+  #wouldn't propagate. The features themselves live in
+  #heuristic_features.extract_features (shared with GreedyActionSmart).
+  #A 27-long greedy vector (turn_passed first) is accepted and stripped
+  #here - previously that mistake silently misaligned every feature.
+  from heuristic_features import extract_features
+  features = extract_features(state, state.player)
+  if len(weights) == len(features) + 1:
+    weights = weights[1:]
   return float(tanh(sum(feature * weight for feature, weight in zip(features, weights)) / 100.0))
 
 #UCT search for two-player games with multiple actions per turn.

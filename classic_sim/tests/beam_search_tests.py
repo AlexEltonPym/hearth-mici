@@ -278,6 +278,79 @@ def test_beam_search_plays_full_games():
   assert completed >= 1
 
 
+def test_reply_aware_beam_is_deterministic():
+  #same state, same config, run twice -> identical action and identical
+  #final RNG position, with the reply stage (determinized opponent hands,
+  #per-sample master-stream repositioning) active
+  weights = ne.init_weights(0)
+  game = make_game(RandomAction(), RandomAction())
+  _advance_a_few_actions(game)
+
+  random_state = game.game_manager.random_state
+  saved_rng = random_state.get_state()
+  available_actions = game.get_available_actions(game.current_player)
+  cloner = BoundCloner(game, available_actions)
+
+  results = []
+  for _ in range(2):
+    random_state.set_state(saved_rng)
+    state, _ = cloner.clone()
+    BeamSearch(weights, beam_width=2, depth=2, reply_samples=2).choose_action(state)
+    results.append((_fingerprint(state), random_state.get_state()))
+
+  assert results[0][0] == results[1][0]
+  assert _rng_equal(results[0][1], results[1][1])
+
+
+def test_reply_aware_beam_no_rng_leakage():
+  #after choose_action with the reply stage on, the real state's RNG stream
+  #must sit exactly where a direct perform_action of the chosen action from
+  #the same snapshot would have left it - reply sims never leak draws
+  weights = ne.init_weights(0)
+  game = make_game(RandomAction(), RandomAction())
+  _advance_a_few_actions(game)
+
+  random_state = game.game_manager.random_state
+  saved_rng = random_state.get_state()
+  available_actions = game.get_available_actions(game.current_player)
+  cloner = BoundCloner(game, available_actions)
+
+  random_state.set_state(saved_rng)
+  driven, _ = cloner.clone()
+  agent = BeamSearch(weights, beam_width=2, depth=2, reply_samples=2)
+  agent.choose_action(driven)
+  rng_after_driven = random_state.get_state()
+  chosen_fingerprint = _fingerprint(driven)
+
+  #find which root action produces that fingerprint by direct replay
+  matched = False
+  for index in range(len(available_actions)):
+    random_state.set_state(saved_rng)
+    direct, direct_actions = cloner.clone()
+    try:
+      direct.perform_action(direct_actions[index])
+    except Exception:
+      continue
+    if _fingerprint(direct) == chosen_fingerprint and _rng_equal(random_state.get_state(), rng_after_driven):
+      matched = True
+      break
+  assert matched
+
+
+def test_reply_aware_beam_plays_full_games_both_modes():
+  weights = ne.init_weights(0)
+  priors = {"Fireball": 0.8, "Boulderfist Ogre": 0.6, "Polymorph": 0.5}
+  for mode, extra in [("decklist", {}), ("class_prior", {"reply_priors": priors})]:
+    game = make_game(BeamSearch(weights, beam_width=2, depth=2, reply_samples=2,
+                                 reply_mode=mode, **extra),
+                      RandomAction())
+    try:
+      result = game.play_game()
+      assert result[0] in (0, 1)
+    except (TooManyActions, RecursionError):
+      pass
+
+
 def test_beam_search_accepts_linear_eval_weights():
   from montecarlotreesearch import _EVAL_WEIGHTS
   game = make_game(BeamSearch(_EVAL_WEIGHTS, beam_width=2, depth=2), RandomAction())

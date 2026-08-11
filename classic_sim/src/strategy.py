@@ -188,104 +188,13 @@ class GreedyActionSmart():
     elif game_state == 1:
       return 1000
 
-    turn_passed = 1 if turn_passed else 0
-
-    hp = possible_state.current_player.health
-    enemy_hp = possible_state.current_player.other_player.health
-    health_difference = hp - enemy_hp
-
-    armor = possible_state.current_player.armor
-    enemy_armor = possible_state.current_player.other_player.armor
-    armor_difference = armor - enemy_armor
-
-    num_minions = len(possible_state.current_player.board)
-    enemy_num_minions = len(possible_state.current_player.other_player.board)
-    num_minions_difference = num_minions - enemy_num_minions
-
-    total_minion_attack = sum([minion.get_attack() for minion in possible_state.current_player.board])
-    total_enemy_minion_attack = sum([minion.get_attack() for minion in possible_state.current_player.other_player.board])
-    total_minion_attack_difference = total_minion_attack - total_enemy_minion_attack
-
-    total_minion_health = sum([minion.get_health() for minion in possible_state.current_player.board])
-    total_enemy_minion_health = sum([minion.get_health() for minion in possible_state.current_player.other_player.board])
-    total_minion_health_difference = total_minion_health - total_enemy_minion_health
-
-    #one attribute snapshot per minion instead of one aura scan per (minion, attribute)
-    minion_attributes = [minion.get_all_attributes() for minion in possible_state.current_player.board]
-    enemy_minion_attributes = [minion.get_all_attributes() for minion in possible_state.current_player.other_player.board]
-
-    num_minions_with_taunt = sum([1 if Attributes.TAUNT in attributes else 0 for attributes in minion_attributes])
-    num_enemy_minions_with_taunt = sum([1 if Attributes.TAUNT in attributes else 0 for attributes in enemy_minion_attributes])
-
-    num_minions_with_divine_shield = sum([1 if Attributes.DIVINE_SHIELD in attributes else 0 for attributes in minion_attributes])
-    num_enemy_minions_with_divine_shield = sum([1 if Attributes.DIVINE_SHIELD in attributes else 0 for attributes in enemy_minion_attributes])
-
-    num_minions_with_lifesteal = sum([1 if Attributes.LIFESTEAL in attributes else 0 for attributes in minion_attributes])
-    num_enemy_minions_with_lifesteal = sum([1 if Attributes.LIFESTEAL in attributes else 0 for attributes in enemy_minion_attributes])
-
-    num_minions_with_spell_damage = sum([1 if Attributes.SPELL_DAMAGE in attributes else 0 for attributes in minion_attributes])
-    num_enemy_minions_with_spell_damage = sum([1 if Attributes.SPELL_DAMAGE in attributes else 0 for attributes in enemy_minion_attributes])
-
-    other_positive_attributes = [Attributes.CHARGE, Attributes.STEALTH, Attributes.WINDFURY, Attributes.HEXPROOF, Attributes.POISONOUS, Attributes.IMMUNE, Attributes.FREEZER]
-    num_other_positive_attributes = sum([sum([1 if attribute in attributes else 0 for attributes in minion_attributes]) for attribute in other_positive_attributes])
-    num_other_enemy_positive_attributes = sum([sum([1 if attribute in attributes else 0 for attributes in enemy_minion_attributes]) for attribute in other_positive_attributes])
-
-    num_cards_in_hand = len(possible_state.current_player.hand)
-    num_enemy_cards_in_hand = len(possible_state.current_player.other_player.hand)
-    num_cards_in_hand_difference = num_cards_in_hand - num_enemy_cards_in_hand
-
-    num_cards_in_library = len(possible_state.current_player.deck)
-    num_enemy_cards_in_library = len(possible_state.current_player.other_player.deck)
-    num_cards_in_library_difference = num_cards_in_library - num_enemy_cards_in_library
-
-    num_cards_in_secrets_zone = len(possible_state.current_player.secrets_zone)
-    num_enemy_cards_in_secrets_zone = len(possible_state.current_player.other_player.secrets_zone)
-    num_cards_in_secrets_zone_difference = num_cards_in_secrets_zone - num_enemy_cards_in_secrets_zone
-
-    #additive extension (Aug 2026): features the original 21 structurally can't
-    #express - threshold/interaction effects (lethal), a resource the original
-    #set never tracked (weapon durability), and a non-linear-in-state but still
-    #linear-in-weight injection of "how close to fatigue" (deck size difference
-    #alone can't distinguish 25->20 from 5->0, but 1/(n+1) can). Appended, not
-    #interleaved, so the original 21 weights still line up unchanged when these
-    #are zero-weighted - see calibrate_greedy_weights.py.
-    my_total_attack = possible_state.current_player.get_attack() + total_minion_attack
-    their_total_attack = possible_state.current_player.other_player.get_attack() + total_enemy_minion_attack
-    lethal_margin_mine = my_total_attack - enemy_hp
-    lethal_margin_theirs = their_total_attack - hp
-
-    my_weapon = possible_state.current_player.weapon
-    their_weapon = possible_state.current_player.other_player.weapon
-    weapon_durability_difference = (my_weapon.get_health() if my_weapon else 0) - (their_weapon.get_health() if their_weapon else 0)
-
-    fatigue_proximity = 1 / (num_enemy_cards_in_library + 1) - 1 / (num_cards_in_library + 1)
-
-    hero_power_available_difference = (0 if possible_state.current_player.used_hero_power else 1) \
-                                       - (0 if possible_state.current_player.other_player.used_hero_power else 1)
-
-    unused_mana = possible_state.current_player.current_mana
-
-    #-0.1,
-    #1, -1, 1, 1
-    #2, 2, 1.5,
-    #3, -3,
-    #1, -1
-    #1, -1
-    #1, -1
-    #1, -1
-    #-1, 0, 1
-    feature_vector = [turn_passed,
-                      hp, enemy_hp, health_difference, armor_difference,
-                      num_minions_difference, total_minion_attack_difference, total_minion_health_difference,
-                      num_minions_with_taunt, num_enemy_minions_with_taunt,
-                      num_minions_with_divine_shield, num_enemy_minions_with_divine_shield,
-                      num_minions_with_lifesteal, num_enemy_minions_with_lifesteal,
-                      num_minions_with_spell_damage, num_enemy_minions_with_spell_damage,
-                      num_other_positive_attributes, num_other_enemy_positive_attributes,
-                      num_cards_in_hand_difference, num_cards_in_library_difference, num_cards_in_secrets_zone_difference,
-                      lethal_margin_mine, lethal_margin_theirs, weapon_durability_difference,
-                      fatigue_proximity, hero_power_available_difference, unused_mana]
-
+    #the 26 state features live in heuristic_features.extract_features (the
+    #single shared implementation - montecarlotreesearch.evaluate_position
+    #uses the same one); this strategy's weights stay 27-long with
+    #turn_passed prepended, exactly as before the refactor.
+    from heuristic_features import extract_features
+    feature_vector = [1 if turn_passed else 0] + \
+                     extract_features(possible_state, possible_state.current_player)
     return sum(feature*weight for feature, weight in zip(feature_vector, self.weights))
   
 class NeuralGreedy():
@@ -374,29 +283,45 @@ class BeamSearch():
   whole cached plan and re-searches if that count doesn't match reality
   instead of trusting a stale index.
   """
-  def __init__(self, eval_weights, beam_width=3, depth=3, pass_penalty=0.02):
+  def __init__(self, eval_weights, beam_width=3, depth=3, pass_penalty=0.02,
+               reply_samples=0, reply_mode="decklist", reply_weights=None,
+               reply_priors=None):
     self.eval_weights = eval_weights
     self.beam_width = beam_width
     self.depth = depth
     self.pass_penalty = pass_penalty
+    #Tier 2 reply stage (0 = off, exactly the original beam behavior):
+    #re-score each final candidate plan by simulating reply_samples opponent
+    #reply turns from determinized hands (see src/determinize.py) and
+    #averaging the post-reply evaluation. reply_mode selects the knowledge
+    #model ("decklist" or "class_prior"); reply_weights are the linear
+    #weights for the cheap greedy that plays the reply (None = defaults);
+    #reply_priors is the {card_name: share} dict class_prior mode needs.
+    self.reply_samples = reply_samples
+    self.reply_mode = reply_mode
+    self.reply_weights = reply_weights
+    self.reply_priors = reply_priors or {}
     self._plan = []
 
   def mulligan_rule(self, card):
     return card.get_manacost() < 4
 
-  def _evaluate(self, possible_state):
+  def _evaluate_for(self, possible_state, me):
     if isinstance(self.eval_weights, dict):
       from neural_eval import evaluate_state
-      return evaluate_state(self.eval_weights, possible_state, me=possible_state.current_player)
-    #evaluate_position is state.player-relative, not current_player-relative
+      return evaluate_state(self.eval_weights, possible_state, me=me)
+    #evaluate_position is state.player-relative, not perspective-relative
     #(montecarlotreesearch.py handles this via acting_player_name in backprop
-    #instead) - current_player is fixed as us for this whole search, so a
-    #single sign flip here is enough.
+    #instead) - a single sign flip covers the other seat.
     from montecarlotreesearch import evaluate_position
     score = evaluate_position(possible_state, self.eval_weights)
-    if possible_state.current_player is not possible_state.player:
+    if me is not possible_state.player:
       score = -score
     return score
+
+  def _evaluate(self, possible_state):
+    #current_player is fixed as us for the whole own-turn search
+    return self._evaluate_for(possible_state, possible_state.current_player)
 
   def _perform_and_score(self, possible_state, action, parent, action_index, available_count, random_state):
     #see GreedyAction.choose_action for why terminal states are scored
@@ -416,7 +341,9 @@ class BeamSearch():
       score = -1000.0 if possible_state.current_player.health <= 0 else 1000.0
 
     done = turn_passed or terminal
-    rng_state = None if done else random_state.get_state()
+    #snapshot kept even for done entries: the reply stage clones them from
+    #exactly this stream position
+    rng_state = random_state.get_state()
     return _BeamEntry(possible_state, parent, action_index, available_count, rng_state, score, done)
 
   def _prune(self, beam):
@@ -447,6 +374,52 @@ class BeamSearch():
                                                  entry, action_index, len(available_actions), random_state))
     return new_beam
 
+  def _reply_score(self, entry, random_state):
+    """Tier 2: mean post-reply evaluation of this plan's end state over
+    reply_samples determinized opponent hands. The plan's turn is ended if
+    it wasn't already (evaluating end-of-turn states, the SilverFish/Tier 2
+    framing), the opponent's hidden hand is resampled per the knowledge
+    model, and a cheap linear greedy plays their whole reply turn."""
+    import zlib
+    from numpy.random import RandomState as _NumpyRandomState
+    from determinize import determinize_opponent_hand, sample_class_prior_hand
+
+    cloner = BoundCloner(entry.state, None)
+    base_seed = zlib.crc32(entry.rng_state[1].tobytes()) + entry.rng_state[2]
+    total = 0.0
+    for sample_index in range(self.reply_samples):
+      sample_rng = _NumpyRandomState((base_seed + sample_index * 7919) % (2 ** 32))
+      #position the shared master stream per-sample so each reply sim's
+      #engine draws (untap draw, random targets) differ but deterministically
+      random_state.set_state(sample_rng.get_state())
+      clone, _ = cloner.clone()
+      me_name = clone.current_player.name
+      try:
+        if not entry.done:
+          #END_TURN is always the last available action (game.py appends it)
+          clone.perform_action(clone.get_available_actions(clone.current_player)[-1])
+        clone.end_turn()
+        clone.untap()
+        replier = clone.current_player
+        me = replier.other_player
+        if self.reply_mode == "class_prior":
+          sample_class_prior_hand(replier, sample_rng, self.reply_priors)
+        else:
+          determinize_opponent_hand(replier, sample_rng)
+        reply_agent = GreedyActionSmart(self.reply_weights) if self.reply_weights \
+                      else GreedyActionSmart()
+        for _ in range(30):
+          if reply_agent.choose_action(clone):
+            break
+        total += self._evaluate_for(clone, me)
+      except PlayerDead:
+        #someone died during end-turn triggers, the untap draw (fatigue), or
+        #the reply itself - resolve from our fixed perspective by name (the
+        #me/replier locals may not exist yet on early deaths)
+        us = clone.player if clone.player.name == me_name else clone.enemy
+        total += -1000.0 if us.health <= 0 else 1000.0
+    return total / self.reply_samples
+
   def _reconstruct_plan(self, entry):
     #each step is (action_index, available_count) - see choose_action for why
     #available_count rides along.
@@ -471,6 +444,14 @@ class BeamSearch():
     while ply < self.depth and any(not entry.done for entry in beam):
       beam = self._prune(self._expand_ply(beam, random_state))
       ply += 1
+
+    if self.reply_samples:
+      #re-score the finalists by how well their end states survive a
+      #determinized opponent reply; lethal-now plans (+-1000) keep their
+      #terminal score - no reply exists after a dead player
+      for entry in beam:
+        if abs(entry.score) < 999:
+          entry.score = self._reply_score(entry, random_state)
 
     #sorted(...)[-1], not max(): matches every other strategy's tie-break
     #convention in this file (stable sort favours the later-indexed action).
