@@ -281,8 +281,8 @@ month & decks & Hunter & Mage & Warrior & Buzzard/Hunter\\
   {(6,61.1) (7,76.2) (8,74.6) (9,31.8) (10,19.2) (11,19.7) (12,11.9)};
 \addlegendentry{Buzzard adoption within Hunter (real)}
 \addplot[vizorange, line width=1.2pt, dash pattern=on 4pt off 2.2pt]
-  coordinates {(8.72,31.8) (12,31.8)};
-\addlegendentry{model prediction, post-nerf (31.8\%)}
+  coordinates {(6,73.4) (8.72,73.4) (8.72,31.8) (12,31.8)};
+\addlegendentry{model: seed input, then predicted 31.8\%}
 \addplot[vizgray, line width=1.1pt, dashed,
          mark=square*, mark size=1.5pt, mark options={solid, fill=vizgray}]
   coordinates
@@ -293,10 +293,11 @@ month & decks & Hunter & Mage & Warrior & Buzzard/Hunter\\
 \end{axis}
 \end{tikzpicture}
 \caption{The card--class dissociation, with the model's prediction.
-The nerf collapses Buzzard's within-Hunter adoption (blue); the
-probe-biased evolution run, given only pre-nerf decks, predicts a
-collapse to 31.8\% (orange). Hunter's class share (gray) never
-leaves its noise band.}
+The nerf collapses Buzzard's within-Hunter adoption (blue). The
+orange step shows the model: its flat pre-nerf segment is the input
+it was given (73.4\% adoption in the real seed decks), and the drop
+to 31.8\% is its prediction of the post-nerf level. Hunter's class
+share (gray) never leaves its noise band.}
 \label{fig:dissociation}
 \end{figure}
 
