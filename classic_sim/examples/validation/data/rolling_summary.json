@@ -1,0 +1,62 @@
+{
+  "p0_prenaxx": {
+    "n_decks": {
+      "MAGE": 368,
+      "HUNTER": 329,
+      "WARRIOR": 276
+    },
+    "n_seeds": {
+      "HUNTER": 272,
+      "MAGE": 315,
+      "WARRIOR": 238
+    }
+  },
+  "p1_naxx_early": {
+    "n_decks": {
+      "MAGE": 673,
+      "WARRIOR": 534,
+      "HUNTER": 495
+    },
+    "n_seeds": {
+      "HUNTER": 450,
+      "MAGE": 624,
+      "WARRIOR": 470
+    }
+  },
+  "p2_naxx_late": {
+    "n_decks": {
+      "HUNTER": 125,
+      "MAGE": 162,
+      "WARRIOR": 117
+    },
+    "n_seeds": {
+      "HUNTER": 111,
+      "MAGE": 151,
+      "WARRIOR": 103
+    }
+  },
+  "p3_postnerf_early": {
+    "n_decks": {
+      "MAGE": 310,
+      "WARRIOR": 267,
+      "HUNTER": 322
+    },
+    "n_seeds": {
+      "HUNTER": 293,
+      "MAGE": 283,
+      "WARRIOR": 228
+    }
+  },
+  "p4_postnerf_late": {
+    "n_decks": {
+      "WARRIOR": 202,
+      "MAGE": 228,
+      "HUNTER": 251
+    },
+    "n_seeds": {
+      "HUNTER": 192,
+      "MAGE": 182,
+      "WARRIOR": 156
+    }
+  }
+}
