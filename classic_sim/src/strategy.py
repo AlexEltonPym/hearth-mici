@@ -479,6 +479,14 @@ class BeamSearch():
     random_state.set_state(root_rng_state)
     return self._reconstruct_plan(best)
 
+  def invalidate_plan(self):
+    #for drivers that mutate the game behind the strategy's back (e.g.
+    #epsilon-random injections in value_net_selfplay.play_recorded_game):
+    #the cached plan was computed for a state that no longer exists, and the
+    #available-count guard below only catches the corruption when the action
+    #list happens to change length - so external actors must call this.
+    self._plan = []
+
   def choose_action(self, state):
     available_actions = state.get_available_actions(state.current_player)
     #a plan whose next step wasn't chosen from this many available actions is

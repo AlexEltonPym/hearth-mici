@@ -232,6 +232,21 @@ def test_beam_search_discards_stale_plan_left_over_from_a_prior_game():
   agent.choose_action(game)
 
 
+def test_invalidate_plan_clears_cached_plan():
+  #drivers that inject actions behind the strategy's back (epsilon-random in
+  #value_net_selfplay.play_recorded_game) must call invalidate_plan() - the
+  #available-count guard alone can't catch a mid-plan state change when the
+  #action-list length coincidentally matches. This confound corrupted the
+  #first beam self-play training run: cached plans executed against
+  #epsilon-scrambled states, so the training data was neither beam-policy
+  #nor random-policy but silently broken plan replays.
+  weights = ne.init_weights(0)
+  agent = BeamSearch(weights, beam_width=3, depth=3)
+  agent._plan = [(0, 5), (1, 4)]
+  agent.invalidate_plan()
+  assert agent._plan == []
+
+
 def test_beam_search_never_shared_across_seats():
   #a shared instance's _plan queue would leak between seats if it were ever
   #actually shared - GameManager.create_player/create_enemy turn out to

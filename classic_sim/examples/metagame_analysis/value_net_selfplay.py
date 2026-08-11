@@ -116,6 +116,11 @@ def play_recorded_game(game, rng, sample_rate, epsilon):
         non_end = [a for a in available if a.action_type != Actions.END_TURN]
         chosen = non_end[rng.randrange(len(non_end))] if non_end else available[-1]
         turn_passed = game.perform_action(chosen)
+        #stateful strategies (BeamSearch) cached a plan for the pre-injection
+        #state - it's now invalid even if the action-list length matches
+        invalidate = getattr(me.strategy, "invalidate_plan", None)
+        if invalidate:
+          invalidate()
       else:
         turn_passed = me.strategy.choose_action(game)
       actions_taken += 1

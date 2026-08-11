@@ -28,6 +28,8 @@ def main():
   parser.add_argument("--depth", type=int, default=3)
   parser.add_argument("--world", default="naxx")
   parser.add_argument("--seed", type=int, default=777)  #same fixed pairs as training ladders
+  parser.add_argument("--out", default="data/value_net_naxx/beam_ladder.json",
+                       help="output path - vary it (and --seed) for replication runs")
   args = parser.parse_args()
 
   net = ne.load_weights(args.net)
@@ -48,6 +50,9 @@ def main():
     "beam_net_vs_greedy_linear": (beam, ("linear", champion)),
     #does beam help even the older linear evaluator?
     "beam_linear_vs_greedy_linear": (beam_linear, ("linear", champion)),
+    #replicates the naxx fine-tune headline (0.550 on the seed-777 pairs) on
+    #whatever pairs --seed selects - no beam involved, pure evaluation rerun
+    "greedy_net_vs_greedy_linear": (("net", net), ("linear", champion)),
   }
   results = {}
   for index, (name, (spec_a, spec_b)) in enumerate(matches.items()):
@@ -56,10 +61,11 @@ def main():
     results[name] = mean(summaries)
     print(f"{name}: {results[name]:.3f} ({len(items) * args.games} games)", flush=True)
 
-  with open("data/value_net_naxx/beam_ladder.json", "w", encoding="utf-8") as f:
+  with open(args.out, "w", encoding="utf-8") as f:
     json.dump({"results": results, "pairs": args.pairs, "games": args.games,
-               "beam_width": args.beam_width, "depth": args.depth, "net": args.net}, f, indent=2)
-  print("wrote data/value_net_naxx/beam_ladder.json")
+               "beam_width": args.beam_width, "depth": args.depth, "net": args.net,
+               "seed": args.seed}, f, indent=2)
+  print(f"wrote {args.out}")
 
 
 if __name__ == "__main__":
