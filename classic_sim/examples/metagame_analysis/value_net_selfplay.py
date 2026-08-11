@@ -78,12 +78,21 @@ def make_agent(spec):
     return MCTS(iterations=iterations, guided=True, eval_weights=eval_weights,
                 rollout_turn_limit=rollout_limit)
   if kind == "beam":
-    #payload = (eval_weights, beam_width[, depth]); Tier-1 turn-plan search
-    #(see strategy.BeamSearch) - the vanilla-UCT replacement, since search
-    #subtracts value at the atomic-action granularity MCTS used.
+    #payload = (eval_weights, beam_width[, depth[, reply_samples, reply_mode,
+    #reply_weights, reply_priors]]); Tier-1 turn-plan search, optionally with
+    #the Tier-2 determinized-reply stage (see strategy.BeamSearch and
+    #src/determinize.py). reply_priors is a flat {card_name: share} dict -
+    #class legality is enforced by the opponent's own pool, so a merged
+    #across-classes dict is fine.
     eval_weights, beam_width = payload[0], payload[1]
     depth = payload[2] if len(payload) > 2 else 3
-    return BeamSearch(eval_weights, beam_width=beam_width, depth=depth)
+    reply_samples = payload[3] if len(payload) > 3 else 0
+    reply_mode = payload[4] if len(payload) > 4 else "decklist"
+    reply_weights = payload[5] if len(payload) > 5 else None
+    reply_priors = payload[6] if len(payload) > 6 else None
+    return BeamSearch(eval_weights, beam_width=beam_width, depth=depth,
+                      reply_samples=reply_samples, reply_mode=reply_mode,
+                      reply_weights=reply_weights, reply_priors=reply_priors)
   raise ValueError(f"unknown agent spec kind {kind!r}")
 
 
