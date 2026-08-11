@@ -98,10 +98,14 @@ def make_game(deck_a, class_a, deck_b, class_b, world, spec_a, spec_b):
   return game_manager.game
 
 
-def play_recorded_game(game, rng, sample_rate, epsilon):
+def play_recorded_game(game, rng, sample_rate, epsilon, encoder=None):
   """Play one game with the players' own strategies, optionally recording
   sampled decision states. Returns (winner_name_or_None, pending) where
-  pending is [(padded_blocks, acting_player_name)]. winner None = aborted."""
+  pending is [(encoded_sample, acting_player_name)]. winner None = aborted.
+  encoder(state, me) defaults to the value-net tensor encoding; the
+  heuristic-feature study passes a flat-vector encoder instead."""
+  if encoder is None:
+    encoder = ne.encode_state_padded
   pending = []
   actions_taken = 0
   try:
@@ -110,7 +114,7 @@ def play_recorded_game(game, rng, sample_rate, epsilon):
         return None, []
       me = game.current_player
       if sample_rate and rng.random() < sample_rate:
-        pending.append((ne.encode_state_padded(game, me), me.name))
+        pending.append((encoder(game, me), me.name))
       if epsilon and rng.random() < epsilon:
         available = game.get_available_actions(me)
         non_end = [a for a in available if a.action_type != Actions.END_TURN]
@@ -170,6 +174,40 @@ def generate_games(deck_a, class_a, deck_b, class_b, spec_a, spec_b, world,
   return {"samples": samples, "games": games_completed, "wins_a": wins_a}
 
 
+def generate_feature_games(deck_a, class_a, deck_b, class_b, spec_a, spec_b, world,
+                            n_games, sample_rate, epsilon, seed):
+  """Like generate_games but records the linear heuristic features (the 26
+  current + the candidate set, heuristic_features.py) as flat vectors with
+  Monte Carlo outcome targets - the dataset for the feature-usefulness
+  study. Item kind: ("features", ...same tail as "generate"...)."""
+  from heuristic_features import extract_features, extract_candidate_features
+
+  def encoder(state, me):
+    return np.array(extract_features(state, me) + extract_candidate_features(state, me),
+                    dtype=np.float32)
+
+  game = make_game(deck_a, class_a, deck_b, class_b, world, spec_a, spec_b)
+  rng = Random(seed)
+  blocks = {"features": [], "target": []}
+  games_completed, wins_a = 0, 0
+  for _ in range(n_games):
+    winner, pending = play_recorded_game(game, rng, sample_rate, epsilon, encoder=encoder)
+    if winner is not None:
+      games_completed += 1
+      wins_a += 1 if winner == "player" else 0
+      for vector, side in pending:
+        blocks["features"].append(vector)
+        blocks["target"].append(1.0 if side == winner else -1.0)
+    game.reset_game()
+    game.start_game()
+
+  samples = None
+  if blocks["target"]:
+    samples = {"features": np.stack(blocks["features"]),
+               "target": np.array(blocks["target"], dtype=np.float32)}
+  return {"samples": samples, "games": games_completed, "wins_a": wins_a}
+
+
 def play_ladder_matchup(deck_a, class_a, deck_b, class_b, spec_a, spec_b, world, n_games, seed):
   game = make_game(deck_a, class_a, deck_b, class_b, world, spec_a, spec_b)
   rng = Random(seed)
@@ -188,6 +226,8 @@ def run_item(item):
   kind = item[0]
   if kind == "generate":
     return generate_games(*item[1:])
+  if kind == "features":
+    return generate_feature_games(*item[1:])
   if kind == "ladder":
     return play_ladder_matchup(*item[1:])
   raise ValueError(f"unknown work item kind {kind!r}")
