@@ -56,9 +56,12 @@ it. The two persistent misses (a weapon whose value lies in multi-turn
 sequencing, and a secret whose value is contextual card advantage) trace
 to measured limitations of the piloting agent rather than to card data,
 and are partially closed by an ID-free learned evaluator that
-generalises to unseen cards from their mechanics. To our knowledge this
-is the first validation of simulated metagame prediction against
-measured human adoption data around real balance events.
+generalises to unseen cards from their mechanics. Complementing recent
+validation of simulated meta discovery against real usage shifts around
+Pok\'emon tier bans, this is to our knowledge the first such validation
+in a collectible card game, and the first covering content
+\emph{addition} (an expansion with previously unseen cards) and a stat
+\emph{nerf} rather than outright removals.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -85,7 +88,13 @@ nerf (September~22, 2014). Give the system only (a) a card-accurate
 simulator of the game and (b) the real decks played \emph{before} the
 shock. Ask it to predict the real decks played \emph{after}: which cards
 get adopted, which get dropped, at what rates. Ground truth is measured
-from an archive of 33{,}697 ranked 2014 decklists.
+from an archive of 33{,}697 ranked 2014 decklists. Saravanan and
+Guzdial~\cite{saravanan2024meta} recently established this
+validate-against-the-real-population standard for Pok\'emon tier bans;
+we extend it to a deckbuilding game and to the two shock types their
+ban-only setting does not cover --- new content, whose cards no
+historical data describes, and stat changes, where the modified card
+remains in the pool at a different power level.
 
 The problem is harder than it looks, and the failures are as
 informative as the successes. Our contributions:
@@ -134,12 +143,22 @@ Garc\'ia-S\'anchez et al.~\cite{garcia2016evodeck}; quality-diversity
 methods mapped deck spaces~\cite{fontaine2019mapelites}; and the
 Hearthstone AI competition~\cite{dockhorn2019competition} drove play
 agents including MCTS with learned components~\cite{swiechowski2018}.
-Closest to our motivation, de Mesentier Silva et
+Closest in motivation, de Mesentier Silva et
 al.~\cite{demesentier2019meta} evolved decks to study how proposed
-balance changes would shift a simulated metagame --- the key difference
-is validation: their metagame is internal to the simulator, whereas we
-test predictions against the measured response of the real 2014 player
-population. Justesen et al.~\cite{justesen2017} showed that in
+balance changes would shift a simulated metagame, with the metagame
+internal to the simulator. Saravanan and
+Guzdial~\cite{saravanan2024meta} took the decisive validation step:
+their Meta Discovery framework, using reinforcement-learning agents in
+Pok\'emon Showdown, predicts the post-ban top-40 usage meta across four
+real tier bans and validates against Smogon's measured usage statistics
+(92--100\% overlap). Our work shares their validation standard and
+differs in three ways: the domain (a deckbuilding CCG, where the
+predicted unit is within-deck card adoption rather than pick rates over
+a fixed roster), the shock types (content \emph{addition} and a stat
+\emph{nerf}, neither expressible as a ban --- new cards have no
+historical usage data at all, and a nerfed card remains playable at a
+different power level), and the explicit no-change baseline our sticky
+ground truth makes essential. Justesen et al.~\cite{justesen2017} showed that in
 multi-action adversarial games the effective unit of decision is the
 turn plan rather than the atomic action, which informs our analysis of
 the piloting agent's limitations. Dockhorn et
@@ -430,8 +449,10 @@ no-change baseline, and a learned-evaluator extension showing the
 same predictions emerge from mechanics alone where training coverage
 allows. We believe forward validation against measured human
 adoption, rather than internal simulator consistency, is the standard
-automated balancing should be held to, and this work provides a
-first benchmark for it.
+automated balancing should be held to --- a standard recently
+established for tier bans~\cite{saravanan2024meta} --- and this work
+extends its coverage to the expansion and nerf shocks that dominate
+the life of a collectible card game.
 
 % ------------------------------------------------------------------
 \begin{thebibliography}{9}
@@ -464,6 +485,11 @@ AI by combining MCTS and supervised learning algorithms,'' in
 F.~de~Mesentier~Silva, R.~Canaan, S.~Lee, M.~C.~Fontaine,
 J.~Togelius, and A.~K.~Hoover, ``Evolving the Hearthstone meta,'' in
 \emph{Proc. IEEE Conf. on Games (CoG)}, 2019.
+
+\bibitem{saravanan2024meta}
+A.~Saravanan and M.~Guzdial, ``A framework for predicting the impact
+of game balance changes through meta discovery,'' \emph{IEEE Trans.
+Games}, 2024, arXiv:2409.07340.
 
 \bibitem{justesen2017}
 N.~Justesen, T.~Mahlmann, S.~Risi, and J.~Togelius, ``Playing
