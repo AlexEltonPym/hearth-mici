@@ -188,13 +188,14 @@ class GreedyActionSmart():
     elif game_state == 1:
       return 1000
 
-    #the 26 state features live in heuristic_features.extract_features (the
-    #single shared implementation - montecarlotreesearch.evaluate_position
-    #uses the same one); this strategy's weights stay 27-long with
-    #turn_passed prepended, exactly as before the refactor.
-    from heuristic_features import extract_features
+    #the state features live in heuristic_features (the single shared
+    #implementation - montecarlotreesearch.evaluate_position uses the same
+    #one); a 27-long weight vector selects the historical v1 set, a 30-long
+    #vector the post-study v2 set - both with turn_passed prepended.
+    from heuristic_features import features_for_weights
     feature_vector = [1 if turn_passed else 0] + \
-                     extract_features(possible_state, possible_state.current_player)
+                     features_for_weights(possible_state, possible_state.current_player,
+                                          len(self.weights) - 1)
     return sum(feature*weight for feature, weight in zip(feature_vector, self.weights))
   
 class NeuralGreedy():

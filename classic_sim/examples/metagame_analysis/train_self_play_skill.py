@@ -38,10 +38,21 @@ sys.path.append('../validation')
 import cma
 
 from calibrate_greedy_weights import (DEFAULT_WEIGHTS, run_matchups_local, run_matchups_ssh,
-                                       play_matchup_till_stoppage)
+                                       play_matchup_till_stoppage, MIN_GAMES, MAX_GAMES)
+from heuristic_features import FEATURE_NAMES, FEATURE_NAMES_V2
 
 HERE = Path(__file__).parent
 DECKLISTS = HERE.parent / "validation" / "data" / "hsreplay_classic" / "constructible_decklists.csv"
+
+#v2 default weights (30 = turn_passed + 29 state features): the v1 defaults
+#with the dropped feature's weight removed and the 4 adopted features at 0 -
+#identical behavior to v1 defaults until training moves the new weights
+def map_v1_to_v2(weights_27):
+  weights = list(weights_27)
+  del weights[1 + FEATURE_NAMES.index("weapon_durability_difference")]
+  return weights + [0.0] * (len(FEATURE_NAMES_V2) + 1 - len(weights))
+
+DEFAULT_WEIGHTS_V2 = map_v1_to_v2(DEFAULT_WEIGHTS)
 
 HOF_SIZE = 3 #hall-of-fame members kept; fitness averages win rate across all of them
 PROMOTION_GAMES = 30 #fixed-count confirmatory match before promoting a new champion
@@ -49,7 +60,13 @@ PROMOTION_THRESHOLD = 0.55
 STAGNATION_LIMIT = 10 #stop early if this many generations pass with no promotion
 
 
-def load_deck_pool():
+def load_deck_pool(seeds_json=None):
+  if seeds_json:
+    #naxx-era seeds: {"HUNTER": [decklist, ...], ...} (the S3 constructible
+    #real-deck seeds), flattened to the same (class, decklist) tuples
+    with open(seeds_json, encoding="utf-8") as f:
+      seeds = json.load(f)
+    return [(player_class, deck) for player_class, decks in seeds.items() for deck in decks]
   with DECKLISTS.open(encoding="utf-8") as f:
     rows = list(csv.DictReader(f))
   return [(row["class"], row["card_list"].split("|")) for row in rows]
@@ -59,14 +76,16 @@ def sample_training_decks(deck_pool, n, rng):
   return rng.sample(deck_pool, n)
 
 
-def evaluate_population(candidates, hall_of_fame, training_decks, cores, run_matchups):
+def evaluate_population(candidates, hall_of_fame, training_decks, cores, run_matchups,
+                         world="classic"):
   """Fitness = mean win rate for each candidate across (training_decks x hall_of_fame),
   all mirror matches. Returns list of losses (1 - mean win rate, since CMA-ES minimizes)."""
   work = []
   for weights in candidates:
     for player_class, deck in training_decks:
       for champion in hall_of_fame:
-        work.append((deck, player_class, list(weights), deck, player_class, list(champion)))
+        work.append((deck, player_class, list(weights), deck, player_class, list(champion),
+                     MIN_GAMES, MAX_GAMES, world))
 
   results = run_matchups(work, cores)
 
@@ -80,12 +99,14 @@ def evaluate_population(candidates, hall_of_fame, training_decks, cores, run_mat
   return losses
 
 
-def confirm_promotion(candidate_weights, champion_weights, training_decks, cores, run_matchups, rng):
+def confirm_promotion(candidate_weights, champion_weights, training_decks, cores, run_matchups, rng,
+                       world="classic"):
   #a handful of fixed decks (not the whole training sample) is enough for a
   #go/no-go confirmatory check - full precision isn't needed here, the next
   #generation's fitness evaluation will re-test the promoted champion anyway.
   check_decks = rng.sample(training_decks, min(4, len(training_decks)))
-  work = [(deck, player_class, list(candidate_weights), deck, player_class, list(champion_weights), PROMOTION_GAMES, PROMOTION_GAMES)
+  work = [(deck, player_class, list(candidate_weights), deck, player_class, list(champion_weights),
+           PROMOTION_GAMES, PROMOTION_GAMES, world)
           for player_class, deck in check_decks]
   results = run_matchups(work, cores)
   return mean(results)
@@ -102,17 +123,35 @@ def main():
   parser.add_argument("--seed", type=int, default=0)
   parser.add_argument("--out", default=str(HERE / "data" / "self_play_champion.json"))
   parser.add_argument("--log", default=str(HERE / "data" / "self_play_generations.csv"))
+  parser.add_argument("--world", choices=["classic", "naxx"], default="classic")
+  parser.add_argument("--seeds-json", default=None,
+                       help="naxx-era seed decklists json (S3 format) instead of the classic csv")
+  parser.add_argument("--init-champion", default=None,
+                       help="path to a v1 champion json - its 27 weights are mapped onto the v2 "
+                            "feature vector (dropped feature removed, adopted features at 0) and "
+                            "used as both the CMA-ES start and the initial hall-of-fame member, "
+                            "so training starts from known-good play in the new feature space")
   args = parser.parse_args()
 
   rng = random.Random(args.seed)
-  deck_pool = load_deck_pool()
+  deck_pool = load_deck_pool(args.seeds_json)
   print(f"{len(deck_pool)} real decks available for training sampling")
 
   run_matchups = run_matchups_ssh if args.backend == "ssh" else run_matchups_local
 
-  hall_of_fame = [DEFAULT_WEIGHTS]
-  hof_labels = ["default"]
-  es = cma.CMAEvolutionStrategy(list(DEFAULT_WEIGHTS), args.sigma0, {"popsize": args.popsize} if args.popsize else {})
+  if args.init_champion:
+    with open(args.init_champion, encoding="utf-8") as f:
+      loaded = json.load(f)
+    v1_champion = loaded.get("champion_weights") or loaded["weights"]
+    init_weights = map_v1_to_v2(v1_champion)
+    init_label = "champion_v1_mapped"
+  else:
+    init_weights = list(DEFAULT_WEIGHTS)
+    init_label = "default"
+
+  hall_of_fame = [init_weights]
+  hof_labels = [init_label]
+  es = cma.CMAEvolutionStrategy(list(init_weights), args.sigma0, {"popsize": args.popsize} if args.popsize else {})
 
   history = []
   generation = 0
@@ -120,7 +159,8 @@ def main():
   while not es.stop() and generation < args.max_generations and generations_since_promotion < STAGNATION_LIMIT:
     training_decks = sample_training_decks(deck_pool, args.decks_per_generation, rng)
     candidates = es.ask()
-    losses = evaluate_population(candidates, hall_of_fame, training_decks, args.cores, run_matchups)
+    losses = evaluate_population(candidates, hall_of_fame, training_decks, args.cores, run_matchups,
+                                  world=args.world)
     es.tell(candidates, losses)
     generation += 1
 
@@ -130,7 +170,7 @@ def main():
     print(f"gen {generation}: best_winrate_vs_hof={best_fitness:.3f} mean_winrate_vs_hof={1 - mean(losses):.3f} hof_size={len(hall_of_fame)}", flush=True)
 
     promoted = False
-    winrate_vs_champion = confirm_promotion(best_candidate, hall_of_fame[-1], training_decks, args.cores, run_matchups, rng)
+    winrate_vs_champion = confirm_promotion(best_candidate, hall_of_fame[-1], training_decks, args.cores, run_matchups, rng, world=args.world)
     if winrate_vs_champion > PROMOTION_THRESHOLD:
       hall_of_fame.append(list(best_candidate))
       hof_labels.append(f"gen{generation}")
@@ -157,8 +197,10 @@ def main():
     writer.writerows(history)
 
   with open(args.out, "w", encoding="utf-8") as f:
-    json.dump({"champion_weights": hall_of_fame[-1], "hall_of_fame": hall_of_fame, "hof_labels": hof_labels,
-               "generations_run": generation, "default_weights": DEFAULT_WEIGHTS}, f, indent=2)
+    json.dump({"champion_weights": list(hall_of_fame[-1]), "hall_of_fame": [list(w) for w in hall_of_fame],
+               "hof_labels": hof_labels, "generations_run": generation,
+               "world": args.world, "init": init_label,
+               "default_weights": DEFAULT_WEIGHTS}, f, indent=2)
   print(f"wrote {args.out}")
 
 

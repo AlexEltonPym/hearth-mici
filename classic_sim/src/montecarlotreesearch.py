@@ -14,18 +14,18 @@ _OTHER_POSITIVE = [Attributes.CHARGE, Attributes.STEALTH, Attributes.WINDFURY, A
                    Attributes.POISONOUS, Attributes.IMMUNE, Attributes.FREEZER]
 
 def evaluate_position(state, weights=_EVAL_WEIGHTS):
-  #the 26-feature linear evaluation from state.player's perspective, squashed
-  #to [-1, 1]. weights is a real parameter, not just a module default - it
-  #must survive being passed into a rollout running in another process
-  #(distributed evaluation), where monkeypatching the module constant
-  #wouldn't propagate. The features themselves live in
-  #heuristic_features.extract_features (shared with GreedyActionSmart).
-  #A 27-long greedy vector (turn_passed first) is accepted and stripped
-  #here - previously that mistake silently misaligned every feature.
-  from heuristic_features import extract_features
-  features = extract_features(state, state.player)
-  if len(weights) == len(features) + 1:
+  #linear evaluation from state.player's perspective, squashed to [-1, 1].
+  #weights is a real parameter, not just a module default - it must survive
+  #being passed into a rollout running in another process (distributed
+  #evaluation), where monkeypatching the module constant wouldn't propagate.
+  #The features live in heuristic_features (shared with GreedyActionSmart);
+  #the vector length picks the feature set: 26/27 -> v1, 29/30 -> v2, and
+  #odd greedy vectors (turn_passed first) are stripped here - previously
+  #that mistake silently misaligned every feature.
+  from heuristic_features import FEATURE_NAMES, FEATURE_NAMES_V2, features_for_weights
+  if len(weights) in (len(FEATURE_NAMES) + 1, len(FEATURE_NAMES_V2) + 1):
     weights = weights[1:]
+  features = features_for_weights(state, state.player, len(weights))
   return float(tanh(sum(feature * weight for feature, weight in zip(features, weights)) / 100.0))
 
 #UCT search for two-player games with multiple actions per turn.

@@ -44,6 +44,18 @@ CANDIDATE_NAMES = [
   "divine_shield_attack_difference", "enemy_weapon_damage_pending",
 ]
 
+#v2 feature set - the M4 usefulness study's outcome (data/feature_study/
+#usefulness.json): weapon_durability_difference dropped (zero MI, removal
+#free), 4 of the 6 candidates adopted, unused_mana retained (the old
+#ablation's drop call was overturned). 29 state features; a greedy weight
+#vector over v2 is 30-long with turn_passed prepended. Both consumers
+#select v1 vs v2 by weight-vector length, so every historical 27/26-long
+#vector keeps its original meaning.
+FEATURE_NAMES_V2 = [name for name in FEATURE_NAMES if name != "weapon_durability_difference"] + [
+  "deathrattle_count_difference", "taunt_health_difference",
+  "their_hand_mana_threat", "my_playable_next_turn",
+]
+
 
 def extract_features(state, me):
   """The historical 26 state features from `me`'s perspective. Order and
@@ -124,3 +136,23 @@ def extract_candidate_features(state, me):
     their_hand_mana_threat, my_playable_next_turn,
     divine_shield_attack_difference, enemy_weapon_damage_pending,
   ]
+
+
+def extract_features_v2(state, me):
+  """The post-study feature set: v1 minus weapon_durability_difference plus
+  the 4 adopted candidates, appended in CANDIDATE_NAMES order."""
+  v1 = extract_features(state, me)
+  weapon_index = FEATURE_NAMES.index("weapon_durability_difference")
+  kept = v1[:weapon_index] + v1[weapon_index + 1:]
+  adopted = extract_candidate_features(state, me)[:4]
+  return kept + adopted
+
+
+def features_for_weights(state, me, n_state_weights):
+  """Dispatch on the weight count consumers carry: 26 -> v1, 29 -> v2."""
+  if n_state_weights == len(FEATURE_NAMES_V2):
+    return extract_features_v2(state, me)
+  if n_state_weights == len(FEATURE_NAMES):
+    return extract_features(state, me)
+  raise ValueError(f"no feature set has {n_state_weights} state features "
+                   f"(v1={len(FEATURE_NAMES)}, v2={len(FEATURE_NAMES_V2)})")

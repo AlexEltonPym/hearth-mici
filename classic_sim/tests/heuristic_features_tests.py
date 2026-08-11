@@ -92,6 +92,37 @@ def test_candidate_features_are_finite_and_perspective_flips():
   assert mine[4] == -theirs[4]  #divine_shield_attack_difference
 
 
+def test_v2_feature_set_shape_and_dispatch():
+  from heuristic_features import FEATURE_NAMES_V2, extract_features_v2, features_for_weights
+  import pytest
+  game = advanced_states()
+  me = game.current_player
+  v2 = extract_features_v2(game, me)
+  assert len(v2) == len(FEATURE_NAMES_V2) == 29
+  assert "weapon_durability_difference" not in FEATURE_NAMES_V2
+  #dispatch by state-weight count
+  assert features_for_weights(game, me, 29) == v2
+  assert features_for_weights(game, me, 26) == extract_features(game, me)
+  with pytest.raises(ValueError):
+    features_for_weights(game, me, 28)
+
+
+def test_greedy_accepts_30_long_v2_weights():
+  game = advanced_states()
+  weights_30 = [0.0] * 30
+  weights_30[1] = 10.0  #hp
+  agent = GreedyActionSmart(weights_30)
+  expected = 10.0 * game.current_player.health
+  assert agent.get_score(game, 0, 0) == expected
+
+
+def test_evaluate_position_accepts_v2_vectors():
+  game = advanced_states()
+  weights_29 = [1.0] * 29
+  weights_30 = [99.0] + [1.0] * 29  #turn_passed weight must be stripped
+  assert evaluate_position(game, weights_29) == evaluate_position(game, weights_30)
+
+
 def test_full_game_with_refactored_greedy():
   game = make_game()
   game.player.strategy = GreedyActionSmart()

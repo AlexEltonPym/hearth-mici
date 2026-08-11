@@ -68,8 +68,22 @@ def make_strategy(weights):
   return RandomAction() if weights is None else GreedyActionSmart(list(weights))
 
 
+#naxx-world pool support (S5 heuristic retraining): same reasoning as
+#min_games/max_games below - world must be a positional work-item field, not
+#module state, to survive the dill round trip to the remote workers
+NAXX_CARDSET_ENUM = {"HUNTER": CardSets.NAXX_HUNTER, "MAGE": CardSets.NAXX_MAGE,
+                     "WARRIOR": CardSets.NAXX_WARRIOR}
+
+
+def _pool_sets(player_class, world):
+  if world == "naxx":
+    return [CardSets.CLASSIC_NEUTRAL, CardSets.NAXX_NEUTRAL,
+            CARDSET_ENUM[player_class], NAXX_CARDSET_ENUM[player_class]]
+  return [CardSets.CLASSIC_NEUTRAL, CARDSET_ENUM[player_class]]
+
+
 def play_matchup_till_stoppage(deck_a, class_a, weights_a, deck_b, class_b, weights_b,
-                                min_games=MIN_GAMES, max_games=MAX_GAMES):
+                                min_games=MIN_GAMES, max_games=MAX_GAMES, world="classic"):
   """Returns (win_rate_for_a, games_played). weights_a/b=None -> RandomAction.
   min_games/max_games are parameters, not just module defaults, so a caller
   (e.g. the confirm-phase fixed-count re-run in analyze_calibration.py) can
@@ -77,8 +91,8 @@ def play_matchup_till_stoppage(deck_a, class_a, weights_a, deck_b, class_b, weig
   instead would silently not propagate through the dill-over-stdin remote
   worker, since that reimports this module fresh on the other end."""
   game_manager = GameManager()
-  game_manager.create_player_pool([CardSets.CLASSIC_NEUTRAL, CARDSET_ENUM[class_a]])
-  game_manager.create_enemy_pool([CardSets.CLASSIC_NEUTRAL, CARDSET_ENUM[class_b]])
+  game_manager.create_player_pool(_pool_sets(class_a, world))
+  game_manager.create_enemy_pool(_pool_sets(class_b, world))
   game_manager.create_player(CLASS_ENUM[class_a], Deck.generate_from_decklist(deck_a), make_strategy(weights_a))
   game_manager.create_enemy(CLASS_ENUM[class_b], Deck.generate_from_decklist(deck_b), make_strategy(weights_b))
   game_manager.create_game()
