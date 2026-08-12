@@ -683,6 +683,38 @@ the contamination as minor. Artifacts: `../metagame_analysis/data/`
 `probe_naxx_launch.csv`, `probe_buzzard_nerf.csv`,
 `shift_{naxx_launch,naxx_biased,nerf_biased}_*.csv/json`.
 
+**S3 rolling trajectory (2026-08-12).** The one-shot experiments predict a
+single post-shock equilibrium; the rolling variant
+(`rolling_periods.py` + `rolling_shift.py`) predicts the whole trajectory
+at the archive's data resolution: periods bounded at the two patch dates
+(p0 seed Apr 1-Jul 21; p1 Jul 22-Aug 31; p2 Sep 1-21; p3 Sep 22-Oct 31;
+p4 Nov 1-Dec 7; 117-673 decks/class each; note the tag-filtered period
+ground truth runs higher on Buzzard than the unfiltered monthly series -
+p0 88.2% vs the monthly 61-76% - because the monthly numbers are diluted
+by time-traveled decks). Fixed piloting agent throughout (per-period
+weight retraining rejected on the S5 saturation null). Two modes:
+
+- ANCHORED (each period seeded from the previous period's real decks):
+  strong one-step skill everywhere. Movers Spearman 0.67-0.89 for every
+  class at p2-p4 (all p<=0.005). Buzzard trajectory real
+  88.2/78.6/52.8/16.2/17.5 vs predicted input/100/53.3/45.5/11.1 - exact
+  at p2, close at p4.
+- FREE-RUNNING (only p0 real; each period seeded from the model's own
+  previous elites): rank correlations on movers stay positive through all
+  four periods (0.41-0.70 at p1; 0.46-0.47 Hunter/Warrior at p4) but
+  levels saturate - Buzzard hits 100% of elite decks and NEVER falls
+  after the nerf (83-100% at p3/p4 vs real 16-18%). Mechanism: a
+  self-play echo chamber. Once every elite carries a card, the gauntlet
+  (drawn from the same population) contains no opponent against which
+  dropping it helps, and selection pressure vanishes. Re-anchoring
+  breaks the loop.
+
+Reading: one-step skill, compounding drift - the useful forecast horizon
+of this pipeline is one period (~6 weeks). Artifacts:
+`data/rolling_{free,anchored}_predicted_p*.csv`,
+`data/rolling_evaluation.json`, ground truth
+`../validation/data/rolling_adoption_p*.csv`.
+
 **Does simulated power predict real popularity? (`hearthpwn_2014_dynamics.py`,
 run 2026-08-07).** Motivation, measured first in the data we already had: in
 the HSReplay 2021 snapshot, a deck's real win rate and its real play count

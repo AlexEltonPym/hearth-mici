@@ -63,9 +63,14 @@ Hunter cards whose real adoption shifted rises from 16/38 under
 unbiased evolution to 30/38, and the nerf experiment predicts the
 Buzzard collapse (predicted within-class adoption 73\% to 32\%,
 against a real fall to 17\%) while keeping the cards the patch left
-alone. Two cards are mispredicted in every configuration. Both misses
-trace to the 1-ply piloting agent, and a learned evaluator with an
-identity-free card encoding partially closes them. Simulated meta
+alone. A rolling variant separates one-step skill from forecast horizon:
+re-anchored single-period predictions reach Spearman 0.67--0.89 on
+moved cards and track the Buzzard collapse period by period, while
+a free-running forecast saturates in a self-play echo chamber and
+misses the nerf response entirely. Two cards are mispredicted in
+every configuration. Both misses trace to the 1-ply piloting agent,
+and a learned evaluator with an identity-free card encoding
+partially closes them. Simulated meta
 prediction has previously been validated against real usage shifts
 for Pok\'emon tier bans; we provide the corresponding validation for
 a collectible card game, covering shock types that a ban cannot
@@ -228,8 +233,15 @@ task is contaminated by its own answer key.
 
 \subsection{Two shocks, and a dissociation}
 \label{sec:shocks}
-Table~\ref{tab:buzzard_series} and Fig.~\ref{fig:dissociation} show
-the monthly series around the September nerf. At the card level,
+Table~\ref{tab:buzzard_series} shows the monthly series around the
+September nerf, and Fig.~\ref{fig:dissociation} the same ground
+truth re-cut into periods bounded by the two patch dates (a calendar
+September mixes 21 pre-nerf days with 8 post-nerf days; the
+period-resolved Buzzard fall is 52.8\% to 16.2\% across the
+boundary). The monthly and period series also differ slightly in
+level because the period series applies the Set-tag filter of
+Sec.~IV-A, which the monthly aggregation predates. At the card
+level,
 Starving Buzzard's within-Hunter adoption falls from a 67.7\%
 pre-nerf mean to 16.9\% afterwards, beginning in the nerf month
 itself. At the class level, Hunter's share of submitted decks is
@@ -263,40 +275,50 @@ month & decks & Hunter & Mage & Warrior & Buzzard/Hunter\\
 \centering
 \begin{tikzpicture}
 \begin{axis}[
-  width=\columnwidth, height=5.6cm,
-  xlabel={month (2014)}, ylabel={share (\%)},
-  xtick={6,7,8,9,10,11,12},
-  xticklabels={Jun,Jul,Aug,Sep,Oct,Nov,Dec},
-  ymin=0, ymax=85,
+  width=\columnwidth, height=6.1cm,
+  ylabel={share (\%)},
+  xmin=-0.35, xmax=4.35, ymin=0, ymax=108,
+  xtick={0,1,2,3,4},
+  xticklabels={{Apr--Jul 21},{Jul 22--Aug},{Sep 1--21},{Sep 22--Oct},{Nov--Dec 7}},
   axis line style={vizaxis},
   every tick/.style={vizaxis},
   ymajorgrids, grid style={vizgrid},
   axis lines*=left,
-  legend style={font=\scriptsize, at={(0.97,0.97)}, anchor=north east,
-                draw=vizaxis, fill=white, fill opacity=0.9, text opacity=1},
+  legend style={font=\scriptsize, at={(0.5,1.02)}, anchor=south,
+                legend columns=2, draw=none,
+                /tikz/every even column/.append style={column sep=5pt}},
   legend cell align=left,
-  tick label style={font=\scriptsize, color=vizink},
+  tick label style={font=\tiny, color=vizink},
   label style={font=\footnotesize, color=vizink}]
 \addplot[vizblue, line width=1.2pt, mark=*, mark size=1.8pt] coordinates
-  {(6,61.1) (7,76.2) (8,74.6) (9,31.8) (10,19.2) (11,19.7) (12,11.9)};
-\addlegendentry{Buzzard adoption within Hunter (real)}
-\addplot[vizorange, line width=1.2pt, dash pattern=on 4pt off 2.2pt]
-  coordinates {(6,73.4) (8.72,73.4) (8.72,31.8) (12,31.8)};
-\addlegendentry{model: seed input, then predicted 31.8\%}
+  {(0,88.2) (1,78.6) (2,52.8) (3,16.2) (4,17.5)};
+\addlegendentry{Buzzard within Hunter (real)}
+\addplot[vizorange, line width=1.2pt, dash pattern=on 4pt off 2.2pt,
+         mark=diamond*, mark size=2.2pt, mark options={solid, fill=vizorange}]
+  coordinates {(0,88.2) (1,100) (2,53.3) (3,45.5) (4,11.1)};
+\addlegendentry{predicted, anchored (one step)}
+\addplot[vizorange!45, line width=1.1pt, dash pattern=on 2pt off 1.8pt,
+         mark=triangle*, mark size=2.0pt, mark options={solid, fill=vizorange!45}]
+  coordinates {(0,88.2) (1,100) (2,100) (3,83.3) (4,100)};
+\addlegendentry{predicted, free-running}
 \addplot[vizgray, line width=1.1pt, dashed,
-         mark=square*, mark size=1.5pt, mark options={solid, fill=vizgray}]
-  coordinates
-  {(6,31.2) (7,30.4) (8,27.5) (9,32.6) (10,35.0) (11,34.7) (12,29.4)};
-\addlegendentry{Hunter share of all decks (context)}
-\draw[vizgray, dotted, line width=1pt] (axis cs:8.72,0) -- (axis cs:8.72,85)
-  node[pos=0.13, left, font=\scriptsize, color=vizink] {nerf (Sept.~22)};
+         mark=square*, mark size=1.4pt, mark options={solid, fill=vizgray}]
+  coordinates {(0,33.8) (1,29.1) (2,30.9) (3,35.8) (4,36.9)};
+\addlegendentry{Hunter share of all decks}
+\draw[vizgray, dotted, line width=1pt] (axis cs:0.5,0) -- (axis cs:0.5,108)
+  node[pos=0.93, right, font=\tiny, color=vizink] {Naxx (Jul 22)};
+\draw[vizgray, dotted, line width=1pt] (axis cs:2.5,0) -- (axis cs:2.5,108)
+  node[pos=0.93, left, font=\tiny, color=vizink] {nerf (Sep 22)};
 \end{axis}
 \end{tikzpicture}
-\caption{The card--class dissociation, with the model's prediction.
-The nerf collapses Buzzard's within-Hunter adoption (blue). The
-orange step shows the model: its flat pre-nerf segment is the input
-it was given (73.4\% adoption in the real seed decks), and the drop
-to 31.8\% is its prediction of the post-nerf level. Hunter's class
+\caption{The Buzzard trajectory at the archive's data resolution
+(periods bounded by the two patch dates), with both rolling
+prediction modes. All model series share the p0 point as their
+input (88.2\% in the real seed decks); everything after it is
+prediction. The anchored mode, re-seeded from the previous period's
+real decks, tracks the collapse (exact at p2, 11.1\% vs.\ 17.5\% at
+p4). The free-running mode, re-seeded from its own previous
+population, saturates and misses the nerf response. Hunter's class
 share (gray) never leaves its noise band.}
 \label{fig:dissociation}
 \end{figure}
@@ -505,6 +527,38 @@ and Webspinner's rise is called. Gray gives the pre-nerf baseline,
 orange the model, blue the real outcome.}
 \label{fig:nerf}
 \end{figure}
+
+\subsection{Trajectory: one-step skill, free-running drift}
+\label{sec:rolling}
+The one-shot experiments predict a single post-shock equilibrium. A
+rolling variant predicts the whole trajectory at the archive's data
+resolution: five periods bounded by the two patch dates (seed period
+Apr~1--Jul~21, then four predicted periods, each with 117--673 decks
+per class), stepping the same probe-biased evolution through each
+period's pool state. Two seeding regimes separate one-step skill
+from forecast horizon. In \emph{anchored} mode each period is seeded
+from the previous period's real decks; in \emph{free-running} mode
+only the seed period is real, and every later period starts from the
+model's own previous elite population.
+
+Anchored one-step predictions are strong everywhere: over cards
+whose real adoption moved by at least 5$\pp$ between consecutive
+periods, Spearman correlations run 0.67--0.89 for every class in
+every period after the first (all $p\le0.005$), and the predicted
+Buzzard trajectory tracks the real one closely (Fig.~\ref{fig:dissociation}:
+exact at p2, 45.5\% vs.\ 16.2\% in the nerf period itself, 11.1\%
+vs.\ 17.5\% by year's end). The free-running forecast keeps
+significant rank correlations on movers through all four periods
+(0.41--0.70 at p1, still 0.46--0.47 for Hunter and Warrior at p4)
+but its adoption levels saturate: Buzzard reaches 100\% of elite
+decks before the nerf and never falls after it. The mechanism is an
+echo chamber. Once every elite deck carries a card, the evaluation
+gauntlet (drawn from that same population) offers no opponent
+against which dropping it helps, and selection pressure to remove
+the card disappears. Re-anchoring on real decks breaks the loop.
+The pattern matches numerical forecasting generally: skillful
+single steps, compounding drift over the horizon, and the useful
+horizon of the present pipeline is one period, roughly six weeks.
 
 \subsection{The baseline}
 The no-change baseline wins the overall adoption Spearman, at

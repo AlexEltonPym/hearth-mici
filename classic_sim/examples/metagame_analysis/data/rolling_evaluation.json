@@ -1,0 +1,190 @@
+{
+  "free": {
+    "p1_naxx_early": {
+      "hunter": {
+        "n_movers": 36,
+        "spearman": 0.701,
+        "p": 0.0,
+        "direction_hits": 19,
+        "direction_rate": 0.528
+      },
+      "mage": {
+        "n_movers": 55,
+        "spearman": 0.512,
+        "p": 0.0001,
+        "direction_hits": 22,
+        "direction_rate": 0.4
+      },
+      "warrior": {
+        "n_movers": 42,
+        "spearman": 0.411,
+        "p": 0.0069,
+        "direction_hits": 22,
+        "direction_rate": 0.524
+      }
+    },
+    "p2_naxx_late": {
+      "hunter": {
+        "n_movers": 29,
+        "spearman": 0.444,
+        "p": 0.0159,
+        "direction_hits": 8,
+        "direction_rate": 0.276
+      },
+      "mage": {
+        "n_movers": 35,
+        "spearman": 0.498,
+        "p": 0.0023,
+        "direction_hits": 21,
+        "direction_rate": 0.6
+      },
+      "warrior": {
+        "n_movers": 15,
+        "spearman": 0.539,
+        "p": 0.038,
+        "direction_hits": 6,
+        "direction_rate": 0.4
+      }
+    },
+    "p3_postnerf_early": {
+      "hunter": {
+        "n_movers": 30,
+        "spearman": 0.194,
+        "p": 0.3033,
+        "direction_hits": 7,
+        "direction_rate": 0.233
+      },
+      "mage": {
+        "n_movers": 15,
+        "spearman": 0.187,
+        "p": 0.5052,
+        "direction_hits": 6,
+        "direction_rate": 0.4
+      },
+      "warrior": {
+        "n_movers": 25,
+        "spearman": 0.511,
+        "p": 0.009,
+        "direction_hits": 10,
+        "direction_rate": 0.4
+      }
+    },
+    "p4_postnerf_late": {
+      "hunter": {
+        "n_movers": 21,
+        "spearman": 0.468,
+        "p": 0.0322,
+        "direction_hits": 12,
+        "direction_rate": 0.571
+      },
+      "mage": {
+        "n_movers": 24,
+        "spearman": 0.07,
+        "p": 0.745,
+        "direction_hits": 13,
+        "direction_rate": 0.542
+      },
+      "warrior": {
+        "n_movers": 25,
+        "spearman": 0.459,
+        "p": 0.021,
+        "direction_hits": 19,
+        "direction_rate": 0.76
+      }
+    }
+  },
+  "anchored": {
+    "p1_naxx_early": {
+      "hunter": {
+        "n_movers": 36,
+        "spearman": 0.727,
+        "p": 0.0,
+        "direction_hits": 18,
+        "direction_rate": 0.5
+      },
+      "mage": {
+        "n_movers": 55,
+        "spearman": 0.377,
+        "p": 0.0045,
+        "direction_hits": 22,
+        "direction_rate": 0.4
+      },
+      "warrior": {
+        "n_movers": 42,
+        "spearman": 0.502,
+        "p": 0.0007,
+        "direction_hits": 23,
+        "direction_rate": 0.548
+      }
+    },
+    "p2_naxx_late": {
+      "hunter": {
+        "n_movers": 29,
+        "spearman": 0.672,
+        "p": 0.0001,
+        "direction_hits": 17,
+        "direction_rate": 0.586
+      },
+      "mage": {
+        "n_movers": 35,
+        "spearman": 0.73,
+        "p": 0.0,
+        "direction_hits": 19,
+        "direction_rate": 0.543
+      },
+      "warrior": {
+        "n_movers": 15,
+        "spearman": 0.868,
+        "p": 0.0,
+        "direction_hits": 11,
+        "direction_rate": 0.733
+      }
+    },
+    "p3_postnerf_early": {
+      "hunter": {
+        "n_movers": 30,
+        "spearman": 0.892,
+        "p": 0.0,
+        "direction_hits": 25,
+        "direction_rate": 0.833
+      },
+      "mage": {
+        "n_movers": 15,
+        "spearman": 0.685,
+        "p": 0.0049,
+        "direction_hits": 8,
+        "direction_rate": 0.533
+      },
+      "warrior": {
+        "n_movers": 25,
+        "spearman": 0.844,
+        "p": 0.0,
+        "direction_hits": 17,
+        "direction_rate": 0.68
+      }
+    },
+    "p4_postnerf_late": {
+      "hunter": {
+        "n_movers": 21,
+        "spearman": 0.866,
+        "p": 0.0,
+        "direction_hits": 7,
+        "direction_rate": 0.333
+      },
+      "mage": {
+        "n_movers": 24,
+        "spearman": 0.739,
+        "p": 0.0,
+        "direction_hits": 15,
+        "direction_rate": 0.625
+      },
+      "warrior": {
+        "n_movers": 25,
+        "spearman": 0.711,
+        "p": 0.0001,
+        "direction_hits": 11,
+        "direction_rate": 0.44
+      }
+    }
+  }
+}
