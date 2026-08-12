@@ -31,7 +31,7 @@ Usage (from classic_sim/examples/metagame_analysis):
   python evolve_metagame_shift.py --era naxx_launch --backend ssh --out data/shift_naxx_launch
   python evolve_metagame_shift.py --era buzzard_nerf --backend ssh --out data/shift_buzzard_nerf
 """
-import sys, csv, json, argparse, subprocess, ast
+import sys, csv, json, argparse, subprocess, ast, time
 from collections import Counter
 from pathlib import Path
 from statistics import mean
@@ -88,12 +88,18 @@ def era_class_pool(player_class):
   return [card.name for card in build_pool(ERA_SETS[player_class], None)]
 
 
-def mutate_deck(deck, pool, bias=None, bias_strength=10.0):
+def mutate_deck(deck, pool, bias=None, bias_strength=10.0, owned=None, rarity_weights=None):
   """bias: {card: probed_delta_wr} from probe_card_values.py. Models the real
   players' non-neutral exploration: replacement candidates with positive
   probed value are proposed more often (weight 1 + strength*delta/max_delta),
   and slots holding negative-probed cards are replaced more often. Unprobed
-  cards keep weight 1 / uniform slot odds."""
+  cards keep weight 1 / uniform slot odds.
+
+  owned: this deck's owner's collection (set of card names). Only owned cards
+  can be proposed - the hard half of the collection constraint.
+  rarity_weights: {card: weight in (0,1]} multiplying the proposal odds, so
+  rares/epics/legendaries are proposed proportionally less often even when
+  owned - the soft half. Both default to off (unconstrained pool)."""
   deck = list(deck)
   num_swaps = 0
   for exponent in range(4):
@@ -107,14 +113,80 @@ def mutate_deck(deck, pool, bias=None, bias_strength=10.0):
       slot = choices(range(len(deck)), weights=slot_weights)[0]
     else:
       slot = randint(0, len(deck) - 1)
-    candidates = [c for c in pool if deck.count(c) < max_copies(c)]
+    candidates = [c for c in pool if deck.count(c) < max_copies(c)
+                  and (owned is None or c in owned)]
     if not candidates:
       continue
     if bias and max_positive:
       weights = [1 + bias_strength * max(0.0, bias.get(c, 0.0)) / max_positive for c in candidates]
-      deck[slot] = choices(candidates, weights=weights)[0]
+    elif rarity_weights:
+      weights = [1.0] * len(candidates)
     else:
       deck[slot] = choice(candidates)
+      continue
+    if rarity_weights:
+      weights = [w * rarity_weights.get(c, 1.0) for w, c in zip(weights, candidates)]
+    deck[slot] = choices(candidates, weights=weights)[0]
+  return deck
+
+
+def sample_collections(pool, seed_decks, prior, rarity_by_name, rng,
+                        adventure_names=frozenset(), adventure_ownership=1.0):
+  """One collection per population slot: a slot is a PLAYER, and collections
+  are persistent - the same slot keeps its collection for the whole run.
+
+  Two gates, because 2014 had two:
+    - CRAFTABLE (Classic/Basic) cards: owned independently with probability
+      prior[rarity], a soft inverse-dust-cost prior.
+    - ADVENTURE (Naxxramas) cards: not craftable at all. The wings deliver the
+      whole set, so this is one all-or-nothing draw per player at
+      adventure_ownership - which is what bounds every Naxx card's adoption
+      below 100% regardless of how strong the simulator thinks it is.
+  Plus, unconditionally, every card in the real deck the player started from
+  (they demonstrably had those), so genuinely popular real cards are not
+  penalised by the prior."""
+  #stratified rather than i.i.d.: with a 14-slot population an i.i.d. draw at
+  #q=0.7 lands anywhere from 8 to 13 owners, which would be the dominant source
+  #of run-to-run variance in exactly the quantity under test
+  n_owners = int(round(adventure_ownership * len(seed_decks)))
+  adventure_flags = [True] * n_owners + [False] * (len(seed_decks) - n_owners)
+  rng.shuffle(adventure_flags)
+
+  collections = []
+  for has_adventure, seed_deck in zip(adventure_flags, seed_decks):
+    owned = set()
+    for name in pool:
+      if name in adventure_names:
+        if has_adventure:
+          owned.add(name)
+      elif rng.random() < prior[rarity_by_name.get(name, "COMMON")]:
+        owned.add(name)
+    owned.update(seed_deck)
+    collections.append(owned)
+  return collections
+
+
+def enforce_collection(deck, owned, pool, bias=None, bias_strength=10.0, rarity_weights=None):
+  """Netdecking with substitutions: a player who copies someone else's elite
+  list still cannot play cards they do not own, so every unowned slot is
+  refilled from their own collection. Without this the constraint would not
+  bind at all - elite decks are inherited wholesale, so one owner of a card is
+  enough to spread it to the entire population."""
+  if owned is None:
+    return list(deck)
+  deck = list(deck)
+  max_positive = max([d for d in bias.values() if d > 0], default=0) if bias else 0
+  for slot, card in enumerate(deck):
+    if card in owned:
+      continue
+    candidates = [c for c in pool if c in owned and deck.count(c) < max_copies(c)]
+    if not candidates:
+      continue
+    weights = [1 + bias_strength * max(0.0, bias.get(c, 0.0)) / max_positive
+               for c in candidates] if max_positive else [1.0] * len(candidates)
+    if rarity_weights:
+      weights = [w * rarity_weights.get(c, 1.0) for w, c in zip(weights, candidates)]
+    deck[slot] = choices(candidates, weights=weights)[0]
   return deck
 
 
@@ -187,27 +259,50 @@ def run_matchups_local(work_items, cores):
 
 
 HOSTS = ["dwail1", "dwail2"]
+#None = the original worker with joblib n_jobs=-1 (all cores). An int caps the
+#remote pool via shift_remote_worker_capped.py, so several drivers can share
+#one host - set by --remote-cores.
+REMOTE_CORES = None
+
+
+#the link to the hosts is a VPN tunnel that occasionally drops for a minute;
+#an hours-long evolution should survive that rather than lose every generation
+#computed so far. Work is idempotent, so a dropped dispatch is simply re-sent.
+DISPATCH_ATTEMPTS = 5
+DISPATCH_BACKOFF = 60
 
 
 def run_host(work_items, host):
   if not work_items:
     return []
-  print(f"Starting host {host} with {len(work_items)} work items...", flush=True)
   serial_work = dill.dumps(work_items, fmode='wb')
   dir_ = "~/phd/hearth-mici/classic_sim/examples/metagame_analysis/" if host == "laptop" else "~/classic_sim/examples/metagame_analysis/"
-  command = f'cd {dir_} && source ~/.profile && pyenv activate venv && python3 shift_remote_worker.py'
-  ssh = subprocess.Popen(["ssh", host, command], shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
-  result, err = ssh.communicate(input=serial_work)
-  if err:
-    print(f"{host} error: {err.decode(errors='replace')}")
+  worker = ("shift_remote_worker.py" if REMOTE_CORES is None
+            else f"SHIFT_WORKER_JOBS={REMOTE_CORES} python3 shift_remote_worker_capped.py")
+  worker = f"python3 {worker}" if REMOTE_CORES is None else worker
+  command = f'cd {dir_} && source ~/.profile && pyenv activate venv && {worker}'
+  ssh_options = ["-o", "ConnectTimeout=30", "-o", "ConnectionAttempts=3",
+                 "-o", "ServerAliveInterval=30", "-o", "ServerAliveCountMax=10"]
 
-  for line in result.decode(errors="replace").splitlines():
-    if line[:3] == ">>>":
-      print(f"Closing host {host}.", flush=True)
-      return ast.literal_eval(line[3:])
-    else:
-      print(f"{host}> {line}")
-  raise RuntimeError(f"{host} never returned a >>> result line")
+  for attempt in range(1, DISPATCH_ATTEMPTS + 1):
+    print(f"Starting host {host} with {len(work_items)} work items "
+          f"(attempt {attempt}/{DISPATCH_ATTEMPTS})...", flush=True)
+    ssh = subprocess.Popen(["ssh"] + ssh_options + [host, command], shell=False,
+                            stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
+    result, err = ssh.communicate(input=serial_work)
+    if err:
+      print(f"{host} error: {err.decode(errors='replace')}")
+
+    for line in result.decode(errors="replace").splitlines():
+      if line[:3] == ">>>":
+        print(f"Closing host {host}.", flush=True)
+        return ast.literal_eval(line[3:])
+      else:
+        print(f"{host}> {line}")
+    print(f"{host} never returned a >>> result line on attempt {attempt}", flush=True)
+    if attempt < DISPATCH_ATTEMPTS:
+      time.sleep(DISPATCH_BACKOFF * attempt)
+  raise RuntimeError(f"{host} never returned a >>> result line in {DISPATCH_ATTEMPTS} attempts")
 
 
 def run_matchups_ssh(work_items, cores):
@@ -240,15 +335,17 @@ def initial_gauntlet(full_seeds, rng):
           for deck in rng.sample(full_seeds[player_class], GAUNTLET_PER_CLASS)]
 
 
-def refresh_gauntlet(archives, full_seeds, rng):
-  """1 real anchor + 2 archive elites per class. Falls back to real decks
-  while an archive is still too empty."""
+def refresh_gauntlet(archives, full_seeds, rng, real_anchors=GAUNTLET_REAL_ANCHORS):
+  """real_anchors real decks + (3 - real_anchors) archive elites per class.
+  Falls back to real decks while an archive is still too empty. real_anchors=3
+  keeps the field permanently real (rotating, not fixed) - the opt-in test of
+  the self-play echo chamber."""
   gauntlet = []
   for player_class in CLASSES:
     entries = [{"class": player_class, "deck": list(deck)}
-               for deck in rng.sample(full_seeds[player_class], GAUNTLET_REAL_ANCHORS)]
+               for deck in rng.sample(full_seeds[player_class], real_anchors)]
     elites = archives[player_class].get_elites(unique_only=True)
-    wanted = GAUNTLET_PER_CLASS - GAUNTLET_REAL_ANCHORS
+    wanted = GAUNTLET_PER_CLASS - real_anchors
     if len(elites) >= wanted:
       picks = rng.sample(elites, wanted)
     else:
@@ -283,6 +380,7 @@ def adoption_shares(archive):
 
 
 def main():
+  global HOSTS, REMOTE_CORES
   parser = argparse.ArgumentParser()
   parser.add_argument("--era", choices=list(ERAS), required=True)
   parser.add_argument("--backend", choices=["local", "ssh"], default="local")
@@ -301,11 +399,57 @@ def main():
                        help="fixed games per matchup (min=max, no early stopping) - reduces selection "
                             "noise at higher cost; default keeps the exploratory 4-12 early stop")
   parser.add_argument("--out", default=None, help="output prefix (default data/shift_<era>)")
+  parser.add_argument("--hosts", default=",".join(HOSTS),
+                       help="comma-separated ssh hosts for --backend ssh (default both)")
+  parser.add_argument("--remote-cores", type=int, default=None,
+                       help="cap the remote joblib pool (default: all cores, unchanged). Use when "
+                            "several drivers share one host.")
+  parser.add_argument("--real-anchors", type=int, default=GAUNTLET_REAL_ANCHORS,
+                       choices=range(0, GAUNTLET_PER_CLASS + 1),
+                       help="permanent REAL decks per class in the refreshed gauntlet "
+                            f"(default {GAUNTLET_REAL_ANCHORS}); 3 keeps the field entirely real, "
+                            "breaking the self-play echo chamber")
+  parser.add_argument("--collection", choices=["none", "weight", "own", "both"], default="none",
+                       help="collection constraints (default none = every deck may use the whole "
+                            "pool). weight: rares/epics/legendaries are PROPOSED less often, in "
+                            "proportion to an ownership prior derived from crafting cost. own: each "
+                            "population slot is a player with a persistent sampled collection, and "
+                            "netdecked lists get unowned cards substituted out. both: both.")
+  parser.add_argument("--collection-exponent", type=float, default=0.25,
+                       help="ownership prior p = (40/dust)**exponent; 1.0 is literal inverse dust "
+                            "cost, 0.25 (default) gives rare .80 / epic .56 / legendary .40")
+  parser.add_argument("--collection-strength", type=float, default=1.0,
+                       help="blend the prior back toward 'everyone owns everything' (0 = off)")
+  parser.add_argument("--adventure-ownership", type=float, default=0.7,
+                       help="probability a simulated player has the Naxxramas cards at all. Naxx "
+                            "cards are not craftable, so they are gated all-or-nothing per player "
+                            "by the wing purchases; 0.7 reflects the five wings still rolling out "
+                            "weekly through the first month of the predicted window plus purchase "
+                            "friction. Only used with --collection own/both.")
   args = parser.parse_args()
 
   out_prefix = args.out or f"data/shift_{args.era}"
   out_prefix = str(Path(out_prefix).name)
   rng = Random(args.seed)
+
+  #run_matchups_ssh fans out over this module global, so rebinding it here is
+  #what --hosts actually does
+  HOSTS = [host.strip() for host in args.hosts.split(",") if host.strip()]
+  REMOTE_CORES = args.remote_cores
+  print(f"ssh hosts: {HOSTS} (remote cores: {REMOTE_CORES or 'all'})")
+
+  rarity_weights, prior, rarity_by_name, adventure_names = None, None, None, frozenset()
+  if args.collection != "none":
+    from card_rarity import RARITY_BY_NAME, NAXX_NAMES, ownership_prior, card_weights
+    rarity_by_name = RARITY_BY_NAME
+    adventure_names = NAXX_NAMES
+    prior = ownership_prior(args.collection_exponent, args.collection_strength)
+    if args.collection in ("weight", "both"):
+      rarity_weights = card_weights(set(RARITY_BY_NAME), args.collection_exponent,
+                                     args.collection_strength)
+    print(f"collection constraints: mode={args.collection} "
+          f"prior={ {k: round(v, 3) for k, v in prior.items()} } "
+          f"adventure_ownership={args.adventure_ownership}")
 
   eval_weights = load_eval_weights(args.eval_weights) if args.eval_weights else None
 
@@ -326,6 +470,17 @@ def main():
               for player_class in CLASSES}
   run_matchups = run_matchups_ssh if args.backend == "ssh" else run_matchups_local
 
+  collections = {player_class: None for player_class in CLASSES}
+  if args.collection in ("own", "both"):
+    collection_rng = Random(args.seed + 9973)
+    for player_class in CLASSES:
+      collections[player_class] = sample_collections(pools[player_class], populations[player_class],
+                                                      prior, rarity_by_name, collection_rng,
+                                                      adventure_names, args.adventure_ownership)
+    print("collections sampled: "
+          + " ".join(f"{c}:{mean(len(o) for o in collections[c]):.0f}/{len(pools[c])} cards owned"
+                     for c in CLASSES))
+
   print(f"era={args.era} | seeds/class={ {c: len(full_seeds[c]) for c in CLASSES} } | "
         f"population={args.population}/class | gauntlet={len(gauntlet)} | pool sizes="
         f"{ {c: len(pools[c]) for c in CLASSES} }")
@@ -339,16 +494,18 @@ def main():
 
   for generation in range(args.generations):
     if generation > 0 and generation % REFRESH_EVERY == 0:
-      gauntlet = refresh_gauntlet(archives, full_seeds, rng)
-      print(f"gen {generation}: gauntlet refreshed ({GAUNTLET_REAL_ANCHORS} real + "
-            f"{GAUNTLET_PER_CLASS - GAUNTLET_REAL_ANCHORS} elite per class)", flush=True)
+      gauntlet = refresh_gauntlet(archives, full_seeds, rng, args.real_anchors)
+      print(f"gen {generation}: gauntlet refreshed ({args.real_anchors} real + "
+            f"{GAUNTLET_PER_CLASS - args.real_anchors} elite per class)", flush=True)
 
     #mutate all three class populations, evaluate everything in ONE dispatch
     #so the ssh hosts get a single large batch per generation
     for player_class in CLASSES:
       class_bias = bias_by_class[player_class] if bias_by_class else None
-      populations[player_class] = [mutate_deck(deck, pools[player_class], class_bias, args.bias_strength)
-                                   for deck in populations[player_class]]
+      owners = collections[player_class]
+      populations[player_class] = [mutate_deck(deck, pools[player_class], class_bias, args.bias_strength,
+                                                owners[i] if owners else None, rarity_weights)
+                                   for i, deck in enumerate(populations[player_class])]
     work, spans = [], {}
     for player_class in CLASSES:
       start = len(work)
@@ -391,8 +548,14 @@ def main():
         for card, share in sorted(shares.items()):
           writer.writerow([generation, player_class, card, round(share, 4), n_unique])
 
-      populations[player_class] = [choice(elites)["sample"][1] for _ in range(args.population)] \
+      inherited = [choice(elites)["sample"][1] for _ in range(args.population)] \
         if len(elites) < args.population else [e["sample"][1] for e in elites[:args.population]]
+      owners = collections[player_class]
+      populations[player_class] = inherited if not owners else [
+        enforce_collection(deck, owners[i], pools[player_class],
+                            bias_by_class[player_class] if bias_by_class else None,
+                            args.bias_strength, rarity_weights)
+        for i, deck in enumerate(inherited)]
 
       archive.save(save_file=str(OUT_DIR / f"{out_prefix}_{player_class.lower()}_generation{generation}.json"))
 
@@ -408,6 +571,29 @@ def main():
       writer.writerow([card] + [round(final[c][0].get(card, 0.0), 4) for c in CLASSES]
                       + [final[c][1] for c in CLASSES])
   print(f"\nwrote {prediction_path}")
+
+  #secondary artifact: adoption over the final POPULATION (the decks the
+  #simulated players are actually holding) rather than over archive elites
+  #(the decks that won). Under collection constraints these differ - the
+  #ground truth is a population of submitted decks, not a winners' list.
+  population_path = OUT_DIR / f"{out_prefix}_population_adoption.csv"
+  pop_shares = {}
+  for player_class in CLASSES:
+    decks = populations[player_class]
+    inclusion = Counter()
+    for deck in decks:
+      for card in set(deck):
+        inclusion[card] += 1
+    pop_shares[player_class] = ({card: count / len(decks) for card, count in inclusion.items()},
+                                len(decks))
+  all_cards = sorted(set().union(*(pop_shares[c][0] for c in CLASSES)))
+  with population_path.open("w", newline="", encoding="utf-8") as f:
+    writer = csv.writer(f)
+    writer.writerow(["card"] + [f"{c.lower()}_share" for c in CLASSES] + [f"{c.lower()}_n_elites" for c in CLASSES])
+    for card in all_cards:
+      writer.writerow([card] + [round(pop_shares[c][0].get(card, 0.0), 4) for c in CLASSES]
+                      + [pop_shares[c][1] for c in CLASSES])
+  print(f"wrote {population_path}")
 
 
 if __name__ == "__main__":

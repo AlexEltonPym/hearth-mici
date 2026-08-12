@@ -715,6 +715,49 @@ of this pipeline is one period (~6 weeks). Artifacts:
 `data/rolling_evaluation.json`, ground truth
 `../validation/data/rolling_adoption_p*.csv`.
 
+**Accuracy levers (2026-08-13, four parallel Opus agents).** Ranking is
+good (movers Spearman 0.67-0.89 anchored); the residual error is LEVELS
+(predicts ~100% where real is ~79%). Findings:
+
+- **Mass-match readout - ADOPTED as default** (`adoption_correction.py`,
+  wired into `evaluate_rolling.py --readout massmatch`). The raw elite
+  readout has two level errors Spearman is blind to: a finite-sample
+  ceiling (k/k of 18-40 elites = exactly 100%) and mass inflation
+  (evolved elites carry 19-23 distinct cards vs real decks' 17.5-18.9).
+  Mass-match = Jeffreys estimate + one monotone logit shift matching
+  pre-shock total mass. Rolling runs: saturated cells 35->0,
+  over-predictions 33->5, movers Spearman bit-identical. Residual after
+  correction is genuine model error (free-running Buzzard 63-92% vs real
+  16-18% - the echo chamber, not the readout). Method validated in
+  `adoption_readout.py` (30+ variants; softmax/coarsening go the WRONG
+  way, so future runs should RAISE `--num-buckets`). New model defect
+  surfaced: the mutation operator biases toward all-singleton decks; real
+  players run more 2-ofs. Fixing the operator is the next lever.
+- **Collection constraints + gauntlet real-anchors** - opt-in flags in
+  `evolve_metagame_shift.py` (`--real-anchors`, plus owned/rarity_weights
+  in mutate_deck; `card_rarity.py`). A/B (naxx_launch, elite readout):
+  both-together is the only win (MAE 0.049->0.042, over-pred halved, ρ
+  0.570->0.646); either alone is neutral-to-harmful. Legendary
+  over-adoption was NOT the problem - Kel'Thuzad already predicts 0% vs
+  real 2.3%. Kept opt-in, not default.
+- **Archetype-conditional prediction - REJECTED** (`archetype_mixture.py`).
+  Oracle test (hand the model the true post-shock mix) buys 0.37pp MAE
+  over 799 transitions; 90% of card movement is within-archetype, median
+  R^2 0.05, Mage ~0. But one real descriptive finding: the Buzzard nerf
+  swung Hunter composition 28pp (Sunshine 57.6->29.8%, Face 40.0->67.7%,
+  z=5.4), robust to leave-card-out classification and a Leper Gnome
+  cross-check. In Paper 1 as a composition subsection.
+- **Better-agent probe rerun** (`probe_pilots.py`,
+  `compare_probe_pilots.py`; conditions on dwail1). The paper's per-class
+  probe Spearman is not reproducible run-to-run at n=22 (fine-tuned
+  Hunter +0.34 committed vs +0.16 on identical rerun; per-card sd 1.3pp,
+  rank agreement 0.69) - Paper 1 now reports it as directional only. The
+  card-level agent-skill claim IS robust: Death's Bite moves from linear
+  -3.2pp to -0.4/-0.6/-1.2pp under fine-tuned net / rerun / beam(net);
+  Duplicate -3.0 to -0.4/-1.3. Better evaluator halves the error on the
+  two sequencing cards but does not fully close them (still short of the
+  +3-4pp correct valuation) - a policy limit, not an evaluation one.
+
 **Does simulated power predict real popularity? (`hearthpwn_2014_dynamics.py`,
 run 2026-08-07).** Motivation, measured first in the data we already had: in
 the HSReplay 2021 snapshot, a deck's real win rate and its real play count

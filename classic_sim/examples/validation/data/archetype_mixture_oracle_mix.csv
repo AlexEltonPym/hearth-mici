@@ -1,0 +1,13 @@
+class,transition,n_cards,mae_pooled_persistence,mae_oracle_mix,gain_pp
+HUNTER,p0_prenaxx->p1_naxx_early,58,0.0961,0.0956,0.048
+HUNTER,p1_naxx_early->p2_naxx_late,59,0.0727,0.0713,0.139
+HUNTER,p2_naxx_late->p3_postnerf_early,56,0.0747,0.0625,1.219
+HUNTER,p3_postnerf_early->p4_postnerf_late,58,0.0448,0.0443,0.048
+MAGE,p0_prenaxx->p1_naxx_early,84,0.0908,0.0884,0.248
+MAGE,p1_naxx_early->p2_naxx_late,75,0.0597,0.0515,0.819
+MAGE,p2_naxx_late->p3_postnerf_early,71,0.0343,0.0349,-0.056
+MAGE,p3_postnerf_early->p4_postnerf_late,68,0.0464,0.0442,0.22
+WARRIOR,p0_prenaxx->p1_naxx_early,73,0.0899,0.0795,1.04
+WARRIOR,p1_naxx_early->p2_naxx_late,67,0.0348,0.0371,-0.232
+WARRIOR,p2_naxx_late->p3_postnerf_early,68,0.0447,0.0426,0.211
+WARRIOR,p3_postnerf_early->p4_postnerf_late,62,0.0483,0.0417,0.664

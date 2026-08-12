@@ -21,11 +21,22 @@ Modes:
 Outputs data/probe_{era}.csv: class, card, mode, mean delta win rate,
 per-host deltas, games - plus a comparison against real adoption shifts.
 
+The piloting agent is selectable (--agent), because a probed value is only
+as good as the pilot that plays the card: --agent net pilots with
+NeuralGreedy over a value net (--eval-weights *.npz) and --agent beam with
+turn-plan BeamSearch over the same evaluator. See probe_pilots.py.
+
+--out is mandatory in practice for anything but a baseline rerun: the
+default path is the COMMITTED baseline CSV and will be overwritten.
+
 Usage (from classic_sim/examples/metagame_analysis):
   python probe_card_values.py --era naxx_launch --backend ssh --games 60
   python probe_card_values.py --era buzzard_nerf --backend ssh --games 60
+  python probe_card_values.py --era naxx_launch --backend ssh --games 60 \
+      --eval-weights data/value_net_naxx/value_net_champion.npz --agent beam \
+      --hosts-list dwail1 --out data/probe_naxx_launch_beamnet.csv
 """
-import sys, csv, json, argparse
+import sys, csv, json, argparse, subprocess, ast
 from collections import Counter
 from pathlib import Path
 from statistics import mean
@@ -35,8 +46,13 @@ sys.path.append('../../src')
 from enums import CardSets
 from card_sets import build_pool
 
+import dill
+from joblib import Parallel, delayed
+
+import evolve_metagame_shift as ems
 from evolve_metagame_shift import (CLASSES, ERA_SETS, ERAS, LEGENDARY_NAMES, OUT_DIR, SEEDS_DIR,
-                                    load_eval_weights, run_matchups_local, run_matchups_ssh)
+                                    load_eval_weights)
+from probe_pilots import _run_probe, agent_spec
 
 HOSTS_PER_CLASS = 5
 FIELD_PER_CLASS = 3
@@ -50,6 +66,49 @@ NAXX_CLASS = {"HUNTER": ["Webspinner"], "MAGE": ["Duplicate"], "WARRIOR": ["Deat
 REMOVAL_CANDIDATES = ["Starving Buzzard", "Leeroy Jenkins"]
 #neutral, stat-honest substitute when a removal candidate is taken out
 REMOVAL_SUBSTITUTE = {"HUNTER": "Chillwind Yeti", "MAGE": "Chillwind Yeti", "WARRIOR": "Chillwind Yeti"}
+
+
+def run_host_probe(work_items, host):
+  """evolve_metagame_shift.run_host, pointed at probe_remote_worker.py. Copied
+  rather than parameterised because that module is owned elsewhere; the ssh
+  protocol (dill in, one '>>>' result line out) is identical."""
+  if not work_items:
+    return []
+  print(f"Starting host {host} with {len(work_items)} work items...", flush=True)
+  serial_work = dill.dumps(work_items, fmode='wb')
+  dir_ = "~/phd/hearth-mici/classic_sim/examples/metagame_analysis/" if host == "laptop" \
+         else "~/classic_sim/examples/metagame_analysis/"
+  #one BLAS thread per worker: the value net's matmuls are tiny, so the default
+  #thread pool per loky process just oversubscribes the box (24 workers x N
+  #threads) and slows the whole batch down. Results are unaffected - the game
+  #loop is single-threaded and its RNG use is unchanged.
+  command = (f'cd {dir_} && source ~/.profile && pyenv activate venv && '
+             f'OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 '
+             f'python3 probe_remote_worker.py')
+  ssh = subprocess.Popen(["ssh", host, command], shell=False, stdout=subprocess.PIPE,
+                          stderr=subprocess.PIPE, stdin=subprocess.PIPE)
+  result, err = ssh.communicate(input=serial_work)
+  if err:
+    print(f"{host} error: {err.decode(errors='replace')}")
+  for line in result.decode(errors="replace").splitlines():
+    if line[:3] == ">>>":
+      print(f"Closing host {host}.", flush=True)
+      return ast.literal_eval(line[3:])
+    print(f"{host}> {line}")
+  raise RuntimeError(f"{host} never returned a >>> result line")
+
+
+def run_matchups_probe_ssh(work_items, cores):
+  #reuses evolve_metagame_shift's chunk/reassemble over ems.HOSTS (which
+  #--hosts-list may have narrowed) with run_host swapped for the probe worker
+  ems.run_host = run_host_probe
+  return ems.run_matchups_ssh(work_items, cores)
+
+
+def run_matchups_probe_local(work_items, cores):
+  if cores == 1:
+    return [_run_probe(item) for item in work_items]
+  return Parallel(n_jobs=cores)(delayed(_run_probe)(item) for item in work_items)
 
 
 def load_seeds(era):
@@ -78,11 +137,30 @@ def main():
   parser.add_argument("--hosts", type=int, default=HOSTS_PER_CLASS)
   parser.add_argument("--seed", type=int, default=0)
   parser.add_argument("--eval-weights", default=str(OUT_DIR / "self_play_champion.json"))
+  parser.add_argument("--agent", choices=["auto", "linear", "net", "beam"], default="auto",
+                       help="pilot for BOTH sides. 'auto' = historical behaviour (weights type "
+                            "picks GreedyActionSmart/NeuralGreedy); 'beam' = turn-plan BeamSearch "
+                            "over the same --eval-weights evaluator")
+  parser.add_argument("--beam-width", type=int, default=3)
+  parser.add_argument("--depth", type=int, default=3)
+  parser.add_argument("--hosts-list", default=None,
+                       help="comma-separated ssh hosts, e.g. 'dwail1' - narrows the dispatch "
+                            "fan-out (evolve_metagame_shift.HOSTS) for this run only")
+  parser.add_argument("--out", default=None,
+                       help="output CSV path (default data/probe_<era>.csv - which OVERWRITES the "
+                            "committed baseline, so name a new file for every experimental run)")
+  parser.add_argument("--candidates", type=int, default=None,
+                       help="smoke-test only: use just the first N candidate cards per class")
   args = parser.parse_args()
+
+  if args.hosts_list:
+    ems.HOSTS = [h.strip() for h in args.hosts_list.split(",") if h.strip()]
+    print(f"dispatch hosts narrowed to {ems.HOSTS}")
 
   rng = Random(args.seed)
   mode = "removal" if args.era == "buzzard_nerf" else "addition"
   eval_weights = load_eval_weights(args.eval_weights) if args.eval_weights else None
+  pilot = agent_spec(args.agent, eval_weights, args.beam_width, args.depth)
 
   seeds = load_seeds(args.era)
   field = build_field(seeds, rng)
@@ -94,7 +172,9 @@ def main():
       hosts = [list(deck) for deck in rng.sample(seeds[player_class], args.hosts)]
       slots = [pick_removal_slot(deck, rng) for deck in hosts]
       candidates = {}
-      for card in NAXX_NEUTRALS + NAXX_CLASS[player_class]:
+      card_list = NAXX_NEUTRALS[:args.candidates] + NAXX_CLASS[player_class] if args.candidates \
+                  else NAXX_NEUTRALS + NAXX_CLASS[player_class]
+      for card in card_list:
         variants = []
         for deck, slot in zip(hosts, slots):
           variant = list(deck)
@@ -125,19 +205,19 @@ def main():
     for i, deck in enumerate(plan[player_class]["hosts"]):
       for opponent in field:
         work.append((deck, player_class, opponent["deck"], opponent["class"], args.era,
-                     eval_weights, args.games, args.games))
+                     pilot, args.games, args.games))
       index.append(("baseline", player_class, i))
     for card, variants in plan[player_class]["candidates"].items():
       for i, deck in enumerate(variants):
         for opponent in field:
           work.append((deck, player_class, opponent["deck"], opponent["class"], args.era,
-                       eval_weights, args.games, args.games))
+                       pilot, args.games, args.games))
         index.append((card, player_class, i))
 
   n_field = len(field)
-  print(f"era={args.era} mode={mode}: {len(index)} deck evaluations x {n_field} opponents "
-        f"x {args.games} games = {len(work) * args.games} games", flush=True)
-  run_matchups = run_matchups_ssh if args.backend == "ssh" else run_matchups_local
+  print(f"era={args.era} mode={mode} agent={args.agent}: {len(index)} deck evaluations x "
+        f"{n_field} opponents x {args.games} games = {len(work) * args.games} games", flush=True)
+  run_matchups = run_matchups_probe_ssh if args.backend == "ssh" else run_matchups_probe_local
   results = run_matchups(work, args.cores)
 
   win_rates = {}
@@ -172,7 +252,7 @@ def main():
                      "host_deltas": "|".join(f"{d:+.3f}" for d in deltas),
                      "games_per_side": len(deltas) * n_field * args.games})
 
-  out_path = OUT_DIR / f"probe_{args.era}.csv"
+  out_path = Path(args.out) if args.out else OUT_DIR / f"probe_{args.era}.csv"
   with out_path.open("w", newline="", encoding="utf-8") as f:
     writer = csv.DictWriter(f, fieldnames=["class", "card", "mode", "mean_delta_wr", "host_deltas", "games_per_side"])
     writer.writeheader()

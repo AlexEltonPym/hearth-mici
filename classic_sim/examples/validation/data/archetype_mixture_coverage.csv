@@ -1,0 +1,16 @@
+period,class,decks,named_archetype,coverage,a1_name,a1_n,a2_name,a2_n,other_n
+p0_prenaxx,HUNTER,329,326,0.9909,Face Hunter,121,Sunshine Hunter,205,3
+p0_prenaxx,MAGE,368,334,0.9076,Burn Mage,168,Freeze Mage,166,34
+p0_prenaxx,WARRIOR,276,275,0.9964,Aggro Warrior,124,Control Warrior,151,1
+p1_naxx_early,HUNTER,495,488,0.9859,Face Hunter,185,Sunshine Hunter,303,7
+p1_naxx_early,MAGE,673,594,0.8826,Burn Mage,203,Freeze Mage,391,79
+p1_naxx_early,WARRIOR,534,522,0.9775,Aggro Warrior,166,Control Warrior,356,12
+p2_naxx_late,HUNTER,125,122,0.976,Face Hunter,50,Sunshine Hunter,72,3
+p2_naxx_late,MAGE,162,138,0.8519,Burn Mage,65,Freeze Mage,73,24
+p2_naxx_late,WARRIOR,117,117,1.0,Aggro Warrior,42,Control Warrior,75,0
+p3_postnerf_early,HUNTER,322,314,0.9752,Face Hunter,218,Sunshine Hunter,96,8
+p3_postnerf_early,MAGE,310,275,0.8871,Burn Mage,132,Freeze Mage,143,35
+p3_postnerf_early,WARRIOR,267,266,0.9963,Aggro Warrior,86,Control Warrior,180,1
+p4_postnerf_late,HUNTER,251,249,0.992,Face Hunter,166,Sunshine Hunter,83,2
+p4_postnerf_late,MAGE,228,190,0.8333,Burn Mage,78,Freeze Mage,112,38
+p4_postnerf_late,WARRIOR,202,199,0.9851,Aggro Warrior,72,Control Warrior,127,3

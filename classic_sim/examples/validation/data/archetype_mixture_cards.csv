@@ -1,0 +1,61 @@
+class,card,period,pooled_share,n_class,r2_archetype,max_archetype_share,a1_name,a1_n,a1_share,a1_weight,a2_name,a2_n,a2_share,a2_weight,other_name,other_n,other_share,other_weight
+HUNTER,Starving Buzzard,p0_prenaxx,0.8815,329,0.1477,0.9793,Face Hunter,131,0.7557,0.3982,Sunshine Hunter,193,0.9793,0.5866,OTHER_HUNTER,5,0.4,0.0152
+HUNTER,Starving Buzzard,p1_naxx_early,0.7859,495,0.0956,0.9035,Face Hunter,260,0.7,0.5253,Sunshine Hunter,228,0.9035,0.4606,OTHER_HUNTER,7,0.1429,0.0141
+HUNTER,Starving Buzzard,p2_naxx_late,0.528,125,0.0725,0.65,Face Hunter,62,0.4355,0.496,Sunshine Hunter,60,0.65,0.48,OTHER_HUNTER,3,0.0,0.024
+HUNTER,Starving Buzzard,p3_postnerf_early,0.1615,322,0.1684,0.3978,Face Hunter,221,0.0679,0.6863,Sunshine Hunter,93,0.3978,0.2888,OTHER_HUNTER,8,0.0,0.0248
+HUNTER,Starving Buzzard,p4_postnerf_late,0.1753,251,0.141,0.3896,Face Hunter,172,0.0814,0.6853,Sunshine Hunter,77,0.3896,0.3068,OTHER_HUNTER,2,0.0,0.008
+HUNTER,Unleash the Hounds,p0_prenaxx,0.9362,329,0.065,0.9685,Face Hunter,103,0.8835,0.3131,Sunshine Hunter,222,0.9685,0.6748,OTHER_HUNTER,4,0.5,0.0122
+HUNTER,Unleash the Hounds,p1_naxx_early,0.8646,495,0.1285,0.9435,Face Hunter,149,0.7181,0.301,Sunshine Hunter,336,0.9435,0.6788,OTHER_HUNTER,10,0.4,0.0202
+HUNTER,Unleash the Hounds,p2_naxx_late,0.76,125,0.1871,0.8974,Face Hunter,43,0.5581,0.344,Sunshine Hunter,78,0.8974,0.624,OTHER_HUNTER,4,0.25,0.032
+HUNTER,Unleash the Hounds,p3_postnerf_early,0.6398,322,0.0568,0.7778,Face Hunter,195,0.5744,0.6056,Sunshine Hunter,117,0.7778,0.3634,OTHER_HUNTER,10,0.3,0.0311
+HUNTER,Unleash the Hounds,p4_postnerf_late,0.7649,251,0.0038,0.7822,Face Hunter,145,0.7586,0.5777,Sunshine Hunter,101,0.7822,0.4024,OTHER_HUNTER,5,0.6,0.0199
+HUNTER,Webspinner,p0_prenaxx,0.0091,329,0.0158,0.0248,Face Hunter,121,0.0248,0.3678,Sunshine Hunter,205,0.0,0.6231,OTHER_HUNTER,3,0.0,0.0091
+HUNTER,Webspinner,p1_naxx_early,0.5091,495,0.0408,0.5875,Face Hunter,185,0.3784,0.3737,Sunshine Hunter,303,0.5875,0.6121,OTHER_HUNTER,7,0.5714,0.0141
+HUNTER,Webspinner,p2_naxx_late,0.68,125,0.0138,0.6944,Face Hunter,50,0.68,0.4,Sunshine Hunter,72,0.6944,0.576,OTHER_HUNTER,3,0.3333,0.024
+HUNTER,Webspinner,p3_postnerf_early,0.7795,322,0.0454,0.8303,Face Hunter,218,0.8303,0.677,Sunshine Hunter,96,0.6979,0.2981,OTHER_HUNTER,8,0.375,0.0248
+HUNTER,Webspinner,p4_postnerf_late,0.6813,251,0.0384,0.7349,Face Hunter,166,0.7349,0.6614,Sunshine Hunter,83,0.5904,0.3307,OTHER_HUNTER,2,0.0,0.008
+HUNTER,Haunted Creeper,p0_prenaxx,0.0122,329,0.0078,0.0248,Face Hunter,121,0.0248,0.3678,Sunshine Hunter,205,0.0049,0.6231,OTHER_HUNTER,3,0.0,0.0091
+HUNTER,Haunted Creeper,p1_naxx_early,0.5556,495,0.089,0.6733,Face Hunter,185,0.373,0.3737,Sunshine Hunter,303,0.6733,0.6121,OTHER_HUNTER,7,0.2857,0.0141
+HUNTER,Haunted Creeper,p2_naxx_late,0.656,125,0.0236,0.7083,Face Hunter,50,0.6,0.4,Sunshine Hunter,72,0.7083,0.576,OTHER_HUNTER,3,0.3333,0.024
+HUNTER,Haunted Creeper,p3_postnerf_early,0.7298,322,0.0787,0.7982,Face Hunter,218,0.7982,0.677,Sunshine Hunter,96,0.625,0.2981,OTHER_HUNTER,8,0.125,0.0248
+HUNTER,Haunted Creeper,p4_postnerf_late,0.6255,251,0.0529,0.6988,Face Hunter,166,0.6988,0.6614,Sunshine Hunter,83,0.494,0.3307,OTHER_HUNTER,2,0.0,0.008
+HUNTER,Mad Scientist,p0_prenaxx,0.0122,329,0.0212,0.0331,Face Hunter,121,0.0331,0.3678,Sunshine Hunter,205,0.0,0.6231,OTHER_HUNTER,3,0.0,0.0091
+HUNTER,Mad Scientist,p1_naxx_early,0.299,495,0.0511,0.5714,Face Hunter,185,0.4216,0.3737,Sunshine Hunter,303,0.2178,0.6121,OTHER_HUNTER,7,0.5714,0.0141
+HUNTER,Mad Scientist,p2_naxx_late,0.44,125,0.1451,0.6667,Face Hunter,50,0.66,0.4,Sunshine Hunter,72,0.2778,0.576,OTHER_HUNTER,3,0.6667,0.024
+HUNTER,Mad Scientist,p3_postnerf_early,0.6646,322,0.2305,0.8211,Face Hunter,218,0.8211,0.677,Sunshine Hunter,96,0.3333,0.2981,OTHER_HUNTER,8,0.375,0.0248
+HUNTER,Mad Scientist,p4_postnerf_late,0.6016,251,0.2366,0.7711,Face Hunter,166,0.7711,0.6614,Sunshine Hunter,83,0.2771,0.3307,OTHER_HUNTER,2,0.0,0.008
+HUNTER,Sludge Belcher,p0_prenaxx,0.0,329,0.0,0.0,Face Hunter,121,0.0,0.3678,Sunshine Hunter,205,0.0,0.6231,OTHER_HUNTER,3,0.0,0.0091
+HUNTER,Sludge Belcher,p1_naxx_early,0.0687,495,0.0046,0.1429,Face Hunter,185,0.0865,0.3737,Sunshine Hunter,303,0.0561,0.6121,OTHER_HUNTER,7,0.1429,0.0141
+HUNTER,Sludge Belcher,p2_naxx_late,0.304,125,0.0173,0.6667,Face Hunter,50,0.32,0.4,Sunshine Hunter,72,0.2778,0.576,OTHER_HUNTER,3,0.6667,0.024
+HUNTER,Sludge Belcher,p3_postnerf_early,0.3354,322,0.0206,0.75,Face Hunter,218,0.3349,0.677,Sunshine Hunter,96,0.3021,0.2981,OTHER_HUNTER,8,0.75,0.0248
+HUNTER,Sludge Belcher,p4_postnerf_late,0.3466,251,0.0195,0.5,Face Hunter,166,0.3916,0.6614,Sunshine Hunter,83,0.253,0.3307,OTHER_HUNTER,2,0.5,0.008
+HUNTER,Undertaker,p0_prenaxx,0.0061,329,0.0105,0.0165,Face Hunter,121,0.0165,0.3678,Sunshine Hunter,205,0.0,0.6231,OTHER_HUNTER,3,0.0,0.0091
+HUNTER,Undertaker,p1_naxx_early,0.1596,495,0.1272,0.4286,Face Hunter,185,0.3189,0.3737,Sunshine Hunter,303,0.0561,0.6121,OTHER_HUNTER,7,0.4286,0.0141
+HUNTER,Undertaker,p2_naxx_late,0.392,125,0.0993,0.58,Face Hunter,50,0.58,0.4,Sunshine Hunter,72,0.2639,0.576,OTHER_HUNTER,3,0.3333,0.024
+HUNTER,Undertaker,p3_postnerf_early,0.6087,322,0.218,0.7661,Face Hunter,218,0.7661,0.677,Sunshine Hunter,96,0.2812,0.2981,OTHER_HUNTER,8,0.25,0.0248
+HUNTER,Undertaker,p4_postnerf_late,0.5139,251,0.3224,0.7169,Face Hunter,166,0.7169,0.6614,Sunshine Hunter,83,0.1205,0.3307,OTHER_HUNTER,2,0.0,0.008
+MAGE,Mad Scientist,p0_prenaxx,0.0109,368,0.004,0.0294,Burn Mage,168,0.0119,0.4565,Freeze Mage,166,0.006,0.4511,OTHER_MAGE,34,0.0294,0.0924
+MAGE,Mad Scientist,p1_naxx_early,0.3863,673,0.0335,0.5316,Burn Mage,203,0.4729,0.3016,Freeze Mage,391,0.312,0.581,OTHER_MAGE,79,0.5316,0.1174
+MAGE,Mad Scientist,p2_naxx_late,0.5185,162,0.0029,0.5479,Burn Mage,65,0.4923,0.4012,Freeze Mage,73,0.5479,0.4506,OTHER_MAGE,24,0.5,0.1481
+MAGE,Mad Scientist,p3_postnerf_early,0.5839,310,0.0244,0.6667,Burn Mage,132,0.6667,0.4258,Freeze Mage,143,0.5035,0.4613,OTHER_MAGE,35,0.6,0.1129
+MAGE,Mad Scientist,p4_postnerf_late,0.4298,228,0.065,0.5357,Burn Mage,78,0.3974,0.3421,Freeze Mage,112,0.5357,0.4912,OTHER_MAGE,38,0.1842,0.1667
+MAGE,Duplicate,p0_prenaxx,0.0027,368,0.0032,0.006,Burn Mage,168,0.006,0.4565,Freeze Mage,166,0.0,0.4511,OTHER_MAGE,34,0.0,0.0924
+MAGE,Duplicate,p1_naxx_early,0.416,673,0.0284,0.5823,Burn Mage,203,0.4778,0.3016,Freeze Mage,391,0.3504,0.581,OTHER_MAGE,79,0.5823,0.1174
+MAGE,Duplicate,p2_naxx_late,0.5062,162,0.0033,0.5385,Burn Mage,65,0.5385,0.4012,Freeze Mage,73,0.4932,0.4506,OTHER_MAGE,24,0.4583,0.1481
+MAGE,Duplicate,p3_postnerf_early,0.4839,310,0.017,0.6571,Burn Mage,132,0.4848,0.4258,Freeze Mage,143,0.4406,0.4613,OTHER_MAGE,35,0.6571,0.1129
+MAGE,Duplicate,p4_postnerf_late,0.3596,228,0.0062,0.3929,Burn Mage,78,0.3462,0.3421,Freeze Mage,112,0.3929,0.4912,OTHER_MAGE,38,0.2895,0.1667
+WARRIOR,Death's Bite,p0_prenaxx,0.0145,276,0.0122,0.0265,Aggro Warrior,124,0.0,0.4493,Control Warrior,151,0.0265,0.5471,OTHER_WARRIOR,1,0.0,0.0036
+WARRIOR,Death's Bite,p1_naxx_early,0.5861,534,0.0223,0.6376,Aggro Warrior,166,0.488,0.3109,Control Warrior,356,0.6376,0.6667,OTHER_WARRIOR,12,0.4167,0.0225
+WARRIOR,Death's Bite,p2_naxx_late,0.6752,117,0.1868,0.8267,Aggro Warrior,42,0.4048,0.359,Control Warrior,75,0.8267,0.641,OTHER_WARRIOR,0,0.0,0.0
+WARRIOR,Death's Bite,p3_postnerf_early,0.7603,267,0.0597,0.8278,Aggro Warrior,86,0.6279,0.3221,Control Warrior,180,0.8278,0.6742,OTHER_WARRIOR,1,0.0,0.0037
+WARRIOR,Death's Bite,p4_postnerf_late,0.6436,202,0.0417,0.7165,Aggro Warrior,72,0.5278,0.3564,Control Warrior,127,0.7165,0.6287,OTHER_WARRIOR,3,0.3333,0.0149
+WARRIOR,Sludge Belcher,p0_prenaxx,0.0109,276,0.0091,0.0199,Aggro Warrior,124,0.0,0.4493,Control Warrior,151,0.0199,0.5471,OTHER_WARRIOR,1,0.0,0.0036
+WARRIOR,Sludge Belcher,p1_naxx_early,0.3895,534,0.1489,0.5225,Aggro Warrior,166,0.1205,0.3109,Control Warrior,356,0.5225,0.6667,OTHER_WARRIOR,12,0.1667,0.0225
+WARRIOR,Sludge Belcher,p2_naxx_late,0.5299,117,0.224,0.7067,Aggro Warrior,42,0.2143,0.359,Control Warrior,75,0.7067,0.641,OTHER_WARRIOR,0,0.0,0.0
+WARRIOR,Sludge Belcher,p3_postnerf_early,0.5993,267,0.1493,1.0,Aggro Warrior,86,0.3256,0.3221,Control Warrior,180,0.7278,0.6742,OTHER_WARRIOR,1,1.0,0.0037
+WARRIOR,Sludge Belcher,p4_postnerf_late,0.5099,202,0.1757,0.6693,Aggro Warrior,72,0.25,0.3564,Control Warrior,127,0.6693,0.6287,OTHER_WARRIOR,3,0.0,0.0149
+WARRIOR,Loatheb,p0_prenaxx,0.0036,276,0.003,0.0066,Aggro Warrior,124,0.0,0.4493,Control Warrior,151,0.0066,0.5471,OTHER_WARRIOR,1,0.0,0.0036
+WARRIOR,Loatheb,p1_naxx_early,0.3427,534,0.1082,0.4522,Aggro Warrior,166,0.1325,0.3109,Control Warrior,356,0.4522,0.6667,OTHER_WARRIOR,12,0.0,0.0225
+WARRIOR,Loatheb,p2_naxx_late,0.3932,117,0.2083,0.56,Aggro Warrior,42,0.0952,0.359,Control Warrior,75,0.56,0.641,OTHER_WARRIOR,0,0.0,0.0
+WARRIOR,Loatheb,p3_postnerf_early,0.4869,267,0.1253,1.0,Aggro Warrior,86,0.2326,0.3221,Control Warrior,180,0.6056,0.6742,OTHER_WARRIOR,1,1.0,0.0037
+WARRIOR,Loatheb,p4_postnerf_late,0.396,202,0.0741,0.4961,Aggro Warrior,72,0.2361,0.3564,Control Warrior,127,0.4961,0.6287,OTHER_WARRIOR,3,0.0,0.0149

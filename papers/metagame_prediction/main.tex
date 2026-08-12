@@ -528,6 +528,33 @@ orange the model, blue the real outcome.}
 \label{fig:nerf}
 \end{figure}
 
+\subsection{The nerf moved the field, not only the decks}
+\label{sec:composition}
+The prediction pipeline treats within-class card adoption as the
+target, but a class is a mixture of archetypes, and the Buzzard nerf
+shifted that mixture. Classifying the archive Hunter decks into Face
+and Midrange (Sunshine) by signature cards, Sunshine's share falls
+from 57.6\% to 29.8\% across the nerf while Face rises from 40.0\% to
+67.7\% ($z=5.4$, the largest composition shift in the dataset). The
+Buzzard-and-Hyena beast package the patch targeted lived in Sunshine
+Hunter, and when it died the field converged on Face aggro. The
+shift survives two controls that rule out classifier circularity:
+recomputing the mix with Buzzard removed from every archetype
+signature still gives 40\% to 62\% Face, and Leper Gnome, a
+Face-only marker the patch never touched, independently rises from
+36\% to 59\% across the same boundary. Part of the nerf's card-level
+effect is therefore recomposition of the field rather than
+substitution inside a fixed deck.
+
+This is a descriptive finding, not a modelling lever. An oracle test
+that hands a mixture model the true post-shock archetype mix, the
+ceiling any such model could reach, improves adoption MAE by
+$0.37\pp$ over pooled prediction across 799 card-transitions,
+because 90\% of real card movement is within-archetype substitution;
+archetype membership explains a median 5\% of per-card inclusion
+variance, and for Mage essentially none. Predicting per archetype
+and mixing would not repay its cost.
+
 \subsection{Trajectory: one-step skill, free-running drift}
 \label{sec:rolling}
 The one-shot experiments predict a single post-shock equilibrium. A
@@ -560,6 +587,25 @@ The pattern matches numerical forecasting generally: skillful
 single steps, compounding drift over the horizon, and the useful
 horizon of the present pipeline is one period, roughly six weeks.
 
+Two things inflate the raw adoption levels, and only one is a real
+model error. The elite readout counts card inclusion over the
+fitness-maximising decks in each niche, so a card in all of a
+niche's 18--40 elites reads as exactly 100\%, and evolved elites
+also carry a few more distinct cards than real decks, which run more
+duplicates. A mass-matched readout (a Jeffreys estimate plus a
+single monotone shift that rescales predicted total mass to the
+pre-shock real mass, so ranking is untouched) removes both: across
+the rolling runs it takes the number of saturated predictions from
+35 to 0 and over-predictions from 33 to 5, with movers Spearman
+unchanged to three decimals. What it does not remove is the
+free-running echo chamber. Corrected, free-running Buzzard still
+sits at 63--92\% through the post-nerf periods against a real
+16--18\%, so the saturation was a readout artifact but the
+persistence is genuine model behaviour. All aggregate levels
+figures we report use the mass-matched readout;
+Figs.~\ref{fig:dissociation} and~\ref{fig:nerf} show the raw model
+output.
+
 \subsection{The baseline}
 The no-change baseline wins the overall adoption Spearman, at
 0.62--0.96 against the prediction's 0.27--0.51. Real decks are
@@ -585,21 +631,33 @@ value network of about 60k parameters is trained on pre-Naxxramas
 self-play only, with Monte Carlo outcome targets and no search in
 the training loop.
 
-Probing the Naxxramas cards with this net splits by mechanism
-support. Mage valuations beat the linear probe (Spearman against
-real adoption $+0.30$ vs.\ $+0.20$), Warrior ties, and Hunter fails
-($-0.075$ vs.\ $+0.35$). The Hunter package consists of
-deathrattle-token cards, a mechanism with essentially no support in
-pre-Naxxramas training data. Three generations of fine-tuning with
-Naxxramas cards in the self-play pool close the gap (Hunter
-$-0.075$ to $+0.34$; Mage rises to $+0.60$), which points to
-mechanism coverage of the training data, and not model capacity, as
-the binding constraint. Given only the patch text, the net assigns
-the correct sign to both 2014 nerfs, agreeing with the linear agent
-on Buzzard and improving on Leeroy. The two sequencing misses,
-Death's Bite and Duplicate, persist under every static evaluator we
-tested; no change of evaluation removes a limitation that lives in
-the piloting policy.
+Probing the Naxxramas cards with the net before it has seen them,
+the per-class Spearman against real adoption is $+0.30$ (Mage),
+$+0.20$ (Warrior) and $-0.075$ (Hunter), and the Hunter package,
+which is deathrattle-token cards with no support in pre-Naxxramas
+training data, is where it fails. These per-class correlations are
+too weak to lean on: with 22 cards per class their 95\% intervals
+all straddle zero except Mage after fine-tuning, and a repeat of the
+identical probe condition moved the fine-tuned Hunter value from
+$+0.34$ to $+0.16$ (run-to-run per-card standard deviation
+$1.3\pp$, rank agreement $\rho=0.69$). We report them as directional
+only.
+
+The reproducible evidence for the agent-skill diagnosis is at the
+card level, on the two cards the linear probe most badly misordered.
+Death's Bite (60\% real adoption, probed last by the linear agent at
+$-3.2\pp$) moves to near zero under every net-based pilot we ran:
+$-0.4$, $-0.6$ and $-1.2\pp$ for the fine-tuned net, an identical
+rerun, and turn-plan beam search over the net. Duplicate ($-3.0\pp$
+linear) moves the same way, to $-0.4$ and $-1.3\pp$. A stronger
+evaluator roughly halves the error on exactly the sequencing- and
+synergy-dependent cards the 1-ply agent cannot value, which is the
+mechanism the paper attributes the misses to. The misses do not
+fully close, since none of these evaluators reaches the $+3$ to
+$+4\pp$ a correct valuation would need, so the residual is a policy
+limitation, not an evaluation one. Fine-tuning the net on Naxxramas
+self-play also lifts Mage to $+0.60$, and given only the patch text
+the net signs both 2014 nerfs correctly.
 
 \section{Limitations}
 \label{sec:limitations}

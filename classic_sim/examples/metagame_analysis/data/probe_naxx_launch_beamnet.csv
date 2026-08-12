@@ -1,0 +1,67 @@
+class,card,mode,mean_delta_wr,host_deltas,games_per_side
+HUNTER,Zombie Chow,addition,-0.0326,-0.011|-0.048|-0.015|-0.104|+0.015,1350
+HUNTER,Undertaker,addition,-0.0081,+0.004|-0.044|-0.022|-0.015|+0.037,1350
+HUNTER,Echoing Ooze,addition,0.0119,+0.007|+0.019|-0.052|-0.015|+0.100,1350
+HUNTER,Haunted Creeper,addition,0.0052,+0.011|+0.019|-0.044|+0.026|+0.015,1350
+HUNTER,Mad Scientist,addition,0.0341,+0.019|+0.030|+0.007|+0.041|+0.074,1350
+HUNTER,Nerub'ar Weblord,addition,-0.0281,-0.044|-0.048|-0.030|-0.048|+0.030,1350
+HUNTER,Nerubian Egg,addition,-0.0385,-0.070|-0.048|-0.026|-0.059|+0.011,1350
+HUNTER,Unstable Ghoul,addition,-0.0326,-0.041|-0.026|-0.100|-0.041|+0.044,1350
+HUNTER,Dancing Swords,addition,-0.0104,-0.026|-0.059|-0.004|-0.022|+0.059,1350
+HUNTER,Deathlord,addition,-0.0015,-0.037|+0.007|-0.052|+0.007|+0.067,1350
+HUNTER,Shade of Naxxramas,addition,-0.0215,-0.015|-0.048|-0.059|+0.015|+0.000,1350
+HUNTER,Stoneskin Gargoyle,addition,-0.0341,-0.078|-0.011|+0.004|-0.100|+0.015,1350
+HUNTER,Baron Rivendare,addition,-0.0274,-0.085|-0.037|-0.015|-0.026|+0.026,1350
+HUNTER,Wailing Soul,addition,-0.0504,-0.056|-0.011|-0.100|-0.100|+0.015,1350
+HUNTER,Feugen,addition,0.0052,+0.004|+0.033|-0.037|-0.026|+0.052,1350
+HUNTER,Stalagg,addition,0.0178,-0.022|+0.019|-0.022|+0.052|+0.063,1350
+HUNTER,Loatheb,addition,0.0,+0.004|+0.048|-0.044|-0.033|+0.026,1350
+HUNTER,Sludge Belcher,addition,0.0119,-0.007|-0.004|-0.015|-0.019|+0.104,1350
+HUNTER,Spectral Knight,addition,0.0133,-0.052|+0.048|-0.030|+0.007|+0.093,1350
+HUNTER,Maexxna,addition,-0.037,-0.070|-0.033|-0.041|-0.100|+0.059,1350
+HUNTER,Kel'Thuzad,addition,-0.0363,-0.074|+0.030|-0.096|-0.041|+0.000,1350
+HUNTER,Webspinner,addition,0.0067,-0.041|+0.019|-0.015|+0.011|+0.059,1350
+MAGE,Zombie Chow,addition,0.0193,+0.063|+0.007|-0.067|+0.026|+0.067,1350
+MAGE,Undertaker,addition,0.0237,+0.048|+0.052|-0.044|+0.067|-0.004,1350
+MAGE,Echoing Ooze,addition,0.0356,+0.059|+0.007|+0.041|-0.022|+0.093,1350
+MAGE,Haunted Creeper,addition,0.037,+0.033|+0.015|-0.011|+0.033|+0.115,1350
+MAGE,Mad Scientist,addition,0.0556,+0.089|+0.011|+0.041|+0.048|+0.089,1350
+MAGE,Nerub'ar Weblord,addition,-0.0281,-0.033|+0.004|-0.126|-0.048|+0.063,1350
+MAGE,Nerubian Egg,addition,0.0289,-0.004|+0.052|-0.011|+0.019|+0.089,1350
+MAGE,Unstable Ghoul,addition,0.0356,+0.037|+0.037|-0.019|+0.011|+0.111,1350
+MAGE,Dancing Swords,addition,0.0104,+0.033|-0.019|-0.044|-0.022|+0.104,1350
+MAGE,Deathlord,addition,0.003,-0.007|+0.011|-0.030|+0.007|+0.033,1350
+MAGE,Shade of Naxxramas,addition,0.003,-0.004|+0.007|-0.048|-0.056|+0.115,1350
+MAGE,Stoneskin Gargoyle,addition,-0.0185,+0.022|-0.026|-0.119|+0.000|+0.030,1350
+MAGE,Baron Rivendare,addition,-0.0104,-0.019|-0.019|-0.037|-0.007|+0.030,1350
+MAGE,Wailing Soul,addition,-0.0274,-0.015|+0.000|-0.030|-0.070|-0.022,1350
+MAGE,Feugen,addition,0.0126,-0.004|-0.004|-0.015|+0.000|+0.085,1350
+MAGE,Stalagg,addition,0.0163,+0.033|+0.015|-0.048|+0.000|+0.081,1350
+MAGE,Loatheb,addition,0.0156,+0.019|-0.030|+0.022|-0.026|+0.093,1350
+MAGE,Sludge Belcher,addition,0.0356,+0.037|+0.048|+0.019|+0.004|+0.070,1350
+MAGE,Spectral Knight,addition,-0.0022,+0.019|+0.004|-0.011|-0.081|+0.059,1350
+MAGE,Maexxna,addition,0.003,-0.004|-0.048|-0.037|+0.026|+0.078,1350
+MAGE,Kel'Thuzad,addition,0.0007,-0.022|-0.019|-0.044|-0.011|+0.100,1350
+MAGE,Duplicate,addition,-0.0133,-0.007|-0.019|-0.044|-0.030|+0.033,1350
+WARRIOR,Zombie Chow,addition,0.0044,+0.026|+0.000|+0.015|+0.059|-0.078,1350
+WARRIOR,Undertaker,addition,0.0089,+0.015|-0.007|-0.011|+0.037|+0.011,1350
+WARRIOR,Echoing Ooze,addition,0.0319,+0.100|+0.052|+0.048|+0.081|-0.122,1350
+WARRIOR,Haunted Creeper,addition,0.04,+0.044|+0.111|+0.041|+0.037|-0.033,1350
+WARRIOR,Mad Scientist,addition,0.0037,+0.059|-0.015|+0.019|-0.022|-0.022,1350
+WARRIOR,Nerub'ar Weblord,addition,-0.0052,+0.026|+0.056|-0.004|-0.011|-0.093,1350
+WARRIOR,Nerubian Egg,addition,0.0363,+0.059|+0.093|-0.011|+0.052|-0.011,1350
+WARRIOR,Unstable Ghoul,addition,0.0356,+0.030|+0.030|+0.026|+0.107|-0.015,1350
+WARRIOR,Dancing Swords,addition,0.0007,+0.041|+0.026|-0.011|+0.044|-0.096,1350
+WARRIOR,Deathlord,addition,0.0037,+0.015|+0.011|+0.022|-0.007|-0.022,1350
+WARRIOR,Shade of Naxxramas,addition,0.0044,+0.063|+0.044|-0.033|-0.019|-0.033,1350
+WARRIOR,Stoneskin Gargoyle,addition,-0.0067,-0.019|+0.052|+0.019|-0.007|-0.078,1350
+WARRIOR,Baron Rivendare,addition,-0.0215,+0.011|+0.019|-0.041|-0.019|-0.078,1350
+WARRIOR,Wailing Soul,addition,0.0044,+0.015|+0.007|+0.037|+0.007|-0.044,1350
+WARRIOR,Feugen,addition,0.0259,+0.030|+0.067|+0.041|+0.000|-0.007,1350
+WARRIOR,Stalagg,addition,0.0289,+0.004|+0.063|+0.059|+0.059|-0.041,1350
+WARRIOR,Loatheb,addition,0.0237,+0.056|+0.074|-0.007|+0.041|-0.044,1350
+WARRIOR,Sludge Belcher,addition,0.0163,+0.056|+0.022|+0.056|+0.044|-0.096,1350
+WARRIOR,Spectral Knight,addition,-0.0089,+0.026|+0.052|-0.026|-0.019|-0.078,1350
+WARRIOR,Maexxna,addition,-0.0193,+0.022|+0.000|-0.063|-0.007|-0.048,1350
+WARRIOR,Kel'Thuzad,addition,0.0193,+0.052|+0.030|+0.022|+0.085|-0.093,1350
+WARRIOR,Death's Bite,addition,-0.0119,+0.007|+0.056|-0.070|+0.015|-0.067,1350

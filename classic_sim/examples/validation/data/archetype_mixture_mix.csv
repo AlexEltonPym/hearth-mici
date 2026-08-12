@@ -1,0 +1,46 @@
+period,class,archetype,n_class,n_archetype,share,se
+p0_prenaxx,HUNTER,Face Hunter,329,121,0.3678,0.0266
+p0_prenaxx,HUNTER,Sunshine Hunter,329,205,0.6231,0.0267
+p0_prenaxx,HUNTER,OTHER_HUNTER,329,3,0.0091,0.0052
+p1_naxx_early,HUNTER,Face Hunter,495,185,0.3737,0.0217
+p1_naxx_early,HUNTER,Sunshine Hunter,495,303,0.6121,0.0219
+p1_naxx_early,HUNTER,OTHER_HUNTER,495,7,0.0141,0.0053
+p2_naxx_late,HUNTER,Face Hunter,125,50,0.4,0.0438
+p2_naxx_late,HUNTER,Sunshine Hunter,125,72,0.576,0.0442
+p2_naxx_late,HUNTER,OTHER_HUNTER,125,3,0.024,0.0137
+p3_postnerf_early,HUNTER,Face Hunter,322,218,0.677,0.0261
+p3_postnerf_early,HUNTER,Sunshine Hunter,322,96,0.2981,0.0255
+p3_postnerf_early,HUNTER,OTHER_HUNTER,322,8,0.0248,0.0087
+p4_postnerf_late,HUNTER,Face Hunter,251,166,0.6614,0.0299
+p4_postnerf_late,HUNTER,Sunshine Hunter,251,83,0.3307,0.0297
+p4_postnerf_late,HUNTER,OTHER_HUNTER,251,2,0.008,0.0056
+p0_prenaxx,MAGE,Burn Mage,368,168,0.4565,0.026
+p0_prenaxx,MAGE,Freeze Mage,368,166,0.4511,0.0259
+p0_prenaxx,MAGE,OTHER_MAGE,368,34,0.0924,0.0151
+p1_naxx_early,MAGE,Burn Mage,673,203,0.3016,0.0177
+p1_naxx_early,MAGE,Freeze Mage,673,391,0.581,0.019
+p1_naxx_early,MAGE,OTHER_MAGE,673,79,0.1174,0.0124
+p2_naxx_late,MAGE,Burn Mage,162,65,0.4012,0.0385
+p2_naxx_late,MAGE,Freeze Mage,162,73,0.4506,0.0391
+p2_naxx_late,MAGE,OTHER_MAGE,162,24,0.1481,0.0279
+p3_postnerf_early,MAGE,Burn Mage,310,132,0.4258,0.0281
+p3_postnerf_early,MAGE,Freeze Mage,310,143,0.4613,0.0283
+p3_postnerf_early,MAGE,OTHER_MAGE,310,35,0.1129,0.018
+p4_postnerf_late,MAGE,Burn Mage,228,78,0.3421,0.0314
+p4_postnerf_late,MAGE,Freeze Mage,228,112,0.4912,0.0331
+p4_postnerf_late,MAGE,OTHER_MAGE,228,38,0.1667,0.0247
+p0_prenaxx,WARRIOR,Aggro Warrior,276,124,0.4493,0.0299
+p0_prenaxx,WARRIOR,Control Warrior,276,151,0.5471,0.03
+p0_prenaxx,WARRIOR,OTHER_WARRIOR,276,1,0.0036,0.0036
+p1_naxx_early,WARRIOR,Aggro Warrior,534,166,0.3109,0.02
+p1_naxx_early,WARRIOR,Control Warrior,534,356,0.6667,0.0204
+p1_naxx_early,WARRIOR,OTHER_WARRIOR,534,12,0.0225,0.0064
+p2_naxx_late,WARRIOR,Aggro Warrior,117,42,0.359,0.0443
+p2_naxx_late,WARRIOR,Control Warrior,117,75,0.641,0.0443
+p2_naxx_late,WARRIOR,OTHER_WARRIOR,117,0,0.0,0.0
+p3_postnerf_early,WARRIOR,Aggro Warrior,267,86,0.3221,0.0286
+p3_postnerf_early,WARRIOR,Control Warrior,267,180,0.6742,0.0287
+p3_postnerf_early,WARRIOR,OTHER_WARRIOR,267,1,0.0037,0.0037
+p4_postnerf_late,WARRIOR,Aggro Warrior,202,72,0.3564,0.0337
+p4_postnerf_late,WARRIOR,Control Warrior,202,127,0.6287,0.034
+p4_postnerf_late,WARRIOR,OTHER_WARRIOR,202,3,0.0149,0.0085
