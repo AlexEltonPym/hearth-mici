@@ -741,8 +741,17 @@ good (movers Spearman 0.67-0.89 anchored); the residual error is LEVELS
   from 24-27 to 20-22 with exploration intact; steady-state stress test 22.7
   vs old 27.9 (real 18.0). Legendaries stay singleton automatically
   (max_copies 1); 1-ofs remain reachable. Invariants in
-  `test_mutation_pairing.py`. Whether the extra realism helps or hurts the
-  adoption prediction is a dwail A/B not yet run.
+  `test_mutation_pairing.py`. **A/B verdict (naxx_launch, 20 gens, probe-biased,
+  mass-matched readout, single seed): the fix lowers distinct count in the
+  real run (21.3 -> 19.8, real 18.0) and HELPS adoption prediction on
+  average.** Hunter and Mage improve on all three metrics (movers Spearman
+  Hunter 0.594->0.759, Mage 0.497->0.631; direction and levels-MAE both
+  better); Warrior regresses on all three (0.491->0.364, MAE 0.040->0.055).
+  Mean movers rho 0.527->0.585, mean direction 0.71->0.76, mean levels MAE
+  flat (Warrior cancels the others). Kept as default; the Warrior regression
+  is one seed and does not outweigh the Hunter/Mage gains, but the per-class
+  split wants a multi-seed rerun before it is load-bearing. Artifacts:
+  `data/pairbias_{off,on}_predicted_adoption.csv`.
 - **Collection constraints + gauntlet real-anchors** - opt-in flags in
   `evolve_metagame_shift.py` (`--real-anchors`, plus owned/rarity_weights
   in mutate_deck; `card_rarity.py`). A/B (naxx_launch, elite readout):
