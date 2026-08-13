@@ -730,9 +730,19 @@ good (movers Spearman 0.67-0.89 anchored); the residual error is LEVELS
   correction is genuine model error (free-running Buzzard 63-92% vs real
   16-18% - the echo chamber, not the readout). Method validated in
   `adoption_readout.py` (30+ variants; softmax/coarsening go the WRONG
-  way, so future runs should RAISE `--num-buckets`). New model defect
-  surfaced: the mutation operator biases toward all-singleton decks; real
-  players run more 2-ofs. Fixing the operator is the next lever.
+  way, so future runs should RAISE `--num-buckets`).
+- **Mutation 2-of fix (2026-08-13)** - the operator drew replacements
+  uniformly from the ~120-card pool, so it kept introducing new distinct
+  cards and eroded the real seeds' 2-of structure (evolved decks drifted to
+  24-28 distinct vs real 18.0). `mutate_deck` now takes `--pair-bias`
+  (default 4.0), up-weighting BOTH the slot side (remove a held 1-of) and the
+  candidate side (add a copy of an existing 1-of) - the only combination that
+  lowers the distinct count. At real horizons (10-25 gens) distinct drops
+  from 24-27 to 20-22 with exploration intact; steady-state stress test 22.7
+  vs old 27.9 (real 18.0). Legendaries stay singleton automatically
+  (max_copies 1); 1-ofs remain reachable. Invariants in
+  `test_mutation_pairing.py`. Whether the extra realism helps or hurts the
+  adoption prediction is a dwail A/B not yet run.
 - **Collection constraints + gauntlet real-anchors** - opt-in flags in
   `evolve_metagame_shift.py` (`--real-anchors`, plus owned/rarity_weights
   in mutate_deck; `card_rarity.py`). A/B (naxx_launch, elite readout):

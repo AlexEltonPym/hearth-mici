@@ -88,7 +88,22 @@ def era_class_pool(player_class):
   return [card.name for card in build_pool(ERA_SETS[player_class], None)]
 
 
-def mutate_deck(deck, pool, bias=None, bias_strength=10.0, owned=None, rarity_weights=None):
+#Real 2014 constructed decks average 17.5-18.9 DISTINCT cards out of 30 -
+#players run a second copy of most non-legendary cards for consistency. A
+#swap that draws uniformly from the ~120-card legal pool almost always lands
+#on a card the deck does not yet have, so unbiased mutation erodes that
+#structure and drifts toward all-singleton decks (measured 19-23 distinct,
+#and worse under free-running self-play). PAIR_BIAS up-weights, as a
+#replacement candidate, a card already held as a 1-of that can legally become
+#a 2-of, pulling the distinct-card count back toward the real range.
+#Legendaries have max_copies 1, so they are never eligible to double and stay
+#singletons automatically. 1-ofs remain reachable: the bias is a multiplier,
+#not a rule, so genuinely-best single copies still win slots.
+PAIR_BIAS = 4.0
+
+
+def mutate_deck(deck, pool, bias=None, bias_strength=10.0, owned=None,
+                rarity_weights=None, pair_bias=PAIR_BIAS):
   """bias: {card: probed_delta_wr} from probe_card_values.py. Models the real
   players' non-neutral exploration: replacement candidates with positive
   probed value are proposed more often (weight 1 + strength*delta/max_delta),
@@ -99,33 +114,49 @@ def mutate_deck(deck, pool, bias=None, bias_strength=10.0, owned=None, rarity_we
   can be proposed - the hard half of the collection constraint.
   rarity_weights: {card: weight in (0,1]} multiplying the proposal odds, so
   rares/epics/legendaries are proposed proportionally less often even when
-  owned - the soft half. Both default to off (unconstrained pool)."""
+  owned - the soft half. Both default to off (unconstrained pool).
+  pair_bias: multiplier on candidates already held as a 1-of that can become
+  a 2-of, so mutation builds the 2-ofs real decks run instead of drifting to
+  all singletons. 1.0 disables it (old behaviour)."""
   deck = list(deck)
   num_swaps = 0
   for exponent in range(4):
     if random() < 1 / (2 ** exponent):
       num_swaps = exponent
   max_positive = max([d for d in bias.values() if d > 0], default=0) if bias else 0
+  #distinct-card count only DROPS when a swap removes a singleton and adds a
+  #copy of a card the deck already holds once. So pairing needs both sides:
+  #a slot holding a 1-of (removing it loses a distinct card) and a candidate
+  #that is an existing 1-of (adding it costs no distinct card). pair_bias
+  #up-weights both. Non-legendary only - legendaries have max_copies 1, so
+  #they are never an existing 1-of eligible to double and stay singletons.
   for _ in range(num_swaps):
-    if bias:
-      slot_weights = [1 + bias_strength * max(0.0, -bias.get(card, 0.0)) / max_positive if max_positive else 1
-                      for card in deck]
-      slot = choices(range(len(deck)), weights=slot_weights)[0]
-    else:
-      slot = randint(0, len(deck) - 1)
-    candidates = [c for c in pool if deck.count(c) < max_copies(c)
+    slot_weights = [1.0] * len(deck)
+    if bias and max_positive:
+      slot_weights = [w * (1 + bias_strength * max(0.0, -bias.get(card, 0.0)) / max_positive)
+                      for w, card in zip(slot_weights, deck)]
+    if pair_bias != 1.0:
+      slot_weights = [w * pair_bias if (deck.count(card) == 1 and max_copies(card) == 2) else w
+                      for w, card in zip(slot_weights, deck)]
+    slot = choices(range(len(deck)), weights=slot_weights)[0]
+    #removing this slot's card frees one of its copies, so eligibility is
+    #judged against the deck WITHOUT it (lets a 2-of card be re-proposed, and
+    #keeps counts honest for the pair test)
+    remaining = list(deck)
+    del remaining[slot]
+    candidates = [c for c in pool if remaining.count(c) < max_copies(c)
                   and (owned is None or c in owned)]
     if not candidates:
       continue
+    weights = [1.0] * len(candidates)
     if bias and max_positive:
-      weights = [1 + bias_strength * max(0.0, bias.get(c, 0.0)) / max_positive for c in candidates]
-    elif rarity_weights:
-      weights = [1.0] * len(candidates)
-    else:
-      deck[slot] = choice(candidates)
-      continue
+      weights = [w * (1 + bias_strength * max(0.0, bias.get(c, 0.0)) / max_positive)
+                 for w, c in zip(weights, candidates)]
     if rarity_weights:
       weights = [w * rarity_weights.get(c, 1.0) for w, c in zip(weights, candidates)]
+    if pair_bias != 1.0:
+      weights = [w * pair_bias if (remaining.count(c) == 1 and max_copies(c) == 2) else w
+                 for w, c in zip(weights, candidates)]
     deck[slot] = choices(candidates, weights=weights)[0]
   return deck
 
@@ -395,6 +426,10 @@ def main():
                        help="probe_card_values.py CSV - biases mutation toward probed-positive cards "
                             "and away from probed-negative slots (per class)")
   parser.add_argument("--bias-strength", type=float, default=10.0)
+  parser.add_argument("--pair-bias", type=float, default=PAIR_BIAS,
+                       help="up-weight making a held 1-of into a 2-of, so evolved decks "
+                            "run the duplicates real decks do instead of drifting to all "
+                            "singletons; 1.0 disables (old behaviour)")
   parser.add_argument("--fixed-games", type=int, default=None,
                        help="fixed games per matchup (min=max, no early stopping) - reduces selection "
                             "noise at higher cost; default keeps the exploratory 4-12 early stop")
@@ -504,7 +539,8 @@ def main():
       class_bias = bias_by_class[player_class] if bias_by_class else None
       owners = collections[player_class]
       populations[player_class] = [mutate_deck(deck, pools[player_class], class_bias, args.bias_strength,
-                                                owners[i] if owners else None, rarity_weights)
+                                                owners[i] if owners else None, rarity_weights,
+                                                pair_bias=args.pair_bias)
                                    for i, deck in enumerate(populations[player_class])]
     work, spans = [], {}
     for player_class in CLASSES:
