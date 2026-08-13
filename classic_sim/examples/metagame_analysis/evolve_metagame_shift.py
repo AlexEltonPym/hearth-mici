@@ -32,6 +32,7 @@ Usage (from classic_sim/examples/metagame_analysis):
   python evolve_metagame_shift.py --era buzzard_nerf --backend ssh --out data/shift_buzzard_nerf
 """
 import sys, csv, json, argparse, subprocess, ast, time
+import random as pyrandom
 from collections import Counter
 from pathlib import Path
 from statistics import mean
@@ -434,6 +435,12 @@ def main():
                        help="fixed games per matchup (min=max, no early stopping) - reduces selection "
                             "noise at higher cost; default keeps the exploratory 4-12 early stop")
   parser.add_argument("--out", default=None, help="output prefix (default data/shift_<era>)")
+  parser.add_argument("--resume", action="store_true",
+                       help="continue from <out>_checkpoint.json if present (written after every "
+                            "completed generation). Restores populations, gauntlet, archives and "
+                            "both rng streams; rows past the checkpoint are dropped from the "
+                            "history CSVs. With no checkpoint on disk this is a fresh start, so "
+                            "a retry loop can pass it unconditionally.")
   parser.add_argument("--hosts", default=",".join(HOSTS),
                        help="comma-separated ssh hosts for --backend ssh (default both)")
   parser.add_argument("--remote-cores", type=int, default=None,
@@ -466,6 +473,9 @@ def main():
   out_prefix = args.out or f"data/shift_{args.era}"
   out_prefix = str(Path(out_prefix).name)
   rng = Random(args.seed)
+  #mutation (mutate_deck) draws from the module-level random stream; seeding it
+  #from --seed makes runs reproducible and gives the checkpoint a state to save
+  pyrandom.seed(args.seed + 424243)
 
   #run_matchups_ssh fans out over this module global, so rebinding it here is
   #what --hosts actually does
@@ -522,12 +532,40 @@ def main():
 
   fitness_path = OUT_DIR / f"{out_prefix}_history.csv"
   adoption_path = OUT_DIR / f"{out_prefix}_adoption_history.csv"
-  with fitness_path.open("w", newline="", encoding="utf-8") as f:
-    csv.writer(f).writerow(["generation", "class", "n_elites", "mean_fitness", "best_fitness", "mean_novelty"])
-  with adoption_path.open("w", newline="", encoding="utf-8") as f:
-    csv.writer(f).writerow(["generation", "class", "card", "share", "n_unique_elites"])
+  checkpoint_path = OUT_DIR / f"{out_prefix}_checkpoint.json"
 
-  for generation in range(args.generations):
+  start_generation = 0
+  if args.resume and checkpoint_path.exists():
+    with checkpoint_path.open(encoding="utf-8") as f:
+      checkpoint = json.load(f)
+    done = checkpoint["generation"]
+    start_generation = done + 1
+    populations = {c: checkpoint["populations"][c] for c in CLASSES}
+    gauntlet = checkpoint["gauntlet"]
+    rng.setstate((checkpoint["rng_state"][0], tuple(checkpoint["rng_state"][1]),
+                  checkpoint["rng_state"][2]))
+    pyrandom.setstate((checkpoint["pyrandom_state"][0], tuple(checkpoint["pyrandom_state"][1]),
+                       checkpoint["pyrandom_state"][2]))
+    for player_class in CLASSES:
+      archives[player_class].load(
+        str(OUT_DIR / f"{out_prefix}_{player_class.lower()}_generation{done}.json"))
+    #a crash mid-generation may have left partial rows past the checkpoint
+    for path in (fitness_path, adoption_path):
+      with path.open(newline="", encoding="utf-8") as f:
+        rows = list(csv.reader(f))
+      with path.open("w", newline="", encoding="utf-8") as f:
+        writer = csv.writer(f)
+        writer.writerow(rows[0])
+        writer.writerows(r for r in rows[1:] if r and int(r[0]) <= done)
+    print(f"resumed from {checkpoint_path.name}: generation {done} complete, "
+          f"continuing at {start_generation}", flush=True)
+  else:
+    with fitness_path.open("w", newline="", encoding="utf-8") as f:
+      csv.writer(f).writerow(["generation", "class", "n_elites", "mean_fitness", "best_fitness", "mean_novelty"])
+    with adoption_path.open("w", newline="", encoding="utf-8") as f:
+      csv.writer(f).writerow(["generation", "class", "card", "share", "n_unique_elites"])
+
+  for generation in range(start_generation, args.generations):
     if generation > 0 and generation % REFRESH_EVERY == 0:
       gauntlet = refresh_gauntlet(archives, full_seeds, rng, args.real_anchors)
       print(f"gen {generation}: gauntlet refreshed ({args.real_anchors} real + "
@@ -594,6 +632,20 @@ def main():
         for i, deck in enumerate(inherited)]
 
       archive.save(save_file=str(OUT_DIR / f"{out_prefix}_{player_class.lower()}_generation{generation}.json"))
+
+    #atomic checkpoint: everything the loop needs that the archive files do
+    #not already carry, so --resume restarts from the next generation
+    checkpoint = {
+      "generation": generation,
+      "populations": populations,
+      "gauntlet": gauntlet,
+      "rng_state": rng.getstate(),
+      "pyrandom_state": pyrandom.getstate(),
+    }
+    tmp_path = checkpoint_path.with_suffix(".json.tmp")
+    with tmp_path.open("w", encoding="utf-8") as f:
+      json.dump(checkpoint, f)
+    tmp_path.replace(checkpoint_path)
 
   #final-generation adoption = the prediction, in the same shape as the
   #naxx_adoption_{window}.csv ground truth for direct comparison
