@@ -43,8 +43,11 @@ def load_truth(period):
   return shares
 
 
+PREFIX = "rolling"
+
+
 def load_prediction(mode, period):
-  path = DATA / f"rolling_{mode}_predicted_{period}.csv"
+  path = DATA / f"{PREFIX}_{mode}_predicted_{period}.csv"
   if not path.exists():
     return None, None
   shares = {}
@@ -90,7 +93,11 @@ def main():
   parser.add_argument("--modes", nargs="+", default=["free", "anchored"])
   parser.add_argument("--readout", choices=["massmatch", "raw"], default="massmatch")
   parser.add_argument("--out", default=str(DATA / "rolling_evaluation.json"))
+  parser.add_argument("--prefix", default="rolling",
+                       help="artifact prefix, e.g. rolling2 for the pair-bias rerun")
   args = parser.parse_args()
+  global PREFIX
+  PREFIX = args.prefix
 
   truth = {p: load_truth(p) for p in PERIOD_ORDER}
   preds = build_predictions(args.modes, args.readout, truth)
