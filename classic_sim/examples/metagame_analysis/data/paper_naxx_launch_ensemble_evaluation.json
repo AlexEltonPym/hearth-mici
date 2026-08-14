@@ -1,0 +1,36 @@
+{
+  "era": "naxx_launch",
+  "windows": {
+    "baseline": "pre_naxx",
+    "target": "naxx_prenerf"
+  },
+  "per_class": {
+    "HUNTER": {
+      "n_cards_scored": 141,
+      "spearman_prediction": 0.547,
+      "spearman_no_change_baseline": 0.637,
+      "top10_overlap_prediction": 6,
+      "top10_overlap_baseline": 7,
+      "direction_movers": 38,
+      "direction_hits": 31
+    },
+    "MAGE": {
+      "n_cards_scored": 157,
+      "spearman_prediction": 0.536,
+      "spearman_no_change_baseline": 0.683,
+      "top10_overlap_prediction": 6,
+      "top10_overlap_baseline": 8,
+      "direction_movers": 54,
+      "direction_hits": 41
+    },
+    "WARRIOR": {
+      "n_cards_scored": 163,
+      "spearman_prediction": 0.612,
+      "spearman_no_change_baseline": 0.702,
+      "top10_overlap_prediction": 8,
+      "top10_overlap_baseline": 8,
+      "direction_movers": 43,
+      "direction_hits": 31
+    }
+  }
+}

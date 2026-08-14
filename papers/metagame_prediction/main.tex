@@ -3,6 +3,9 @@
 %
 % All numbers copied from committed experiment artifacts in
 % classic_sim/examples/validation/README.md (sections S1-S4).
+% One-shot predictions: 3-seed ensemble (paper_* artifacts, 2026-08-14),
+% pair-bias mutation + mass-matched readout throughout. Rolling: rolling2_*
+% (same operator/readout, single run per mode).
 % Bibliography verified 2026-08-11 against publisher pages (DOIs included).
 % Figure palette validated for CVD safety and print contrast
 % (blue #2A78D6 = measured data, orange #EB6834 = model prediction,
@@ -58,16 +61,17 @@ marginal win-rate contribution in fixed real host decks. This probe
 recovers the community's adoption ranking of the new set. Evolution
 whose mutation operator is weighted by probed values, a stand-in for
 players' deliberate testing of promising cards, then reproduces the
-post-shock decklists on the cards that moved. Direction hit-rate on
+post-shock decklists on the cards that moved. Predictions are
+three-seed ensembles with a calibrated readout. Direction hit-rate on
 Hunter cards whose real adoption shifted rises from 16/38 under
-unbiased evolution to 30/38, and the nerf experiment predicts the
-Buzzard collapse (predicted within-class adoption 73\% to 32\%,
-against a real fall to 17\%) while keeping the cards the patch left
-alone. A rolling variant separates one-step skill from forecast horizon:
-re-anchored single-period predictions reach Spearman 0.67--0.89 on
-moved cards and track the Buzzard collapse period by period, while
-a free-running forecast saturates in a self-play echo chamber and
-misses the nerf response entirely. Two cards are mispredicted in
+unbiased evolution to 31/38, and the nerf experiment predicts the
+Buzzard collapse (predicted within-class adoption 73\% to 12\%,
+against a real fall to 17\%) while cutting the un-nerfed survivors
+too deep. A rolling variant separates one-step skill from forecast
+horizon: re-anchored single-period predictions reach Spearman
+0.54--0.84 on moved cards and track the Buzzard collapse period by
+period, while a free-running forecast locks into a self-play echo
+chamber and misses the nerf response entirely. Two cards are mispredicted in
 every configuration. Both misses trace to the 1-ply piloting agent,
 and a learned evaluator with an identity-free card encoding
 partially closes them. Simulated meta
@@ -295,11 +299,11 @@ month & decks & Hunter & Mage & Warrior & Buzzard/Hunter\\
 \addlegendentry{Buzzard within Hunter (real)}
 \addplot[vizorange, line width=1.2pt, dash pattern=on 4pt off 2.2pt,
          mark=diamond*, mark size=2.2pt, mark options={solid, fill=vizorange}]
-  coordinates {(0,88.2) (1,100) (2,53.3) (3,45.5) (4,11.1)};
+  coordinates {(0,88.2) (1,93.7) (2,30.9) (3,34.4) (4,24.3)};
 \addlegendentry{predicted, anchored (one step)}
 \addplot[vizorange!45, line width=1.1pt, dash pattern=on 2pt off 1.8pt,
          mark=triangle*, mark size=2.0pt, mark options={solid, fill=vizorange!45}]
-  coordinates {(0,88.2) (1,100) (2,100) (3,83.3) (4,100)};
+  coordinates {(0,88.2) (1,91.6) (2,94.6) (3,96.4) (4,86.3)};
 \addlegendentry{predicted, free-running}
 \addplot[vizgray, line width=1.1pt, dashed,
          mark=square*, mark size=1.4pt, mark options={solid, fill=vizgray}]
@@ -316,10 +320,10 @@ month & decks & Hunter & Mage & Warrior & Buzzard/Hunter\\
 prediction modes. All model series share the p0 point as their
 input (88.2\% in the real seed decks); everything after it is
 prediction. The anchored mode, re-seeded from the previous period's
-real decks, tracks the collapse (exact at p2, 11.1\% vs.\ 17.5\% at
-p4). The free-running mode, re-seeded from its own previous
-population, saturates and misses the nerf response. Hunter's class
-share (gray) never leaves its noise band.}
+real decks, tracks the collapse (24.3\% vs.\ 17.5\% at p4, though
+it starts the fall one period early). The free-running mode,
+re-seeded from its own previous population, never drops the card at
+all. Hunter's class share (gray) never leaves its noise band.}
 \label{fig:dissociation}
 \end{figure}
 
@@ -426,11 +430,33 @@ the cards and disproportionately test the ones that look strong. We
 model this with a biased mutation operator: probed-positive cards
 are proposed more often, and probed-negative slots are replaced more
 often, while selection is left untouched (24 fixed games per
-evaluation, 25 generations). The claim under test is therefore that
+evaluation, 25 generations). The operator also respects the copy
+structure of real decks. Real 2014 lists average 18 distinct cards
+in 30 slots, running second copies of most non-legendary cards,
+while an unbiased swap over the $\sim$190-card legal pool erodes
+duplicates toward all-singleton decks. Mutation therefore up-weights
+both doubling a held single copy and removing one, with legendaries
+capped at one copy, which holds evolved decks at 19.8 distinct cards
+against the real 18.0. The claim under test is that
 simulation-derived card values combined with evolutionary selection
 reproduce the shift. Blind evolution does not discover the shift on
 its own, and we report the unbiased failure so that the two claims
 stay separate.
+
+\subsection{Readout and replication}
+\label{sec:readout}
+Raw elite counts overstate adoption in two ways that a rank metric
+never sees: a card in all of a niche's 18--40 elites reads as
+exactly 100\%, and evolved elites spread mass over slightly more
+distinct cards than real decks do. The reported readout removes
+both with a Jeffreys shrinkage of each per-card count followed by
+one monotone logit shift that rescales the predicted total card
+mass to its pre-shock real value. The shift is order-preserving, so
+every ranking metric is untouched; only levels change. Each
+one-shot experiment is run at three seeds, each seed's readout is
+corrected as above, and the reported forecast is their mean, with
+per-seed spread quoted alongside. All prediction figures and tables
+use this readout.
 
 \section{Results}
 \label{sec:results}
@@ -455,12 +481,22 @@ agent-skill ceiling measured in Sec.~\ref{sec:fidelity}.
 Probe-biased evolution from real pre-Naxxramas seeds adopts the real
 package. On the 38 Hunter cards whose real adoption moved by at
 least 5$\pp$ across the launch, the predicted direction matches
-reality for 30, against 16 for unbiased evolution; chance is 19.
-Magnitudes land in range for the package cards. Unstable Ghoul is
-predicted at 45.8\% against a real 44.9\%, and Mad Scientist,
-Undertaker, Sludge Belcher and Loatheb all rise from zero to rates
-in the real ordering. Death's Bite stays at 0\% predicted, since a
-pipeline built on probed values inherits the probe's blind spots.
+reality for 31 (26--31 across seeds), against 16 for unbiased
+evolution; chance is 19. Over the movers the ensemble reaches
+Spearman 0.81 for Hunter (per-seed $0.74\pm0.02$), 0.59 for Mage
+and 0.67 for Warrior, with a pooled adoption MAE of 6.2$\pp$.
+Magnitudes land in range for the package: Mad Scientist is
+predicted at 42.5\% within Hunter against a real 32.7\%, Sludge
+Belcher, Undertaker and Loatheb all rise from zero, and Kel'Thuzad
+is correctly left on the shelf (2.9\% predicted for Mage, 4.5\%
+real). The clear underestimates are
+Haunted Creeper (8.6\% predicted, 57.6\% real) and Webspinner
+(13.4\%, 54.4\%), cheap sticky minions the probe itself ranks near
+the top of the set; the bias proposes them and selection keeps
+them, but nothing in the pipeline pushes a good card to the near
+ubiquity these two reached. Death's Bite stays near 0\% predicted,
+since a pipeline built on probed values inherits the probe's blind
+spots.
 
 \subsection{Patch: predicting the nerf response}
 The nerf experiment is the cleaner test, since no new cards are
@@ -468,26 +504,35 @@ involved and the real post-shock pool equals the simulated pool.
 Seeds are real Naxxramas-era decks; the pool applies the real
 September patch. Table~\ref{tab:nerf} and Fig.~\ref{fig:nerf} show
 the headline cards, and Fig.~\ref{fig:dissociation} places the
-Buzzard prediction against the monthly series. The collapse is
-reproduced in direction and rough magnitude, nerfed Leeroy drops,
-Unleash the Hounds (which the patch left alone) is retained, and
-Webspinner's continued rise is called. The removal probe alone
-already carries the sign of the response: deleting Buzzard from
-patched-world Hunter decks gains $+2.7\pp$, deleting Leeroy
-$+0.9\pp$ (Hunter) and $+1.6\pp$ (Warrior).
+Buzzard prediction against the period series. Both nerfed cards
+collapse to within a few points of their real landing spots:
+Buzzard 12.2\% predicted against 16.8\% real (seed range
+6--21\%), Leeroy 6.6\% against 12.0\%. Over the Hunter movers the
+ensemble reaches Spearman 0.82 (per-seed $0.75\pm0.05$), with 0.71
+for Mage and 0.72 for Warrior. The model's error sits on the
+survivors rather than the targets: Unleash the Hounds, which the
+patch left alone, is kept but cut too deep (46.0\% predicted,
+69.5\% real, and a 24--70\% seed spread that makes it the least
+stable prediction in the table), and Webspinner is held flat where
+reality rose. The pipeline over-cuts inside the nerf's blast
+radius while calling the nerfed cards themselves. The removal
+probe alone already carries the sign of the response: deleting
+Buzzard from patched-world Hunter decks gains $+2.7\pp$, deleting
+Leeroy $+0.9\pp$ (Hunter) and $+1.6\pp$ (Warrior).
 
 \begin{table}[t]
-\caption{Nerf-response prediction (Hunter, within-class adoption).}
+\caption{Nerf-response prediction (Hunter, within-class adoption;
+three-seed ensemble with seed range).}
 \label{tab:nerf}
 \centering
-\begin{tabular}{lrrr}
+\begin{tabular}{lrrrr}
 \toprule
-card & pre-nerf & predicted & real post-nerf\\
+card & pre-nerf & predicted & seed range & real\\
 \midrule
-Starving Buzzard (nerfed) & 73.4\% & 31.8\% & 16.8\%\\
-Leeroy Jenkins (nerfed) & 34.8\% & 4.5\% & 12.0\%\\
-Unleash the Hounds & 84.4\% & 77.3\% & 69.5\%\\
-Webspinner & 54.4\% & 63.6\% & 73.7\%\\
+Starving Buzzard (nerfed) & 73.4\% & 12.2\% & 6--21\% & 16.8\%\\
+Leeroy Jenkins (nerfed) & 34.8\% & 6.6\% & 1--12\% & 12.0\%\\
+Unleash the Hounds & 84.4\% & 46.0\% & 24--70\% & 69.5\%\\
+Webspinner & 54.4\% & 53.7\% & 37--66\% & 73.7\%\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -514,17 +559,18 @@ Webspinner & 54.4\% & 63.6\% & 73.7\%\\
   {(Buzzard,73.4) (Leeroy,34.8) (Unleash,84.4) (Webspinner,54.4)};
 \addlegendentry{pre-nerf}
 \addplot[bar shift=0pt, draw=vizorange!80!black, fill=vizorange] coordinates
-  {(Buzzard,31.8) (Leeroy,4.5) (Unleash,77.3) (Webspinner,63.6)};
+  {(Buzzard,12.2) (Leeroy,6.6) (Unleash,46.0) (Webspinner,53.7)};
 \addlegendentry{predicted}
 \addplot[bar shift=6pt, draw=vizblue!80!black, fill=vizblue] coordinates
   {(Buzzard,16.8) (Leeroy,12.0) (Unleash,69.5) (Webspinner,73.7)};
 \addlegendentry{real post-nerf}
 \end{axis}
 \end{tikzpicture}
-\caption{Nerf-response prediction against reality. Both nerfed cards
-are predicted to fall, the untouched Unleash the Hounds is retained,
-and Webspinner's rise is called. Gray gives the pre-nerf baseline,
-orange the model, blue the real outcome.}
+\caption{Nerf-response prediction against reality (three-seed
+ensemble). Both nerfed cards are predicted to collapse to near
+their real landing spots; the untouched Unleash the Hounds is kept
+but cut too deep. Gray gives the pre-nerf baseline, orange the
+model, blue the real outcome.}
 \label{fig:nerf}
 \end{figure}
 
@@ -570,45 +616,30 @@ model's own previous elite population.
 
 Anchored one-step predictions are strong everywhere: over cards
 whose real adoption moved by at least 5$\pp$ between consecutive
-periods, Spearman correlations run 0.67--0.89 for every class in
-every period after the first (all $p\le0.005$), and the predicted
-Buzzard trajectory tracks the real one closely (Fig.~\ref{fig:dissociation}:
-exact at p2, 45.5\% vs.\ 16.2\% in the nerf period itself, 11.1\%
-vs.\ 17.5\% by year's end). The free-running forecast keeps
-significant rank correlations on movers through all four periods
-(0.41--0.70 at p1, still 0.46--0.47 for Hunter and Warrior at p4)
-but its adoption levels saturate: Buzzard reaches 100\% of elite
-decks before the nerf and never falls after it. The mechanism is an
-echo chamber. Once every elite deck carries a card, the evaluation
-gauntlet (drawn from that same population) offers no opponent
-against which dropping it helps, and selection pressure to remove
-the card disappears. Re-anchoring on real decks breaks the loop.
-The pattern matches numerical forecasting generally: skillful
+periods, Spearman correlations run 0.54--0.84 for every class in
+every period after the first (all $p\le0.04$), per-period adoption
+MAE stays between 3.1 and 4.6$\pp$, and the predicted Buzzard
+trajectory tracks the real collapse
+(Fig.~\ref{fig:dissociation}), reaching 24.3\% against a real
+17.5\% by year's end while starting the fall one period early. The
+free-running forecast keeps significant rank correlations on
+Hunter and Warrior movers through all four periods (0.53--0.68
+after the first), loses Mage in the post-nerf periods, and never
+drops Buzzard: 86--96\% through the post-nerf periods against a
+real 16--18\%. Since the readout of Sec.~\ref{sec:readout} already
+removes the finite-sample ceiling, that persistence is genuine
+model behaviour, not an artifact of counting elites. The mechanism
+is an echo chamber. Once every elite deck carries a card, the
+evaluation gauntlet (drawn from that same population) offers no
+opponent against which dropping it helps, and selection pressure to
+remove the card disappears. Re-anchoring on real decks breaks the
+loop. The pattern matches numerical forecasting generally: skillful
 single steps, compounding drift over the horizon, and the useful
 horizon of the present pipeline is one period, roughly six weeks.
 
-Two things inflate the raw adoption levels, and only one is a real
-model error. The elite readout counts card inclusion over the
-fitness-maximising decks in each niche, so a card in all of a
-niche's 18--40 elites reads as exactly 100\%, and evolved elites
-also carry a few more distinct cards than real decks, which run more
-duplicates. A mass-matched readout (a Jeffreys estimate plus a
-single monotone shift that rescales predicted total mass to the
-pre-shock real mass, so ranking is untouched) removes both: across
-the rolling runs it takes the number of saturated predictions from
-35 to 0 and over-predictions from 33 to 5, with movers Spearman
-unchanged to three decimals. What it does not remove is the
-free-running echo chamber. Corrected, free-running Buzzard still
-sits at 63--92\% through the post-nerf periods against a real
-16--18\%, so the saturation was a readout artifact but the
-persistence is genuine model behaviour. All aggregate levels
-figures we report use the mass-matched readout;
-Figs.~\ref{fig:dissociation} and~\ref{fig:nerf} show the raw model
-output.
-
 \subsection{The baseline}
 The no-change baseline wins the overall adoption Spearman, at
-0.62--0.96 against the prediction's 0.27--0.51. Real decks are
+0.64--0.95 against the prediction's 0.52--0.65. Real decks are
 sticky, and a baseline that copies roughly 100 unmoved cards is
 unbeatable on a rank metric dominated by non-movers. The
 prediction's advantage is confined to the movers, in direction
@@ -674,10 +705,12 @@ window may retain a small number of post-nerf-edited decks, because
 the September patch received no archive tag of its own; the
 window's healthy 73.4\% Buzzard rate bounds that contamination as
 minor. Ground-truth matchup win rates are banded at $\pm2.5\pp$,
-so we use ordinal ranks where precision matters. Finally, the
-evolutionary stages are single runs. The probe aggregates five
-hosts and 60 games per card, but replication across seeds remains
-future work.
+so we use ordinal ranks where precision matters. The one-shot
+predictions are three-seed ensembles with the spread reported;
+individual cards can still swing widely across seeds (Unleash the
+Hounds spans 24--70\%), and the rolling trajectories are single
+runs per mode. The probe aggregates five hosts and 60 games per
+card but is itself a single run.
 
 \section{Conclusion}
 
