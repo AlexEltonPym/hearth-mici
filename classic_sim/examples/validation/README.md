@@ -748,9 +748,12 @@ good (movers Spearman 0.67-0.89 anchored); the residual error is LEVELS
   Hunter 0.594->0.759, Mage 0.497->0.631; direction and levels-MAE both
   better); Warrior regresses on all three (0.491->0.364, MAE 0.040->0.055).
   Mean movers rho 0.527->0.585, mean direction 0.71->0.76, mean levels MAE
-  flat (Warrior cancels the others). Kept as default; the Warrior regression
-  is one seed and does not outweigh the Hunter/Mage gains, but the per-class
-  split wants a multi-seed rerun before it is load-bearing. Artifacts:
+  flat (Warrior cancels the others). Kept as default. **Multi-seed followup
+  (2026-08-14, the paper rerun below): the Warrior regression did NOT
+  replicate** - naxx_launch Warrior movers Spearman across seeds 0/1/2 is
+  0.42/0.63/0.73 (mean 0.60), spanning the A/B's single-seed 0.36 as
+  ordinary seed noise (config differs slightly: pop 20 / 25 gens vs the
+  A/B's 16 / 20). The fix stands without the per-class caveat. Artifacts:
   `data/pairbias_{off,on}_predicted_adoption.csv`.
 - **Collection constraints + gauntlet real-anchors** - opt-in flags in
   `evolve_metagame_shift.py` (`--real-anchors`, plus owned/rarity_weights
@@ -776,6 +779,35 @@ good (movers Spearman 0.67-0.89 anchored); the residual error is LEVELS
   Duplicate -3.0 to -0.4/-1.3. Better evaluator halves the error on the
   two sequencing cards but does not fully close them (still short of the
   +3-4pp correct valuation) - a policy limit, not an evaluation one.
+
+**Paper rerun under the adopted pipeline (2026-08-14).** Both one-shot
+shocks rerun at the original headline config (probe-biased, 25 generations,
+population 20, 24 fixed games/eval) with the pair-bias 4.0 operator, at
+seeds 0/1/2, detached on dwail1 as master (`paper_sweep.sh`;
+`evolve_metagame_shift.py --resume` checkpoints per generation). Scored
+mass-matched by `score_paper_runs.py`: per-seed metrics plus a seed-mean
+forecast (average the three corrected share vectors, score once) - the
+ensemble is what the paper reports. Results, seed-mean forecast (per-seed
+mean +- sd in parens):
+
+- *buzzard_nerf*: Buzzard 73.4% -> **12.2%** predicted vs 16.8% real (the
+  old single-seed raw prediction said 31.8%); Hunter Leeroy 6.6% vs 12.0%.
+  Movers Spearman: Hunter 0.82 (0.75+-0.05), Mage 0.71 (0.62+-0.08),
+  Warrior 0.72 (0.63+-0.11). Pooled levels MAE 0.066 (0.090+-0.003
+  per-seed - the ensemble buys ~2.4pp), mean gap ~0 (over-prediction gone).
+  Residual miss: Unleash under-predicted (46.0% vs 69.5%, seed spread
+  24-70%) - the pipeline now errs toward over-cutting nerf-adjacent cards
+  rather than refusing to cut, the better failure mode.
+- *naxx_launch*: Mad Scientist 42.5% vs 32.7% real, Sludge Belcher 25.0%
+  vs 11.6%, Unstable Ghoul 7.2% vs 2.4%. Movers Spearman: Hunter 0.81
+  (0.74+-0.02), Mage 0.59 (0.55+-0.09), Warrior 0.67 (0.60+-0.16); pooled
+  direction 0.76, pooled MAE 0.062. The agent blind spots persist exactly
+  as diagnosed: Death's Bite 1.6% vs 60.2%, Duplicate 2.2% vs 43.4%,
+  and Webspinner is under-called (13.4% vs 54.4%).
+
+Artifacts: `data/paper_{era}_s{seed}_*`, `data/paper_{era}_scores.json`,
+`data/paper_sweep.log`. These are the paper's numbers; the old
+`shift_{naxx,nerf}_biased_*` single-seed runs are superseded.
 
 **Does simulated power predict real popularity? (`hearthpwn_2014_dynamics.py`,
 run 2026-08-07).** Motivation, measured first in the data we already had: in

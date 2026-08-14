@@ -1,0 +1,235 @@
+{
+  "era": "naxx_launch",
+  "seeds": [
+    0,
+    1,
+    2
+  ],
+  "per_seed": {
+    "0": {
+      "HUNTER": {
+        "n_scored": 116,
+        "levels_mae": 0.0833,
+        "mean_gap": -0.0059,
+        "over_predicted": 0,
+        "over_rate": 0.0,
+        "saturated_at_100": 0,
+        "n_movers": 38,
+        "movers_spearman": 0.76,
+        "movers_p": 0.0,
+        "direction_hits": 31,
+        "direction_rate": 0.816,
+        "over_predicted_cards": []
+      },
+      "MAGE": {
+        "n_scored": 146,
+        "levels_mae": 0.0717,
+        "mean_gap": 0.003,
+        "over_predicted": 0,
+        "over_rate": 0.0,
+        "saturated_at_100": 0,
+        "n_movers": 54,
+        "movers_spearman": 0.616,
+        "movers_p": 0.0,
+        "direction_hits": 45,
+        "direction_rate": 0.833,
+        "over_predicted_cards": []
+      },
+      "WARRIOR": {
+        "n_scored": 124,
+        "levels_mae": 0.107,
+        "mean_gap": -0.0044,
+        "over_predicted": 0,
+        "over_rate": 0.0,
+        "saturated_at_100": 0,
+        "n_movers": 43,
+        "movers_spearman": 0.423,
+        "movers_p": 0.0048,
+        "direction_hits": 27,
+        "direction_rate": 0.628,
+        "over_predicted_cards": []
+      },
+      "POOLED": {
+        "n_scored": 386,
+        "levels_mae": 0.0865,
+        "mean_gap": -0.0021,
+        "over_predicted": 0,
+        "over_rate": 0.0,
+        "saturated_at_100": 0,
+        "n_movers": 135,
+        "direction_hits": 103,
+        "direction_rate": 0.763
+      }
+    },
+    "1": {
+      "HUNTER": {
+        "n_scored": 119,
+        "levels_mae": 0.0905,
+        "mean_gap": -0.008,
+        "over_predicted": 0,
+        "over_rate": 0.0,
+        "saturated_at_100": 0,
+        "n_movers": 38,
+        "movers_spearman": 0.73,
+        "movers_p": 0.0,
+        "direction_hits": 28,
+        "direction_rate": 0.737,
+        "over_predicted_cards": []
+      },
+      "MAGE": {
+        "n_scored": 134,
+        "levels_mae": 0.0941,
+        "mean_gap": 0.0009,
+        "over_predicted": 1,
+        "over_rate": 0.0075,
+        "saturated_at_100": 0,
+        "n_movers": 54,
+        "movers_spearman": 0.448,
+        "movers_p": 0.0007,
+        "direction_hits": 31,
+        "direction_rate": 0.574,
+        "over_predicted_cards": [
+          "Fireball"
+        ]
+      },
+      "WARRIOR": {
+        "n_scored": 118,
+        "levels_mae": 0.0832,
+        "mean_gap": -0.007,
+        "over_predicted": 0,
+        "over_rate": 0.0,
+        "saturated_at_100": 0,
+        "n_movers": 43,
+        "movers_spearman": 0.632,
+        "movers_p": 0.0,
+        "direction_hits": 30,
+        "direction_rate": 0.698,
+        "over_predicted_cards": []
+      },
+      "POOLED": {
+        "n_scored": 371,
+        "levels_mae": 0.0895,
+        "mean_gap": -0.0045,
+        "over_predicted": 1,
+        "over_rate": 0.0027,
+        "saturated_at_100": 0,
+        "n_movers": 135,
+        "direction_hits": 89,
+        "direction_rate": 0.659
+      }
+    },
+    "2": {
+      "HUNTER": {
+        "n_scored": 109,
+        "levels_mae": 0.0957,
+        "mean_gap": -0.0076,
+        "over_predicted": 2,
+        "over_rate": 0.0183,
+        "saturated_at_100": 0,
+        "n_movers": 38,
+        "movers_spearman": 0.733,
+        "movers_p": 0.0,
+        "direction_hits": 26,
+        "direction_rate": 0.684,
+        "over_predicted_cards": [
+          "Starving Buzzard",
+          "Animal Companion"
+        ]
+      },
+      "MAGE": {
+        "n_scored": 140,
+        "levels_mae": 0.0756,
+        "mean_gap": 0.0031,
+        "over_predicted": 0,
+        "over_rate": 0.0,
+        "saturated_at_100": 0,
+        "n_movers": 54,
+        "movers_spearman": 0.59,
+        "movers_p": 0.0,
+        "direction_hits": 40,
+        "direction_rate": 0.741,
+        "over_predicted_cards": []
+      },
+      "WARRIOR": {
+        "n_scored": 144,
+        "levels_mae": 0.0837,
+        "mean_gap": -0.0005,
+        "over_predicted": 0,
+        "over_rate": 0.0,
+        "saturated_at_100": 0,
+        "n_movers": 43,
+        "movers_spearman": 0.731,
+        "movers_p": 0.0,
+        "direction_hits": 36,
+        "direction_rate": 0.837,
+        "over_predicted_cards": []
+      },
+      "POOLED": {
+        "n_scored": 393,
+        "levels_mae": 0.0841,
+        "mean_gap": -0.0012,
+        "over_predicted": 2,
+        "over_rate": 0.0051,
+        "saturated_at_100": 0,
+        "n_movers": 135,
+        "direction_hits": 102,
+        "direction_rate": 0.756
+      }
+    }
+  },
+  "seed_mean_forecast": {
+    "HUNTER": {
+      "n_scored": 141,
+      "levels_mae": 0.0612,
+      "mean_gap": -0.0039,
+      "over_predicted": 0,
+      "over_rate": 0.0,
+      "saturated_at_100": 0,
+      "n_movers": 38,
+      "movers_spearman": 0.809,
+      "movers_p": 0.0,
+      "direction_hits": 31,
+      "direction_rate": 0.816,
+      "over_predicted_cards": []
+    },
+    "MAGE": {
+      "n_scored": 157,
+      "levels_mae": 0.0601,
+      "mean_gap": 0.0023,
+      "over_predicted": 0,
+      "over_rate": 0.0,
+      "saturated_at_100": 0,
+      "n_movers": 54,
+      "movers_spearman": 0.594,
+      "movers_p": 0.0,
+      "direction_hits": 41,
+      "direction_rate": 0.759,
+      "over_predicted_cards": []
+    },
+    "WARRIOR": {
+      "n_scored": 163,
+      "levels_mae": 0.0652,
+      "mean_gap": -0.0005,
+      "over_predicted": 0,
+      "over_rate": 0.0,
+      "saturated_at_100": 0,
+      "n_movers": 43,
+      "movers_spearman": 0.667,
+      "movers_p": 0.0,
+      "direction_hits": 31,
+      "direction_rate": 0.721,
+      "over_predicted_cards": []
+    },
+    "POOLED": {
+      "n_scored": 461,
+      "levels_mae": 0.0623,
+      "mean_gap": -0.0006,
+      "over_predicted": 0,
+      "over_rate": 0.0,
+      "saturated_at_100": 0,
+      "n_movers": 135,
+      "direction_hits": 103,
+      "direction_rate": 0.763
+    }
+  }
+}
