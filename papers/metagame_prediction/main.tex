@@ -68,10 +68,10 @@ unbiased evolution to 31/38, and the nerf experiment predicts the
 Buzzard collapse (predicted within-class adoption 73\% to 12\%,
 against a real fall to 17\%) while cutting the un-nerfed survivors
 too deep. A rolling variant separates one-step skill from forecast
-horizon: re-anchored single-period predictions reach Spearman
+horizon. Re-anchored single-period predictions reach Spearman
 0.54--0.84 on moved cards and track the Buzzard collapse period by
 period, while a free-running forecast locks into a self-play echo
-chamber and misses the nerf response entirely. Two cards are mispredicted in
+chamber and misses the nerf response. Two cards are mispredicted in
 every configuration. Both misses trace to the 1-ply piloting agent,
 and a learned evaluator with an identity-free card encoding
 partially closes them. Simulated meta
@@ -97,13 +97,13 @@ balancing has long evaluated proposed changes inside a simulator.
 Until recently, no study checked the simulated response against what
 a real player population went on to do.
 
-We pose the forward-prediction problem directly. Fix a historical
-shock in \emph{Hearthstone}: the Naxxramas expansion (July~22, 2014,
-30 new cards) or the Starving Buzzard/Leeroy Jenkins nerf
-(September~22, 2014). Give the system a card-accurate simulator and
-the real decks played before the shock. Ask it to predict the decks
-played after: which cards get adopted, which get dropped, at what
-rates. Ground truth is measured from an archive of 33{,}697 ranked
+We pose the forward-prediction problem directly, on two historical
+\emph{Hearthstone} shocks: the Naxxramas expansion (July~22, 2014,
+30 new cards) and the Starving Buzzard/Leeroy Jenkins nerf
+(September~22, 2014). The system receives a card-accurate simulator
+and the real decks played before the shock, and must predict the
+decks played after it: which cards get adopted, which get dropped,
+at what rates. Ground truth is measured from an archive of 33{,}697 ranked
 2014 decklists. Saravanan and Guzdial~\cite{saravanan2024meta}
 recently established this validate-against-the-real-population
 standard for Pok\'emon tier bans. We extend it to a deckbuilding
@@ -514,8 +514,8 @@ survivors rather than the targets: Unleash the Hounds, which the
 patch left alone, is kept but cut too deep (46.0\% predicted,
 69.5\% real, and a 24--70\% seed spread that makes it the least
 stable prediction in the table), and Webspinner is held flat where
-reality rose. The pipeline over-cuts inside the nerf's blast
-radius while calling the nerfed cards themselves. The removal
+reality rose. Getting the nerfed cards right while over-cutting
+their neighbours is the residual failure mode. The removal
 probe alone already carries the sign of the response: deleting
 Buzzard from patched-world Hunter decks gains $+2.7\pp$, deleting
 Leeroy $+0.9\pp$ (Hunter) and $+1.6\pp$ (Warrior).
@@ -567,14 +567,14 @@ Webspinner & 54.4\% & 53.7\% & 37--66\% & 73.7\%\\
 \end{axis}
 \end{tikzpicture}
 \caption{Nerf-response prediction against reality (three-seed
-ensemble). Both nerfed cards are predicted to collapse to near
-their real landing spots; the untouched Unleash the Hounds is kept
-but cut too deep. Gray gives the pre-nerf baseline, orange the
-model, blue the real outcome.}
+ensemble). The nerfed pair falls to about where it really landed;
+the untouched Unleash the Hounds is kept but cut too deep. Gray
+gives the pre-nerf baseline, orange the model, blue the real
+outcome.}
 \label{fig:nerf}
 \end{figure}
 
-\subsection{The nerf moved the field, not only the decks}
+\subsection{The nerf recomposed the field}
 \label{sec:composition}
 The prediction pipeline treats within-class card adoption as the
 target, but a class is a mixture of archetypes, and the Buzzard nerf
@@ -592,14 +592,15 @@ Face-only marker the patch never touched, independently rises from
 effect is therefore recomposition of the field rather than
 substitution inside a fixed deck.
 
-This is a descriptive finding, not a modelling lever. An oracle test
-that hands a mixture model the true post-shock archetype mix, the
-ceiling any such model could reach, improves adoption MAE by
-$0.37\pp$ over pooled prediction across 799 card-transitions,
-because 90\% of real card movement is within-archetype substitution;
-archetype membership explains a median 5\% of per-card inclusion
-variance, and for Mage essentially none. Predicting per archetype
-and mixing would not repay its cost.
+As a modelling lever, though, composition is nearly worthless. An
+oracle test that hands a mixture model the true post-shock
+archetype mix, the ceiling any such model could reach, improves
+adoption MAE by $0.37\pp$ over pooled prediction across 799
+card-transitions, because 90\% of real card movement is
+within-archetype substitution; archetype membership explains a
+median 5\% of per-card inclusion variance, and for Mage essentially
+none. Predicting per archetype and mixing would not repay its cost,
+so the finding stays descriptive.
 
 \subsection{Trajectory: one-step skill, free-running drift}
 \label{sec:rolling}
@@ -614,7 +615,7 @@ from the previous period's real decks; in \emph{free-running} mode
 only the seed period is real, and every later period starts from the
 model's own previous elite population.
 
-Anchored one-step predictions are strong everywhere: over cards
+Anchored one-step prediction holds up in every period. Over cards
 whose real adoption moved by at least 5$\pp$ between consecutive
 periods, Spearman correlations run 0.54--0.84 for every class in
 every period after the first (all $p\le0.04$), per-period adoption
@@ -625,17 +626,18 @@ trajectory tracks the real collapse
 free-running forecast keeps significant rank correlations on
 Hunter and Warrior movers through all four periods (0.53--0.68
 after the first), loses Mage in the post-nerf periods, and never
-drops Buzzard: 86--96\% through the post-nerf periods against a
-real 16--18\%. Since the readout of Sec.~\ref{sec:readout} already
-removes the finite-sample ceiling, that persistence is genuine
-model behaviour, not an artifact of counting elites. The mechanism
-is an echo chamber. Once every elite deck carries a card, the
-evaluation gauntlet (drawn from that same population) offers no
-opponent against which dropping it helps, and selection pressure to
-remove the card disappears. Re-anchoring on real decks breaks the
-loop. The pattern matches numerical forecasting generally: skillful
-single steps, compounding drift over the horizon, and the useful
-horizon of the present pipeline is one period, roughly six weeks.
+drops Buzzard, which stays at 86--96\% through the post-nerf
+periods against a real 16--18\%. The readout of
+Sec.~\ref{sec:readout} has already removed the finite-sample
+ceiling, so this is model behaviour, and its mechanism is
+identifiable. Once every elite deck carries a card, the evaluation
+gauntlet (drawn from that same population) offers no opponent
+against which dropping it helps, and selection pressure to remove
+the card disappears; the population becomes its own echo chamber.
+Re-anchoring on real decks breaks the loop. The pattern matches
+numerical forecasting generally: skillful single steps, compounding
+drift over the horizon, and the useful horizon of the present
+pipeline is one period, roughly six weeks.
 
 \subsection{The baseline}
 The no-change baseline wins the overall adoption Spearman, at
@@ -681,7 +683,7 @@ $-3.2\pp$) moves to near zero under every net-based pilot we ran:
 $-0.4$, $-0.6$ and $-1.2\pp$ for the fine-tuned net, an identical
 rerun, and turn-plan beam search over the net. Duplicate ($-3.0\pp$
 linear) moves the same way, to $-0.4$ and $-1.3\pp$. A stronger
-evaluator roughly halves the error on exactly the sequencing- and
+evaluator roughly halves the error on the two sequencing- and
 synergy-dependent cards the 1-ply agent cannot value, which is the
 mechanism the paper attributes the misses to. The misses do not
 fully close, since none of these evaluators reaches the $+3$ to
@@ -722,11 +724,10 @@ are quantified and localise to agent skill, the no-change baseline
 is reported alongside the wins, and a learned evaluator shows the
 same predictions emerging from card mechanics alone where training
 coverage allows. Forward validation against measured human
-adoption, recently established for tier
-bans~\cite{saravanan2024meta}, is a standard the automated-balancing
-literature can now be held to. This work extends its coverage to
-the expansion and nerf shocks that make up most of a collectible
-card game's life.
+adoption was recently established for tier
+bans~\cite{saravanan2024meta}; this work extends it to the
+expansion and nerf shocks that make up most of a collectible card
+game's life.
 
 % ------------------------------------------------------------------
 \begin{thebibliography}{9}
