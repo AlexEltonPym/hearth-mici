@@ -715,6 +715,19 @@ of this pipeline is one period (~6 weeks). Artifacts:
 `data/rolling_evaluation.json`, ground truth
 `../validation/data/rolling_adoption_p*.csv`.
 
+**Rolling rerun under the adopted pipeline (2026-08-15, `rolling2_*`).**
+Same config, pair-bias 4.0 operator, mass-matched reporting - this is the
+run behind the paper's Fig 1; the numbers above are the superseded old
+operator. ANCHORED: movers Spearman 0.54-0.84 for every class at p2-p4
+(all p<=0.04), per-period MAE 3.1-4.6pp; Buzzard real 78.6/52.8/16.2/17.5
+vs predicted 93.7/30.9/34.4/24.3 (tracks the collapse, starts the fall
+one period early). FREE-RUNNING: Hunter/Warrior mover rank signal holds
+all four periods (0.53-0.68 after p1), Mage degrades to ns post-nerf;
+Buzzard NEVER falls (86-96% mass-matched vs real 16-18%) - the echo
+chamber replicates under the new operator and survives the corrected
+readout. Artifacts: `data/rolling2_{free,anchored}_predicted_p*.csv`,
+`data/rolling2_evaluation.json`.
+
 **Accuracy levers (2026-08-13, four parallel Opus agents).** Ranking is
 good (movers Spearman 0.67-0.89 anchored); the residual error is LEVELS
 (predicts ~100% where real is ~79%). Findings:
