@@ -969,6 +969,27 @@ first. (Caveat: mcts leaf evals take 26 weights - champion[1:]; passing
 all 27 misaligns every feature silently. The first ladder run had exactly
 that bug.)
 
+> **S4 CORRECTION (2026-08-22): the "search subtracts value at feasible
+> budgets" conclusion is largely an engine artifact.** The hearth-rs Rust
+> engine (correct rules, pure enumeration, chance sampled at apply time)
+> measures guided MCTS BEATING the tuned 1-ply evaluator from ~50
+> iterations (92.5% at 150, 98.5% at 400) — the opposite of this engine's
+> result at the same budgets. Mechanism, verified here by direct repro
+> (2026-08-22): `get_available_actions` consumes RNG and BINDS one sampled
+> realization inside each random-target Action (Deadly Shot demo: RNG
+> position advances per enumeration; bound target flips ~50/50 across 300
+> enumerations of one state), and `montecarlotreesearch.py` caches
+> `available_actions` per node for the node's lifetime — so every tree
+> edge through a random effect treats one joint sample as deterministic,
+> deeper search compounds the fictional certainty, and 1-ply greedy is
+> punished least. Full mechanism analysis + caveats (rules fixes and
+> search changed together; no single-defect ablation) in
+> hearth-rs `docs/divergences.md`. Downstream: MCTS-loses ladders below
+> stand as measurements OF THIS ENGINE only; the beam-vs-UCT comparison
+> now reads "beam is least damaged by the artifact", not "turn-plans are
+> the right search unit"; thesis text citing "search subtracts value"
+> needs revision before reuse.
+
 ### S4 results (2026-08-08, evening)
 
 Three training regimes all landed on the same plateau - NeuralGreedy is at
