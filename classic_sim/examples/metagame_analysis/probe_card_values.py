@@ -131,7 +131,11 @@ def build_field(seeds, rng):
 def main():
   parser = argparse.ArgumentParser()
   parser.add_argument("--era", choices=list(ERAS), required=True)
-  parser.add_argument("--backend", choices=["local", "ssh"], default="local")
+  parser.add_argument("--backend", choices=["local", "ssh", "hearthrs"], default="local",
+                       help="hearthrs = games on the hearth-rs Rust engine (see hearthrs_backend.py)")
+  parser.add_argument("--agent-spec", default=None,
+                       help="hearthrs backend only: piloting agent, e.g. 'az3:400@/path/net.json'; "
+                            "--agent/--eval-weights are ignored on that backend")
   parser.add_argument("--cores", type=int, default=1)
   parser.add_argument("--games", type=int, default=60)
   parser.add_argument("--hosts", type=int, default=HOSTS_PER_CLASS)
@@ -217,7 +221,14 @@ def main():
   n_field = len(field)
   print(f"era={args.era} mode={mode} agent={args.agent}: {len(index)} deck evaluations x "
         f"{n_field} opponents x {args.games} games = {len(work) * args.games} games", flush=True)
-  run_matchups = run_matchups_probe_ssh if args.backend == "ssh" else run_matchups_probe_local
+  if args.backend == "hearthrs":
+    import hearthrs_backend
+    hearthrs_backend.configure(agent_spec=args.agent_spec, default_games=args.games,
+                                base_seed=args.seed)
+    run_matchups = hearthrs_backend.run_matchups_hearthrs
+    print(f"hearth-rs backend: agent={hearthrs_backend.AGENT_SPEC}")
+  else:
+    run_matchups = run_matchups_probe_ssh if args.backend == "ssh" else run_matchups_probe_local
   results = run_matchups(work, args.cores)
 
   win_rates = {}
