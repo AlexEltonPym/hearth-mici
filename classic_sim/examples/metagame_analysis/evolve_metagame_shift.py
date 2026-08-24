@@ -415,7 +415,12 @@ def main():
   global HOSTS, REMOTE_CORES
   parser = argparse.ArgumentParser()
   parser.add_argument("--era", choices=list(ERAS), required=True)
-  parser.add_argument("--backend", choices=["local", "ssh"], default="local")
+  parser.add_argument("--backend", choices=["local", "ssh", "hearthrs"], default="local",
+                       help="hearthrs = games on the hearth-rs Rust engine via its PyO3 batch "
+                            "API (see hearthrs_backend.py); local/ssh = this Python engine")
+  parser.add_argument("--agent-spec", default=None,
+                       help="hearthrs backend only: piloting agent, e.g. 'az3:400@/path/net.json' "
+                            "or 'mcts-guided:400' (default: hearthrs_backend.AGENT_SPEC)")
   parser.add_argument("--cores", type=int, default=1, help="local backend only")
   parser.add_argument("--generations", type=int, default=15)
   parser.add_argument("--population", type=int, default=20, help="per-class population size / selection count")
@@ -513,7 +518,16 @@ def main():
                                      num_buckets=args.num_buckets,
                                      archive_name=f"{player_class} {args.era}")
               for player_class in CLASSES}
-  run_matchups = run_matchups_ssh if args.backend == "ssh" else run_matchups_local
+  if args.backend == "hearthrs":
+    import hearthrs_backend
+    hearthrs_backend.configure(agent_spec=args.agent_spec,
+                                default_games=args.fixed_games or None,
+                                base_seed=args.seed)
+    run_matchups = hearthrs_backend.run_matchups_hearthrs
+    print(f"hearth-rs backend: agent={hearthrs_backend.AGENT_SPEC} "
+          f"games/matchup={hearthrs_backend.DEFAULT_GAMES}")
+  else:
+    run_matchups = run_matchups_ssh if args.backend == "ssh" else run_matchups_local
 
   collections = {player_class: None for player_class in CLASSES}
   if args.collection in ("own", "both"):
