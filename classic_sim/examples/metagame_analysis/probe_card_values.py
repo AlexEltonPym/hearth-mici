@@ -153,6 +153,9 @@ def main():
   parser.add_argument("--out", default=None,
                        help="output CSV path (default data/probe_<era>.csv - which OVERWRITES the "
                             "committed baseline, so name a new file for every experimental run)")
+  parser.add_argument("--classes", default=None,
+                       help="comma-separated subset of HUNTER,MAGE,WARRIOR (default all) - "
+                            "lets one probe run be split across machines")
   parser.add_argument("--candidates", type=int, default=None,
                        help="smoke-test only: use just the first N candidate cards per class")
   args = parser.parse_args()
@@ -168,6 +171,13 @@ def main():
 
   seeds = load_seeds(args.era)
   field = build_field(seeds, rng)
+
+  global CLASSES
+  if args.classes:
+    wanted = [c.strip().upper() for c in args.classes.split(",")]
+    assert all(c in CLASSES for c in wanted), f"bad --classes {args.classes}"
+    CLASSES = wanted
+    print(f"class subset: {CLASSES}")
 
   #per class: hosts + the variant decks per candidate
   plan = {}  #class -> {"hosts": [deck...], "slots": [i...], "candidates": {card: [variant per host]}}
