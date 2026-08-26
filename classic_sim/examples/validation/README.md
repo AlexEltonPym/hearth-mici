@@ -1270,3 +1270,60 @@ calibrate_greedy_weights.play_matchup_till_stoppage. Data:
 feature_study/{feature_dataset.npz,usefulness.json},
 self_play_champion_v2_naxx.json, self_play_v2_generations.csv,
 value_net_naxx/comparison_seed{777,111}.json.
+
+## S6 - the hearth-rs rerun campaign (2026-08-24..26, in progress)
+
+Every search-adjacent result moves onto the hearth-rs Rust engine
+(correct rules, pure enumeration, az3 AlphaZero agents; see the S4
+correction above and hearth-rs docs/divergences.md). Adapter:
+`metagame_analysis/hearthrs_backend.py`; per-era agents pinned by sha in
+hearth-rs BENCHMARK.md (az3-classic / az3-naxx / az3-postnerf).
+
+**Nerf-locality (controlled, 600-game gates; 2001-game rerun pending):**
+one warm-start AZ cycle under post-nerf balance beats the pre-nerf
+champion 58.0%; an identical-recipe control cycle under unchanged
+balance gates 50.8% (chance). The Sept two-card nerf moved the play
+equilibrium measurably - pre-nerf play is exploitably wrong post-nerf.
+
+**Removal probe, paper-grade (az3-postnerf, 2700 games/side,
+`data/probe_nerf_az3pn.csv`):** Buzzard removal +3.1pp (confirms the
+Python-era +2.7 direction, ~2.3 sigma); all three Leeroy removals null
+(Hunter -1.2pp ns). The population cut Leeroy 34.8->12.0% though cutting
+buys a strong agent nothing - an over-reaction relative to remaining
+card value.
+
+**Addition probe, paper-grade (az3-naxx, 2700 games/side,
+`data/probe_naxx_az3naxx_{h,m,w}.csv`), vs the linear probe
+(`probe_naxx_launch.csv`):**
+
+| class | linear rho vs real | az3 rho vs real | probes agree |
+|---|---|---|---|
+| Hunter | +0.35 (ns) | +0.40 (p=.068) | 0.59 (p=.004) |
+| Mage | +0.20 (ns) | +0.15 (ns) | 0.55 (p=.009) |
+| Warrior | +0.30 (ns) | **+0.62 (p=.002)** | 0.45 |
+
+The old "agent-skill ceiling" story fractures into three phenomena:
+
+1. **A real agent-skill component.** Warrior alignment doubles under az3
+   (the first per-class probe rho to reach significance anywhere), and
+   Death's Bite's error halves: -3.2pp/rank 22 of 22 (linear) ->
+   -2.0pp/rank 13 (az3). Better play buys real signal.
+2. **A probe-design limit, not an agent limit.** Build-around cards stay
+   mis-valued at ANY agent strength because a fixed-slot swap into
+   ordinary hosts cannot express deck-context value: Duplicate az3
+   -3.2pp == linear -3.0pp (real 43.4%); Undertaker flips negative
+   under az3 (real 20.6%); Death's Bite's per-host deltas SPLIT
+   (-6.1/-2.2/+3.0/-7.4/+2.8) - it helps in the right shells and hurts
+   in the wrong ones, and the real population chose shells.
+3. **Dynamic-range compression.** Stronger play washes out single-card
+   margins (Hunter max delta +6.5pp linear -> +2.9pp az3; Belcher's
+   inflated +6.5 falls to +1.1, closer to Hunter's real 11.6%).
+   Implication: probe-biased evolution needs bias-strength retuning
+   before the S3 evolution reruns.
+
+Cross-cutting: in every class the two probes agree with each other more
+than either agrees with real adoption - card valuation is robust across
+agents; the residual gap to the population is not an agent artifact.
+
+Still queued: 2001-game nerf-locality gates (pre-registered decision
+rule), S3 evolution reruns, S1-redux at 9 classes.

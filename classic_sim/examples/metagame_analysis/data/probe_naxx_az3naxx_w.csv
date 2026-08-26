@@ -1,0 +1,23 @@
+class,card,mode,mean_delta_wr,host_deltas,games_per_side
+WARRIOR,Zombie Chow,addition,-0.0152,-0.044|-0.043|+0.019|-0.015|+0.007,2700
+WARRIOR,Undertaker,addition,-0.0246,-0.037|-0.020|-0.029|-0.059|+0.022,2700
+WARRIOR,Echoing Ooze,addition,-0.0165,-0.028|-0.015|-0.009|-0.064|+0.033,2700
+WARRIOR,Haunted Creeper,addition,0.0044,-0.028|+0.020|-0.006|-0.022|+0.057,2700
+WARRIOR,Mad Scientist,addition,-0.0194,-0.030|+0.000|+0.002|-0.064|-0.006,2700
+WARRIOR,Nerub'ar Weblord,addition,-0.0348,-0.063|+0.008|+0.001|-0.094|-0.026,2700
+WARRIOR,Nerubian Egg,addition,-0.0215,-0.069|+0.007|-0.028|-0.031|+0.013,2700
+WARRIOR,Unstable Ghoul,addition,-0.007,-0.048|-0.006|+0.017|-0.028|+0.030,2700
+WARRIOR,Dancing Swords,addition,-0.0296,-0.043|+0.004|-0.027|-0.068|-0.015,2700
+WARRIOR,Deathlord,addition,-0.0135,-0.013|+0.000|-0.002|-0.075|+0.022,2700
+WARRIOR,Shade of Naxxramas,addition,-0.0204,-0.063|-0.011|-0.007|-0.045|+0.025,2700
+WARRIOR,Stoneskin Gargoyle,addition,-0.0296,-0.057|-0.026|-0.013|-0.065|+0.013,2700
+WARRIOR,Baron Rivendare,addition,-0.0294,-0.043|-0.024|-0.020|-0.070|+0.010,2700
+WARRIOR,Wailing Soul,addition,-0.0215,-0.043|+0.007|-0.030|-0.057|+0.015,2700
+WARRIOR,Feugen,addition,-0.012,-0.039|-0.019|-0.018|-0.020|+0.035,2700
+WARRIOR,Stalagg,addition,-0.01,+0.007|-0.003|-0.019|-0.047|+0.011,2700
+WARRIOR,Loatheb,addition,-0.0065,-0.020|-0.013|+0.013|-0.081|+0.069,2700
+WARRIOR,Sludge Belcher,addition,0.0137,+0.000|+0.037|+0.013|-0.015|+0.033,2700
+WARRIOR,Spectral Knight,addition,-0.02,-0.043|+0.024|-0.019|-0.059|-0.004,2700
+WARRIOR,Maexxna,addition,-0.0141,-0.030|-0.013|-0.006|-0.043|+0.020,2700
+WARRIOR,Kel'Thuzad,addition,-0.0074,-0.039|+0.022|-0.013|-0.020|+0.013,2700
+WARRIOR,Death's Bite,addition,-0.02,-0.061|-0.022|+0.030|-0.074|+0.028,2700
