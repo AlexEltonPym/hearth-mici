@@ -1279,11 +1279,16 @@ correction above and hearth-rs docs/divergences.md). Adapter:
 `metagame_analysis/hearthrs_backend.py`; per-era agents pinned by sha in
 hearth-rs BENCHMARK.md (az3-classic / az3-naxx / az3-postnerf).
 
-**Nerf-locality (controlled, 600-game gates; 2001-game rerun pending):**
-one warm-start AZ cycle under post-nerf balance beats the pre-nerf
-champion 58.0%; an identical-recipe control cycle under unchanged
-balance gates 50.8% (chance). The Sept two-card nerf moved the play
-equilibrium measurably - pre-nerf play is exploitably wrong post-nerf.
+**Nerf-locality (2001-game gates, 2026-08-26):** the adapted cycle-1 net
+gates 53.8% (1074-924) against the pre-nerf champion under post-nerf
+balance; the identical-recipe control under unchanged balance gates
+50.4% (chance). Effect 3.4pp at ~2 sigma. The earlier 600-game reading
+of 58.0% was gate noise on the SAME network (the trainer was fully
+seed-deterministic, so the "recreated" c1-prime is bit-identical to
+c1); the strong "not a local perturbation" wording is retired. A
+second, genuinely independent training draw (seeded trainer) is
+running under a pre-registered rule; pending it, the moderated claim
+is: the nerf produced a measurable but modest play-equilibrium shift.
 
 **Removal probe, paper-grade (az3-postnerf, 2700 games/side,
 `data/probe_nerf_az3pn.csv`):** Buzzard removal +3.1pp (confirms the
