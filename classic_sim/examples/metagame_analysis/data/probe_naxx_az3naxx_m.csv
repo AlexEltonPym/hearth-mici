@@ -1,0 +1,23 @@
+class,card,mode,mean_delta_wr,host_deltas,games_per_side
+MAGE,Zombie Chow,addition,0.0013,-0.011|+0.011|+0.009|+0.022|-0.025,2700
+MAGE,Undertaker,addition,-0.0163,+0.016|-0.019|-0.019|+0.001|-0.061,2700
+MAGE,Echoing Ooze,addition,-0.0041,-0.010|+0.020|+0.011|-0.019|-0.023,2700
+MAGE,Haunted Creeper,addition,0.0089,-0.022|+0.035|+0.007|+0.026|-0.002,2700
+MAGE,Mad Scientist,addition,-0.013,-0.048|-0.015|+0.041|-0.015|-0.028,2700
+MAGE,Nerub'ar Weblord,addition,-0.0111,-0.002|+0.033|-0.013|+0.003|-0.077,2700
+MAGE,Nerubian Egg,addition,-0.0056,-0.010|-0.020|+0.019|+0.034|-0.050,2700
+MAGE,Unstable Ghoul,addition,0.0039,-0.039|+0.026|+0.031|+0.007|-0.006,2700
+MAGE,Dancing Swords,addition,-0.0126,-0.013|+0.015|-0.013|-0.024|-0.028,2700
+MAGE,Deathlord,addition,0.0028,-0.019|+0.030|+0.030|-0.007|-0.019,2700
+MAGE,Shade of Naxxramas,addition,-0.0002,+0.000|+0.000|+0.019|-0.003|-0.017,2700
+MAGE,Stoneskin Gargoyle,addition,-0.028,-0.021|-0.057|-0.023|-0.022|-0.016,2700
+MAGE,Baron Rivendare,addition,-0.0167,-0.027|+0.000|-0.023|+0.004|-0.037,2700
+MAGE,Wailing Soul,addition,-0.0211,-0.040|+0.009|+0.002|-0.005|-0.072,2700
+MAGE,Feugen,addition,-0.0152,-0.039|-0.010|+0.023|-0.031|-0.019,2700
+MAGE,Stalagg,addition,-0.0152,-0.030|-0.004|-0.026|-0.007|-0.009,2700
+MAGE,Loatheb,addition,0.0074,+0.020|+0.015|+0.046|-0.004|-0.041,2700
+MAGE,Sludge Belcher,addition,0.0124,+0.002|+0.015|+0.043|+0.025|-0.022,2700
+MAGE,Spectral Knight,addition,-0.0063,-0.013|+0.015|-0.007|+0.006|-0.031,2700
+MAGE,Maexxna,addition,-0.0157,-0.040|-0.006|+0.009|-0.037|-0.006,2700
+MAGE,Kel'Thuzad,addition,-0.0181,-0.027|-0.001|+0.007|-0.048|-0.022,2700
+MAGE,Duplicate,addition,-0.032,-0.012|-0.043|-0.037|-0.022|-0.046,2700

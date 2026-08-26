@@ -93,10 +93,14 @@ def _translate(item, index):
 
 
 def run_matchups_hearthrs(work_items, cores=0):
-    """Interface-compatible with run_matchups_local/_ssh (cores=0: all)."""
+    """Interface-compatible with run_matchups_local/_ssh. cores<=1 means
+    "no explicit request" in the old pipelines (their --cores default is 1
+    and only applied to the LOCAL Python backend), so it maps to 0 = all
+    threads here. Shipping max(0, cores) cost dwail1 a 24x slowdown on
+    2026-08-25; only pass an explicit cores>1 to cap the pool."""
     hearth = _load_hearth()
     batch = [_translate(item, i) for i, item in enumerate(work_items)]
-    raw = hearth.simulate_batch(batch, threads=max(0, cores))
+    raw = hearth.simulate_batch(batch, threads=0 if cores <= 1 else cores)
     results = []
     for (wins1, losses1, draws, games) in raw:
         n = wins1 + losses1 + draws

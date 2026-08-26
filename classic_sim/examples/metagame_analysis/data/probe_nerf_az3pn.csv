@@ -1,0 +1,5 @@
+class,card,mode,mean_delta_wr,host_deltas,games_per_side
+HUNTER,Starving Buzzard,removal,0.0307,-0.002|+0.013|+0.043|+0.081|+0.019,2700
+HUNTER,Leeroy Jenkins,removal,-0.0119,+0.011|+0.015|-0.035|-0.032|-0.018,2700
+MAGE,Leeroy Jenkins,removal,-0.0039,-0.012|+0.008|-0.003|-0.033|+0.020,2700
+WARRIOR,Leeroy Jenkins,removal,-0.0056,-0.025|+0.030|+0.006|-0.069|+0.031,2700
