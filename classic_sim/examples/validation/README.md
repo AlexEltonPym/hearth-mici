@@ -1279,16 +1279,19 @@ correction above and hearth-rs docs/divergences.md). Adapter:
 `metagame_analysis/hearthrs_backend.py`; per-era agents pinned by sha in
 hearth-rs BENCHMARK.md (az3-classic / az3-naxx / az3-postnerf).
 
-**Nerf-locality (2001-game gates, 2026-08-26):** the adapted cycle-1 net
-gates 53.8% (1074-924) against the pre-nerf champion under post-nerf
-balance; the identical-recipe control under unchanged balance gates
-50.4% (chance). Effect 3.4pp at ~2 sigma. The earlier 600-game reading
-of 58.0% was gate noise on the SAME network (the trainer was fully
-seed-deterministic, so the "recreated" c1-prime is bit-identical to
-c1); the strong "not a local perturbation" wording is retired. A
-second, genuinely independent training draw (seeded trainer) is
-running under a pre-registered rule; pending it, the moderated claim
-is: the nerf produced a measurable but modest play-equilibrium shift.
+**Nerf-locality (FINAL, 2001-game gates, 2026-08-26):** the Sept
+two-card nerf produced a measurable but modest shift in the play
+equilibrium: one adaptation cycle gains a ~3-4pp gate advantage over
+the pre-nerf champion under post-nerf balance, consistent across two
+independent training draws (seed 0: 53.8%, sha 51c65b5e...; seed 7:
+54.8%, sha fb37176d...), while a same-recipe control cycle under
+unchanged balance gates at chance (50.4%, sha e6fb6779...). All gates
+2001 games vs the pinned naxx champion (a51f5a30...). History note:
+an earlier 600-game reading of 58.0% was gate noise on the same
+network (seed-deterministic trainer); resolved under a pre-registered
+decision rule, and the methodology lesson is recorded - 600-game
+gates cannot support claims about 3-8pp effects; quote-bound gates
+run 2000+ games. Full detail: hearth-rs BENCHMARK.md.
 
 **Removal probe, paper-grade (az3-postnerf, 2700 games/side,
 `data/probe_nerf_az3pn.csv`):** Buzzard removal +3.1pp (confirms the
