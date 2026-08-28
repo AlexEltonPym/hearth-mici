@@ -1273,6 +1273,22 @@ value_net_naxx/comparison_seed{777,111}.json.
 
 ## S6 - the hearth-rs rerun campaign (2026-08-24..26, in progress)
 
+> **INVALIDATION NOTICE (2026-08-28): every S6 result below is void.** A
+> hearth-rs per-card behavioural audit (920 tests; hearth-rs BENCHMARK.md
+> from "Backstab enumeration bug" onward) found serious card bugs in the
+> engine all S6 games AND all az3 agent lineages ran on - most damaging
+> for us: Mad Scientist's deathrattle never put a secret into play (Mad
+> Scientist is in every Naxx-era pool we probe, and this cleanly explains
+> its anomalous ~0 probe value vs 33-51% real adoption). Also Backstab
+> unplayable, Conceal not blocking attacks, mass-bounce corruption, and
+> 14 classic_sim-inherited simplifications replaced with real 2014 rules.
+> Fixed-engine deck checks moved rogue +9.2pp. The probe tables, bias
+> sweep, nerf-locality gates, and the (stopped) evolution reruns all
+> re-run once the fixed-engine lineages land with fresh sha pins. The S4
+> enumeration-artifact correction is UNAFFECTED (verified by repro inside
+> classic_sim itself). Everything below is retained for method reference
+> only.
+
 Every search-adjacent result moves onto the hearth-rs Rust engine
 (correct rules, pure enumeration, az3 AlphaZero agents; see the S4
 correction above and hearth-rs docs/divergences.md). Adapter:
