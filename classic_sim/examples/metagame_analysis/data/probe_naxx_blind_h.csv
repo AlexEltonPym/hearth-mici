@@ -1,0 +1,23 @@
+class,card,mode,mean_delta_wr,host_deltas,games_per_side
+HUNTER,Zombie Chow,addition,-0.0154,-0.036|-0.052|-0.029|+0.044|-0.004,2700
+HUNTER,Undertaker,addition,-0.0139,-0.044|-0.055|+0.006|-0.004|+0.028,2700
+HUNTER,Echoing Ooze,addition,0.0019,-0.000|-0.043|-0.004|+0.021|+0.034,2700
+HUNTER,Haunted Creeper,addition,0.022,+0.027|-0.011|+0.019|+0.040|+0.036,2700
+HUNTER,Mad Scientist,addition,0.0231,+0.019|-0.026|-0.002|+0.058|+0.066,2700
+HUNTER,Nerub'ar Weblord,addition,-0.0067,-0.021|-0.047|-0.049|+0.043|+0.042,2700
+HUNTER,Nerubian Egg,addition,-0.0211,-0.066|-0.056|-0.017|+0.018|+0.015,2700
+HUNTER,Unstable Ghoul,addition,-0.0176,-0.051|-0.048|-0.054|+0.040|+0.025,2700
+HUNTER,Dancing Swords,addition,-0.025,-0.053|-0.062|-0.031|+0.021|+0.000,2700
+HUNTER,Deathlord,addition,-0.0074,-0.023|-0.053|-0.015|+0.026|+0.028,2700
+HUNTER,Shade of Naxxramas,addition,0.0076,-0.014|-0.066|+0.004|+0.064|+0.050,2700
+HUNTER,Stoneskin Gargoyle,addition,-0.043,-0.058|-0.102|-0.044|-0.031|+0.020,2700
+HUNTER,Baron Rivendare,addition,-0.0176,-0.038|-0.041|-0.017|-0.001|+0.008,2700
+HUNTER,Wailing Soul,addition,-0.0076,-0.000|-0.065|-0.024|+0.021|+0.030,2700
+HUNTER,Feugen,addition,-0.0106,-0.022|-0.028|-0.048|+0.016|+0.030,2700
+HUNTER,Stalagg,addition,-0.0324,-0.066|-0.060|-0.056|+0.006|+0.013,2700
+HUNTER,Loatheb,addition,0.0098,-0.053|-0.009|+0.000|+0.068|+0.044,2700
+HUNTER,Sludge Belcher,addition,0.0091,-0.030|-0.017|+0.017|+0.040|+0.035,2700
+HUNTER,Spectral Knight,addition,0.0056,-0.012|-0.039|+0.005|+0.017|+0.057,2700
+HUNTER,Maexxna,addition,-0.0202,-0.036|-0.050|-0.008|-0.012|+0.006,2700
+HUNTER,Kel'Thuzad,addition,-0.0083,-0.024|-0.044|-0.037|+0.024|+0.039,2700
+HUNTER,Webspinner,addition,0.0276,+0.005|-0.007|-0.007|+0.084|+0.064,2700
