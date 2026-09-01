@@ -1270,84 +1270,157 @@ calibrate_greedy_weights.play_matchup_till_stoppage. Data:
 feature_study/{feature_dataset.npz,usefulness.json},
 self_play_champion_v2_naxx.json, self_play_v2_generations.csv,
 value_net_naxx/comparison_seed{777,111}.json.
-
-## S6 - the hearth-rs rerun campaign (2026-08-24..26, in progress)
-
-> **INVALIDATION NOTICE (2026-08-28): every S6 result below is void.** A
-> hearth-rs per-card behavioural audit (920 tests; hearth-rs BENCHMARK.md
-> from "Backstab enumeration bug" onward) found serious card bugs in the
-> engine all S6 games AND all az3 agent lineages ran on - most damaging
-> for us: Mad Scientist's deathrattle never put a secret into play (Mad
-> Scientist is in every Naxx-era pool we probe, and this cleanly explains
-> its anomalous ~0 probe value vs 33-51% real adoption). Also Backstab
-> unplayable, Conceal not blocking attacks, mass-bounce corruption, and
-> 14 classic_sim-inherited simplifications replaced with real 2014 rules.
-> Fixed-engine deck checks moved rogue +9.2pp. The probe tables, bias
-> sweep, nerf-locality gates, and the (stopped) evolution reruns all
-> re-run once the fixed-engine lineages land with fresh sha pins. The S4
-> enumeration-artifact correction is UNAFFECTED (verified by repro inside
-> classic_sim itself). Everything below is retained for method reference
-> only.
+## S6 - the hearth-rs rerun campaign (2026-08-24 .. 2026-09-01)
 
 Every search-adjacent result moves onto the hearth-rs Rust engine
 (correct rules, pure enumeration, az3 AlphaZero agents; see the S4
 correction above and hearth-rs docs/divergences.md). Adapter:
-`metagame_analysis/hearthrs_backend.py`; per-era agents pinned by sha in
-hearth-rs BENCHMARK.md (az3-classic / az3-naxx / az3-postnerf).
+`metagame_analysis/hearthrs_backend.py`.
 
-**Nerf-locality (FINAL, 2001-game gates, 2026-08-26):** the Sept
-two-card nerf produced a measurable but modest shift in the play
-equilibrium: one adaptation cycle gains a ~3-4pp gate advantage over
-the pre-nerf champion under post-nerf balance, consistent across two
-independent training draws (seed 0: 53.8%, sha 51c65b5e...; seed 7:
-54.8%, sha fb37176d...), while a same-recipe control cycle under
-unchanged balance gates at chance (50.4%, sha e6fb6779...). All gates
-2001 games vs the pinned naxx champion (a51f5a30...). History note:
-an earlier 600-game reading of 58.0% was gate noise on the same
-network (seed-deterministic trainer); resolved under a pre-registered
-decision rule, and the methodology lesson is recorded - 600-game
-gates cannot support claims about 3-8pp effects; quote-bound gates
-run 2000+ games. Full detail: hearth-rs BENCHMARK.md.
+**History: the first pass was invalidated.** The campaign initially ran
+2026-08-24..26 on the pre-audit engine. On 2026-08-28 a hearth-rs
+per-card behavioural audit (920 tests) found serious card bugs in that
+engine - most damaging here, Mad Scientist's deathrattle never put a
+secret into play, plus Backstab unplayable, Conceal not blocking
+attacks, mass-bounce corruption, and 14 classic_sim-inherited
+simplifications replaced with real 2014 rules. Every first-pass number
+(probe tables, bias sweep, evolution reruns) was voided; all three az3
+lineages retrained from scratch on the fixed engine and the campaign
+replayed mechanically. First-pass numbers survive only in git history
+(commits before hearth-mici f0277d75). One methodological point worth
+keeping: the Mad Scientist probe anomaly (probed ~0 vs 33-51% real
+adoption) was in hindsight a working engine-bug detector - population
+cross-validation caught a card bug that unit tests were later written
+to catch. That is an argument for the validation methodology itself.
 
-**Removal probe, paper-grade (az3-postnerf, 2700 games/side,
-`data/probe_nerf_az3pn.csv`):** Buzzard removal +3.1pp (confirms the
-Python-era +2.7 direction, ~2.3 sigma); all three Leeroy removals null
-(Hunter -1.2pp ns). The population cut Leeroy 34.8->12.0% though cutting
-buys a strong agent nothing - an over-reaction relative to remaining
-card value.
+**Setup (v2, all results below).** Engine: hearth-rs post-audit main
+(commit 79bffa8 lineage; wheels/pyds rebuilt from source-hash-verified
+trees on every host). Agents: six sha-pinned champions - face-up and
+BLIND (honest hidden information, `HEARTH_BLIND=1`) lineages for each
+of classic2021 / naxx_launch / post_nerf - pins in hearth-rs
+docs/meta_prediction_requests.md. The blind protocol is paper-primary
+(secrets are meaningless under face-up: Duplicate and Mad Scientist
+need an opponent who cannot see the hand); face-up is retained as a
+comparability arm and information-sensitivity ablation. Pilot for all
+probe/evolution games: `az3:200` at the era- and protocol-matched
+champion. hearth-rs fidelity vs the VS matrix: MAE 2.84pp (face-up) /
+3.04pp (blind), a statistical tie - MAE is the honest headline; the
+Spearman on this matrix is rank-noise-dominated because both
+distributions are compressed.
 
-**Addition probe, paper-grade (az3-naxx, 2700 games/side,
-`data/probe_naxx_az3naxx_{h,m,w}.csv`), vs the linear probe
-(`probe_naxx_launch.csv`):**
+**Nerf-locality (final).** The Sept two-card nerf produced a measurable
+but modest shift in the play equilibrium: one adaptation cycle gates
+~53-55% against the pre-nerf champion under post-nerf balance across
+three independent measurements - two training draws on the pre-audit
+engine (53.8 / 54.8, 2001-game gates) and a third on the fixed engine
+under blind (53.5) - while a same-recipe control cycle under unchanged
+balance gates at chance (50.4). Methodology lesson retained: 600-game
+gates cannot support claims about 3-8pp effects; quote-bound gates run
+2000+ games.
 
-| class | linear rho vs real | az3 rho vs real | probes agree |
+### Probe campaign v2 (both eras x both protocols, 2700 games/side)
+
+CSVs: `data/probe_naxx_fx.csv`, `data/probe_naxx_blind.csv` (addition
+probes, naxx_launch era), `data/probe_nerf_fx.csv`,
+`data/probe_nerf_blind.csv` (removal probes, post_nerf era).
+
+Probe-vs-real-adoption alignment (Spearman rho), with the Python-era
+linear probe for reference:
+
+| class | linear (Python) | fixed face-up | fixed blind |
 |---|---|---|---|
-| Hunter | +0.35 (ns) | +0.40 (p=.068) | 0.59 (p=.004) |
-| Mage | +0.20 (ns) | +0.15 (ns) | 0.55 (p=.009) |
-| Warrior | +0.30 (ns) | **+0.62 (p=.002)** | 0.45 |
+| Hunter | +0.35 (ns) | +0.34 (ns) | +0.35 (ns) |
+| Mage | +0.20 (ns) | +0.38 (ns) | +0.31 (ns) |
+| Warrior | +0.30 (ns) | **+0.61 (p=.003)** | **+0.59 (p=.004)** |
 
-The old "agent-skill ceiling" story fractures into three phenomena:
+Findings, ordered by how well they replicate:
 
-1. **A real agent-skill component.** Warrior alignment doubles under az3
-   (the first per-class probe rho to reach significance anywhere), and
-   Death's Bite's error halves: -3.2pp/rank 22 of 22 (linear) ->
-   -2.0pp/rank 13 (az3). Better play buys real signal.
-2. **A probe-design limit, not an agent limit.** Build-around cards stay
-   mis-valued at ANY agent strength because a fixed-slot swap into
-   ordinary hosts cannot express deck-context value: Duplicate az3
-   -3.2pp == linear -3.0pp (real 43.4%); Undertaker flips negative
-   under az3 (real 20.6%); Death's Bite's per-host deltas SPLIT
-   (-6.1/-2.2/+3.0/-7.4/+2.8) - it helps in the right shells and hurts
-   in the wrong ones, and the real population chose shells.
-3. **Dynamic-range compression.** Stronger play washes out single-card
-   margins (Hunter max delta +6.5pp linear -> +2.9pp az3; Belcher's
-   inflated +6.5 falls to +1.1, closer to Hunter's real 11.6%).
-   Implication: probe-biased evolution needs bias-strength retuning
-   before the S3 evolution reruns.
+1. **Starving Buzzard removal +2.5pp under BOTH protocols** - the third
+   engine/agent family to sign the nerf from patch text alone (Python
+   linear +2.7, pre-audit az3 +2.5-3.1, fixed az3 +2.5). The most
+   replicated single result in the project.
+2. **All Leeroy removals null everywhere** (|delta| <= 1.7pp ns across
+   both protocols; Hunter blind -1.7 even favors keeping it). The
+   population cut Hunter Leeroy 34.8 -> 12.0% though cutting buys a
+   strong agent nothing - an over-reaction relative to remaining card
+   value, stable across every measurement condition.
+3. **Warrior alignment is a real agent-skill gain** - rho doubles from
+   the linear probe and reaches significance under both protocols.
+4. **Death's Bite marches monotonically toward truth** as measurement
+   honesty improves: -3.2pp (Python linear) -> -2.0 (pre-audit az3) ->
+   -0.4 (fixed face-up) -> **+0.8 (fixed blind)**; real adoption 60.2%.
+   Every fix to rules, agents, and information model moved this card's
+   valuation the same direction. The sign is finally correct; the
+   magnitude still under-sells a card the population built shells for.
+5. **Mad Scientist resolves by deck context, not by engine bug.** On the
+   fixed engine it probes +3.3pp (face-up) / +2.3 (blind) in Hunter -
+   whose real hosts run secrets - but -1.0 / -0.8 in Mage and -2.4 /
+   -2.0 in Warrior hosts that do not. The by-class split quantifies the
+   fixed-slot probe-design limit directly.
+6. **Duplicate is the lone unbroken divergence**: -4.0pp face-up,
+   **-5.5pp blind** (real 43.4%). The "the agent just needs honest
+   hidden information" hypothesis is dead - blind play makes the probe
+   value *worse*. Whatever the population saw in Duplicate, no
+   simulation configuration tried across three engines, three agent
+   families, and two information protocols reproduces it.
 
-Cross-cutting: in every class the two probes agree with each other more
-than either agrees with real adoption - card valuation is robust across
-agents; the residual gap to the population is not an agent artifact.
+Cross-cutting: the two protocols agree with each other more than either
+agrees with the population (probe-probe rho ~0.5-0.6 per class), so
+card valuation is robust across information models; the residual gap to
+real adoption is not an information artifact.
 
-Still queued: 2001-game nerf-locality gates (pre-registered decision
-rule), S3 evolution reruns, S1-redux at 9 classes.
+### Bias sweep v2 (blind protocol, naxx_launch, `data/bt2_*`)
+
+Four arms (bias-strength 0/5/10/20, 20 gens x pop 20 x 16 games,
+blind probe values, az3_naxx_blind pilot), scored mass-matched
+(`score_bias_sweep.py`, `data/bt2_scores.json`):
+
+- **bias=10 wins**: best pooled MAE (5.7pp vs 6.7-7.7) and direction
+  rate (0.719), best Hunter rho (0.798) and Warrior rho (0.550). The
+  winner moves up from v1's bias=5 exactly as the dynamic-range
+  compression under strong play predicted.
+- **Unbiased drift replicates on the honest engine**: with bias=0 every
+  new-card share sits at ~2-3% (Webspinner 2.8% vs 54.4% real).
+  Whole-deck selection still cannot adopt the Naxx package; the v1
+  "drift, not selection" result was not an engine artifact.
+- Duplicate stays pinned at ~1.3% in every arm, as its negative probe
+  value predicts.
+
+### Evolution reruns v2, paper-grade (3 seeds x 2 eras, blind)
+
+Original headline config (25 gens x pop 20 x 24 fixed games/eval),
+bias-strength 10, blind protocol, era-matched blind champions;
+nerf-era bias = blind naxx additions + sign-negated blind removal
+probes (`data/probe_combined_nerf_blind.csv`). Artifacts
+`data/paper2_*`, scores `data/paper2_*_scores.json`. Seed-mean
+forecast vs the v1 (Python-engine) paper numbers:
+
+| era | metric | v1 | v2 |
+|---|---|---|---|
+| naxx_launch | pooled MAE | 6.2pp | **5.5pp** |
+| naxx_launch | pooled direction | 0.763 | **0.800** |
+| naxx_launch | Hunter movers rho | 0.809 | 0.779 |
+| buzzard_nerf | pooled MAE | 6.6pp | **5.8pp** |
+| buzzard_nerf | pooled direction | 0.595 | 0.506 |
+| buzzard_nerf | Warrior movers rho | 0.724 | **0.857** |
+| buzzard_nerf | Hunter movers rho | 0.824 | 0.727 |
+
+Headline cards (seed-mean vs real):
+
+- **Mad Scientist 19.1% vs 32.7%** - the buggy engine had the card
+  inert, so no earlier run could adopt it; on the fixed engine the
+  pipeline predicts real adoption of the marquee Naxx build-around.
+- Buzzard 73.4% -> **6.1% vs 16.8% real**: the collapse is predicted
+  from patch text, still over-cut (as in v1's 12.2%).
+- Hunter Leeroy 14.0% vs 12.0% real; Unleash 64.9% vs 69.5% (but wide
+  seed spread, 24/76/95%); Sludge Belcher 16.7% vs 11.6%; Unstable
+  Ghoul correctly near zero (4.6% vs 2.4%).
+- Misses, honestly: Webspinner post-nerf 50.0% vs 73.7% (misses the
+  rise); Death's Bite 8.1% vs 60.2% (seed spread 1.6-18.7%); Duplicate
+  2.3% vs 43.4% (the standing divergence, end to end). The nerf-era
+  pooled direction rate is ~chance (0.506) because non-mover noise
+  dominates that count - mover-level metrics are the quotable ones.
+
+Running / queued: face-up evolution comparability arm (naxx_launch x 3
+seeds, `paper2fx_*`, on dwail1); S1-redux under both protocols;
+merged-paper absorption of the v2 Hearthstone results.
