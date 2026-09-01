@@ -1,0 +1,244 @@
+{
+  "era": "naxx_launch",
+  "seeds": [
+    0,
+    1,
+    2
+  ],
+  "per_seed": {
+    "0": {
+      "HUNTER": {
+        "n_scored": 193,
+        "levels_mae": 0.0559,
+        "mean_gap": 0.0003,
+        "over_predicted": 0,
+        "over_rate": 0.0,
+        "saturated_at_100": 0,
+        "n_movers": 38,
+        "movers_spearman": 0.607,
+        "movers_p": 0.0001,
+        "direction_hits": 28,
+        "direction_rate": 0.737,
+        "over_predicted_cards": []
+      },
+      "MAGE": {
+        "n_scored": 134,
+        "levels_mae": 0.0744,
+        "mean_gap": 0.0008,
+        "over_predicted": 1,
+        "over_rate": 0.0075,
+        "saturated_at_100": 0,
+        "n_movers": 54,
+        "movers_spearman": 0.6,
+        "movers_p": 0.0,
+        "direction_hits": 40,
+        "direction_rate": 0.741,
+        "over_predicted_cards": [
+          "Fireball"
+        ]
+      },
+      "WARRIOR": {
+        "n_scored": 115,
+        "levels_mae": 0.0941,
+        "mean_gap": -0.0057,
+        "over_predicted": 1,
+        "over_rate": 0.0087,
+        "saturated_at_100": 0,
+        "n_movers": 43,
+        "movers_spearman": 0.509,
+        "movers_p": 0.0005,
+        "direction_hits": 29,
+        "direction_rate": 0.674,
+        "over_predicted_cards": [
+          "Fiery War Axe"
+        ]
+      },
+      "POOLED": {
+        "n_scored": 442,
+        "levels_mae": 0.0714,
+        "mean_gap": -0.0011,
+        "over_predicted": 2,
+        "over_rate": 0.0045,
+        "saturated_at_100": 0,
+        "n_movers": 135,
+        "direction_hits": 97,
+        "direction_rate": 0.719
+      }
+    },
+    "1": {
+      "HUNTER": {
+        "n_scored": 193,
+        "levels_mae": 0.0616,
+        "mean_gap": 0.0003,
+        "over_predicted": 0,
+        "over_rate": 0.0,
+        "saturated_at_100": 0,
+        "n_movers": 38,
+        "movers_spearman": 0.596,
+        "movers_p": 0.0001,
+        "direction_hits": 26,
+        "direction_rate": 0.684,
+        "over_predicted_cards": []
+      },
+      "MAGE": {
+        "n_scored": 127,
+        "levels_mae": 0.0891,
+        "mean_gap": -0.0012,
+        "over_predicted": 1,
+        "over_rate": 0.0079,
+        "saturated_at_100": 0,
+        "n_movers": 54,
+        "movers_spearman": 0.484,
+        "movers_p": 0.0002,
+        "direction_hits": 41,
+        "direction_rate": 0.759,
+        "over_predicted_cards": [
+          "Fireball"
+        ]
+      },
+      "WARRIOR": {
+        "n_scored": 121,
+        "levels_mae": 0.0743,
+        "mean_gap": -0.0048,
+        "over_predicted": 0,
+        "over_rate": 0.0,
+        "saturated_at_100": 0,
+        "n_movers": 43,
+        "movers_spearman": 0.636,
+        "movers_p": 0.0,
+        "direction_hits": 32,
+        "direction_rate": 0.744,
+        "over_predicted_cards": []
+      },
+      "POOLED": {
+        "n_scored": 441,
+        "levels_mae": 0.073,
+        "mean_gap": -0.0015,
+        "over_predicted": 1,
+        "over_rate": 0.0023,
+        "saturated_at_100": 0,
+        "n_movers": 135,
+        "direction_hits": 99,
+        "direction_rate": 0.733
+      }
+    },
+    "2": {
+      "HUNTER": {
+        "n_scored": 110,
+        "levels_mae": 0.081,
+        "mean_gap": -0.0102,
+        "over_predicted": 1,
+        "over_rate": 0.0091,
+        "saturated_at_100": 0,
+        "n_movers": 38,
+        "movers_spearman": 0.739,
+        "movers_p": 0.0,
+        "direction_hits": 28,
+        "direction_rate": 0.737,
+        "over_predicted_cards": [
+          "Starving Buzzard"
+        ]
+      },
+      "MAGE": {
+        "n_scored": 139,
+        "levels_mae": 0.0761,
+        "mean_gap": 0.0028,
+        "over_predicted": 1,
+        "over_rate": 0.0072,
+        "saturated_at_100": 0,
+        "n_movers": 54,
+        "movers_spearman": 0.484,
+        "movers_p": 0.0002,
+        "direction_hits": 37,
+        "direction_rate": 0.685,
+        "over_predicted_cards": [
+          "Fireball"
+        ]
+      },
+      "WARRIOR": {
+        "n_scored": 122,
+        "levels_mae": 0.0885,
+        "mean_gap": -0.0029,
+        "over_predicted": 1,
+        "over_rate": 0.0082,
+        "saturated_at_100": 0,
+        "n_movers": 43,
+        "movers_spearman": 0.539,
+        "movers_p": 0.0002,
+        "direction_hits": 32,
+        "direction_rate": 0.744,
+        "over_predicted_cards": [
+          "Fiery War Axe"
+        ]
+      },
+      "POOLED": {
+        "n_scored": 371,
+        "levels_mae": 0.0816,
+        "mean_gap": -0.0029,
+        "over_predicted": 3,
+        "over_rate": 0.0081,
+        "saturated_at_100": 0,
+        "n_movers": 135,
+        "direction_hits": 97,
+        "direction_rate": 0.719
+      }
+    }
+  },
+  "seed_mean_forecast": {
+    "HUNTER": {
+      "n_scored": 193,
+      "levels_mae": 0.0457,
+      "mean_gap": 0.0003,
+      "over_predicted": 0,
+      "over_rate": 0.0,
+      "saturated_at_100": 0,
+      "n_movers": 38,
+      "movers_spearman": 0.779,
+      "movers_p": 0.0,
+      "direction_hits": 31,
+      "direction_rate": 0.816,
+      "over_predicted_cards": []
+    },
+    "MAGE": {
+      "n_scored": 151,
+      "levels_mae": 0.0595,
+      "mean_gap": 0.0014,
+      "over_predicted": 1,
+      "over_rate": 0.0066,
+      "saturated_at_100": 0,
+      "n_movers": 54,
+      "movers_spearman": 0.557,
+      "movers_p": 0.0,
+      "direction_hits": 41,
+      "direction_rate": 0.759,
+      "over_predicted_cards": [
+        "Fireball"
+      ]
+    },
+    "WARRIOR": {
+      "n_scored": 143,
+      "levels_mae": 0.0617,
+      "mean_gap": -0.002,
+      "over_predicted": 0,
+      "over_rate": 0.0,
+      "saturated_at_100": 0,
+      "n_movers": 43,
+      "movers_spearman": 0.639,
+      "movers_p": 0.0,
+      "direction_hits": 36,
+      "direction_rate": 0.837,
+      "over_predicted_cards": []
+    },
+    "POOLED": {
+      "n_scored": 487,
+      "levels_mae": 0.0547,
+      "mean_gap": -0.0,
+      "over_predicted": 1,
+      "over_rate": 0.0021,
+      "saturated_at_100": 0,
+      "n_movers": 135,
+      "direction_hits": 108,
+      "direction_rate": 0.8
+    }
+  }
+}
