@@ -1421,6 +1421,22 @@ Headline cards (seed-mean vs real):
   pooled direction rate is ~chance (0.506) because non-mover noise
   dominates that count - mover-level metrics are the quotable ones.
 
-Running / queued: face-up evolution comparability arm (naxx_launch x 3
-seeds, `paper2fx_*`, on dwail1); S1-redux under both protocols;
-merged-paper absorption of the v2 Hearthstone results.
+### Face-up comparability arm (naxx_launch x 3 seeds, `data/paper2fx_*`)
+
+Identical config to the blind naxx_launch runs but perfect-information
+protocol, face-up champion, face-up probe bias. Seed-mean forecast,
+blind vs face-up: pooled MAE 5.5 vs 5.8pp, pooled direction 0.800 vs
+0.748; movers rho Hunter 0.78 vs 0.74, Mage 0.56 vs 0.51, Warrior 0.64
+vs 0.61. Blind is better everywhere, modestly. The card-level picture
+is sharper than the aggregates: face-up OVER-adopts Mad Scientist
+(42.8% vs 32.7% real, one seed at 76%) because a perfect-information
+opponent plays around nothing, so the tempo body is all upside; it
+leaves Death's Bite at 1.6% (blind 8.1%) and Webspinner at 13.4% (blind
+33.9%). Duplicate is 1.4% under both. Honest hidden information changes
+which cards evolution finds, not just how accurately - the protocol
+ablation is a card-level result and the paper should report it that
+way.
+
+Queued: S1-redux under both protocols (hearth-rs's own fidelity numbers
+above may suffice); merged-paper absorption of the v2 Hearthstone
+results.
