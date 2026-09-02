@@ -158,7 +158,15 @@ def evolve_period(period, era, bias, seed_base, args, eval_weights, run_matchups
 def main():
   parser = argparse.ArgumentParser()
   parser.add_argument("--mode", choices=["free", "anchored"], required=True)
-  parser.add_argument("--backend", choices=["local", "ssh"], default="local")
+  parser.add_argument("--backend", choices=["local", "ssh", "hearthrs"], default="local")
+  parser.add_argument("--agent-naxx", default=None,
+                      help="hearthrs backend: agent spec piloting naxx_launch-era periods")
+  parser.add_argument("--agent-postnerf", default=None,
+                      help="hearthrs backend: agent spec piloting buzzard_nerf-era periods")
+  parser.add_argument("--bias-naxx", default=None,
+                      help="override mutation-bias CSV for naxx_launch-era periods")
+  parser.add_argument("--bias-nerf", default=None,
+                      help="override mutation-bias CSV for buzzard_nerf-era periods")
   parser.add_argument("--cores", type=int, default=1)
   parser.add_argument("--gens-per-period", type=int, default=10)
   parser.add_argument("--population", type=int, default=16)
@@ -168,46 +176,75 @@ def main():
   parser.add_argument("--seed", type=int, default=0)
   parser.add_argument("--eval-weights", default=str(OUT_DIR / "self_play_champion.json"))
   parser.add_argument("--out", default=None, help="output prefix (default data/rolling_<mode>)")
+  parser.add_argument("--resume", action="store_true",
+                      help="skip periods whose prediction + elites are already on disk")
   args = parser.parse_args()
 
   out_prefix = Path(args.out or f"data/rolling_{args.mode}").name
-  rng = Random(args.seed)
-  eval_weights = load_eval_weights(args.eval_weights)
-  run_matchups = run_matchups_ssh if args.backend == "ssh" else run_matchups_local
+  rng = Random(args.seed)   #re-seeded per period below so resume is exact
+  if args.backend == "hearthrs":
+    import hearthrs_backend
+    hearthrs_backend.configure(base_seed=args.seed)
+    eval_weights = None   #hearth agents carry their own evaluators
+    run_matchups = hearthrs_backend.run_matchups_hearthrs
+    agent_by_era = {"naxx_launch": args.agent_naxx, "buzzard_nerf": args.agent_postnerf}
+    missing = [era for era, spec in agent_by_era.items() if not spec]
+    if missing:
+      raise SystemExit(f"--backend hearthrs needs agent specs for eras {missing}")
+  else:
+    eval_weights = load_eval_weights(args.eval_weights)
+    run_matchups = run_matchups_ssh if args.backend == "ssh" else run_matchups_local
+    agent_by_era = None
+  bias_override = {"naxx_launch": args.bias_naxx, "buzzard_nerf": args.bias_nerf}
 
   history_path = OUT_DIR / f"{out_prefix}_history.csv"
-  with history_path.open("w", newline="", encoding="utf-8") as history_file:
+  fresh = not (args.resume and history_path.exists())
+  with history_path.open("w" if fresh else "a", newline="", encoding="utf-8") as history_file:
     log = csv.writer(history_file)
-    log.writerow(["period", "generation", "class", "n_elites", "mean_fitness"])
+    if fresh:
+      log.writerow(["period", "generation", "class", "n_elites", "mean_fitness"])
 
     seed_base = load_period_seeds("p0_prenaxx")
-    predictions = {}
     for period, era, bias_csv in PERIOD_PLAN:
       if args.mode == "anchored":
         seed_base = load_period_seeds(ANCHOR_SOURCE[period])
-      bias = load_bias(bias_csv)
-      print(f"predicting {period} (era={era}, mode={args.mode}, "
-            f"seeds={ {c: len(seed_base[c]) for c in CLASSES} })", flush=True)
-      shares, elite_decks = evolve_period(period, era, bias, seed_base, args,
-                                           eval_weights, run_matchups, rng, log)
-      predictions[period] = shares
-      history_file.flush()
+      rng = Random(args.seed * 1000 + PERIOD_PLAN.index((period, era, bias_csv)))
+      out_csv = OUT_DIR / f"{out_prefix}_predicted_{period}.csv"
+      elites_json = OUT_DIR / f"{out_prefix}_elites_{period}.json"
+      if args.resume and out_csv.exists() and elites_json.exists():
+        #per-period resume: the period's prediction is on disk; reload the
+        #elite decks so free-running carry-forward continues unchanged
+        with elites_json.open(encoding="utf-8") as f:
+          elite_decks = json.load(f)
+        print(f"resume: {period} already predicted, skipping", flush=True)
+      else:
+        bias = load_bias(bias_override[era] or bias_csv)
+        if agent_by_era is not None:
+          hearthrs_backend.configure(agent_spec=agent_by_era[era])
+        print(f"predicting {period} (era={era}, mode={args.mode}, "
+              f"seeds={ {c: len(seed_base[c]) for c in CLASSES} })", flush=True)
+        shares, elite_decks = evolve_period(period, era, bias, seed_base, args,
+                                             eval_weights, run_matchups, rng, log)
+        history_file.flush()
+        write_prediction(out_csv, shares)
+        with elites_json.open("w", encoding="utf-8") as f:
+          json.dump(elite_decks, f)
       if args.mode == "free":
         #next period starts from what the model itself predicts people play,
         #falling back to the previous base if a class archive came up empty
         seed_base = {c: (elite_decks[c] if elite_decks[c] else seed_base[c]) for c in CLASSES}
 
-  for period, shares in predictions.items():
-    out_csv = OUT_DIR / f"{out_prefix}_predicted_{period}.csv"
-    all_cards = sorted(set().union(*(shares[c][0] for c in CLASSES)))
-    with out_csv.open("w", newline="", encoding="utf-8") as f:
-      writer = csv.writer(f)
-      writer.writerow(["card"] + [f"{c.lower()}_share" for c in CLASSES]
-                      + [f"{c.lower()}_n_elites" for c in CLASSES])
-      for card in all_cards:
-        writer.writerow([card] + [round(shares[c][0].get(card, 0.0), 4) for c in CLASSES]
-                        + [shares[c][1] for c in CLASSES])
-    print(f"wrote {out_csv}")
+
+def write_prediction(out_csv, shares):
+  all_cards = sorted(set().union(*(shares[c][0] for c in CLASSES)))
+  with out_csv.open("w", newline="", encoding="utf-8") as f:
+    writer = csv.writer(f)
+    writer.writerow(["card"] + [f"{c.lower()}_share" for c in CLASSES]
+                    + [f"{c.lower()}_n_elites" for c in CLASSES])
+    for card in all_cards:
+      writer.writerow([card] + [round(shares[c][0].get(card, 0.0), 4) for c in CLASSES]
+                      + [shares[c][1] for c in CLASSES])
+  print(f"wrote {out_csv}", flush=True)
 
 
 if __name__ == "__main__":
