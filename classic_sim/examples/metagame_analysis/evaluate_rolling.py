@@ -76,15 +76,39 @@ def corrected_prediction(prediction, n_elites, reference, readout):
   return out
 
 
+SEEDS = None   #None = single run per mode; else average of {PREFIX}_{mode}_s{seed}
+
+
+def seed_mean(corrected_runs):
+  """Average per-seed corrected shares (the one-shot paper convention:
+  correct each seed, then average)."""
+  runs = [r for r in corrected_runs if r is not None]
+  if not runs:
+    return None
+  cards = set().union(*runs)
+  out = {}
+  for card in cards:
+    out[card] = {c: sum(r.get(card, {}).get(c, 0.0) for r in runs) / len(runs) for c in CLASSES}
+  return out
+
+
 def build_predictions(modes, readout, truth):
   """{mode: {period: corrected_prediction}} - mass-matched against the
-  previous period's real adoption unless readout == 'raw'."""
+  previous period's real adoption unless readout == 'raw'. With SEEDS set,
+  each seed's run is corrected separately and the seed-mean is returned."""
   preds = {}
   for mode in modes:
     preds[mode] = {}
     for prev, period in zip(PERIOD_ORDER, PERIOD_ORDER[1:]):
-      raw, n_elites = load_prediction(mode, period)
-      preds[mode][period] = corrected_prediction(raw, n_elites, truth[prev], readout)
+      if SEEDS is None:
+        raw, n_elites = load_prediction(mode, period)
+        preds[mode][period] = corrected_prediction(raw, n_elites, truth[prev], readout)
+      else:
+        runs = []
+        for seed in SEEDS:
+          raw, n_elites = load_prediction(f"{mode}_s{seed}", period)
+          runs.append(corrected_prediction(raw, n_elites, truth[prev], readout))
+        preds[mode][period] = seed_mean(runs) if all(r is not None for r in runs) else None
   return preds
 
 
@@ -95,13 +119,16 @@ def main():
   parser.add_argument("--out", default=str(DATA / "rolling_evaluation.json"))
   parser.add_argument("--prefix", default="rolling",
                        help="artifact prefix, e.g. rolling2 for the pair-bias rerun")
+  parser.add_argument("--seeds", type=int, nargs="+", default=None,
+                       help="average {prefix}_{mode}_s{seed} runs (seed-mean forecast)")
   args = parser.parse_args()
-  global PREFIX
+  global PREFIX, SEEDS
   PREFIX = args.prefix
+  SEEDS = args.seeds
 
   truth = {p: load_truth(p) for p in PERIOD_ORDER}
   preds = build_predictions(args.modes, args.readout, truth)
-  results = {"readout": args.readout}
+  results = {"readout": args.readout, "prefix": args.prefix, "seeds": args.seeds}
 
   print(f"=== headline Hunter trajectories, readout={args.readout} "
         f"(real | per-mode predicted) ===")
