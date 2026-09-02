@@ -1,0 +1,115 @@
+{
+  "readout": "massmatch",
+  "prefix": "rolling3",
+  "seeds": [
+    0,
+    1,
+    2
+  ],
+  "anchored": {
+    "p1_naxx_early": {
+      "hunter": {
+        "n_movers": 36,
+        "spearman": 0.559,
+        "p": 0.0004,
+        "direction_hits": 28,
+        "direction_rate": 0.778,
+        "levels_mae": 0.0403
+      },
+      "mage": {
+        "n_movers": 55,
+        "spearman": 0.579,
+        "p": 0.0,
+        "direction_hits": 32,
+        "direction_rate": 0.582,
+        "levels_mae": 0.0358
+      },
+      "warrior": {
+        "n_movers": 42,
+        "spearman": 0.623,
+        "p": 0.0,
+        "direction_hits": 32,
+        "direction_rate": 0.762,
+        "levels_mae": 0.0301
+      }
+    },
+    "p2_naxx_late": {
+      "hunter": {
+        "n_movers": 29,
+        "spearman": 0.864,
+        "p": 0.0,
+        "direction_hits": 19,
+        "direction_rate": 0.655,
+        "levels_mae": 0.0339
+      },
+      "mage": {
+        "n_movers": 35,
+        "spearman": 0.662,
+        "p": 0.0,
+        "direction_hits": 18,
+        "direction_rate": 0.514,
+        "levels_mae": 0.0324
+      },
+      "warrior": {
+        "n_movers": 15,
+        "spearman": 0.893,
+        "p": 0.0,
+        "direction_hits": 8,
+        "direction_rate": 0.533,
+        "levels_mae": 0.0319
+      }
+    },
+    "p3_postnerf_early": {
+      "hunter": {
+        "n_movers": 30,
+        "spearman": 0.689,
+        "p": 0.0,
+        "direction_hits": 17,
+        "direction_rate": 0.567,
+        "levels_mae": 0.0337
+      },
+      "mage": {
+        "n_movers": 15,
+        "spearman": 0.57,
+        "p": 0.0265,
+        "direction_hits": 5,
+        "direction_rate": 0.333,
+        "levels_mae": 0.0288
+      },
+      "warrior": {
+        "n_movers": 25,
+        "spearman": 0.898,
+        "p": 0.0,
+        "direction_hits": 12,
+        "direction_rate": 0.48,
+        "levels_mae": 0.0295
+      }
+    },
+    "p4_postnerf_late": {
+      "hunter": {
+        "n_movers": 21,
+        "spearman": 0.845,
+        "p": 0.0,
+        "direction_hits": 13,
+        "direction_rate": 0.619,
+        "levels_mae": 0.0375
+      },
+      "mage": {
+        "n_movers": 24,
+        "spearman": 0.639,
+        "p": 0.0008,
+        "direction_hits": 16,
+        "direction_rate": 0.667,
+        "levels_mae": 0.0245
+      },
+      "warrior": {
+        "n_movers": 25,
+        "spearman": 0.792,
+        "p": 0.0,
+        "direction_hits": 15,
+        "direction_rate": 0.6,
+        "levels_mae": 0.027
+      }
+    }
+  }
+}

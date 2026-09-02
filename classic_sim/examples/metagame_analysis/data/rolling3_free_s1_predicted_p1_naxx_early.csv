@@ -1,0 +1,162 @@
+card,hunter_share,mage_share,warrior_share,hunter_n_elites,mage_n_elites,warrior_n_elites
+Abusive Sergeant,0.1667,0.0435,0.2,12,23,15
+Acidic Swamp Ooze,0.0833,0.1304,0.4667,12,23,15
+Acolyte of Pain,0.0,0.3478,0.6,12,23,15
+Alarm-o-Bot,0.0,0.0435,0.0,12,23,15
+Alexstrasza,0.1667,0.0,0.5333,12,23,15
+Amani Berserker,0.0,0.0435,0.2,12,23,15
+Ancient Brewmaster,0.25,0.0,0.0,12,23,15
+Ancient Watcher,0.25,0.0,0.0,12,23,15
+Animal Companion,0.8333,0.0,0.0,12,23,15
+Arcane Explosion,0.0,0.4348,0.0,12,23,15
+Arcane Golem,0.0,0.0435,0.0,12,23,15
+Arcane Intellect,0.0,0.6087,0.0,12,23,15
+Arcane Missiles,0.0,0.8696,0.0,12,23,15
+Arcane Shot,0.25,0.0,0.0,12,23,15
+Arcanite Reaper,0.0,0.0,0.4667,12,23,15
+Archmage Antonidas,0.0,0.087,0.0,12,23,15
+Argent Commander,0.25,0.2174,0.2,12,23,15
+Armorsmith,0.0,0.0,0.8,12,23,15
+Azure Drake,0.0,0.3913,0.4667,12,23,15
+Big Game Hunter,0.0,0.3043,0.1333,12,23,15
+Blizzard,0.0,0.2174,0.0,12,23,15
+Bloodmage Thalnos,0.0,0.4348,0.0,12,23,15
+Bloodsail Raider,0.0,0.0,0.2,12,23,15
+Booty Bay Bodyguard,0.0,0.3478,0.0,12,23,15
+Boulderfist Ogre,0.3333,0.0,0.0,12,23,15
+Brawl,0.0,0.0,0.4667,12,23,15
+Cairne Bloodhoof,0.0,0.087,0.4667,12,23,15
+Charge,0.0,0.0,0.2667,12,23,15
+Chillwind Yeti,0.0,0.1304,0.0,12,23,15
+Cleave,0.0,0.0,0.7333,12,23,15
+Coldlight Oracle,0.25,0.1739,0.0,12,23,15
+Cone of Cold,0.0,0.3043,0.0,12,23,15
+Core Hound,0.0,0.0435,0.0,12,23,15
+Counterspell,0.0,0.087,0.0,12,23,15
+Crazed Alchemist,0.0833,0.087,0.0,12,23,15
+Cruel Taskmaster,0.0,0.0,1.0,12,23,15
+Cult Master,0.25,0.1739,0.0,12,23,15
+Dark Iron Dwarf,0.0,0.087,0.2,12,23,15
+Deadly Shot,0.4167,0.0,0.0,12,23,15
+Death's Bite,0.0,0.0,0.3333,12,23,15
+Deathlord,0.0,0.0435,0.0,12,23,15
+Defender of Argus,0.25,0.0435,0.0,12,23,15
+Demolisher,0.0,0.3478,0.0,12,23,15
+Dire Wolf Alpha,0.25,0.0,0.0,12,23,15
+Doomsayer,0.25,0.1304,0.0,12,23,15
+Eaglehorn Bow,0.25,0.0,0.0,12,23,15
+Earthen Ring Farseer,0.0,0.2174,0.0,12,23,15
+Echoing Ooze,0.1667,0.0,0.0,12,23,15
+Elven Archer,0.1667,0.5217,0.0,12,23,15
+Ethereal Arcanist,0.0,0.087,0.0,12,23,15
+Execute,0.0,0.0,0.8,12,23,15
+Explosive Shot,0.25,0.0,0.0,12,23,15
+Explosive Trap,0.4167,0.0,0.0,12,23,15
+Faceless Manipulator,0.0,0.087,0.7333,12,23,15
+Faerie Dragon,0.0,0.0435,0.0,12,23,15
+Fen Creeper,0.25,0.0,0.0,12,23,15
+Feugen,0.0,0.087,0.0,12,23,15
+Fiery War Axe,0.0,0.0,1.0,12,23,15
+Fireball,0.0,0.9565,0.0,12,23,15
+Flamestrike,0.0,0.1739,0.0,12,23,15
+Flesheating Ghoul,0.25,0.0,0.0,12,23,15
+Frost Elemental,0.25,0.0,0.0,12,23,15
+Frost Nova,0.0,0.5652,0.0,12,23,15
+Frostbolt,0.0,1.0,0.0,12,23,15
+Frostwolf Grunt,0.0,0.0435,0.0,12,23,15
+Frostwolf Warlord,0.5,0.2174,0.0,12,23,15
+Frothing Berserker,0.0,0.0,0.2667,12,23,15
+Gadgetzan Auctioneer,0.0,0.087,0.0,12,23,15
+Gladiator's Longbow,0.1667,0.0,0.0,12,23,15
+Gorehowl,0.0,0.0,0.4667,12,23,15
+Grommash Hellscream,0.0,0.0,0.4667,12,23,15
+Gurubashi Berserker,0.25,0.0,0.0667,12,23,15
+Harrison Jones,0.0,0.0,0.0667,12,23,15
+Heroic Strike,0.0,0.0,0.2,12,23,15
+Houndmaster,0.5833,0.0,0.0,12,23,15
+Hunter's Mark,0.3333,0.0,0.0,12,23,15
+Ice Barrier,0.0,0.1739,0.0,12,23,15
+Ice Block,0.0,0.2609,0.0,12,23,15
+Ice Lance,0.0,0.6522,0.0,12,23,15
+Imp Master,0.0,0.0,0.0667,12,23,15
+Inner Rage,0.0,0.0,0.2667,12,23,15
+Ironbeak Owl,0.1667,0.087,0.0,12,23,15
+Ironforge Rifleman,0.1667,0.0,0.0667,12,23,15
+Ironfur Grizzly,0.0,0.0,0.0667,12,23,15
+Kill Command,0.5,0.0,0.0,12,23,15
+Kirin Tor Mage,0.0,0.0435,0.0,12,23,15
+Knife Juggler,0.1667,0.3913,0.0,12,23,15
+Kor'kron Elite,0.0,0.0,0.6667,12,23,15
+Leeroy Jenkins,0.1667,0.1739,0.0,12,23,15
+Leper Gnome,0.1667,0.4348,0.2,12,23,15
+Loatheb,0.0,0.0435,0.0,12,23,15
+Loot Hoarder,0.0,0.4348,0.0,12,23,15
+Mad Bomber,0.0,0.0,0.0667,12,23,15
+Mana Wraith,0.0,0.0,0.1333,12,23,15
+Mana Wyrm,0.0,0.5217,0.0,12,23,15
+Mirror Entity,0.0,0.1304,0.0,12,23,15
+Mirror Image,0.0,0.7391,0.0,12,23,15
+Mogu'shan Warden,0.0,0.1739,0.0,12,23,15
+Mortal Strike,0.0,0.0,0.2,12,23,15
+Multi-Shot,0.4167,0.0,0.0,12,23,15
+Murloc Warleader,0.0,0.0,0.5333,12,23,15
+Nat Pagle,0.0,0.087,0.0,12,23,15
+Nightblade,0.1667,0.0,0.0,12,23,15
+Novice Engineer,0.0,0.1304,0.0,12,23,15
+Oasis Snapjaw,0.0,0.0,0.1333,12,23,15
+Pint-Sized Summoner,0.0833,0.0,0.0,12,23,15
+Polymorph,0.0,0.6087,0.0,12,23,15
+Pyroblast,0.0,0.1739,0.0,12,23,15
+Questing Adventurer,0.0,0.1304,0.0,12,23,15
+Raging Worgen,0.0,0.087,0.4667,12,23,15
+Ragnaros the Firelord,0.0,0.0,0.5333,12,23,15
+Rampage,0.0,0.0,0.0667,12,23,15
+Razorfen Hunter,0.4167,0.0,0.0,12,23,15
+Reckless Rocketeer,0.1667,0.0,0.0,12,23,15
+River Crocolisk,0.4167,0.0,0.0,12,23,15
+Savannah Highmane,0.5833,0.0,0.0,12,23,15
+Scarlet Crusader,0.25,0.1304,0.0,12,23,15
+Scavenging Hyena,0.8333,0.0,0.0,12,23,15
+Sea Giant,0.4167,0.0,0.0,12,23,15
+Secretkeeper,0.0,0.0435,0.0,12,23,15
+Sen'jin Shieldmasta,0.5,0.0435,0.0667,12,23,15
+Shattered Sun Cleric,0.25,0.0,0.0,12,23,15
+Shield Block,0.0,0.0,0.8,12,23,15
+Shield Slam,0.0,0.0,0.8,12,23,15
+Silvermoon Guardian,0.0,0.0435,0.0,12,23,15
+Slam,0.0,0.0,0.9333,12,23,15
+Sludge Belcher,0.0833,0.2609,0.0,12,23,15
+Snake Trap,0.25,0.0,0.0,12,23,15
+Sorcerer's Apprentice,0.0,0.3478,0.0,12,23,15
+Spectral Knight,0.0,0.0435,0.0,12,23,15
+Spellbender,0.0,0.0435,0.0,12,23,15
+Spellbreaker,0.0,0.1304,0.0,12,23,15
+Spiteful Smith,0.0,0.087,0.0,12,23,15
+Stampeding Kodo,0.4167,0.0,0.0,12,23,15
+Starving Buzzard,0.8333,0.0,0.0,12,23,15
+Stonetusk Boar,0.3333,0.0,0.0,12,23,15
+Stormpike Commando,0.1667,0.087,0.0,12,23,15
+Stormwind Knight,0.1667,0.0,0.0,12,23,15
+Stranglethorn Tiger,0.4167,0.0,0.0,12,23,15
+Sunfury Protector,0.0,0.1304,0.0,12,23,15
+Sunwalker,0.0,0.1304,0.0,12,23,15
+Sylvanas Windrunner,0.0833,0.0,0.0667,12,23,15
+The Black Knight,0.0,0.0435,0.0,12,23,15
+Timber Wolf,0.5833,0.0,0.0,12,23,15
+Tinkmaster Overspark,0.1667,0.0,0.0,12,23,15
+Tracking,0.1667,0.0,0.0,12,23,15
+Tundra Rhino,0.6667,0.0,0.0,12,23,15
+Twilight Drake,0.0833,0.0,0.1333,12,23,15
+Unleash the Hounds,1.0,0.0,0.0,12,23,15
+Unstable Ghoul,0.0833,0.0435,0.0667,12,23,15
+Vaporize,0.0,0.0435,0.0,12,23,15
+Violet Teacher,0.0833,0.0,0.0,12,23,15
+Warsong Commander,0.0,0.0,0.4667,12,23,15
+Water Elemental,0.0,0.5652,0.0,12,23,15
+Webspinner,0.1667,0.0,0.0,12,23,15
+Whirlwind,0.0,0.0,0.8,12,23,15
+Wild Pyromancer,0.0,0.2609,0.0,12,23,15
+Wisp,0.0,0.0435,0.0,12,23,15
+Wolfrider,0.1667,0.4348,0.2,12,23,15
+Worgen Infiltrator,0.0833,0.0,0.0,12,23,15
+Zombie Chow,0.0,0.087,0.0,12,23,15
