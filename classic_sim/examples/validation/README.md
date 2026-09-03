@@ -1437,6 +1437,30 @@ which cards evolution finds, not just how accurately - the protocol
 ablation is a card-level result and the paper should report it that
 way.
 
-Queued: S1-redux under both protocols (hearth-rs's own fidelity numbers
-above may suffice); merged-paper absorption of the v2 Hearthstone
-results.
+### Rolling trajectory v2 (`data/rolling3_*`, 3 seeds per mode, blind)
+
+Same period plan and evolution config as the original rolling runs
+(10 gens/period, pop 16, 16 games), hearth-rs backend with the era-matched
+blind champion per period, blind probe bias (negated removals for the
+post-nerf periods), bias-strength 10. Seed-mean, mass-matched
+(`evaluate_rolling.py --prefix rolling3 --seeds 0 1 2`,
+`data/rolling3_evaluation.json`):
+
+- **Anchored** (each period seeded from the previous period's real
+  decks): movers rho 0.56-0.90 in every class and period, all p<=0.026;
+  levels MAE 2.4-4.0pp. Buzzard 73/43/11/6% vs real 79/53/16/18; Mad
+  Scientist 3/45/65/56 vs 30/44/66/60; Webspinner 12/65/69/68 vs
+  51/68/78/68. One-step prediction is good everywhere after the first
+  period.
+- **Free-running** (seeded from its own previous elites): Buzzard
+  72/74/29/3 - the collapse arrives one period late but arrives in all
+  three seeds (final period 6/2/2%). Rank agreement weaker (0.30-0.67
+  after p1; Mage ns in both post-nerf periods), MAE 3.5-5.5pp. The
+  loop's cost lands on the risers: Mad Scientist 5/15/21/34, Webspinner
+  7/17/27/38, Sludge Belcher 4/6/23/38 - a gauntlet drawn from the
+  model's own population never demands the new cards, so adoption lags
+  reality by 20-45pp through the whole trajectory. Survivor levels swing
+  by seed (Unleash final period 2/60/79%).
+
+Queued: merged-paper absorption (in progress; unbiased control
+`data/paper2u_*` pending for the one-shot comparison).
