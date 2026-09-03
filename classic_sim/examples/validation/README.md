@@ -1462,5 +1462,15 @@ post-nerf periods), bias-strength 10. Seed-mean, mass-matched
   reality by 20-45pp through the whole trajectory. Survivor levels swing
   by seed (Unleash final period 2/60/79%).
 
-Queued: merged-paper absorption (in progress; unbiased control
-`data/paper2u_*` pending for the one-shot comparison).
+### Unbiased control at paper config (`data/paper2u_*`, naxx_launch, 3 seeds, blind)
+
+Same as the paper-grade blind naxx_launch runs with no probe bias.
+Seed-mean: new cards stay at the mutation floor (Webspinner 2.2% vs 54.4%
+real, Mad Scientist 4.7% vs 32.7%, Sludge Belcher 3.8% vs 11.6%); Hunter
+movers rho 0.64 (biased 0.78), pooled MAE 5.8pp (biased 5.5). Direction
+hits 29/38 vs biased 31/38 - NOT a useful comparison: every new card
+really rose from zero and the mass-matched readout gives each a small
+positive floor, so an unbiased run gets direction credit for cards it
+never adopted. Quote levels and rank agreement for this control.
+
+Merged paper: Hearthstone half absorbed on v2 numbers only (2026-09-03).
