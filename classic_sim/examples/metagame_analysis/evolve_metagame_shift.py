@@ -40,12 +40,37 @@ from random import Random, random, randint, choice, choices
 
 sys.path.append('../../src')
 sys.path.append('../map_elites')
-from game_manager import GameManager
-from strategy import GreedyActionSmart, NeuralGreedy
-from zones import Deck
-from enums import Classes, CardSets
-from card_sets import build_pool, get_legendary_cards, SEPT_2014_NERF_PATCHES
-from exceptions import TooManyActions
+import hs_catalog
+
+#The Python engine (classic_sim) is only needed by the legacy local/ssh
+#backends; the hearthrs backend must not depend on its card tables at all.
+#Its symbols are bound lazily by _load_python_engine().
+GameManager = GreedyActionSmart = NeuralGreedy = Deck = Classes = CardSets = None
+build_pool = get_legendary_cards = TooManyActions = None
+SEPT_2014_NERF_PATCHES = "SEPT_2014_NERF_PATCHES"   #placeholder tag, resolved lazily
+
+
+def _load_python_engine():
+  global GameManager, GreedyActionSmart, NeuralGreedy, Deck, Classes, CardSets
+  global build_pool, get_legendary_cards, TooManyActions, SEPT_2014_NERF_PATCHES, CLASS_ENUM, ERA_SETS
+  if GameManager is not None:
+    return
+  from game_manager import GameManager as _GM
+  from strategy import GreedyActionSmart as _GAS, NeuralGreedy as _NG
+  from zones import Deck as _Deck
+  from enums import Classes as _Classes, CardSets as _CardSets
+  from card_sets import build_pool as _bp, get_legendary_cards as _glc, SEPT_2014_NERF_PATCHES as _patches
+  from exceptions import TooManyActions as _TMA
+  GameManager, GreedyActionSmart, NeuralGreedy, Deck = _GM, _GAS, _NG, _Deck
+  Classes, CardSets, build_pool, get_legendary_cards, TooManyActions = _Classes, _CardSets, _bp, _glc, _TMA
+  SEPT_2014_NERF_PATCHES = _patches
+  for era in ERAS.values():
+    if era["patches"] == "SEPT_2014_NERF_PATCHES":
+      era["patches"] = _patches
+  CLASS_ENUM = {c: getattr(Classes, c) for c in CLASSES if hasattr(Classes, c)}
+  ERA_SETS = {c: [CardSets.CLASSIC_NEUTRAL, CardSets.NAXX_NEUTRAL,
+                  getattr(CardSets, f"CLASSIC_{c}"), getattr(CardSets, f"NAXX_{c}")]
+              for c in CLASSES if hasattr(CardSets, f"CLASSIC_{c}")}
 
 import dill
 from scipy.stats import ttest_1samp
@@ -56,13 +81,11 @@ from map_elites import Archive
 HERE = Path(__file__).parent
 OUT_DIR = HERE / "data"
 SEEDS_DIR = HERE / ".." / "validation" / "data"
-CLASSES = ["HUNTER", "MAGE", "WARRIOR"]
-CLASS_ENUM = {"HUNTER": Classes.HUNTER, "MAGE": Classes.MAGE, "WARRIOR": Classes.WARRIOR}
-ERA_SETS = {
-  "HUNTER": [CardSets.CLASSIC_NEUTRAL, CardSets.NAXX_NEUTRAL, CardSets.CLASSIC_HUNTER, CardSets.NAXX_HUNTER],
-  "MAGE": [CardSets.CLASSIC_NEUTRAL, CardSets.NAXX_NEUTRAL, CardSets.CLASSIC_MAGE, CardSets.NAXX_MAGE],
-  "WARRIOR": [CardSets.CLASSIC_NEUTRAL, CardSets.NAXX_NEUTRAL, CardSets.CLASSIC_WARRIOR, CardSets.NAXX_WARRIOR],
-}
+#All nine classes; card legality, rarity and the Naxx set come from
+#hs_catalog (Blizzard data cross-checked against the hearth-rs engine).
+CLASSES = list(hs_catalog.CLASSES)
+CLASS_ENUM = {}   #filled by _load_python_engine() for the legacy backends
+ERA_SETS = {}
 ERAS = {
   "naxx_launch": {"seeds": "naxx_seeds_pre_naxx.json", "patches": None},
   "buzzard_nerf": {"seeds": "naxx_seeds_naxx_prenerf.json", "patches": SEPT_2014_NERF_PATCHES},
@@ -73,10 +96,7 @@ GAUNTLET_REAL_ANCHORS = 1
 REFRESH_EVERY = 3
 MIN_GAMES, MAX_GAMES, PVALUE_ALPHA, MIN_STREAK = 4, 12, 0.1, 2
 
-#Naxx legendaries hardcoded (Card carries no rarity field; the classic set's
-#legendaries are enumerated by their own getter, Naxx's by this list)
-NAXX_LEGENDARY_NAMES = {"Baron Rivendare", "Feugen", "Stalagg", "Loatheb", "Maexxna", "Kel'Thuzad"}
-LEGENDARY_NAMES = {card.name for card in get_legendary_cards()} | NAXX_LEGENDARY_NAMES
+LEGENDARY_NAMES = hs_catalog.legendaries()
 
 
 def max_copies(card_name):
@@ -86,7 +106,7 @@ def max_copies(card_name):
 def era_class_pool(player_class):
   """Mutation pool: card names legal for this class in the Naxx era (patches
   change stats, never names, so the same pool serves both eras)."""
-  return [card.name for card in build_pool(ERA_SETS[player_class], None)]
+  return hs_catalog.legal_pool(player_class, "naxx")
 
 
 #Real 2014 constructed decks average 17.5-18.9 DISTINCT cards out of 30 -
@@ -246,6 +266,7 @@ def play_matchup_till_stoppage(deck_a, class_a, deck_b, class_b, era, eval_weigh
   era selects the card pools AND the historical patch state - it travels in
   the work item so a fresh remote worker rebuilds the right world."""
   patches = ERAS[era]["patches"]
+  _load_python_engine()
   game_manager = GameManager()
   game_manager.create_player_pool(ERA_SETS[class_a], card_patches=patches)
   game_manager.create_enemy_pool(ERA_SETS[class_b], card_patches=patches)
@@ -519,6 +540,8 @@ def main():
                                      archive_name=f"{player_class} {args.era}")
               for player_class in CLASSES}
   if args.backend == "hearthrs":
+    import hearthrs_backend
+    hs_catalog.verify_against_engine(hearthrs_backend._load_hearth())
     import hearthrs_backend
     hearthrs_backend.configure(agent_spec=args.agent_spec,
                                 default_games=args.fixed_games or None,

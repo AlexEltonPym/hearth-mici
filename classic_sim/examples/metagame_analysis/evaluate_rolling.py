@@ -29,7 +29,10 @@ TRUTH_DIR = HERE / ".." / "validation" / "data"
 
 PERIOD_ORDER = ["p0_prenaxx", "p1_naxx_early", "p2_naxx_late",
                 "p3_postnerf_early", "p4_postnerf_late"]
-CLASSES = ["hunter", "mage", "warrior"]
+import sys
+sys.path.append(str(HERE))
+import hs_catalog
+CLASSES = [c.lower() for c in hs_catalog.CLASSES]
 HEADLINE = ["Starving Buzzard", "Unleash the Hounds", "Webspinner",
             "Sludge Belcher", "Mad Scientist"]
 MOVER_THRESHOLD = 0.05

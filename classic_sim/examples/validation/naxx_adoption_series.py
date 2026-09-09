@@ -28,9 +28,9 @@ from pathlib import Path
 
 sys.path.append('../../src')
 
-from buzzard_nerf_series import CLASS_CARDS, MIN_SIGNATURE_HITS, parse_date
-from hearthpwn_2014_dynamics import legal_pools
-from card_sets import get_legendary_cards
+from buzzard_nerf_series import MIN_SIGNATURE_HITS, parse_date
+sys.path.append(str(Path(__file__).parent / ".." / "metagame_analysis"))
+import hs_catalog
 
 csv.field_size_limit(10 ** 7)
 HERE = Path(__file__).parent
@@ -38,7 +38,10 @@ DECKS = HERE / "data" / "decks" / "zenodo_decks.csv"
 CARDS = HERE / "data" / "decks" / "zenodo_cards.csv"
 OUT_DIR = HERE / "data"
 
-CLASSES = ["HUNTER", "MAGE", "WARRIOR"]
+#All nine classes and the full 2014 pool come from hs_catalog (Blizzard
+#data cross-checked against the hearth-rs engine); nothing here depends on
+#the Python engine's card tables any more.
+CLASSES = hs_catalog.CLASSES
 WINDOWS = {
   "pre_naxx": (datetime(2014, 1, 1), datetime(2014, 7, 22)),
   "naxx_prenerf": (datetime(2014, 7, 22), datetime(2014, 9, 22)),
@@ -61,28 +64,21 @@ SET_ALLOWLIST = {
   "post_nerf": {"Naxx Launch", "Live Patch 5435", "Live Patch 5506"},
 }
 
-#the simulator's Naxxramas set (engine implementation in card_sets.get_naxx_*;
-#names hardcoded here so this data script has no dependency on that landing)
-NAXX_NEUTRALS = ["Zombie Chow", "Undertaker", "Echoing Ooze", "Haunted Creeper", "Mad Scientist",
-                 "Nerub'ar Weblord", "Nerubian Egg", "Unstable Ghoul", "Dancing Swords", "Deathlord",
-                 "Shade of Naxxramas", "Stoneskin Gargoyle", "Baron Rivendare", "Wailing Soul",
-                 "Feugen", "Stalagg", "Loatheb", "Sludge Belcher", "Spectral Knight", "Maexxna",
-                 "Kel'Thuzad"]
-NAXX_CLASS = {"HUNTER": ["Webspinner"], "MAGE": ["Duplicate"], "WARRIOR": ["Death's Bite"]}
-NAXX_LEGENDARIES = {"Baron Rivendare", "Feugen", "Stalagg", "Loatheb", "Maexxna", "Kel'Thuzad"}
+NAXX_NEUTRALS = hs_catalog.naxx_neutrals()
+NAXX_CLASS = {c: hs_catalog.naxx_class_cards(c) for c in CLASSES}
+NAXX_LEGENDARIES = {n for n in hs_catalog.legendaries() if hs_catalog.is_naxx(n)}
+#class inference signature = the class's exclusive cards (Classic + Naxx)
+CLASS_CARDS = hs_catalog.class_signatures("naxx")
 
 
 def era_pools(window):
   """Class -> set of legal card names for the window's era."""
-  pools = {player_class: set(pool) for player_class, pool in legal_pools().items()}
-  if window != "pre_naxx":
-    for player_class in CLASSES:
-      pools[player_class] |= set(NAXX_NEUTRALS) | set(NAXX_CLASS[player_class])
-  return pools
+  era = "pre_naxx" if window == "pre_naxx" else "naxx"
+  return {player_class: set(pool) for player_class, pool in hs_catalog.legal_pools(era).items()}
 
 
 def legendary_names():
-  return {card.name for card in get_legendary_cards()} | NAXX_LEGENDARIES
+  return set(hs_catalog.legendaries())
 
 
 def load_ranked_decks():

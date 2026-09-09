@@ -1,0 +1,3713 @@
+{
+ "source": "api.hearthstonejson.com/v1/latest/enUS/cards.collectible.json, sets VANILLA (2014 Classic pool, launch values) + NAXX; fetched 2026-09-09; used for class, rarity, set only",
+ "cards": [
+  {
+   "name": "Poison Seeds",
+   "cardClass": "DRUID",
+   "rarity": "COMMON",
+   "set": "NAXX",
+   "cost": 4,
+   "type": "SPELL",
+   "dbfId": 1802
+  },
+  {
+   "name": "Webspinner",
+   "cardClass": "HUNTER",
+   "rarity": "COMMON",
+   "set": "NAXX",
+   "cost": 1,
+   "type": "MINION",
+   "dbfId": 1860
+  },
+  {
+   "name": "Duplicate",
+   "cardClass": "MAGE",
+   "rarity": "COMMON",
+   "set": "NAXX",
+   "cost": 3,
+   "type": "SPELL",
+   "dbfId": 1801
+  },
+  {
+   "name": "Baron Rivendare",
+   "cardClass": "NEUTRAL",
+   "rarity": "LEGENDARY",
+   "set": "NAXX",
+   "cost": 4,
+   "type": "MINION",
+   "dbfId": 1915
+  },
+  {
+   "name": "Dancing Swords",
+   "cardClass": "NEUTRAL",
+   "rarity": "COMMON",
+   "set": "NAXX",
+   "cost": 3,
+   "type": "MINION",
+   "dbfId": 1913
+  },
+  {
+   "name": "Deathlord",
+   "cardClass": "NEUTRAL",
+   "rarity": "RARE",
+   "set": "NAXX",
+   "cost": 3,
+   "type": "MINION",
+   "dbfId": 1790
+  },
+  {
+   "name": "Echoing Ooze",
+   "cardClass": "NEUTRAL",
+   "rarity": "EPIC",
+   "set": "NAXX",
+   "cost": 2,
+   "type": "MINION",
+   "dbfId": 1858
+  },
+  {
+   "name": "Feugen",
+   "cardClass": "NEUTRAL",
+   "rarity": "LEGENDARY",
+   "set": "NAXX",
+   "cost": 5,
+   "type": "MINION",
+   "dbfId": 1797
+  },
+  {
+   "name": "Haunted Creeper",
+   "cardClass": "NEUTRAL",
+   "rarity": "COMMON",
+   "set": "NAXX",
+   "cost": 2,
+   "type": "MINION",
+   "dbfId": 1781
+  },
+  {
+   "name": "Kel'Thuzad",
+   "cardClass": "NEUTRAL",
+   "rarity": "LEGENDARY",
+   "set": "NAXX",
+   "cost": 8,
+   "type": "MINION",
+   "dbfId": 1794
+  },
+  {
+   "name": "Loatheb",
+   "cardClass": "NEUTRAL",
+   "rarity": "LEGENDARY",
+   "set": "NAXX",
+   "cost": 5,
+   "type": "MINION",
+   "dbfId": 1914
+  },
+  {
+   "name": "Mad Scientist",
+   "cardClass": "NEUTRAL",
+   "rarity": "COMMON",
+   "set": "NAXX",
+   "cost": 2,
+   "type": "MINION",
+   "dbfId": 1783
+  },
+  {
+   "name": "Maexxna",
+   "cardClass": "NEUTRAL",
+   "rarity": "LEGENDARY",
+   "set": "NAXX",
+   "cost": 6,
+   "type": "MINION",
+   "dbfId": 1791
+  },
+  {
+   "name": "Nerub'ar Weblord",
+   "cardClass": "NEUTRAL",
+   "rarity": "COMMON",
+   "set": "NAXX",
+   "cost": 2,
+   "type": "MINION",
+   "dbfId": 1800
+  },
+  {
+   "name": "Nerubian Egg",
+   "cardClass": "NEUTRAL",
+   "rarity": "RARE",
+   "set": "NAXX",
+   "cost": 2,
+   "type": "MINION",
+   "dbfId": 1786
+  },
+  {
+   "name": "Shade of Naxxramas",
+   "cardClass": "NEUTRAL",
+   "rarity": "EPIC",
+   "set": "NAXX",
+   "cost": 3,
+   "type": "MINION",
+   "dbfId": 1784
+  },
+  {
+   "name": "Sludge Belcher",
+   "cardClass": "NEUTRAL",
+   "rarity": "RARE",
+   "set": "NAXX",
+   "cost": 5,
+   "type": "MINION",
+   "dbfId": 1793
+  },
+  {
+   "name": "Spectral Knight",
+   "cardClass": "NEUTRAL",
+   "rarity": "COMMON",
+   "set": "NAXX",
+   "cost": 5,
+   "type": "MINION",
+   "dbfId": 1789
+  },
+  {
+   "name": "Stalagg",
+   "cardClass": "NEUTRAL",
+   "rarity": "LEGENDARY",
+   "set": "NAXX",
+   "cost": 5,
+   "type": "MINION",
+   "dbfId": 1796
+  },
+  {
+   "name": "Stoneskin Gargoyle",
+   "cardClass": "NEUTRAL",
+   "rarity": "COMMON",
+   "set": "NAXX",
+   "cost": 3,
+   "type": "MINION",
+   "dbfId": 1861
+  },
+  {
+   "name": "Undertaker",
+   "cardClass": "NEUTRAL",
+   "rarity": "COMMON",
+   "set": "NAXX",
+   "cost": 1,
+   "type": "MINION",
+   "dbfId": 1910
+  },
+  {
+   "name": "Unstable Ghoul",
+   "cardClass": "NEUTRAL",
+   "rarity": "COMMON",
+   "set": "NAXX",
+   "cost": 2,
+   "type": "MINION",
+   "dbfId": 1808
+  },
+  {
+   "name": "Wailing Soul",
+   "cardClass": "NEUTRAL",
+   "rarity": "RARE",
+   "set": "NAXX",
+   "cost": 4,
+   "type": "MINION",
+   "dbfId": 1799
+  },
+  {
+   "name": "Zombie Chow",
+   "cardClass": "NEUTRAL",
+   "rarity": "COMMON",
+   "set": "NAXX",
+   "cost": 1,
+   "type": "MINION",
+   "dbfId": 1753
+  },
+  {
+   "name": "Avenge",
+   "cardClass": "PALADIN",
+   "rarity": "COMMON",
+   "set": "NAXX",
+   "cost": 1,
+   "type": "SPELL",
+   "dbfId": 1804
+  },
+  {
+   "name": "Dark Cultist",
+   "cardClass": "PRIEST",
+   "rarity": "COMMON",
+   "set": "NAXX",
+   "cost": 3,
+   "type": "MINION",
+   "dbfId": 1807
+  },
+  {
+   "name": "Anub'ar Ambusher",
+   "cardClass": "ROGUE",
+   "rarity": "COMMON",
+   "set": "NAXX",
+   "cost": 4,
+   "type": "MINION",
+   "dbfId": 1810
+  },
+  {
+   "name": "Reincarnate",
+   "cardClass": "SHAMAN",
+   "rarity": "COMMON",
+   "set": "NAXX",
+   "cost": 1,
+   "type": "SPELL",
+   "dbfId": 1809
+  },
+  {
+   "name": "Voidcaller",
+   "cardClass": "WARLOCK",
+   "rarity": "COMMON",
+   "set": "NAXX",
+   "cost": 4,
+   "type": "MINION",
+   "dbfId": 1806
+  },
+  {
+   "name": "Death's Bite",
+   "cardClass": "WARRIOR",
+   "rarity": "COMMON",
+   "set": "NAXX",
+   "cost": 4,
+   "type": "WEAPON",
+   "dbfId": 1805
+  },
+  {
+   "name": "Ancient of Lore",
+   "cardClass": "DRUID",
+   "rarity": "EPIC",
+   "set": "VANILLA",
+   "cost": 7,
+   "type": "MINION",
+   "dbfId": 70077
+  },
+  {
+   "name": "Ancient of War",
+   "cardClass": "DRUID",
+   "rarity": "EPIC",
+   "set": "VANILLA",
+   "cost": 7,
+   "type": "MINION",
+   "dbfId": 69875
+  },
+  {
+   "name": "Bite",
+   "cardClass": "DRUID",
+   "rarity": "RARE",
+   "set": "VANILLA",
+   "cost": 4,
+   "type": "SPELL",
+   "dbfId": 69982
+  },
+  {
+   "name": "Cenarius",
+   "cardClass": "DRUID",
+   "rarity": "LEGENDARY",
+   "set": "VANILLA",
+   "cost": 9,
+   "type": "MINION",
+   "dbfId": 70031
+  },
+  {
+   "name": "Claw",
+   "cardClass": "DRUID",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 1,
+   "type": "SPELL",
+   "dbfId": 68307
+  },
+  {
+   "name": "Druid of the Claw",
+   "cardClass": "DRUID",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 5,
+   "type": "MINION",
+   "dbfId": 69872
+  },
+  {
+   "name": "Force of Nature",
+   "cardClass": "DRUID",
+   "rarity": "EPIC",
+   "set": "VANILLA",
+   "cost": 6,
+   "type": "SPELL",
+   "dbfId": 70981
+  },
+  {
+   "name": "Healing Touch",
+   "cardClass": "DRUID",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 3,
+   "type": "SPELL",
+   "dbfId": 68309
+  },
+  {
+   "name": "Innervate",
+   "cardClass": "DRUID",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 0,
+   "type": "SPELL",
+   "dbfId": 68445
+  },
+  {
+   "name": "Ironbark Protector",
+   "cardClass": "DRUID",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 8,
+   "type": "MINION",
+   "dbfId": 68413
+  },
+  {
+   "name": "Keeper of the Grove",
+   "cardClass": "DRUID",
+   "rarity": "RARE",
+   "set": "VANILLA",
+   "cost": 4,
+   "type": "MINION",
+   "dbfId": 69873
+  },
+  {
+   "name": "Mark of Nature",
+   "cardClass": "DRUID",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 3,
+   "type": "SPELL",
+   "dbfId": 69866
+  },
+  {
+   "name": "Mark of the Wild",
+   "cardClass": "DRUID",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 2,
+   "type": "SPELL",
+   "dbfId": 68311
+  },
+  {
+   "name": "Moonfire",
+   "cardClass": "DRUID",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 0,
+   "type": "SPELL",
+   "dbfId": 68310
+  },
+  {
+   "name": "Naturalize",
+   "cardClass": "DRUID",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 1,
+   "type": "SPELL",
+   "dbfId": 69869
+  },
+  {
+   "name": "Nourish",
+   "cardClass": "DRUID",
+   "rarity": "RARE",
+   "set": "VANILLA",
+   "cost": 5,
+   "type": "SPELL",
+   "dbfId": 69871
+  },
+  {
+   "name": "Power of the Wild",
+   "cardClass": "DRUID",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 2,
+   "type": "SPELL",
+   "dbfId": 69868
+  },
+  {
+   "name": "Savage Roar",
+   "cardClass": "DRUID",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 3,
+   "type": "SPELL",
+   "dbfId": 68313
+  },
+  {
+   "name": "Savagery",
+   "cardClass": "DRUID",
+   "rarity": "RARE",
+   "set": "VANILLA",
+   "cost": 1,
+   "type": "SPELL",
+   "dbfId": 70034
+  },
+  {
+   "name": "Soul of the Forest",
+   "cardClass": "DRUID",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 4,
+   "type": "SPELL",
+   "dbfId": 69867
+  },
+  {
+   "name": "Starfall",
+   "cardClass": "DRUID",
+   "rarity": "RARE",
+   "set": "VANILLA",
+   "cost": 5,
+   "type": "SPELL",
+   "dbfId": 70076
+  },
+  {
+   "name": "Starfire",
+   "cardClass": "DRUID",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 6,
+   "type": "SPELL",
+   "dbfId": 68446
+  },
+  {
+   "name": "Swipe",
+   "cardClass": "DRUID",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 4,
+   "type": "SPELL",
+   "dbfId": 68315
+  },
+  {
+   "name": "Wild Growth",
+   "cardClass": "DRUID",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 2,
+   "type": "SPELL",
+   "dbfId": 68316
+  },
+  {
+   "name": "Wrath",
+   "cardClass": "DRUID",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 2,
+   "type": "SPELL",
+   "dbfId": 69865
+  },
+  {
+   "name": "Animal Companion",
+   "cardClass": "HUNTER",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 3,
+   "type": "SPELL",
+   "dbfId": 68529
+  },
+  {
+   "name": "Arcane Shot",
+   "cardClass": "HUNTER",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 1,
+   "type": "SPELL",
+   "dbfId": 68434
+  },
+  {
+   "name": "Bestial Wrath",
+   "cardClass": "HUNTER",
+   "rarity": "EPIC",
+   "set": "VANILLA",
+   "cost": 1,
+   "type": "SPELL",
+   "dbfId": 69970
+  },
+  {
+   "name": "Deadly Shot",
+   "cardClass": "HUNTER",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 3,
+   "type": "SPELL",
+   "dbfId": 70056
+  },
+  {
+   "name": "Eaglehorn Bow",
+   "cardClass": "HUNTER",
+   "rarity": "RARE",
+   "set": "VANILLA",
+   "cost": 3,
+   "type": "WEAPON",
+   "dbfId": 69965
+  },
+  {
+   "name": "Explosive Shot",
+   "cardClass": "HUNTER",
+   "rarity": "RARE",
+   "set": "VANILLA",
+   "cost": 5,
+   "type": "SPELL",
+   "dbfId": 69966
+  },
+  {
+   "name": "Explosive Trap",
+   "cardClass": "HUNTER",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 2,
+   "type": "SPELL",
+   "dbfId": 70050
+  },
+  {
+   "name": "Flare",
+   "cardClass": "HUNTER",
+   "rarity": "RARE",
+   "set": "VANILLA",
+   "cost": 1,
+   "type": "SPELL",
+   "dbfId": 69969
+  },
+  {
+   "name": "Freezing Trap",
+   "cardClass": "HUNTER",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 2,
+   "type": "SPELL",
+   "dbfId": 70051
+  },
+  {
+   "name": "Gladiator's Longbow",
+   "cardClass": "HUNTER",
+   "rarity": "EPIC",
+   "set": "VANILLA",
+   "cost": 7,
+   "type": "WEAPON",
+   "dbfId": 69803
+  },
+  {
+   "name": "Houndmaster",
+   "cardClass": "HUNTER",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 4,
+   "type": "MINION",
+   "dbfId": 68426
+  },
+  {
+   "name": "Hunter's Mark",
+   "cardClass": "HUNTER",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 0,
+   "type": "SPELL",
+   "dbfId": 68357
+  },
+  {
+   "name": "Kill Command",
+   "cardClass": "HUNTER",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 3,
+   "type": "SPELL",
+   "dbfId": 68472
+  },
+  {
+   "name": "King Krush",
+   "cardClass": "HUNTER",
+   "rarity": "LEGENDARY",
+   "set": "VANILLA",
+   "cost": 9,
+   "type": "MINION",
+   "dbfId": 69968
+  },
+  {
+   "name": "Misdirection",
+   "cardClass": "HUNTER",
+   "rarity": "RARE",
+   "set": "VANILLA",
+   "cost": 2,
+   "type": "SPELL",
+   "dbfId": 69963
+  },
+  {
+   "name": "Multi-Shot",
+   "cardClass": "HUNTER",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 4,
+   "type": "SPELL",
+   "dbfId": 68432
+  },
+  {
+   "name": "Savannah Highmane",
+   "cardClass": "HUNTER",
+   "rarity": "RARE",
+   "set": "VANILLA",
+   "cost": 6,
+   "type": "MINION",
+   "dbfId": 69964
+  },
+  {
+   "name": "Scavenging Hyena",
+   "cardClass": "HUNTER",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 2,
+   "type": "MINION",
+   "dbfId": 69962
+  },
+  {
+   "name": "Snake Trap",
+   "cardClass": "HUNTER",
+   "rarity": "EPIC",
+   "set": "VANILLA",
+   "cost": 2,
+   "type": "SPELL",
+   "dbfId": 69971
+  },
+  {
+   "name": "Snipe",
+   "cardClass": "HUNTER",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 2,
+   "type": "SPELL",
+   "dbfId": 70049
+  },
+  {
+   "name": "Starving Buzzard",
+   "cardClass": "HUNTER",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 2,
+   "type": "MINION",
+   "dbfId": 68416
+  },
+  {
+   "name": "Timber Wolf",
+   "cardClass": "HUNTER",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 1,
+   "type": "MINION",
+   "dbfId": 68428
+  },
+  {
+   "name": "Tracking",
+   "cardClass": "HUNTER",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 1,
+   "type": "SPELL",
+   "dbfId": 68433
+  },
+  {
+   "name": "Tundra Rhino",
+   "cardClass": "HUNTER",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 5,
+   "type": "MINION",
+   "dbfId": 68430
+  },
+  {
+   "name": "Unleash the Hounds",
+   "cardClass": "HUNTER",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 3,
+   "type": "SPELL",
+   "dbfId": 69967
+  },
+  {
+   "name": "Arcane Explosion",
+   "cardClass": "MAGE",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 2,
+   "type": "SPELL",
+   "dbfId": 68323
+  },
+  {
+   "name": "Arcane Intellect",
+   "cardClass": "MAGE",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 3,
+   "type": "SPELL",
+   "dbfId": 68321
+  },
+  {
+   "name": "Arcane Missiles",
+   "cardClass": "MAGE",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 1,
+   "type": "SPELL",
+   "dbfId": 68457
+  },
+  {
+   "name": "Archmage Antonidas",
+   "cardClass": "MAGE",
+   "rarity": "LEGENDARY",
+   "set": "VANILLA",
+   "cost": 7,
+   "type": "MINION",
+   "dbfId": 69975
+  },
+  {
+   "name": "Blizzard",
+   "cardClass": "MAGE",
+   "rarity": "RARE",
+   "set": "VANILLA",
+   "cost": 6,
+   "type": "SPELL",
+   "dbfId": 69747
+  },
+  {
+   "name": "Cone of Cold",
+   "cardClass": "MAGE",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 4,
+   "type": "SPELL",
+   "dbfId": 69904
+  },
+  {
+   "name": "Counterspell",
+   "cardClass": "MAGE",
+   "rarity": "RARE",
+   "set": "VANILLA",
+   "cost": 3,
+   "type": "SPELL",
+   "dbfId": 69908
+  },
+  {
+   "name": "Ethereal Arcanist",
+   "cardClass": "MAGE",
+   "rarity": "RARE",
+   "set": "VANILLA",
+   "cost": 4,
+   "type": "MINION",
+   "dbfId": 69903
+  },
+  {
+   "name": "Fireball",
+   "cardClass": "MAGE",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 4,
+   "type": "SPELL",
+   "dbfId": 68326
+  },
+  {
+   "name": "Flamestrike",
+   "cardClass": "MAGE",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 7,
+   "type": "SPELL",
+   "dbfId": 68327
+  },
+  {
+   "name": "Frost Nova",
+   "cardClass": "MAGE",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 3,
+   "type": "SPELL",
+   "dbfId": 68324
+  },
+  {
+   "name": "Frostbolt",
+   "cardClass": "MAGE",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 2,
+   "type": "SPELL",
+   "dbfId": 68322
+  },
+  {
+   "name": "Ice Barrier",
+   "cardClass": "MAGE",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 3,
+   "type": "SPELL",
+   "dbfId": 69909
+  },
+  {
+   "name": "Ice Block",
+   "cardClass": "MAGE",
+   "rarity": "EPIC",
+   "set": "VANILLA",
+   "cost": 3,
+   "type": "SPELL",
+   "dbfId": 69911
+  },
+  {
+   "name": "Ice Lance",
+   "cardClass": "MAGE",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 1,
+   "type": "SPELL",
+   "dbfId": 69748
+  },
+  {
+   "name": "Kirin Tor Mage",
+   "cardClass": "MAGE",
+   "rarity": "RARE",
+   "set": "VANILLA",
+   "cost": 3,
+   "type": "MINION",
+   "dbfId": 70052
+  },
+  {
+   "name": "Mana Wyrm",
+   "cardClass": "MAGE",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 1,
+   "type": "MINION",
+   "dbfId": 70079
+  },
+  {
+   "name": "Mirror Entity",
+   "cardClass": "MAGE",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 3,
+   "type": "SPELL",
+   "dbfId": 69910
+  },
+  {
+   "name": "Mirror Image",
+   "cardClass": "MAGE",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 1,
+   "type": "SPELL",
+   "dbfId": 68325
+  },
+  {
+   "name": "Polymorph",
+   "cardClass": "MAGE",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 4,
+   "type": "SPELL",
+   "dbfId": 68319
+  },
+  {
+   "name": "Pyroblast",
+   "cardClass": "MAGE",
+   "rarity": "EPIC",
+   "set": "VANILLA",
+   "cost": 10,
+   "type": "SPELL",
+   "dbfId": 69905
+  },
+  {
+   "name": "Sorcerer's Apprentice",
+   "cardClass": "MAGE",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 2,
+   "type": "MINION",
+   "dbfId": 70048
+  },
+  {
+   "name": "Spellbender",
+   "cardClass": "MAGE",
+   "rarity": "EPIC",
+   "set": "VANILLA",
+   "cost": 3,
+   "type": "SPELL",
+   "dbfId": 70102
+  },
+  {
+   "name": "Vaporize",
+   "cardClass": "MAGE",
+   "rarity": "RARE",
+   "set": "VANILLA",
+   "cost": 3,
+   "type": "SPELL",
+   "dbfId": 70040
+  },
+  {
+   "name": "Water Elemental",
+   "cardClass": "MAGE",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 4,
+   "type": "MINION",
+   "dbfId": 68328
+  },
+  {
+   "name": "Abomination",
+   "cardClass": "NEUTRAL",
+   "rarity": "RARE",
+   "set": "VANILLA",
+   "cost": 5,
+   "type": "MINION",
+   "dbfId": 69846
+  },
+  {
+   "name": "Abusive Sergeant",
+   "cardClass": "NEUTRAL",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 1,
+   "type": "MINION",
+   "dbfId": 69761
+  },
+  {
+   "name": "Acidic Swamp Ooze",
+   "cardClass": "NEUTRAL",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 2,
+   "type": "MINION",
+   "dbfId": 68441
+  },
+  {
+   "name": "Acolyte of Pain",
+   "cardClass": "NEUTRAL",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 3,
+   "type": "MINION",
+   "dbfId": 69809
+  },
+  {
+   "name": "Alarm-o-Bot",
+   "cardClass": "NEUTRAL",
+   "rarity": "RARE",
+   "set": "VANILLA",
+   "cost": 3,
+   "type": "MINION",
+   "dbfId": 69808
+  },
+  {
+   "name": "Alexstrasza",
+   "cardClass": "NEUTRAL",
+   "rarity": "LEGENDARY",
+   "set": "VANILLA",
+   "cost": 9,
+   "type": "MINION",
+   "dbfId": 69977
+  },
+  {
+   "name": "Amani Berserker",
+   "cardClass": "NEUTRAL",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 2,
+   "type": "MINION",
+   "dbfId": 69947
+  },
+  {
+   "name": "Ancient Brewmaster",
+   "cardClass": "NEUTRAL",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 4,
+   "type": "MINION",
+   "dbfId": 69832
+  },
+  {
+   "name": "Ancient Mage",
+   "cardClass": "NEUTRAL",
+   "rarity": "RARE",
+   "set": "VANILLA",
+   "cost": 4,
+   "type": "MINION",
+   "dbfId": 70036
+  },
+  {
+   "name": "Ancient Watcher",
+   "cardClass": "NEUTRAL",
+   "rarity": "RARE",
+   "set": "VANILLA",
+   "cost": 2,
+   "type": "MINION",
+   "dbfId": 69826
+  },
+  {
+   "name": "Angry Chicken",
+   "cardClass": "NEUTRAL",
+   "rarity": "RARE",
+   "set": "VANILLA",
+   "cost": 1,
+   "type": "MINION",
+   "dbfId": 69811
+  },
+  {
+   "name": "Arcane Golem",
+   "cardClass": "NEUTRAL",
+   "rarity": "RARE",
+   "set": "VANILLA",
+   "cost": 3,
+   "type": "MINION",
+   "dbfId": 69841
+  },
+  {
+   "name": "Archmage",
+   "cardClass": "NEUTRAL",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 6,
+   "type": "MINION",
+   "dbfId": 68393
+  },
+  {
+   "name": "Argent Commander",
+   "cardClass": "NEUTRAL",
+   "rarity": "RARE",
+   "set": "VANILLA",
+   "cost": 6,
+   "type": "MINION",
+   "dbfId": 69835
+  },
+  {
+   "name": "Argent Squire",
+   "cardClass": "NEUTRAL",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 1,
+   "type": "MINION",
+   "dbfId": 69810
+  },
+  {
+   "name": "Azure Drake",
+   "cardClass": "NEUTRAL",
+   "rarity": "RARE",
+   "set": "VANILLA",
+   "cost": 5,
+   "type": "MINION",
+   "dbfId": 69907
+  },
+  {
+   "name": "Baron Geddon",
+   "cardClass": "NEUTRAL",
+   "rarity": "LEGENDARY",
+   "set": "VANILLA",
+   "cost": 7,
+   "type": "MINION",
+   "dbfId": 69898
+  },
+  {
+   "name": "Big Game Hunter",
+   "cardClass": "NEUTRAL",
+   "rarity": "EPIC",
+   "set": "VANILLA",
+   "cost": 3,
+   "type": "MINION",
+   "dbfId": 69807
+  },
+  {
+   "name": "Blood Knight",
+   "cardClass": "NEUTRAL",
+   "rarity": "EPIC",
+   "set": "VANILLA",
+   "cost": 3,
+   "type": "MINION",
+   "dbfId": 70038
+  },
+  {
+   "name": "Bloodfen Raptor",
+   "cardClass": "NEUTRAL",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 2,
+   "type": "MINION",
+   "dbfId": 68397
+  },
+  {
+   "name": "Bloodmage Thalnos",
+   "cardClass": "NEUTRAL",
+   "rarity": "LEGENDARY",
+   "set": "VANILLA",
+   "cost": 2,
+   "type": "MINION",
+   "dbfId": 69813
+  },
+  {
+   "name": "Bloodsail Corsair",
+   "cardClass": "NEUTRAL",
+   "rarity": "RARE",
+   "set": "VANILLA",
+   "cost": 1,
+   "type": "MINION",
+   "dbfId": 70089
+  },
+  {
+   "name": "Bloodsail Raider",
+   "cardClass": "NEUTRAL",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 2,
+   "type": "MINION",
+   "dbfId": 70082
+  },
+  {
+   "name": "Bluegill Warrior",
+   "cardClass": "NEUTRAL",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 2,
+   "type": "MINION",
+   "dbfId": 68398
+  },
+  {
+   "name": "Booty Bay Bodyguard",
+   "cardClass": "NEUTRAL",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 5,
+   "type": "MINION",
+   "dbfId": 68402
+  },
+  {
+   "name": "Boulderfist Ogre",
+   "cardClass": "NEUTRAL",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 6,
+   "type": "MINION",
+   "dbfId": 68406
+  },
+  {
+   "name": "Cairne Bloodhoof",
+   "cardClass": "NEUTRAL",
+   "rarity": "LEGENDARY",
+   "set": "VANILLA",
+   "cost": 6,
+   "type": "MINION",
+   "dbfId": 69851
+  },
+  {
+   "name": "Captain Greenskin",
+   "cardClass": "NEUTRAL",
+   "rarity": "LEGENDARY",
+   "set": "VANILLA",
+   "cost": 5,
+   "type": "MINION",
+   "dbfId": 70088
+  },
+  {
+   "name": "Captain's Parrot",
+   "cardClass": "NEUTRAL",
+   "rarity": "EPIC",
+   "set": "VANILLA",
+   "cost": 2,
+   "type": "MINION",
+   "dbfId": 68549
+  },
+  {
+   "name": "Chillwind Yeti",
+   "cardClass": "NEUTRAL",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 4,
+   "type": "MINION",
+   "dbfId": 68400
+  },
+  {
+   "name": "Coldlight Oracle",
+   "cardClass": "NEUTRAL",
+   "rarity": "RARE",
+   "set": "VANILLA",
+   "cost": 3,
+   "type": "MINION",
+   "dbfId": 69830
+  },
+  {
+   "name": "Coldlight Seer",
+   "cardClass": "NEUTRAL",
+   "rarity": "RARE",
+   "set": "VANILLA",
+   "cost": 3,
+   "type": "MINION",
+   "dbfId": 69849
+  },
+  {
+   "name": "Core Hound",
+   "cardClass": "NEUTRAL",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 7,
+   "type": "MINION",
+   "dbfId": 68407
+  },
+  {
+   "name": "Crazed Alchemist",
+   "cardClass": "NEUTRAL",
+   "rarity": "RARE",
+   "set": "VANILLA",
+   "cost": 2,
+   "type": "MINION",
+   "dbfId": 69834
+  },
+  {
+   "name": "Cult Master",
+   "cardClass": "NEUTRAL",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 4,
+   "type": "MINION",
+   "dbfId": 70041
+  },
+  {
+   "name": "Dalaran Mage",
+   "cardClass": "NEUTRAL",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 3,
+   "type": "MINION",
+   "dbfId": 68476
+  },
+  {
+   "name": "Dark Iron Dwarf",
+   "cardClass": "NEUTRAL",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 4,
+   "type": "MINION",
+   "dbfId": 69827
+  },
+  {
+   "name": "Darkscale Healer",
+   "cardClass": "NEUTRAL",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 5,
+   "type": "MINION",
+   "dbfId": 68425
+  },
+  {
+   "name": "Deathwing",
+   "cardClass": "NEUTRAL",
+   "rarity": "LEGENDARY",
+   "set": "VANILLA",
+   "cost": 10,
+   "type": "MINION",
+   "dbfId": 70093
+  },
+  {
+   "name": "Defender of Argus",
+   "cardClass": "NEUTRAL",
+   "rarity": "RARE",
+   "set": "VANILLA",
+   "cost": 4,
+   "type": "MINION",
+   "dbfId": 69843
+  },
+  {
+   "name": "Demolisher",
+   "cardClass": "NEUTRAL",
+   "rarity": "RARE",
+   "set": "VANILLA",
+   "cost": 3,
+   "type": "MINION",
+   "dbfId": 69848
+  },
+  {
+   "name": "Dire Wolf Alpha",
+   "cardClass": "NEUTRAL",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 2,
+   "type": "MINION",
+   "dbfId": 69870
+  },
+  {
+   "name": "Doomsayer",
+   "cardClass": "NEUTRAL",
+   "rarity": "EPIC",
+   "set": "VANILLA",
+   "cost": 2,
+   "type": "MINION",
+   "dbfId": 70085
+  },
+  {
+   "name": "Dragonling Mechanic",
+   "cardClass": "NEUTRAL",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 4,
+   "type": "MINION",
+   "dbfId": 68439
+  },
+  {
+   "name": "Dread Corsair",
+   "cardClass": "NEUTRAL",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 4,
+   "type": "MINION",
+   "dbfId": 70086
+  },
+  {
+   "name": "Earthen Ring Farseer",
+   "cardClass": "NEUTRAL",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 3,
+   "type": "MINION",
+   "dbfId": 69754
+  },
+  {
+   "name": "Elite Tauren Chieftain",
+   "cardClass": "NEUTRAL",
+   "rarity": "LEGENDARY",
+   "set": "VANILLA",
+   "cost": 5,
+   "type": "MINION",
+   "dbfId": 68550
+  },
+  {
+   "name": "Elven Archer",
+   "cardClass": "NEUTRAL",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 1,
+   "type": "MINION",
+   "dbfId": 68403
+  },
+  {
+   "name": "Emperor Cobra",
+   "cardClass": "NEUTRAL",
+   "rarity": "RARE",
+   "set": "VANILLA",
+   "cost": 3,
+   "type": "MINION",
+   "dbfId": 69874
+  },
+  {
+   "name": "Faceless Manipulator",
+   "cardClass": "NEUTRAL",
+   "rarity": "EPIC",
+   "set": "VANILLA",
+   "cost": 5,
+   "type": "MINION",
+   "dbfId": 69980
+  },
+  {
+   "name": "Faerie Dragon",
+   "cardClass": "NEUTRAL",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 2,
+   "type": "MINION",
+   "dbfId": 70087
+  },
+  {
+   "name": "Fen Creeper",
+   "cardClass": "NEUTRAL",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 5,
+   "type": "MINION",
+   "dbfId": 69745
+  },
+  {
+   "name": "Flesheating Ghoul",
+   "cardClass": "NEUTRAL",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 3,
+   "type": "MINION",
+   "dbfId": 70101
+  },
+  {
+   "name": "Frost Elemental",
+   "cardClass": "NEUTRAL",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 6,
+   "type": "MINION",
+   "dbfId": 69906
+  },
+  {
+   "name": "Frostwolf Grunt",
+   "cardClass": "NEUTRAL",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 2,
+   "type": "MINION",
+   "dbfId": 68382
+  },
+  {
+   "name": "Frostwolf Warlord",
+   "cardClass": "NEUTRAL",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 5,
+   "type": "MINION",
+   "dbfId": 68411
+  },
+  {
+   "name": "Gadgetzan Auctioneer",
+   "cardClass": "NEUTRAL",
+   "rarity": "RARE",
+   "set": "VANILLA",
+   "cost": 5,
+   "type": "MINION",
+   "dbfId": 69844
+  },
+  {
+   "name": "Gelbin Mekkatorque",
+   "cardClass": "NEUTRAL",
+   "rarity": "LEGENDARY",
+   "set": "VANILLA",
+   "cost": 6,
+   "type": "MINION",
+   "dbfId": 68539
+  },
+  {
+   "name": "Gnomish Inventor",
+   "cardClass": "NEUTRAL",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 4,
+   "type": "MINION",
+   "dbfId": 68391
+  },
+  {
+   "name": "Goldshire Footman",
+   "cardClass": "NEUTRAL",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 1,
+   "type": "MINION",
+   "dbfId": 68298
+  },
+  {
+   "name": "Grimscale Oracle",
+   "cardClass": "NEUTRAL",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 1,
+   "type": "MINION",
+   "dbfId": 68470
+  },
+  {
+   "name": "Gruul",
+   "cardClass": "NEUTRAL",
+   "rarity": "LEGENDARY",
+   "set": "VANILLA",
+   "cost": 8,
+   "type": "MINION",
+   "dbfId": 70096
+  },
+  {
+   "name": "Gurubashi Berserker",
+   "cardClass": "NEUTRAL",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 5,
+   "type": "MINION",
+   "dbfId": 68465
+  },
+  {
+   "name": "Harrison Jones",
+   "cardClass": "NEUTRAL",
+   "rarity": "LEGENDARY",
+   "set": "VANILLA",
+   "cost": 5,
+   "type": "MINION",
+   "dbfId": 69974
+  },
+  {
+   "name": "Harvest Golem",
+   "cardClass": "NEUTRAL",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 3,
+   "type": "MINION",
+   "dbfId": 69972
+  },
+  {
+   "name": "Hogger",
+   "cardClass": "NEUTRAL",
+   "rarity": "LEGENDARY",
+   "set": "VANILLA",
+   "cost": 6,
+   "type": "MINION",
+   "dbfId": 70097
+  },
+  {
+   "name": "Hungry Crab",
+   "cardClass": "NEUTRAL",
+   "rarity": "EPIC",
+   "set": "VANILLA",
+   "cost": 1,
+   "type": "MINION",
+   "dbfId": 70081
+  },
+  {
+   "name": "Illidan Stormrage",
+   "cardClass": "NEUTRAL",
+   "rarity": "LEGENDARY",
+   "set": "VANILLA",
+   "cost": 6,
+   "type": "MINION",
+   "dbfId": 70054
+  },
+  {
+   "name": "Imp Master",
+   "cardClass": "NEUTRAL",
+   "rarity": "RARE",
+   "set": "VANILLA",
+   "cost": 3,
+   "type": "MINION",
+   "dbfId": 70043
+  },
+  {
+   "name": "Injured Blademaster",
+   "cardClass": "NEUTRAL",
+   "rarity": "RARE",
+   "set": "VANILLA",
+   "cost": 3,
+   "type": "MINION",
+   "dbfId": 69760
+  },
+  {
+   "name": "Ironbeak Owl",
+   "cardClass": "NEUTRAL",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 2,
+   "type": "MINION",
+   "dbfId": 69762
+  },
+  {
+   "name": "Ironforge Rifleman",
+   "cardClass": "NEUTRAL",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 3,
+   "type": "MINION",
+   "dbfId": 68389
+  },
+  {
+   "name": "Ironfur Grizzly",
+   "cardClass": "NEUTRAL",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 3,
+   "type": "MINION",
+   "dbfId": 68386
+  },
+  {
+   "name": "Jungle Panther",
+   "cardClass": "NEUTRAL",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 3,
+   "type": "MINION",
+   "dbfId": 69816
+  },
+  {
+   "name": "King Mukla",
+   "cardClass": "NEUTRAL",
+   "rarity": "LEGENDARY",
+   "set": "VANILLA",
+   "cost": 3,
+   "type": "MINION",
+   "dbfId": 69814
+  },
+  {
+   "name": "Knife Juggler",
+   "cardClass": "NEUTRAL",
+   "rarity": "RARE",
+   "set": "VANILLA",
+   "cost": 2,
+   "type": "MINION",
+   "dbfId": 70083
+  },
+  {
+   "name": "Kobold Geomancer",
+   "cardClass": "NEUTRAL",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 2,
+   "type": "MINION",
+   "dbfId": 68390
+  },
+  {
+   "name": "Leeroy Jenkins",
+   "cardClass": "NEUTRAL",
+   "rarity": "LEGENDARY",
+   "set": "VANILLA",
+   "cost": 4,
+   "type": "MINION",
+   "dbfId": 69852
+  },
+  {
+   "name": "Leper Gnome",
+   "cardClass": "NEUTRAL",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 1,
+   "type": "MINION",
+   "dbfId": 69821
+  },
+  {
+   "name": "Lightwarden",
+   "cardClass": "NEUTRAL",
+   "rarity": "RARE",
+   "set": "VANILLA",
+   "cost": 1,
+   "type": "MINION",
+   "dbfId": 69804
+  },
+  {
+   "name": "Loot Hoarder",
+   "cardClass": "NEUTRAL",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 2,
+   "type": "MINION",
+   "dbfId": 69845
+  },
+  {
+   "name": "Lord of the Arena",
+   "cardClass": "NEUTRAL",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 6,
+   "type": "MINION",
+   "dbfId": 68394
+  },
+  {
+   "name": "Lorewalker Cho",
+   "cardClass": "NEUTRAL",
+   "rarity": "LEGENDARY",
+   "set": "VANILLA",
+   "cost": 2,
+   "type": "MINION",
+   "dbfId": 69847
+  },
+  {
+   "name": "Mad Bomber",
+   "cardClass": "NEUTRAL",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 2,
+   "type": "MINION",
+   "dbfId": 69838
+  },
+  {
+   "name": "Magma Rager",
+   "cardClass": "NEUTRAL",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 3,
+   "type": "MINION",
+   "dbfId": 68379
+  },
+  {
+   "name": "Malygos",
+   "cardClass": "NEUTRAL",
+   "rarity": "LEGENDARY",
+   "set": "VANILLA",
+   "cost": 9,
+   "type": "MINION",
+   "dbfId": 69979
+  },
+  {
+   "name": "Mana Addict",
+   "cardClass": "NEUTRAL",
+   "rarity": "RARE",
+   "set": "VANILLA",
+   "cost": 2,
+   "type": "MINION",
+   "dbfId": 69831
+  },
+  {
+   "name": "Mana Wraith",
+   "cardClass": "NEUTRAL",
+   "rarity": "RARE",
+   "set": "VANILLA",
+   "cost": 2,
+   "type": "MINION",
+   "dbfId": 70055
+  },
+  {
+   "name": "Master Swordsmith",
+   "cardClass": "NEUTRAL",
+   "rarity": "RARE",
+   "set": "VANILLA",
+   "cost": 2,
+   "type": "MINION",
+   "dbfId": 70095
+  },
+  {
+   "name": "Millhouse Manastorm",
+   "cardClass": "NEUTRAL",
+   "rarity": "LEGENDARY",
+   "set": "VANILLA",
+   "cost": 2,
+   "type": "MINION",
+   "dbfId": 70092
+  },
+  {
+   "name": "Mind Control Tech",
+   "cardClass": "NEUTRAL",
+   "rarity": "RARE",
+   "set": "VANILLA",
+   "cost": 3,
+   "type": "MINION",
+   "dbfId": 69840
+  },
+  {
+   "name": "Mogu'shan Warden",
+   "cardClass": "NEUTRAL",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 4,
+   "type": "MINION",
+   "dbfId": 69948
+  },
+  {
+   "name": "Molten Giant",
+   "cardClass": "NEUTRAL",
+   "rarity": "EPIC",
+   "set": "VANILLA",
+   "cost": 20,
+   "type": "MINION",
+   "dbfId": 70058
+  },
+  {
+   "name": "Mountain Giant",
+   "cardClass": "NEUTRAL",
+   "rarity": "EPIC",
+   "set": "VANILLA",
+   "cost": 12,
+   "type": "MINION",
+   "dbfId": 69850
+  },
+  {
+   "name": "Murloc Raider",
+   "cardClass": "NEUTRAL",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 1,
+   "type": "MINION",
+   "dbfId": 68395
+  },
+  {
+   "name": "Murloc Tidecaller",
+   "cardClass": "NEUTRAL",
+   "rarity": "RARE",
+   "set": "VANILLA",
+   "cost": 1,
+   "type": "MINION",
+   "dbfId": 69960
+  },
+  {
+   "name": "Murloc Tidehunter",
+   "cardClass": "NEUTRAL",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 2,
+   "type": "MINION",
+   "dbfId": 68468
+  },
+  {
+   "name": "Murloc Warleader",
+   "cardClass": "NEUTRAL",
+   "rarity": "EPIC",
+   "set": "VANILLA",
+   "cost": 3,
+   "type": "MINION",
+   "dbfId": 69959
+  },
+  {
+   "name": "Nat Pagle",
+   "cardClass": "NEUTRAL",
+   "rarity": "LEGENDARY",
+   "set": "VANILLA",
+   "cost": 2,
+   "type": "MINION",
+   "dbfId": 69973
+  },
+  {
+   "name": "Nightblade",
+   "cardClass": "NEUTRAL",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 5,
+   "type": "MINION",
+   "dbfId": 68478
+  },
+  {
+   "name": "Novice Engineer",
+   "cardClass": "NEUTRAL",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 2,
+   "type": "MINION",
+   "dbfId": 68436
+  },
+  {
+   "name": "Nozdormu",
+   "cardClass": "NEUTRAL",
+   "rarity": "LEGENDARY",
+   "set": "VANILLA",
+   "cost": 9,
+   "type": "MINION",
+   "dbfId": 69976
+  },
+  {
+   "name": "Oasis Snapjaw",
+   "cardClass": "NEUTRAL",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 4,
+   "type": "MINION",
+   "dbfId": 68380
+  },
+  {
+   "name": "Ogre Magi",
+   "cardClass": "NEUTRAL",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 4,
+   "type": "MINION",
+   "dbfId": 68405
+  },
+  {
+   "name": "Old Murk-Eye",
+   "cardClass": "NEUTRAL",
+   "rarity": "LEGENDARY",
+   "set": "VANILLA",
+   "cost": 4,
+   "type": "MINION",
+   "dbfId": 68538
+  },
+  {
+   "name": "Onyxia",
+   "cardClass": "NEUTRAL",
+   "rarity": "LEGENDARY",
+   "set": "VANILLA",
+   "cost": 9,
+   "type": "MINION",
+   "dbfId": 69978
+  },
+  {
+   "name": "Pint-Sized Summoner",
+   "cardClass": "NEUTRAL",
+   "rarity": "RARE",
+   "set": "VANILLA",
+   "cost": 2,
+   "type": "MINION",
+   "dbfId": 69836
+  },
+  {
+   "name": "Priestess of Elune",
+   "cardClass": "NEUTRAL",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 6,
+   "type": "MINION",
+   "dbfId": 70035
+  },
+  {
+   "name": "Questing Adventurer",
+   "cardClass": "NEUTRAL",
+   "rarity": "RARE",
+   "set": "VANILLA",
+   "cost": 3,
+   "type": "MINION",
+   "dbfId": 69825
+  },
+  {
+   "name": "Raging Worgen",
+   "cardClass": "NEUTRAL",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 3,
+   "type": "MINION",
+   "dbfId": 69957
+  },
+  {
+   "name": "Ragnaros the Firelord",
+   "cardClass": "NEUTRAL",
+   "rarity": "LEGENDARY",
+   "set": "VANILLA",
+   "cost": 8,
+   "type": "MINION",
+   "dbfId": 69912
+  },
+  {
+   "name": "Raid Leader",
+   "cardClass": "NEUTRAL",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 3,
+   "type": "MINION",
+   "dbfId": 68383
+  },
+  {
+   "name": "Ravenholdt Assassin",
+   "cardClass": "NEUTRAL",
+   "rarity": "RARE",
+   "set": "VANILLA",
+   "cost": 7,
+   "type": "MINION",
+   "dbfId": 69758
+  },
+  {
+   "name": "Razorfen Hunter",
+   "cardClass": "NEUTRAL",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 3,
+   "type": "MINION",
+   "dbfId": 68404
+  },
+  {
+   "name": "Reckless Rocketeer",
+   "cardClass": "NEUTRAL",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 6,
+   "type": "MINION",
+   "dbfId": 68408
+  },
+  {
+   "name": "River Crocolisk",
+   "cardClass": "NEUTRAL",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 2,
+   "type": "MINION",
+   "dbfId": 68381
+  },
+  {
+   "name": "Scarlet Crusader",
+   "cardClass": "NEUTRAL",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 3,
+   "type": "MINION",
+   "dbfId": 69817
+  },
+  {
+   "name": "Sea Giant",
+   "cardClass": "NEUTRAL",
+   "rarity": "EPIC",
+   "set": "VANILLA",
+   "cost": 10,
+   "type": "MINION",
+   "dbfId": 70037
+  },
+  {
+   "name": "Secretkeeper",
+   "cardClass": "NEUTRAL",
+   "rarity": "RARE",
+   "set": "VANILLA",
+   "cost": 1,
+   "type": "MINION",
+   "dbfId": 69837
+  },
+  {
+   "name": "Sen'jin Shieldmasta",
+   "cardClass": "NEUTRAL",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 4,
+   "type": "MINION",
+   "dbfId": 68399
+  },
+  {
+   "name": "Shattered Sun Cleric",
+   "cardClass": "NEUTRAL",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 3,
+   "type": "MINION",
+   "dbfId": 68437
+  },
+  {
+   "name": "Shieldbearer",
+   "cardClass": "NEUTRAL",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 1,
+   "type": "MINION",
+   "dbfId": 69951
+  },
+  {
+   "name": "Silver Hand Knight",
+   "cardClass": "NEUTRAL",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 5,
+   "type": "MINION",
+   "dbfId": 69756
+  },
+  {
+   "name": "Silverback Patriarch",
+   "cardClass": "NEUTRAL",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 3,
+   "type": "MINION",
+   "dbfId": 68387
+  },
+  {
+   "name": "Silvermoon Guardian",
+   "cardClass": "NEUTRAL",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 4,
+   "type": "MINION",
+   "dbfId": 69819
+  },
+  {
+   "name": "Southsea Captain",
+   "cardClass": "NEUTRAL",
+   "rarity": "EPIC",
+   "set": "VANILLA",
+   "cost": 3,
+   "type": "MINION",
+   "dbfId": 70091
+  },
+  {
+   "name": "Southsea Deckhand",
+   "cardClass": "NEUTRAL",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 1,
+   "type": "MINION",
+   "dbfId": 69755
+  },
+  {
+   "name": "Spellbreaker",
+   "cardClass": "NEUTRAL",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 4,
+   "type": "MINION",
+   "dbfId": 69828
+  },
+  {
+   "name": "Spiteful Smith",
+   "cardClass": "NEUTRAL",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 5,
+   "type": "MINION",
+   "dbfId": 69763
+  },
+  {
+   "name": "Stampeding Kodo",
+   "cardClass": "NEUTRAL",
+   "rarity": "RARE",
+   "set": "VANILLA",
+   "cost": 5,
+   "type": "MINION",
+   "dbfId": 70098
+  },
+  {
+   "name": "Stonetusk Boar",
+   "cardClass": "NEUTRAL",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 1,
+   "type": "MINION",
+   "dbfId": 68396
+  },
+  {
+   "name": "Stormpike Commando",
+   "cardClass": "NEUTRAL",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 5,
+   "type": "MINION",
+   "dbfId": 68392
+  },
+  {
+   "name": "Stormwind Champion",
+   "cardClass": "NEUTRAL",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 7,
+   "type": "MINION",
+   "dbfId": 68409
+  },
+  {
+   "name": "Stormwind Knight",
+   "cardClass": "NEUTRAL",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 4,
+   "type": "MINION",
+   "dbfId": 68388
+  },
+  {
+   "name": "Stranglethorn Tiger",
+   "cardClass": "NEUTRAL",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 5,
+   "type": "MINION",
+   "dbfId": 69820
+  },
+  {
+   "name": "Sunfury Protector",
+   "cardClass": "NEUTRAL",
+   "rarity": "RARE",
+   "set": "VANILLA",
+   "cost": 2,
+   "type": "MINION",
+   "dbfId": 69833
+  },
+  {
+   "name": "Sunwalker",
+   "cardClass": "NEUTRAL",
+   "rarity": "RARE",
+   "set": "VANILLA",
+   "cost": 6,
+   "type": "MINION",
+   "dbfId": 69822
+  },
+  {
+   "name": "Sylvanas Windrunner",
+   "cardClass": "NEUTRAL",
+   "rarity": "LEGENDARY",
+   "set": "VANILLA",
+   "cost": 6,
+   "type": "MINION",
+   "dbfId": 69815
+  },
+  {
+   "name": "Tauren Warrior",
+   "cardClass": "NEUTRAL",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 3,
+   "type": "MINION",
+   "dbfId": 69944
+  },
+  {
+   "name": "The Beast",
+   "cardClass": "NEUTRAL",
+   "rarity": "LEGENDARY",
+   "set": "VANILLA",
+   "cost": 6,
+   "type": "MINION",
+   "dbfId": 70033
+  },
+  {
+   "name": "The Black Knight",
+   "cardClass": "NEUTRAL",
+   "rarity": "LEGENDARY",
+   "set": "VANILLA",
+   "cost": 6,
+   "type": "MINION",
+   "dbfId": 69805
+  },
+  {
+   "name": "Thrallmar Farseer",
+   "cardClass": "NEUTRAL",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 3,
+   "type": "MINION",
+   "dbfId": 69818
+  },
+  {
+   "name": "Tinkmaster Overspark",
+   "cardClass": "NEUTRAL",
+   "rarity": "LEGENDARY",
+   "set": "VANILLA",
+   "cost": 3,
+   "type": "MINION",
+   "dbfId": 69839
+  },
+  {
+   "name": "Twilight Drake",
+   "cardClass": "NEUTRAL",
+   "rarity": "RARE",
+   "set": "VANILLA",
+   "cost": 4,
+   "type": "MINION",
+   "dbfId": 69824
+  },
+  {
+   "name": "Venture Co. Mercenary",
+   "cardClass": "NEUTRAL",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 5,
+   "type": "MINION",
+   "dbfId": 69764
+  },
+  {
+   "name": "Violet Teacher",
+   "cardClass": "NEUTRAL",
+   "rarity": "RARE",
+   "set": "VANILLA",
+   "cost": 4,
+   "type": "MINION",
+   "dbfId": 70090
+  },
+  {
+   "name": "Voodoo Doctor",
+   "cardClass": "NEUTRAL",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 1,
+   "type": "MINION",
+   "dbfId": 68435
+  },
+  {
+   "name": "War Golem",
+   "cardClass": "NEUTRAL",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 7,
+   "type": "MINION",
+   "dbfId": 68401
+  },
+  {
+   "name": "Wild Pyromancer",
+   "cardClass": "NEUTRAL",
+   "rarity": "RARE",
+   "set": "VANILLA",
+   "cost": 2,
+   "type": "MINION",
+   "dbfId": 70084
+  },
+  {
+   "name": "Windfury Harpy",
+   "cardClass": "NEUTRAL",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 6,
+   "type": "MINION",
+   "dbfId": 69823
+  },
+  {
+   "name": "Wisp",
+   "cardClass": "NEUTRAL",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 0,
+   "type": "MINION",
+   "dbfId": 69765
+  },
+  {
+   "name": "Wolfrider",
+   "cardClass": "NEUTRAL",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 3,
+   "type": "MINION",
+   "dbfId": 68385
+  },
+  {
+   "name": "Worgen Infiltrator",
+   "cardClass": "NEUTRAL",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 1,
+   "type": "MINION",
+   "dbfId": 69812
+  },
+  {
+   "name": "Young Dragonhawk",
+   "cardClass": "NEUTRAL",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 1,
+   "type": "MINION",
+   "dbfId": 69759
+  },
+  {
+   "name": "Young Priestess",
+   "cardClass": "NEUTRAL",
+   "rarity": "RARE",
+   "set": "VANILLA",
+   "cost": 1,
+   "type": "MINION",
+   "dbfId": 69806
+  },
+  {
+   "name": "Youthful Brewmaster",
+   "cardClass": "NEUTRAL",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 2,
+   "type": "MINION",
+   "dbfId": 69829
+  },
+  {
+   "name": "Ysera",
+   "cardClass": "NEUTRAL",
+   "rarity": "LEGENDARY",
+   "set": "VANILLA",
+   "cost": 9,
+   "type": "MINION",
+   "dbfId": 70980
+  },
+  {
+   "name": "Aldor Peacekeeper",
+   "cardClass": "PALADIN",
+   "rarity": "RARE",
+   "set": "VANILLA",
+   "cost": 3,
+   "type": "MINION",
+   "dbfId": 69941
+  },
+  {
+   "name": "Argent Protector",
+   "cardClass": "PALADIN",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 2,
+   "type": "MINION",
+   "dbfId": 69936
+  },
+  {
+   "name": "Avenging Wrath",
+   "cardClass": "PALADIN",
+   "rarity": "EPIC",
+   "set": "VANILLA",
+   "cost": 6,
+   "type": "SPELL",
+   "dbfId": 69943
+  },
+  {
+   "name": "Blessed Champion",
+   "cardClass": "PALADIN",
+   "rarity": "RARE",
+   "set": "VANILLA",
+   "cost": 5,
+   "type": "SPELL",
+   "dbfId": 69935
+  },
+  {
+   "name": "Blessing of Kings",
+   "cardClass": "PALADIN",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 4,
+   "type": "SPELL",
+   "dbfId": 68364
+  },
+  {
+   "name": "Blessing of Might",
+   "cardClass": "PALADIN",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 1,
+   "type": "SPELL",
+   "dbfId": 68359
+  },
+  {
+   "name": "Blessing of Wisdom",
+   "cardClass": "PALADIN",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 1,
+   "type": "SPELL",
+   "dbfId": 69937
+  },
+  {
+   "name": "Consecration",
+   "cardClass": "PALADIN",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 4,
+   "type": "SPELL",
+   "dbfId": 68366
+  },
+  {
+   "name": "Divine Favor",
+   "cardClass": "PALADIN",
+   "rarity": "RARE",
+   "set": "VANILLA",
+   "cost": 3,
+   "type": "SPELL",
+   "dbfId": 69932
+  },
+  {
+   "name": "Equality",
+   "cardClass": "PALADIN",
+   "rarity": "RARE",
+   "set": "VANILLA",
+   "cost": 2,
+   "type": "SPELL",
+   "dbfId": 70057
+  },
+  {
+   "name": "Eye for an Eye",
+   "cardClass": "PALADIN",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 1,
+   "type": "SPELL",
+   "dbfId": 69858
+  },
+  {
+   "name": "Guardian of Kings",
+   "cardClass": "PALADIN",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 7,
+   "type": "MINION",
+   "dbfId": 68361
+  },
+  {
+   "name": "Hammer of Wrath",
+   "cardClass": "PALADIN",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 4,
+   "type": "SPELL",
+   "dbfId": 68367
+  },
+  {
+   "name": "Hand of Protection",
+   "cardClass": "PALADIN",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 1,
+   "type": "SPELL",
+   "dbfId": 68464
+  },
+  {
+   "name": "Holy Light",
+   "cardClass": "PALADIN",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 2,
+   "type": "SPELL",
+   "dbfId": 68362
+  },
+  {
+   "name": "Holy Wrath",
+   "cardClass": "PALADIN",
+   "rarity": "RARE",
+   "set": "VANILLA",
+   "cost": 5,
+   "type": "SPELL",
+   "dbfId": 69938
+  },
+  {
+   "name": "Humility",
+   "cardClass": "PALADIN",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 1,
+   "type": "SPELL",
+   "dbfId": 68462
+  },
+  {
+   "name": "Lay on Hands",
+   "cardClass": "PALADIN",
+   "rarity": "EPIC",
+   "set": "VANILLA",
+   "cost": 8,
+   "type": "SPELL",
+   "dbfId": 69934
+  },
+  {
+   "name": "Light's Justice",
+   "cardClass": "PALADIN",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 1,
+   "type": "WEAPON",
+   "dbfId": 68363
+  },
+  {
+   "name": "Noble Sacrifice",
+   "cardClass": "PALADIN",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 1,
+   "type": "SPELL",
+   "dbfId": 69856
+  },
+  {
+   "name": "Redemption",
+   "cardClass": "PALADIN",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 1,
+   "type": "SPELL",
+   "dbfId": 69861
+  },
+  {
+   "name": "Repentance",
+   "cardClass": "PALADIN",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 1,
+   "type": "SPELL",
+   "dbfId": 69940
+  },
+  {
+   "name": "Sword of Justice",
+   "cardClass": "PALADIN",
+   "rarity": "EPIC",
+   "set": "VANILLA",
+   "cost": 3,
+   "type": "WEAPON",
+   "dbfId": 69939
+  },
+  {
+   "name": "Tirion Fordring",
+   "cardClass": "PALADIN",
+   "rarity": "LEGENDARY",
+   "set": "VANILLA",
+   "cost": 8,
+   "type": "MINION",
+   "dbfId": 69942
+  },
+  {
+   "name": "Truesilver Champion",
+   "cardClass": "PALADIN",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 4,
+   "type": "WEAPON",
+   "dbfId": 68368
+  },
+  {
+   "name": "Auchenai Soulpriest",
+   "cardClass": "PRIEST",
+   "rarity": "RARE",
+   "set": "VANILLA",
+   "cost": 4,
+   "type": "MINION",
+   "dbfId": 70039
+  },
+  {
+   "name": "Cabal Shadow Priest",
+   "cardClass": "PRIEST",
+   "rarity": "EPIC",
+   "set": "VANILLA",
+   "cost": 6,
+   "type": "MINION",
+   "dbfId": 69842
+  },
+  {
+   "name": "Circle of Healing",
+   "cardClass": "PRIEST",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 0,
+   "type": "SPELL",
+   "dbfId": 70059
+  },
+  {
+   "name": "Divine Spirit",
+   "cardClass": "PRIEST",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 2,
+   "type": "SPELL",
+   "dbfId": 68536
+  },
+  {
+   "name": "Holy Fire",
+   "cardClass": "PRIEST",
+   "rarity": "RARE",
+   "set": "VANILLA",
+   "cost": 6,
+   "type": "SPELL",
+   "dbfId": 70061
+  },
+  {
+   "name": "Holy Nova",
+   "cardClass": "PRIEST",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 5,
+   "type": "SPELL",
+   "dbfId": 68299
+  },
+  {
+   "name": "Holy Smite",
+   "cardClass": "PRIEST",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 1,
+   "type": "SPELL",
+   "dbfId": 68301
+  },
+  {
+   "name": "Inner Fire",
+   "cardClass": "PRIEST",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 1,
+   "type": "SPELL",
+   "dbfId": 69746
+  },
+  {
+   "name": "Lightspawn",
+   "cardClass": "PRIEST",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 4,
+   "type": "MINION",
+   "dbfId": 69928
+  },
+  {
+   "name": "Lightwell",
+   "cardClass": "PRIEST",
+   "rarity": "RARE",
+   "set": "VANILLA",
+   "cost": 2,
+   "type": "MINION",
+   "dbfId": 69930
+  },
+  {
+   "name": "Mass Dispel",
+   "cardClass": "PRIEST",
+   "rarity": "RARE",
+   "set": "VANILLA",
+   "cost": 4,
+   "type": "SPELL",
+   "dbfId": 70063
+  },
+  {
+   "name": "Mind Blast",
+   "cardClass": "PRIEST",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 2,
+   "type": "SPELL",
+   "dbfId": 68537
+  },
+  {
+   "name": "Mind Control",
+   "cardClass": "PRIEST",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 10,
+   "type": "SPELL",
+   "dbfId": 68300
+  },
+  {
+   "name": "Mind Vision",
+   "cardClass": "PRIEST",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 1,
+   "type": "SPELL",
+   "dbfId": 68303
+  },
+  {
+   "name": "Mindgames",
+   "cardClass": "PRIEST",
+   "rarity": "EPIC",
+   "set": "VANILLA",
+   "cost": 4,
+   "type": "SPELL",
+   "dbfId": 69931
+  },
+  {
+   "name": "Northshire Cleric",
+   "cardClass": "PRIEST",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 1,
+   "type": "MINION",
+   "dbfId": 68535
+  },
+  {
+   "name": "Power Word: Shield",
+   "cardClass": "PRIEST",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 1,
+   "type": "SPELL",
+   "dbfId": 68304
+  },
+  {
+   "name": "Prophet Velen",
+   "cardClass": "PRIEST",
+   "rarity": "LEGENDARY",
+   "set": "VANILLA",
+   "cost": 7,
+   "type": "MINION",
+   "dbfId": 69933
+  },
+  {
+   "name": "Shadow Madness",
+   "cardClass": "PRIEST",
+   "rarity": "RARE",
+   "set": "VANILLA",
+   "cost": 4,
+   "type": "SPELL",
+   "dbfId": 69927
+  },
+  {
+   "name": "Shadow Word: Death",
+   "cardClass": "PRIEST",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 3,
+   "type": "SPELL",
+   "dbfId": 68480
+  },
+  {
+   "name": "Shadow Word: Pain",
+   "cardClass": "PRIEST",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 2,
+   "type": "SPELL",
+   "dbfId": 68414
+  },
+  {
+   "name": "Shadowform",
+   "cardClass": "PRIEST",
+   "rarity": "EPIC",
+   "set": "VANILLA",
+   "cost": 3,
+   "type": "SPELL",
+   "dbfId": 70062
+  },
+  {
+   "name": "Silence",
+   "cardClass": "PRIEST",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 0,
+   "type": "SPELL",
+   "dbfId": 69926
+  },
+  {
+   "name": "Temple Enforcer",
+   "cardClass": "PRIEST",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 6,
+   "type": "MINION",
+   "dbfId": 70060
+  },
+  {
+   "name": "Thoughtsteal",
+   "cardClass": "PRIEST",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 3,
+   "type": "SPELL",
+   "dbfId": 69929
+  },
+  {
+   "name": "Assassin's Blade",
+   "cardClass": "ROGUE",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 5,
+   "type": "WEAPON",
+   "dbfId": 68354
+  },
+  {
+   "name": "Assassinate",
+   "cardClass": "ROGUE",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 5,
+   "type": "SPELL",
+   "dbfId": 68352
+  },
+  {
+   "name": "Backstab",
+   "cardClass": "ROGUE",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 0,
+   "type": "SPELL",
+   "dbfId": 68348
+  },
+  {
+   "name": "Betrayal",
+   "cardClass": "ROGUE",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 2,
+   "type": "SPELL",
+   "dbfId": 69854
+  },
+  {
+   "name": "Blade Flurry",
+   "cardClass": "ROGUE",
+   "rarity": "RARE",
+   "set": "VANILLA",
+   "cost": 2,
+   "type": "SPELL",
+   "dbfId": 69766
+  },
+  {
+   "name": "Cold Blood",
+   "cardClass": "ROGUE",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 1,
+   "type": "SPELL",
+   "dbfId": 69752
+  },
+  {
+   "name": "Conceal",
+   "cardClass": "ROGUE",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 1,
+   "type": "SPELL",
+   "dbfId": 69855
+  },
+  {
+   "name": "Deadly Poison",
+   "cardClass": "ROGUE",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 1,
+   "type": "SPELL",
+   "dbfId": 68349
+  },
+  {
+   "name": "Defias Ringleader",
+   "cardClass": "ROGUE",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 2,
+   "type": "MINION",
+   "dbfId": 69857
+  },
+  {
+   "name": "Edwin VanCleef",
+   "cardClass": "ROGUE",
+   "rarity": "LEGENDARY",
+   "set": "VANILLA",
+   "cost": 3,
+   "type": "MINION",
+   "dbfId": 70053
+  },
+  {
+   "name": "Eviscerate",
+   "cardClass": "ROGUE",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 2,
+   "type": "SPELL",
+   "dbfId": 69853
+  },
+  {
+   "name": "Fan of Knives",
+   "cardClass": "ROGUE",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 3,
+   "type": "SPELL",
+   "dbfId": 68444
+  },
+  {
+   "name": "Headcrack",
+   "cardClass": "ROGUE",
+   "rarity": "RARE",
+   "set": "VANILLA",
+   "cost": 3,
+   "type": "SPELL",
+   "dbfId": 69862
+  },
+  {
+   "name": "Kidnapper",
+   "cardClass": "ROGUE",
+   "rarity": "EPIC",
+   "set": "VANILLA",
+   "cost": 6,
+   "type": "MINION",
+   "dbfId": 70075
+  },
+  {
+   "name": "Master of Disguise",
+   "cardClass": "ROGUE",
+   "rarity": "RARE",
+   "set": "VANILLA",
+   "cost": 4,
+   "type": "MINION",
+   "dbfId": 70080
+  },
+  {
+   "name": "Patient Assassin",
+   "cardClass": "ROGUE",
+   "rarity": "EPIC",
+   "set": "VANILLA",
+   "cost": 2,
+   "type": "MINION",
+   "dbfId": 69961
+  },
+  {
+   "name": "Perdition's Blade",
+   "cardClass": "ROGUE",
+   "rarity": "RARE",
+   "set": "VANILLA",
+   "cost": 3,
+   "type": "WEAPON",
+   "dbfId": 69859
+  },
+  {
+   "name": "Preparation",
+   "cardClass": "ROGUE",
+   "rarity": "EPIC",
+   "set": "VANILLA",
+   "cost": 0,
+   "type": "SPELL",
+   "dbfId": 69864
+  },
+  {
+   "name": "SI:7 Agent",
+   "cardClass": "ROGUE",
+   "rarity": "RARE",
+   "set": "VANILLA",
+   "cost": 3,
+   "type": "MINION",
+   "dbfId": 69860
+  },
+  {
+   "name": "Sap",
+   "cardClass": "ROGUE",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 2,
+   "type": "SPELL",
+   "dbfId": 68475
+  },
+  {
+   "name": "Shadowstep",
+   "cardClass": "ROGUE",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 0,
+   "type": "SPELL",
+   "dbfId": 69863
+  },
+  {
+   "name": "Shiv",
+   "cardClass": "ROGUE",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 2,
+   "type": "SPELL",
+   "dbfId": 68458
+  },
+  {
+   "name": "Sinister Strike",
+   "cardClass": "ROGUE",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 1,
+   "type": "SPELL",
+   "dbfId": 68351
+  },
+  {
+   "name": "Sprint",
+   "cardClass": "ROGUE",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 7,
+   "type": "SPELL",
+   "dbfId": 68353
+  },
+  {
+   "name": "Vanish",
+   "cardClass": "ROGUE",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 6,
+   "type": "SPELL",
+   "dbfId": 68548
+  },
+  {
+   "name": "Al'Akir the Windlord",
+   "cardClass": "SHAMAN",
+   "rarity": "LEGENDARY",
+   "set": "VANILLA",
+   "cost": 8,
+   "type": "MINION",
+   "dbfId": 70078
+  },
+  {
+   "name": "Ancestral Healing",
+   "cardClass": "SHAMAN",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 0,
+   "type": "SPELL",
+   "dbfId": 68331
+  },
+  {
+   "name": "Ancestral Spirit",
+   "cardClass": "SHAMAN",
+   "rarity": "RARE",
+   "set": "VANILLA",
+   "cost": 2,
+   "type": "SPELL",
+   "dbfId": 69749
+  },
+  {
+   "name": "Bloodlust",
+   "cardClass": "SHAMAN",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 5,
+   "type": "SPELL",
+   "dbfId": 68336
+  },
+  {
+   "name": "Doomhammer",
+   "cardClass": "SHAMAN",
+   "rarity": "EPIC",
+   "set": "VANILLA",
+   "cost": 5,
+   "type": "WEAPON",
+   "dbfId": 69981
+  },
+  {
+   "name": "Dust Devil",
+   "cardClass": "SHAMAN",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 1,
+   "type": "MINION",
+   "dbfId": 69894
+  },
+  {
+   "name": "Earth Elemental",
+   "cardClass": "SHAMAN",
+   "rarity": "EPIC",
+   "set": "VANILLA",
+   "cost": 5,
+   "type": "MINION",
+   "dbfId": 69899
+  },
+  {
+   "name": "Earth Shock",
+   "cardClass": "SHAMAN",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 1,
+   "type": "SPELL",
+   "dbfId": 69895
+  },
+  {
+   "name": "Far Sight",
+   "cardClass": "SHAMAN",
+   "rarity": "EPIC",
+   "set": "VANILLA",
+   "cost": 3,
+   "type": "SPELL",
+   "dbfId": 69750
+  },
+  {
+   "name": "Feral Spirit",
+   "cardClass": "SHAMAN",
+   "rarity": "RARE",
+   "set": "VANILLA",
+   "cost": 3,
+   "type": "SPELL",
+   "dbfId": 69897
+  },
+  {
+   "name": "Fire Elemental",
+   "cardClass": "SHAMAN",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 6,
+   "type": "MINION",
+   "dbfId": 68333
+  },
+  {
+   "name": "Flametongue Totem",
+   "cardClass": "SHAMAN",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 2,
+   "type": "MINION",
+   "dbfId": 68473
+  },
+  {
+   "name": "Forked Lightning",
+   "cardClass": "SHAMAN",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 1,
+   "type": "SPELL",
+   "dbfId": 69900
+  },
+  {
+   "name": "Frost Shock",
+   "cardClass": "SHAMAN",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 1,
+   "type": "SPELL",
+   "dbfId": 68329
+  },
+  {
+   "name": "Hex",
+   "cardClass": "SHAMAN",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 3,
+   "type": "SPELL",
+   "dbfId": 68455
+  },
+  {
+   "name": "Lava Burst",
+   "cardClass": "SHAMAN",
+   "rarity": "RARE",
+   "set": "VANILLA",
+   "cost": 3,
+   "type": "SPELL",
+   "dbfId": 69893
+  },
+  {
+   "name": "Lightning Bolt",
+   "cardClass": "SHAMAN",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 1,
+   "type": "SPELL",
+   "dbfId": 69892
+  },
+  {
+   "name": "Lightning Storm",
+   "cardClass": "SHAMAN",
+   "rarity": "RARE",
+   "set": "VANILLA",
+   "cost": 3,
+   "type": "SPELL",
+   "dbfId": 69902
+  },
+  {
+   "name": "Mana Tide Totem",
+   "cardClass": "SHAMAN",
+   "rarity": "RARE",
+   "set": "VANILLA",
+   "cost": 3,
+   "type": "MINION",
+   "dbfId": 70032
+  },
+  {
+   "name": "Rockbiter Weapon",
+   "cardClass": "SHAMAN",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 1,
+   "type": "SPELL",
+   "dbfId": 68334
+  },
+  {
+   "name": "Stormforged Axe",
+   "cardClass": "SHAMAN",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 2,
+   "type": "WEAPON",
+   "dbfId": 69896
+  },
+  {
+   "name": "Totemic Might",
+   "cardClass": "SHAMAN",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 0,
+   "type": "SPELL",
+   "dbfId": 68453
+  },
+  {
+   "name": "Unbound Elemental",
+   "cardClass": "SHAMAN",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 3,
+   "type": "MINION",
+   "dbfId": 69901
+  },
+  {
+   "name": "Windfury",
+   "cardClass": "SHAMAN",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 2,
+   "type": "SPELL",
+   "dbfId": 68330
+  },
+  {
+   "name": "Windspeaker",
+   "cardClass": "SHAMAN",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 4,
+   "type": "MINION",
+   "dbfId": 68477
+  },
+  {
+   "name": "Bane of Doom",
+   "cardClass": "WARLOCK",
+   "rarity": "EPIC",
+   "set": "VANILLA",
+   "cost": 5,
+   "type": "SPELL",
+   "dbfId": 69924
+  },
+  {
+   "name": "Blood Imp",
+   "cardClass": "WARLOCK",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 1,
+   "type": "MINION",
+   "dbfId": 69751
+  },
+  {
+   "name": "Corruption",
+   "cardClass": "WARLOCK",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 1,
+   "type": "SPELL",
+   "dbfId": 68344
+  },
+  {
+   "name": "Demonfire",
+   "cardClass": "WARLOCK",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 2,
+   "type": "SPELL",
+   "dbfId": 70042
+  },
+  {
+   "name": "Doomguard",
+   "cardClass": "WARLOCK",
+   "rarity": "RARE",
+   "set": "VANILLA",
+   "cost": 5,
+   "type": "MINION",
+   "dbfId": 69917
+  },
+  {
+   "name": "Drain Life",
+   "cardClass": "WARLOCK",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 3,
+   "type": "SPELL",
+   "dbfId": 68342
+  },
+  {
+   "name": "Dread Infernal",
+   "cardClass": "WARLOCK",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 6,
+   "type": "MINION",
+   "dbfId": 68346
+  },
+  {
+   "name": "Felguard",
+   "cardClass": "WARLOCK",
+   "rarity": "RARE",
+   "set": "VANILLA",
+   "cost": 3,
+   "type": "MINION",
+   "dbfId": 69913
+  },
+  {
+   "name": "Felstalker",
+   "cardClass": "WARLOCK",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 2,
+   "type": "MINION",
+   "dbfId": 68460
+  },
+  {
+   "name": "Flame Imp",
+   "cardClass": "WARLOCK",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 1,
+   "type": "MINION",
+   "dbfId": 69923
+  },
+  {
+   "name": "Hellfire",
+   "cardClass": "WARLOCK",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 4,
+   "type": "SPELL",
+   "dbfId": 68343
+  },
+  {
+   "name": "Lord Jaraxxus",
+   "cardClass": "WARLOCK",
+   "rarity": "LEGENDARY",
+   "set": "VANILLA",
+   "cost": 9,
+   "type": "MINION",
+   "dbfId": 69925
+  },
+  {
+   "name": "Mortal Coil",
+   "cardClass": "WARLOCK",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 1,
+   "type": "SPELL",
+   "dbfId": 68459
+  },
+  {
+   "name": "Pit Lord",
+   "cardClass": "WARLOCK",
+   "rarity": "EPIC",
+   "set": "VANILLA",
+   "cost": 4,
+   "type": "MINION",
+   "dbfId": 69919
+  },
+  {
+   "name": "Power Overwhelming",
+   "cardClass": "WARLOCK",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 1,
+   "type": "SPELL",
+   "dbfId": 69921
+  },
+  {
+   "name": "Sacrificial Pact",
+   "cardClass": "WARLOCK",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 0,
+   "type": "SPELL",
+   "dbfId": 68526
+  },
+  {
+   "name": "Sense Demons",
+   "cardClass": "WARLOCK",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 3,
+   "type": "SPELL",
+   "dbfId": 69922
+  },
+  {
+   "name": "Shadow Bolt",
+   "cardClass": "WARLOCK",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 3,
+   "type": "SPELL",
+   "dbfId": 68341
+  },
+  {
+   "name": "Shadowflame",
+   "cardClass": "WARLOCK",
+   "rarity": "RARE",
+   "set": "VANILLA",
+   "cost": 4,
+   "type": "SPELL",
+   "dbfId": 69914
+  },
+  {
+   "name": "Siphon Soul",
+   "cardClass": "WARLOCK",
+   "rarity": "RARE",
+   "set": "VANILLA",
+   "cost": 6,
+   "type": "SPELL",
+   "dbfId": 69916
+  },
+  {
+   "name": "Soulfire",
+   "cardClass": "WARLOCK",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 0,
+   "type": "SPELL",
+   "dbfId": 68461
+  },
+  {
+   "name": "Summoning Portal",
+   "cardClass": "WARLOCK",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 4,
+   "type": "MINION",
+   "dbfId": 69920
+  },
+  {
+   "name": "Twisting Nether",
+   "cardClass": "WARLOCK",
+   "rarity": "EPIC",
+   "set": "VANILLA",
+   "cost": 8,
+   "type": "SPELL",
+   "dbfId": 69918
+  },
+  {
+   "name": "Void Terror",
+   "cardClass": "WARLOCK",
+   "rarity": "RARE",
+   "set": "VANILLA",
+   "cost": 3,
+   "type": "MINION",
+   "dbfId": 69915
+  },
+  {
+   "name": "Voidwalker",
+   "cardClass": "WARLOCK",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 1,
+   "type": "MINION",
+   "dbfId": 68347
+  },
+  {
+   "name": "Arathi Weaponsmith",
+   "cardClass": "WARRIOR",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 4,
+   "type": "MINION",
+   "dbfId": 69949
+  },
+  {
+   "name": "Arcanite Reaper",
+   "cardClass": "WARRIOR",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 5,
+   "type": "WEAPON",
+   "dbfId": 68377
+  },
+  {
+   "name": "Armorsmith",
+   "cardClass": "WARRIOR",
+   "rarity": "RARE",
+   "set": "VANILLA",
+   "cost": 2,
+   "type": "MINION",
+   "dbfId": 69950
+  },
+  {
+   "name": "Battle Rage",
+   "cardClass": "WARRIOR",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 2,
+   "type": "SPELL",
+   "dbfId": 69946
+  },
+  {
+   "name": "Brawl",
+   "cardClass": "WARRIOR",
+   "rarity": "EPIC",
+   "set": "VANILLA",
+   "cost": 5,
+   "type": "SPELL",
+   "dbfId": 69952
+  },
+  {
+   "name": "Charge",
+   "cardClass": "WARRIOR",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 3,
+   "type": "SPELL",
+   "dbfId": 68371
+  },
+  {
+   "name": "Cleave",
+   "cardClass": "WARRIOR",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 2,
+   "type": "SPELL",
+   "dbfId": 68378
+  },
+  {
+   "name": "Commanding Shout",
+   "cardClass": "WARRIOR",
+   "rarity": "RARE",
+   "set": "VANILLA",
+   "cost": 2,
+   "type": "SPELL",
+   "dbfId": 70094
+  },
+  {
+   "name": "Cruel Taskmaster",
+   "cardClass": "WARRIOR",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 2,
+   "type": "MINION",
+   "dbfId": 70045
+  },
+  {
+   "name": "Execute",
+   "cardClass": "WARRIOR",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 1,
+   "type": "SPELL",
+   "dbfId": 68376
+  },
+  {
+   "name": "Fiery War Axe",
+   "cardClass": "WARRIOR",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 2,
+   "type": "WEAPON",
+   "dbfId": 68375
+  },
+  {
+   "name": "Frothing Berserker",
+   "cardClass": "WARRIOR",
+   "rarity": "RARE",
+   "set": "VANILLA",
+   "cost": 3,
+   "type": "MINION",
+   "dbfId": 70046
+  },
+  {
+   "name": "Gorehowl",
+   "cardClass": "WARRIOR",
+   "rarity": "EPIC",
+   "set": "VANILLA",
+   "cost": 7,
+   "type": "WEAPON",
+   "dbfId": 69956
+  },
+  {
+   "name": "Grommash Hellscream",
+   "cardClass": "WARRIOR",
+   "rarity": "LEGENDARY",
+   "set": "VANILLA",
+   "cost": 8,
+   "type": "MINION",
+   "dbfId": 69958
+  },
+  {
+   "name": "Heroic Strike",
+   "cardClass": "WARRIOR",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 2,
+   "type": "SPELL",
+   "dbfId": 68373
+  },
+  {
+   "name": "Inner Rage",
+   "cardClass": "WARRIOR",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 0,
+   "type": "SPELL",
+   "dbfId": 70047
+  },
+  {
+   "name": "Kor'kron Elite",
+   "cardClass": "WARRIOR",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 4,
+   "type": "MINION",
+   "dbfId": 68528
+  },
+  {
+   "name": "Mortal Strike",
+   "cardClass": "WARRIOR",
+   "rarity": "RARE",
+   "set": "VANILLA",
+   "cost": 4,
+   "type": "SPELL",
+   "dbfId": 69953
+  },
+  {
+   "name": "Rampage",
+   "cardClass": "WARRIOR",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 2,
+   "type": "SPELL",
+   "dbfId": 69753
+  },
+  {
+   "name": "Shield Block",
+   "cardClass": "WARRIOR",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 3,
+   "type": "SPELL",
+   "dbfId": 68479
+  },
+  {
+   "name": "Shield Slam",
+   "cardClass": "WARRIOR",
+   "rarity": "EPIC",
+   "set": "VANILLA",
+   "cost": 1,
+   "type": "SPELL",
+   "dbfId": 69955
+  },
+  {
+   "name": "Slam",
+   "cardClass": "WARRIOR",
+   "rarity": "COMMON",
+   "set": "VANILLA",
+   "cost": 2,
+   "type": "SPELL",
+   "dbfId": 69945
+  },
+  {
+   "name": "Upgrade!",
+   "cardClass": "WARRIOR",
+   "rarity": "RARE",
+   "set": "VANILLA",
+   "cost": 1,
+   "type": "SPELL",
+   "dbfId": 69954
+  },
+  {
+   "name": "Warsong Commander",
+   "cardClass": "WARRIOR",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 3,
+   "type": "MINION",
+   "dbfId": 68442
+  },
+  {
+   "name": "Whirlwind",
+   "cardClass": "WARRIOR",
+   "rarity": "FREE",
+   "set": "VANILLA",
+   "cost": 1,
+   "type": "SPELL",
+   "dbfId": 68467
+  }
+ ]
+}

@@ -1,38 +1,74 @@
 {
   "pre_naxx": {
     "decks": {
+      "DRUID": 553,
       "HUNTER": 497,
       "MAGE": 561,
+      "PALADIN": 462,
+      "PRIEST": 490,
+      "ROGUE": 489,
+      "SHAMAN": 383,
+      "WARLOCK": 537,
       "WARRIOR": 427
     },
     "constructible_seeds": {
-      "HUNTER": 422,
-      "MAGE": 486,
-      "WARRIOR": 378
+      "DRUID": 545,
+      "HUNTER": 494,
+      "MAGE": 552,
+      "PALADIN": 455,
+      "PRIEST": 483,
+      "ROGUE": 483,
+      "SHAMAN": 376,
+      "WARLOCK": 517,
+      "WARRIOR": 423
     }
   },
   "naxx_prenerf": {
     "decks": {
-      "HUNTER": 620,
-      "MAGE": 835,
+      "DRUID": 831,
+      "HUNTER": 622,
+      "MAGE": 838,
+      "PALADIN": 832,
+      "PRIEST": 891,
+      "ROGUE": 500,
+      "SHAMAN": 737,
+      "WARLOCK": 1124,
       "WARRIOR": 651
     },
     "constructible_seeds": {
-      "HUNTER": 561,
-      "MAGE": 775,
-      "WARRIOR": 573
+      "DRUID": 810,
+      "HUNTER": 611,
+      "MAGE": 826,
+      "PALADIN": 808,
+      "PRIEST": 877,
+      "ROGUE": 475,
+      "SHAMAN": 712,
+      "WARLOCK": 1086,
+      "WARRIOR": 629
     }
   },
   "post_nerf": {
     "decks": {
+      "DRUID": 592,
       "HUNTER": 573,
-      "MAGE": 538,
+      "MAGE": 539,
+      "PALADIN": 572,
+      "PRIEST": 549,
+      "ROGUE": 455,
+      "SHAMAN": 535,
+      "WARLOCK": 687,
       "WARRIOR": 469
     },
     "constructible_seeds": {
-      "HUNTER": 485,
-      "MAGE": 465,
-      "WARRIOR": 384
+      "DRUID": 535,
+      "HUNTER": 517,
+      "MAGE": 499,
+      "PALADIN": 526,
+      "PRIEST": 491,
+      "ROGUE": 401,
+      "SHAMAN": 480,
+      "WARLOCK": 625,
+      "WARRIOR": 435
     }
   }
 }

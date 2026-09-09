@@ -1,62 +1,122 @@
 {
   "p0_prenaxx": {
     "n_decks": {
+      "SHAMAN": 239,
       "MAGE": 368,
+      "WARLOCK": 380,
+      "DRUID": 371,
+      "ROGUE": 342,
+      "PRIEST": 333,
+      "PALADIN": 277,
       "HUNTER": 329,
       "WARRIOR": 276
     },
     "n_seeds": {
-      "HUNTER": 272,
-      "MAGE": 315,
-      "WARRIOR": 238
+      "DRUID": 362,
+      "HUNTER": 321,
+      "MAGE": 358,
+      "PALADIN": 268,
+      "PRIEST": 322,
+      "ROGUE": 336,
+      "SHAMAN": 232,
+      "WARLOCK": 356,
+      "WARRIOR": 269
     }
   },
   "p1_naxx_early": {
     "n_decks": {
-      "MAGE": 673,
+      "MAGE": 676,
       "WARRIOR": 534,
-      "HUNTER": 495
+      "HUNTER": 497,
+      "WARLOCK": 908,
+      "DRUID": 683,
+      "PALADIN": 694,
+      "PRIEST": 741,
+      "ROGUE": 376,
+      "SHAMAN": 596
     },
     "n_seeds": {
-      "HUNTER": 450,
-      "MAGE": 624,
-      "WARRIOR": 470
+      "DRUID": 666,
+      "HUNTER": 491,
+      "MAGE": 666,
+      "PALADIN": 673,
+      "PRIEST": 733,
+      "ROGUE": 358,
+      "SHAMAN": 574,
+      "WARLOCK": 883,
+      "WARRIOR": 515
     }
   },
   "p2_naxx_late": {
     "n_decks": {
+      "PRIEST": 150,
+      "PALADIN": 138,
       "HUNTER": 125,
       "MAGE": 162,
-      "WARRIOR": 117
+      "WARRIOR": 117,
+      "SHAMAN": 141,
+      "WARLOCK": 216,
+      "DRUID": 148,
+      "ROGUE": 124
     },
     "n_seeds": {
-      "HUNTER": 111,
-      "MAGE": 151,
-      "WARRIOR": 103
+      "DRUID": 144,
+      "HUNTER": 120,
+      "MAGE": 160,
+      "PALADIN": 135,
+      "PRIEST": 144,
+      "ROGUE": 117,
+      "SHAMAN": 138,
+      "WARLOCK": 203,
+      "WARRIOR": 114
     }
   },
   "p3_postnerf_early": {
     "n_decks": {
-      "MAGE": 310,
+      "MAGE": 311,
       "WARRIOR": 267,
-      "HUNTER": 322
+      "PALADIN": 328,
+      "HUNTER": 322,
+      "ROGUE": 279,
+      "PRIEST": 307,
+      "DRUID": 333,
+      "WARLOCK": 411,
+      "SHAMAN": 292
     },
     "n_seeds": {
-      "HUNTER": 293,
-      "MAGE": 283,
-      "WARRIOR": 228
+      "DRUID": 316,
+      "HUNTER": 314,
+      "MAGE": 297,
+      "PALADIN": 317,
+      "PRIEST": 289,
+      "ROGUE": 268,
+      "SHAMAN": 280,
+      "WARLOCK": 395,
+      "WARRIOR": 258
     }
   },
   "p4_postnerf_late": {
     "n_decks": {
+      "WARLOCK": 276,
       "WARRIOR": 202,
+      "SHAMAN": 243,
+      "ROGUE": 176,
+      "PALADIN": 244,
       "MAGE": 228,
+      "DRUID": 259,
+      "PRIEST": 242,
       "HUNTER": 251
     },
     "n_seeds": {
-      "HUNTER": 192,
-      "MAGE": 182,
-      "WARRIOR": 156
+      "DRUID": 219,
+      "HUNTER": 203,
+      "MAGE": 202,
+      "PALADIN": 209,
+      "PRIEST": 202,
+      "ROGUE": 133,
+      "SHAMAN": 200,
+      "WARLOCK": 230,
+      "WARRIOR": 177
     }
   }
 }

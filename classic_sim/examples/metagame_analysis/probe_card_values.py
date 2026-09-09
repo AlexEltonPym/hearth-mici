@@ -43,8 +43,7 @@ from statistics import mean
 from random import Random
 
 sys.path.append('../../src')
-from enums import CardSets
-from card_sets import build_pool
+import hs_catalog
 
 import dill
 from joblib import Parallel, delayed
@@ -52,20 +51,20 @@ from joblib import Parallel, delayed
 import evolve_metagame_shift as ems
 from evolve_metagame_shift import (CLASSES, ERA_SETS, ERAS, LEGENDARY_NAMES, OUT_DIR, SEEDS_DIR,
                                     load_eval_weights)
-from probe_pilots import _run_probe, agent_spec
+#probe_pilots imports the Python engine; only the local/ssh backends need it
+try:
+  from probe_pilots import _run_probe, agent_spec
+except ImportError:   # pragma: no cover - hearthrs-only hosts
+  _run_probe = agent_spec = None
 
 HOSTS_PER_CLASS = 5
 FIELD_PER_CLASS = 3
 
-NAXX_NEUTRALS = ["Zombie Chow", "Undertaker", "Echoing Ooze", "Haunted Creeper", "Mad Scientist",
-                 "Nerub'ar Weblord", "Nerubian Egg", "Unstable Ghoul", "Dancing Swords", "Deathlord",
-                 "Shade of Naxxramas", "Stoneskin Gargoyle", "Baron Rivendare", "Wailing Soul",
-                 "Feugen", "Stalagg", "Loatheb", "Sludge Belcher", "Spectral Knight", "Maexxna",
-                 "Kel'Thuzad"]
-NAXX_CLASS = {"HUNTER": ["Webspinner"], "MAGE": ["Duplicate"], "WARRIOR": ["Death's Bite"]}
+NAXX_NEUTRALS = hs_catalog.naxx_neutrals()
+NAXX_CLASS = {c: hs_catalog.naxx_class_cards(c) for c in CLASSES}
 REMOVAL_CANDIDATES = ["Starving Buzzard", "Leeroy Jenkins"]
 #neutral, stat-honest substitute when a removal candidate is taken out
-REMOVAL_SUBSTITUTE = {"HUNTER": "Chillwind Yeti", "MAGE": "Chillwind Yeti", "WARRIOR": "Chillwind Yeti"}
+REMOVAL_SUBSTITUTE = {c: "Chillwind Yeti" for c in CLASSES}
 
 
 def run_host_probe(work_items, host):
