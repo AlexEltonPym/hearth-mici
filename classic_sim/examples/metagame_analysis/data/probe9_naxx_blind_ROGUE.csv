@@ -1,0 +1,23 @@
+class,card,mode,mean_delta_wr,host_deltas,games_per_side
+ROGUE,Baron Rivendare,addition,-0.0106,+0.013|-0.018|-0.009|-0.024|-0.015,2700
+ROGUE,Dancing Swords,addition,0.0135,+0.028|-0.006|+0.016|+0.020|+0.009,2700
+ROGUE,Deathlord,addition,0.0111,+0.036|+0.011|-0.006|+0.022|-0.007,2700
+ROGUE,Echoing Ooze,addition,-0.0131,+0.006|-0.022|-0.032|+0.021|-0.039,2700
+ROGUE,Feugen,addition,0.0052,+0.003|-0.006|+0.028|-0.024|+0.025,2700
+ROGUE,Haunted Creeper,addition,0.0019,+0.013|-0.011|-0.018|+0.017|+0.008,2700
+ROGUE,Kel'Thuzad,addition,0.0124,+0.039|-0.036|+0.034|+0.005|+0.020,2700
+ROGUE,Loatheb,addition,0.0213,+0.044|+0.004|+0.018|+0.006|+0.035,2700
+ROGUE,Mad Scientist,addition,-0.0189,-0.021|-0.037|+0.014|-0.031|-0.019,2700
+ROGUE,Maexxna,addition,0.0035,-0.013|+0.014|+0.004|-0.009|+0.022,2700
+ROGUE,Nerub'ar Weblord,addition,-0.0096,+0.015|-0.043|-0.020|-0.010|+0.010,2700
+ROGUE,Nerubian Egg,addition,-0.0241,-0.047|-0.044|-0.038|-0.002|+0.011,2700
+ROGUE,Shade of Naxxramas,addition,0.0213,+0.041|+0.020|+0.042|-0.007|+0.011,2700
+ROGUE,Sludge Belcher,addition,0.0211,+0.072|+0.018|+0.056|-0.022|-0.019,2700
+ROGUE,Spectral Knight,addition,0.0146,+0.009|+0.000|+0.014|+0.002|+0.048,2700
+ROGUE,Stalagg,addition,-0.0052,+0.039|-0.003|-0.040|-0.017|-0.006,2700
+ROGUE,Stoneskin Gargoyle,addition,-0.0291,-0.011|-0.031|-0.013|-0.053|-0.037,2700
+ROGUE,Undertaker,addition,0.0059,+0.002|-0.036|+0.024|+0.039|+0.001,2700
+ROGUE,Unstable Ghoul,addition,-0.015,-0.020|-0.028|+0.001|-0.024|-0.004,2700
+ROGUE,Wailing Soul,addition,-0.0022,+0.019|-0.013|-0.020|+0.015|-0.012,2700
+ROGUE,Zombie Chow,addition,-0.0113,+0.006|-0.017|-0.019|-0.046|+0.020,2700
+ROGUE,Anub'ar Ambusher,addition,0.0109,+0.051|-0.019|+0.012|-0.009|+0.019,2700

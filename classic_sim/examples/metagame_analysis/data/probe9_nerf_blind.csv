@@ -1,0 +1,11 @@
+class,card,mode,mean_delta_wr,host_deltas,games_per_side
+DRUID,Leeroy Jenkins,removal,0.0376,+0.052|+0.026|+0.031|+0.036|+0.043,2700
+HUNTER,Starving Buzzard,removal,0.0417,+0.033|+0.082|+0.006|+0.042|+0.045,2700
+HUNTER,Leeroy Jenkins,removal,-0.0109,-0.005|+0.013|+0.000|+0.008|-0.071,2700
+MAGE,Leeroy Jenkins,removal,0.0231,+0.000|+0.040|+0.024|+0.006|+0.046,2700
+PALADIN,Leeroy Jenkins,removal,-0.0072,-0.024|+0.024|+0.020|-0.039|-0.018,2700
+PRIEST,Leeroy Jenkins,removal,-0.0015,+0.007|-0.019|+0.013|+0.031|-0.040,2700
+ROGUE,Leeroy Jenkins,removal,-0.0102,-0.004|-0.019|-0.001|-0.026|-0.001,2700
+SHAMAN,Leeroy Jenkins,removal,0.04,+0.019|-0.018|+0.085|+0.088|+0.026,2700
+WARLOCK,Leeroy Jenkins,removal,0.003,+0.022|+0.043|-0.037|+0.014|-0.027,2700
+WARRIOR,Leeroy Jenkins,removal,0.0098,-0.019|+0.021|+0.028|-0.007|+0.026,2700

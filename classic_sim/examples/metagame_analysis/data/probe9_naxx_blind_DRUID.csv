@@ -1,0 +1,23 @@
+class,card,mode,mean_delta_wr,host_deltas,games_per_side
+DRUID,Baron Rivendare,addition,-0.0265,-0.047|-0.076|+0.039|-0.019|-0.030,2700
+DRUID,Dancing Swords,addition,-0.0037,-0.049|-0.037|+0.080|-0.011|-0.001,2700
+DRUID,Deathlord,addition,-0.018,-0.041|-0.044|+0.028|-0.006|-0.027,2700
+DRUID,Echoing Ooze,addition,-0.0028,+0.026|-0.048|-0.009|+0.007|+0.010,2700
+DRUID,Feugen,addition,-0.0046,-0.031|-0.040|+0.070|-0.015|-0.007,2700
+DRUID,Haunted Creeper,addition,0.0052,-0.037|-0.006|+0.044|-0.007|+0.032,2700
+DRUID,Kel'Thuzad,addition,0.0007,-0.016|-0.009|+0.022|+0.013|-0.006,2700
+DRUID,Loatheb,addition,0.0161,+0.007|+0.006|+0.054|-0.006|+0.020,2700
+DRUID,Mad Scientist,addition,-0.0237,-0.063|-0.037|+0.015|+0.006|-0.039,2700
+DRUID,Maexxna,addition,0.0011,-0.034|-0.020|+0.030|+0.017|+0.014,2700
+DRUID,Nerub'ar Weblord,addition,-0.0137,-0.031|-0.039|+0.028|+0.007|-0.034,2700
+DRUID,Nerubian Egg,addition,-0.0061,-0.048|-0.011|+0.051|-0.031|+0.009,2700
+DRUID,Shade of Naxxramas,addition,0.0131,-0.002|-0.026|+0.078|+0.007|+0.008,2700
+DRUID,Sludge Belcher,addition,0.0135,-0.013|-0.011|+0.054|+0.041|-0.003,2700
+DRUID,Spectral Knight,addition,0.0113,-0.019|-0.039|+0.081|-0.011|+0.044,2700
+DRUID,Stalagg,addition,-0.0176,-0.034|-0.042|+0.044|-0.017|-0.040,2700
+DRUID,Stoneskin Gargoyle,addition,-0.0106,-0.039|-0.039|+0.039|+0.019|-0.032,2700
+DRUID,Undertaker,addition,-0.0044,-0.007|-0.034|+0.036|+0.002|-0.019,2700
+DRUID,Unstable Ghoul,addition,-0.0224,-0.034|-0.061|+0.022|-0.008|-0.031,2700
+DRUID,Wailing Soul,addition,-0.0202,-0.039|-0.081|+0.046|-0.030|+0.003,2700
+DRUID,Zombie Chow,addition,-0.0098,-0.048|-0.076|+0.073|+0.013|-0.011,2700
+DRUID,Poison Seeds,addition,-0.0291,-0.059|-0.070|+0.050|-0.024|-0.042,2700
