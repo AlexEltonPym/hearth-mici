@@ -1,0 +1,489 @@
+% Merged bibliography for the two-game metagame-prediction paper.
+% De-duplicated across the Pokemon replication and the Hearthstone study:
+%   saravanan2024framework  (was saravanan2024meta in the HS draft)
+%   mouret2015illuminating  (was mouret2015mapelites in the HS draft)
+%   silva2019evolving       (was demesentier2019meta in the HS draft; same paper)
+
+% ---- shared anchor + optimisation machinery ----
+@article{saravanan2024framework,
+  author  = {Saravanan, Akash and Guzdial, Matthew},
+  title   = {A Framework for Predicting the Impact of Game Balance Changes Through Meta Discovery},
+  journal = {IEEE Transactions on Games},
+  volume  = {16},
+  number  = {4},
+  pages   = {821--830},
+  year    = {2024},
+  doi     = {10.1109/TG.2024.3457822}
+}
+
+@article{mouret2015illuminating,
+  author  = {Mouret, Jean-Baptiste and Clune, Jeff},
+  title   = {Illuminating Search Spaces by Mapping Elites},
+  journal = {arXiv preprint arXiv:1504.04909},
+  year    = {2015}
+}
+
+
+@inproceedings{zaheer2017deepsets,
+  author    = {Zaheer, Manzil and Kottur, Satwik and Ravanbakhsh, Siamak and P{\'o}czos, Barnab{\'a}s and Salakhutdinov, Ruslan and Smola, Alexander J.},
+  title     = {Deep Sets},
+  booktitle = {Advances in Neural Information Processing Systems},
+  volume    = {30},
+  year      = {2017}
+}
+
+% ---- balance / metagame analysis ----
+@article{tomasev2020assessing,
+  author  = {Toma{\v{s}}ev, Nenad and Paquet, Ulrich and Hassabis, Demis and Kramnik, Vladimir},
+  title   = {Assessing Game Balance with {AlphaZero}: Exploring Alternative Rule Sets in Chess},
+  journal = {arXiv preprint arXiv:2009.04374},
+  year    = {2020}
+}
+
+@inproceedings{silva2019evolving,
+  author    = {de Mesentier Silva, Fernando and Canaan, Rodrigo and Lee, Scott and Fontaine, Matthew C. and Togelius, Julian and Hoover, Amy K.},
+  title     = {Evolving the Hearthstone Meta},
+  booktitle = {2019 IEEE Conference on Games (CoG)},
+  year      = {2019}
+}
+
+@inproceedings{hernandez2020metagame,
+  author    = {Hernandez, Daniel and Gbadamosi, Charles Takashi Toyin and Goodman, James and Walker, James Alfred},
+  title     = {Metagame Autobalancing for Competitive Multiplayer Games},
+  booktitle = {2020 IEEE Conference on Games (CoG)},
+  year      = {2020}
+}
+
+% ---- Hearthstone AI / deckbuilding ----
+@inproceedings{garcia2016evodeck,
+  author    = {Garc{\'i}a-S{\'a}nchez, Pablo and Tonda, Alberto and Squillero, Giovanni and Mora, Antonio M. and Merelo, Juan J.},
+  title     = {Evolutionary Deckbuilding in {Hearthstone}},
+  booktitle = {2016 IEEE Conference on Computational Intelligence and Games (CIG)},
+  year      = {2016}
+}
+
+@inproceedings{fontaine2019mapelites,
+  author    = {Fontaine, Matthew C. and Lee, Scott and Soros, L. B. and de Mesentier Silva, Fernando and Togelius, Julian and Hoover, Amy K.},
+  title     = {Mapping {Hearthstone} Deck Spaces through {MAP-Elites} with Sliding Boundaries},
+  booktitle = {Proc. Genetic and Evolutionary Computation Conference (GECCO)},
+  year      = {2019}
+}
+
+@article{dockhorn2019competition,
+  author  = {Dockhorn, Alexander and Mostaghim, Sanaz},
+  title   = {Introducing the {Hearthstone-AI} Competition},
+  journal = {arXiv preprint arXiv:1906.04238},
+  year    = {2019}
+}
+
+@inproceedings{swiechowski2018,
+  author    = {{\'S}wiechowski, Maciej and Tajmajer, Tomasz and Janusz, Andrzej},
+  title     = {Improving {Hearthstone} {AI} by Combining {MCTS} and Supervised Learning Algorithms},
+  booktitle = {2018 IEEE Conference on Computational Intelligence and Games (CIG)},
+  year      = {2018}
+}
+
+@inproceedings{dockhorn2018prediction,
+  author    = {Dockhorn, Alexander and Frick, Max and Akkaya, {\"U}mit and Kruse, Rudolf},
+  title     = {Predicting Opponent Moves for Improving {Hearthstone} {AI}},
+  booktitle = {Proc. Int. Conf. Information Processing and Management of Uncertainty (IPMU)},
+  pages     = {621--632},
+  year      = {2018},
+  publisher = {Springer}
+}
+
+@article{justesen2017,
+  author  = {Justesen, Niels and Mahlmann, Tobias and Risi, Sebastian and Togelius, Julian},
+  title   = {Playing Multiaction Adversarial Games: Online Evolutionary Planning versus Tree Search},
+  journal = {IEEE Transactions on Games},
+  volume  = {10},
+  number  = {3},
+  pages   = {281--291},
+  year    = {2018}
+}
+
+% ---- Pokemon Showdown infrastructure ----
+@misc{sahovic2019pokeenv,
+  author       = {Sahovic, Haris},
+  title        = {poke-env: A Python Interface for Training Reinforcement Learning Pok\'emon Bots},
+  year         = {2019},
+  howpublished = {\url{https://github.com/hsahovic/poke-env}}
+}
+
+@misc{showdown,
+  author       = {Luo, Guangcong and {Pok\'emon Showdown contributors}},
+  title        = {Pok\'emon Showdown},
+  howpublished = {\url{https://github.com/smogon/pokemon-showdown}}
+}
+
+@misc{pkmnps,
+  author       = {{pkmn contributors}},
+  title        = {{@pkmn/sim}: Pok\'emon Showdown as a Library},
+  howpublished = {\url{https://github.com/pkmn/ps}}
+}
+
+@inproceedings{metamon,
+  author    = {Grigsby, Jake and Xie, Yuqi and Sasek, Justin and Zheng, Steven and Zhu, Yuke},
+  title     = {Human-Level Competitive {P}ok\'{e}mon via Scalable Offline Reinforcement Learning with Transformers},
+  booktitle = {Reinforcement Learning Conference},
+  year      = {2025},
+  note      = {arXiv:2504.04395}
+}
+
+@misc{smogonstats,
+  author       = {{Smogon}},
+  title        = {Smogon Usage Statistics},
+  howpublished = {\url{https://www.smogon.com/stats/}}
+}
+
+@inproceedings{lee2017showdown,
+  author    = {Lee, Scott and Togelius, Julian},
+  title     = {Showdown {AI} Competition},
+  booktitle = {2017 IEEE Conference on Computational Intelligence and Games (CIG)},
+  year      = {2017}
+}
+
+% ---- ground truth for the Hearthstone study ----
+@misc{zenodo_dataset,
+  author       = {Garc{\'i}a-S{\'a}nchez, Pablo and Tonda, Alberto and Fern{\'a}ndez-Ares, Antonio and Mora, Antonio M.},
+  title        = {Hearthstone Decks Dataset},
+  year         = {2023},
+  publisher    = {Zenodo},
+  note         = {doi:10.5281/zenodo.10198504}
+}
+
+@misc{vicious_syndicate,
+  author       = {{Vicious Syndicate}},
+  title        = {[{C}lassic] {vS} {D}ata {R}eaper {R}eport \#1},
+  year         = {2021},
+  month        = apr,
+  howpublished = {\url{https://www.vicioussyndicate.com/classic-vs-data-reaper-report-1/}},
+  note         = {Accessed 2026-09-09}
+}
+
+@article{silver2018alphazero,
+  author  = {Silver, David and Hubert, Thomas and Schrittwieser, Julian and Antonoglou, Ioannis and Lai, Matthew and Guez, Arthur and Lanctot, Marc and Sifre, Laurent and Kumaran, Dharshan and Graepel, Thore and Lillicrap, Timothy and Simonyan, Karen and Hassabis, Demis},
+  title   = {A general reinforcement learning algorithm that masters chess, shogi, and {Go} through self-play},
+  journal = {Science},
+  volume  = {362},
+  number  = {6419},
+  pages   = {1140--1144},
+  year    = {2018}
+}
+
+
+@article{mora2022archetypes,
+  author  = {Mora, Antonio M. and Tonda, Alberto and Fern{\'a}ndez-Ares, Antonio J. and Garc{\'i}a-S{\'a}nchez, Pablo},
+  title   = {Looking for Archetypes: Applying Game Data Mining to {H}earthstone Decks},
+  journal = {Entertainment Computing},
+  volume  = {43},
+  pages   = {100498},
+  year    = {2022},
+  doi     = {10.1016/j.entcom.2022.100498}
+}
+
+@article{rosin2011episodecontext,
+  author  = {Rosin, Christopher D.},
+  title   = {Multi-armed bandits with episode context},
+  journal = {Annals of Mathematics and Artificial Intelligence},
+  volume  = {61},
+  pages   = {203--230},
+  year    = {2011},
+  doi     = {10.1007/s10472-011-9258-6}
+}
+
+@article{silver2017alphagozero,
+  author  = {Silver, David and Schrittwieser, Julian and Simonyan, Karen and Antonoglou, Ioannis and Huang, Aja and Guez, Arthur and Hubert, Thomas and Baker, Lucas and Lai, Matthew and Bolton, Adrian and Chen, Yutian and Lillicrap, Timothy and Hui, Fan and Sifre, Laurent and van den Driessche, George and Graepel, Thore and Hassabis, Demis},
+  title   = {Mastering the game of {Go} without human knowledge},
+  journal = {Nature},
+  volume  = {550},
+  pages   = {354--359},
+  year    = {2017},
+  doi     = {10.1038/nature24270}
+}
+
+@inproceedings{jaffe2012evaluating,
+  author    = {Jaffe, Alexander and Miller, Alex and Andersen, Erik and Liu, Yun-En and Karlin, Anna and Popovi\'{c}, Zoran},
+  title     = {Evaluating Competitive Game Balance with Restricted Play},
+  booktitle = {Proceedings of the AAAI Conference on Artificial Intelligence and Interactive Digital Entertainment},
+  volume    = {8},
+  number    = {1},
+  pages     = {26--31},
+  year      = {2012},
+  doi       = {10.1609/aiide.v8i1.12513}
+}
+
+@inproceedings{volz2016demonstrating,
+  author    = {Volz, Vanessa and Rudolph, G\"{u}nter and Naujoks, Boris},
+  title     = {Demonstrating the Feasibility of Automatic Game Balancing},
+  booktitle = {Proceedings of the Genetic and Evolutionary Computation Conference 2016},
+  pages     = {269--276},
+  year      = {2016},
+  doi       = {10.1145/2908812.2908913}
+}
+
+@inproceedings{bhatt2018exploring,
+  author    = {Bhatt, Aditya and Lee, Scott and de Mesentier Silva, Fernando and Watson, Connor W. and Togelius, Julian and Hoover, Amy K.},
+  title     = {Exploring the {H}earthstone Deck Space},
+  booktitle = {Proceedings of the 13th International Conference on the Foundations of Digital Games},
+  year      = {2018},
+  doi       = {10.1145/3235765.3235791}
+}
+
+@inproceedings{long2010pimc,
+  author    = {Long, Jeffrey Richard and Sturtevant, Nathan R. and Buro, Michael and Furtak, Timothy},
+  title     = {Understanding the Success of Perfect Information {M}onte {C}arlo Sampling in Game Tree Search},
+  booktitle = {Proceedings of the AAAI Conference on Artificial Intelligence},
+  volume    = {24},
+  number    = {1},
+  pages     = {134--140},
+  year      = {2010},
+  doi       = {10.1609/aaai.v24i1.7562}
+}
+
+@inproceedings{lanctot2017unified,
+  author    = {Lanctot, Marc and Zambaldi, Vinicius and Gruslys, Audrunas and Lazaridou, Angeliki and Tuyls, Karl and P\'{e}rolat, Julien and Silver, David and Graepel, Thore},
+  title     = {A Unified Game-Theoretic Approach to Multiagent Reinforcement Learning},
+  booktitle = {Advances in Neural Information Processing Systems},
+  volume    = {30},
+  year      = {2017}
+}
+
+@inproceedings{balduzzi2019openended,
+  author    = {Balduzzi, David and Garnelo, Marta and Bachrach, Yoram and Czarnecki, Wojciech M. and P\'{e}rolat, Julien and Jaderberg, Max and Graepel, Thore},
+  title     = {Open-ended Learning in Symmetric Zero-sum Games},
+  booktitle = {Proceedings of the 36th International Conference on Machine Learning},
+  series    = {Proceedings of Machine Learning Research},
+  volume    = {97},
+  pages     = {434--443},
+  year      = {2019}
+}
+
+@book{hyndman2021fpp3,
+  author    = {Hyndman, Rob J. and Athanasopoulos, George},
+  title     = {Forecasting: Principles and Practice},
+  edition   = {3rd},
+  publisher = {OTexts},
+  address   = {Melbourne, Australia},
+  year      = {2021},
+  note      = {Section 5.2, \url{https://otexts.com/fpp3/}}
+}
+
+@article{jin2002framework,
+  author  = {Jin, Yaochu and Olhofer, Markus and Sendhoff, Bernhard},
+  title   = {A Framework for Evolutionary Optimization with Approximate Fitness Functions},
+  journal = {IEEE Transactions on Evolutionary Computation},
+  volume  = {6},
+  number  = {5},
+  pages   = {481--494},
+  year    = {2002},
+  doi     = {10.1109/TEVC.2002.800884}
+}
+
+
+@article{kokkinakis2021metagaming,
+  author  = {Kokkinakis, Athanasios V. and York, Peter and Patra, Moni Sagarika and Robertson, Justus and Kirman, Ben and Coates, Alex and Chitayat, Alan Pedrassoli and Demediuk, Simon and Drachen, Anders and Hook, Jonathan and Nolle, Isabelle and Olarewaju, Oluseyi and Slawson, Daniel and Ursu, Marian and Block, Florian},
+  title   = {Metagaming and metagames in Esports},
+  journal = {International Journal of Esports},
+  volume  = {1},
+  number  = {1},
+  year    = {2021},
+  note    = {\url{https://www.ijesports.org/article/51}, accessed 2026-09-09}
+}
+
+
+@article{reis2024adversarial,
+  author  = {Reis, Sim{\~a}o and Novais, Rita and Reis, Lu{\'i}s Paulo and Lau, Nuno},
+  title   = {An Adversarial Approach for Automated {P}ok\'{e}mon Team Building and Metagame Balance},
+  journal = {IEEE Transactions on Games},
+  volume  = {16},
+  number  = {2},
+  pages   = {365--375},
+  year    = {2024},
+  doi     = {10.1109/TG.2023.3273157}
+}
+
+@inproceedings{reis2021vgc,
+  author    = {Reis, Sim{\~a}o and Reis, Lu{\'i}s Paulo and Lau, Nuno},
+  title     = {{VGC} {AI} Competition -- A New Model of Meta-Game Balance {AI} Competition},
+  booktitle = {2021 IEEE Conference on Games (CoG)},
+  pages     = {1--8},
+  year      = {2021},
+  doi       = {10.1109/CoG52621.2021.9618985}
+}
+
+@inproceedings{reis2025vgc,
+  author    = {Reis, Sim{\~a}o and Martins, A. Lucas and Novais, Rita and Alves, Fernando},
+  title     = {A New Rules Balance Track for the {P}ok\'{e}mon {VGC} {AI} Competition 2.0},
+  booktitle = {2025 IEEE Conference on Games (CoG)},
+  pages     = {1--8},
+  year      = {2025},
+  doi       = {10.1109/CoG64752.2025.11114412}
+}
+
+@inproceedings{huang2019selfplay,
+  author    = {Huang, Dan and Lee, Scott},
+  title     = {A Self-Play Policy Optimization Approach to Battling {P}ok\'{e}mon},
+  booktitle = {2019 IEEE Conference on Games (CoG)},
+  pages     = {1--4},
+  year      = {2019},
+  doi       = {10.1109/CIG.2019.8848014}
+}
+
+@misc{karten2026pokeagent,
+  author = {Karten, Seth and Grigsby, Jake and Upaa, Tersoo and Bae, Junik and Hong, Seonghun and Jeong, Hyunyoung and Jung, Jaeyoon and Kerdthaisong, Kun and others},
+  title  = {The {P}oke{A}gent Challenge: Competitive and Long-Context Learning at Scale},
+  year   = {2026},
+  note   = {arXiv:2603.15563; NeurIPS 2025 Competition Track}
+}
+
+@misc{ramos2026nash,
+  author = {Ramos, Arthur F. and Soria, Tulio},
+  title  = {From Rules to {N}ash Equilibria: A {L}ean 4 Case Study in Game-Theoretic Analysis of a Competitive Trading Card Game},
+  year   = {2026},
+  note   = {arXiv:2607.08692}
+}
+
+@article{yue2022gospel,
+  author  = {Yue, Han and Liu, Hongfu and Chen, Jian},
+  title   = {A Gospel for {MOBA} Game: Ranking-Preserved Hero Change Prediction in {D}ota 2},
+  journal = {IEEE Transactions on Games},
+  volume  = {14},
+  number  = {2},
+  pages   = {191--201},
+  year    = {2022},
+  doi     = {10.1109/TG.2021.3123583}
+}
+
+@inproceedings{he2021heterogeneous,
+  author    = {He, Yuzi and Tran, Christopher and Jiang, Julie and Burghardt, Keith and Ferrara, Emilio and Zheleva, Elena and Lerman, Kristina},
+  title     = {Heterogeneous Effects of Software Patches in a Multiplayer Online Battle Arena Game},
+  booktitle = {Proceedings of the 16th International Conference on the Foundations of Digital Games},
+  year      = {2021},
+  doi       = {10.1145/3472538.3472550}
+}
+
+@inproceedings{lee2015champion,
+  author    = {Lee, Choong-Soo and Ramler, Ivan},
+  title     = {Investigating the Impact of Game Features and Content on Champion Usage in {L}eague of {L}egends},
+  booktitle = {Proceedings of the 10th International Conference on the Foundations of Digital Games},
+  year      = {2015}
+}
+
+@inproceedings{lee2017nonmeta,
+  author    = {Lee, Choong-Soo and Ramler, Ivan},
+  title     = {Identifying and Evaluating Successful Non-Meta Strategies in {L}eague of {L}egends},
+  booktitle = {Proceedings of the 12th International Conference on the Foundations of Digital Games},
+  year      = {2017},
+  doi       = {10.1145/3102071.3102081}
+}
+
+@inproceedings{elbert2023layers,
+  author    = {Elbert, Nico and Paskovski, Emil and Stein, Nikolai and Flath, Christoph M.},
+  title     = {The Layers of Change: Multilevel Adaptations to Exogenous Game Patches in {CS:GO}},
+  booktitle = {2023 IEEE Conference on Games (CoG)},
+  pages     = {1--4},
+  year      = {2023},
+  doi       = {10.1109/CoG57401.2023.10333215}
+}
+
+@inproceedings{chitayat2023beyond,
+  author    = {Pedrassoli Chitayat, Alan and Block, Florian and Walker, James and Drachen, Anders},
+  title     = {Beyond the Meta: Leveraging Game Design Parameters for Patch-Agnostic Esport Analytics},
+  booktitle = {Proceedings of the AAAI Conference on Artificial Intelligence and Interactive Digital Entertainment},
+  volume    = {19},
+  number    = {1},
+  pages     = {116--125},
+  year      = {2023},
+  doi       = {10.1609/aiide.v19i1.27507}
+}
+
+@inproceedings{codsi2021metagames,
+  author    = {Codsi, Julien and Vetta, Adrian},
+  title     = {A Case Study in Learning in Metagames: Super Smash Bros. Melee},
+  booktitle = {Proceedings of the AAAI Conference on Artificial Intelligence and Interactive Digital Entertainment},
+  volume    = {17},
+  number    = {1},
+  pages     = {2--9},
+  year      = {2021},
+  doi       = {10.1609/aiide.v17i1.18884}
+}
+
+@article{kavanagh2021chained,
+  author  = {Kavanagh, William and Miller, Alice and Norman, Gethin and Andrei, Oana},
+  title   = {Balancing Turn-Based Games With Chained Strategy Generation},
+  journal = {IEEE Transactions on Games},
+  volume  = {13},
+  number  = {2},
+  pages   = {113--122},
+  year    = {2021},
+  doi     = {10.1109/TG.2019.2943227}
+}
+
+@article{pfau2023replicants,
+  author  = {Pfau, Johannes and Liapis, Antonios and Yannakakis, Georgios N. and Malaka, Rainer},
+  title   = {Dungeons \& Replicants {II}: Automated Game Balancing Across Multiple Difficulty Dimensions via Deep Player Behavior Modeling},
+  journal = {IEEE Transactions on Games},
+  volume  = {15},
+  number  = {2},
+  pages   = {217--227},
+  year    = {2023},
+  doi     = {10.1109/TG.2022.3167728}
+}
+
+@inproceedings{zhang2022surrogate,
+  author    = {Zhang, Yulun and Fontaine, Matthew C. and Hoover, Amy K. and Nikolaidis, Stefanos},
+  title     = {Deep Surrogate Assisted {MAP}-{E}lites for Automated {H}earthstone Deckbuilding},
+  booktitle = {Proceedings of the Genetic and Evolutionary Computation Conference},
+  pages     = {158--167},
+  year      = {2022},
+  doi       = {10.1145/3512290.3528718}
+}
+
+@article{franca2024creativestone,
+  author  = {Fran\c{c}a, Celso and Zhou, Zisen and others},
+  title   = {{C}reative{S}tone: A Creativity Booster for {H}earthstone Card Decks},
+  journal = {IEEE Transactions on Games},
+  volume  = {16},
+  number  = {1},
+  pages   = {214--224},
+  year    = {2024},
+  doi     = {10.1109/TG.2023.3258149}
+}
+
+@inproceedings{chen2020chaos,
+  author    = {Chen, Tiannan and Guy, Stephen},
+  title     = {Chaos Cards: Creating Novel Digital Card Games through Grammatical Content Generation and Meta-Based Card Evaluation},
+  booktitle = {Proceedings of the AAAI Conference on Artificial Intelligence and Interactive Digital Entertainment},
+  volume    = {16},
+  number    = {1},
+  pages     = {196--202},
+  year      = {2020},
+  doi       = {10.1609/aiide.v16i1.7430}
+}
+
+@inproceedings{long2023pointcosts,
+  author    = {Long, George E. M. and P\'{e}rez-Li\'{e}bana, Diego and Samothrakis, Spyridon},
+  title     = {Balancing Wargames through Predicting Unit Point Costs},
+  booktitle = {2023 IEEE Conference on Games (CoG)},
+  pages     = {1--8},
+  year      = {2023},
+  doi       = {10.1109/CoG57401.2023.10333152}
+}
+
+@inproceedings{chen2018qdeckrec,
+  author    = {Chen, Zhengxing and Amato, Christopher and Nguyen, Truong-Huy D. and Cooper, Seth and Sun, Yizhou and Seif El-Nasr, Magy},
+  title     = {{Q-DeckRec}: A Fast Deck Recommendation System for Collectible Card Games},
+  booktitle = {2018 IEEE Conference on Computational Intelligence and Games (CIG)},
+  pages     = {1--8},
+  year      = {2018},
+  doi       = {10.1109/CIG.2018.8490446}
+}
+
+
+@misc{heo2026switch,
+  author = {Heo, Heeyun and Kim, Huy Kang},
+  title  = {When to Switch, Not Just What: Transition Quality Prediction in {C}lash {R}oyale},
+  year   = {2026},
+  note   = {arXiv:2605.21868}
+}

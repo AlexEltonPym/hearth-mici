@@ -3,6 +3,14 @@
 Consolidated PhD codebase (thesis conferred 2026). The thesis itself (LaTeX source,
 final PDF, examiner corrections) lives outside this repo at `../thesis`.
 
+## Metagame prediction paper
+
+The merged Pokémon and Hearthstone manuscript is in
+[`papers/metagame_merged`](papers/metagame_merged), with
+[a compiled PDF](papers/metagame_merged/main.pdf) and build instructions.
+The earlier Hearthstone-only manuscript remains in
+[`papers/metagame_prediction`](papers/metagame_prediction).
+
 ## CardLab
 
 The user interface prototype we built for this thesis, hosted at:
